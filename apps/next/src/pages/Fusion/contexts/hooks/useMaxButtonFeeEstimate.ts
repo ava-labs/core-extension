@@ -74,10 +74,7 @@ export const useMaxButtonFeeEstimate = ({
 
   return {
     fee,
-    additiveFees:
-      selectedQuote?.fees.filter(
-        ({ fundingModel }) => fundingModel === 'additive',
-      ) ?? [],
+    minimalQuote: selectedQuote,
     isFeeLoading,
     feeError,
   };

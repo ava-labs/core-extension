@@ -10,6 +10,7 @@ export class AutoPairingPostMessageConnection extends AbstractConnection {
   #connectionId?: string;
   #connectionReadyPromiseResolve?: (value: void | PromiseLike<void>) => void;
   #connectionReadyPromiseReject?: (value: void | PromiseLike<void>) => void;
+  #setupAbortController = new AbortController();
 
   constructor(
     private isConnectionLeader: boolean,
@@ -41,25 +42,29 @@ export class AutoPairingPostMessageConnection extends AbstractConnection {
       );
     };
 
-    // boadcast connection id immediately when connection is initialized
+    // Broadcast connection id immediately when connection is initialized
     broadcast();
 
-    // listen for requests from clients initialised after the connection leader
-    this.#channel.addEventListener('message', (event) => {
-      if (
-        event.origin !== window.location.origin ||
-        !event.data?.message ||
-        event.data.message.type !== CHANNEL_BROADCAST_REQUEST_EVENT
-      ) {
-        return;
-      }
+    // Listen for requests from clients initialised after the connection leader
+    this.#channel.addEventListener(
+      'message',
+      (event) => {
+        if (
+          event.origin !== window.location.origin ||
+          !event.data?.message ||
+          event.data.message.type !== CHANNEL_BROADCAST_REQUEST_EVENT
+        ) {
+          return;
+        }
 
-      broadcast();
-    });
+        broadcast();
+      },
+      { signal: this.#setupAbortController.signal },
+    );
   };
 
   #listenForConnectionNameBroadcast = () => {
-    const handler = (event) => {
+    const handler = (event: MessageEvent) => {
       if (
         event.origin !== window.location.origin ||
         !event.data?.message ||
@@ -74,9 +79,11 @@ export class AutoPairingPostMessageConnection extends AbstractConnection {
       }
     };
 
-    this.#channel.addEventListener('message', handler);
+    this.#channel.addEventListener('message', handler, {
+      signal: this.#setupAbortController.signal,
+    });
 
-    // request connection leader to announce the channel ID
+    // Request connection leader to announce the channel ID
     this.#channel.postMessage(
       {
         message: {
@@ -116,10 +123,11 @@ export class AutoPairingPostMessageConnection extends AbstractConnection {
   };
 
   _disconnect = () => {
-    // reject pending connection if we have not received any connection ID till destruction
+    // Reject pending connection if we have not received any connection ID till destruction
     if (!this.#connectionId && this.#connectionReadyPromiseReject) {
       this.#connectionReadyPromiseReject();
     }
+    this.#setupAbortController.abort();
     this.#channel.removeEventListener('message', this.#messageListener);
   };
 

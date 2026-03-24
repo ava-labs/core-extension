@@ -40,115 +40,125 @@ export function getEVMSigner(
     isQuickSwapsEnabled,
   }: Pick<SettingsState, 'maxBuy' | 'isQuickSwapsEnabled'>,
 ): EvmSignerWithMessage {
-  return {
-    signBatch: async (transactions, _, stepDetails) => {
-      try {
-        const batchChainId = getChainIdForBatch(transactions);
-        const result = await request<RpcMethod.ETH_SEND_TRANSACTION_BATCH>(
-          {
-            method: RpcMethod.ETH_SEND_TRANSACTION_BATCH,
-            params: {
-              transactions: normalizeTransactionsBatch(transactions),
-              options: {
-                skipIntermediateTxs: true,
-              },
+  const signBatch: EvmSignerWithMessage['signBatch'] = async (
+    transactions,
+    _,
+    stepDetails,
+  ) => {
+    try {
+      const batchChainId = getChainIdForBatch(transactions);
+      const result = await request<RpcMethod.ETH_SEND_TRANSACTION_BATCH>(
+        {
+          method: RpcMethod.ETH_SEND_TRANSACTION_BATCH,
+          params: {
+            transactions: normalizeTransactionsBatch(transactions),
+            options: {
+              skipIntermediateTxs: true,
             },
           },
-          {
-            scope: chainIdToCaip(Number(batchChainId)),
-            context: buildRequestContext(stepDetails, {
-              maxBuy,
-              isBatch: true,
-              isSwapFeesEnabled: isFlagEnabled(FeatureGates.SWAP_FEES),
-              isQuickSwapsEnabled:
-                isQuickSwapsEnabled && isFlagEnabled(FeatureGates.QUICK_SWAPS),
-              isAutoSignSupported,
+        },
+        {
+          scope: chainIdToCaip(Number(batchChainId)),
+          context: buildRequestContext(stepDetails, {
+            maxBuy,
+            isBatch: true,
+            isSwapFeesEnabled: isFlagEnabled(FeatureGates.SWAP_FEES),
+            isQuickSwapsEnabled:
+              isQuickSwapsEnabled && isFlagEnabled(FeatureGates.QUICK_SWAPS),
+            isAutoSignSupported,
+          }),
+        },
+      );
+
+      return result;
+    } catch (err) {
+      console.error(`[fusion::evmSigner.signBatch]`, err);
+      throw err;
+    }
+  };
+
+  const sign: EvmSignerWithMessage['sign'] = async (
+    { from, data, to, value, chainId, maxFeePerGas, maxPriorityFeePerGas },
+    _,
+    stepDetails,
+  ) => {
+    assert(to, UnifiedBridgeError.InvalidTxPayload);
+    assert(from, UnifiedBridgeError.InvalidTxPayload);
+    assert(data, UnifiedBridgeError.InvalidTxPayload);
+    assert(chainId, UnifiedBridgeError.MissingChainId);
+    try {
+      const result = await request(
+        {
+          method: RpcMethod.ETH_SEND_TRANSACTION,
+          params: [
+            normalizeTransaction({
+              from,
+              to,
+              data,
+              value,
+              chainId,
+              maxFeePerGas,
+              maxPriorityFeePerGas,
             }),
-          },
-        );
+          ],
+        },
+        {
+          scope: chainIdToCaip(Number(chainId)),
+          context: buildRequestContext(stepDetails, {
+            maxBuy,
+            isBatch: false,
+            isSwapFeesEnabled: isFlagEnabled(FeatureGates.SWAP_FEES),
+            isQuickSwapsEnabled:
+              isQuickSwapsEnabled && isFlagEnabled(FeatureGates.QUICK_SWAPS),
+            isAutoSignSupported,
+          }),
+        },
+      );
 
-        return result;
-      } catch (err) {
-        console.error(`[fusion::evmSigner.signBatch]`, err);
-        throw err;
-      }
+      return result as `0x${string}`;
+    } catch (err) {
+      console.error(`[fusion::evmSigner.sign]`, err);
+      throw err;
+    }
+  };
+
+  const signMessage: EvmSignerWithMessage['signMessage'] = async (
+    data: {
+      message: string;
+      address: `0x${string}`;
+      chainId: number;
     },
-    sign: async (
-      { from, data, to, value, chainId, maxFeePerGas, maxPriorityFeePerGas },
-      _,
-      stepDetails,
-    ) => {
-      assert(to, UnifiedBridgeError.InvalidTxPayload);
-      assert(from, UnifiedBridgeError.InvalidTxPayload);
-      assert(data, UnifiedBridgeError.InvalidTxPayload);
-      assert(chainId, UnifiedBridgeError.MissingChainId);
-      try {
-        const result = await request(
-          {
-            method: RpcMethod.ETH_SEND_TRANSACTION,
-            params: [
-              normalizeTransaction({
-                from,
-                to,
-                data,
-                value,
-                chainId,
-                maxFeePerGas,
-                maxPriorityFeePerGas,
-              }),
-            ],
-          },
-          {
-            scope: chainIdToCaip(Number(chainId)),
-            context: buildRequestContext(stepDetails, {
-              maxBuy,
-              isBatch: false,
-              isSwapFeesEnabled: isFlagEnabled(FeatureGates.SWAP_FEES),
-              isQuickSwapsEnabled:
-                isQuickSwapsEnabled && isFlagEnabled(FeatureGates.QUICK_SWAPS),
-              isAutoSignSupported,
-            }),
-          },
-        );
+    _,
+    stepDetails,
+  ) => {
+    const { message, address, chainId } = data;
 
-        return result as `0x${string}`;
-      } catch (err) {
-        console.error(`[fusion::evmSigner.sign]`, err);
-        throw err;
-      }
-    },
+    assert(message, UnifiedBridgeError.InvalidTxPayload);
+    assert(address, UnifiedBridgeError.InvalidTxPayload);
 
-    signMessage: async (
-      data: {
-        message: string;
-        address: `0x${string}`;
-        chainId: number;
-      },
-      _,
-      stepDetails,
-    ) => {
-      const { message, address, chainId } = data;
+    try {
+      const result = await request(
+        {
+          method: RpcMethod.PERSONAL_SIGN,
+          params: [`0x${hex.encode(utf8.decode(message))}`, address],
+        },
+        {
+          scope: `eip155:${chainId}`,
+          context: buildRequestContext(stepDetails),
+        },
+      );
 
-      assert(message, UnifiedBridgeError.InvalidTxPayload);
-      assert(address, UnifiedBridgeError.InvalidTxPayload);
+      return result as `0x${string}`;
+    } catch (err) {
+      console.error(`[fusion::evmSigner.signMessage]`, err);
+      throw err;
+    }
+  };
 
-      try {
-        const result = await request(
-          {
-            method: RpcMethod.PERSONAL_SIGN,
-            params: [`0x${hex.encode(utf8.decode(message))}`, address],
-          },
-          {
-            scope: `eip155:${chainId}`,
-            context: buildRequestContext(stepDetails),
-          },
-        );
-
-        return result as `0x${string}`;
-      } catch (err) {
-        console.error(`[fusion::evmSigner.signMessage]`, err);
-        throw err;
-      }
-    },
+  return {
+    signBatch:
+      isAutoSignSupported && isQuickSwapsEnabled ? signBatch : undefined,
+    sign,
+    signMessage,
   };
 }

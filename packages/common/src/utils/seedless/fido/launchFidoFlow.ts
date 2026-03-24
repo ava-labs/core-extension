@@ -42,19 +42,23 @@ export async function launchFidoFlow(
     right: 70,
   });
 
+  const abortController = new AbortController();
+
   // Make sure to close the popup if the calling window gets closed
-  window.addEventListener('beforeunload', () => {
-    if (popup?.id) {
-      windows.remove(popup.id).catch(() => {
-        // Do nothing, we can't really do anything about it and
-        // the most likely reason of error is that it was already closed.
-      });
-    }
-  });
+  window.addEventListener(
+    'beforeunload',
+    () => {
+      if (popup?.id) {
+        windows.remove(popup.id).catch(() => {});
+      }
+    },
+    { signal: abortController.signal },
+  );
 
   return new Promise((resolve, reject) => {
     // Throw error if popup is closed prematurely
     const closeSubscription = popup.removed.subscribe(() => {
+      abortController.abort();
       reject(new Error('Popup closed'));
     });
 
@@ -69,17 +73,16 @@ export async function launchFidoFlow(
         // Popup can now be closed safely
         closeSubscription.unsubscribe();
         if (popup?.id) {
-          windows.remove(popup.id).then(() => {
-            // Do nothing, we can't really do anything about it and
-            // the most likely reason of error is that it was already closed.
-          });
+          windows.remove(popup.id).catch(() => {});
         }
-        window.removeEventListener('message', onResponse);
+        abortController.abort();
 
         resolve(convertResult(response));
       }
     };
 
-    window.addEventListener('message', onResponse);
+    window.addEventListener('message', onResponse, {
+      signal: abortController.signal,
+    });
   });
 }
