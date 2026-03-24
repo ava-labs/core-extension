@@ -20,7 +20,7 @@
     "@avalabs/core-token-prices-sdk": "3.1.0-alpha.74",
     "@avalabs/core-utils-sdk": "3.1.0-alpha.74",
     "@avalabs/core-wallets-sdk": "3.1.0-alpha.74",
-    "@avalabs/fusion-sdk": "0.14.0",
+    "@avalabs/fusion-sdk": "0.14.1",
     "@avalabs/glacier-sdk": "3.1.0-alpha.74",
     "@avalabs/hw-app-avalanche": "1.1.1",
     "@avalabs/types": "3.1.0-alpha.77",

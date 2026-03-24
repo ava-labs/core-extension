@@ -115,7 +115,6 @@ export const FUSION_QUERY_TOKENS = {
   to: 'to',
   toQuery: 'toQ',
   userAmount: 'userAmount',
-  useMaxAmount: 'useMaxAmount',
 };
 export type FusionQueryTokens = typeof FUSION_QUERY_TOKENS;
 export const getFusionPath = (query?: Partial<FusionQueryTokens>) => {

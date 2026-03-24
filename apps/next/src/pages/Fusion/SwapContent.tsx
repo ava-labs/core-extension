@@ -3,7 +3,6 @@ import { Stack } from '@avalabs/k2-alpine';
 import { LoadingScreen } from '@/components/LoadingScreen';
 
 import {
-  SwapErrorMessage,
   SwapPair,
   SwapSettings,
   SwapAccountSelect,
@@ -11,6 +10,7 @@ import {
 } from './components';
 import { useFusionState } from './contexts/FusionStateContext';
 import { SwapPartnerFee } from './components/SwapPartnerFee';
+import { SwapHelperText } from './components/SwapHelperText';
 
 export const SwapContent = () => {
   const { status } = useFusionState();
@@ -29,7 +29,7 @@ export const SwapContent = () => {
             <SwapAccountSelect />
             <SwapPair />
           </Stack>
-          <SwapErrorMessage />
+          <SwapHelperText />
           <SwapSettings />
           <SwapPartnerFee />
         </Stack>

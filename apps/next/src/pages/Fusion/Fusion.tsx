@@ -21,12 +21,15 @@ const FusionPage = () => {
 
   const { t } = useTranslation();
 
-  const { isConfirming, transfer, status, priceImpactSeverity } =
+  const { isConfirming, transfer, status, priceImpactSeverity, formError } =
     useFusionState();
 
   const isCriticalPriceImpact = priceImpactSeverity === 'critical';
   const isSwapDisabled =
-    isConfirming || status !== 'ready-to-transfer' || isCriticalPriceImpact;
+    isConfirming ||
+    status !== 'ready-to-transfer' ||
+    isCriticalPriceImpact ||
+    Boolean(formError);
 
   return (
     <Page
