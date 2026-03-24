@@ -1,14 +1,14 @@
-import { Stack } from '@avalabs/k2-alpine';
+import { Divider, Stack } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { useCallback } from 'react';
 
-import { getUniqueTokenId, isNativeToken } from '@core/types';
+import { getUniqueTokenId } from '@core/types';
 
 import { Card } from '@/components/Card';
 import { TokenAmountInput } from '@/components/TokenAmountInput';
 
 import { useFusionState } from '../contexts';
-import { useUpdateToMaxAmount } from '../hooks/useUpdateToMaxAmount';
+import { bigIntToString } from '@avalabs/core-utils-sdk';
 
 export const SwapPair = () => {
   const { t } = useTranslation();
@@ -26,11 +26,10 @@ export const SwapPair = () => {
     toAmount,
     quotesStatus,
     selectedQuote,
-    useMaxAmount,
     fee,
     isFeeLoading,
-    feeError,
-    additiveFees,
+    maxSwapAmount,
+    isMaxSwapAmountLoading,
   } = useFusionState();
 
   const fromTokenId = sourceToken ? getUniqueTokenId(sourceToken) : queryFromId;
@@ -42,18 +41,18 @@ export const SwapPair = () => {
         return;
       }
 
-      const needsMaxAmountCalculation =
-        isMax && (isNativeToken(sourceToken) || additiveFees.length > 0);
-
-      updateQuery({
-        userAmount: amount,
-        useMaxAmount: needsMaxAmountCalculation,
-      });
+      if (isMax) {
+        updateQuery({
+          userAmount: bigIntToString(maxSwapAmount, sourceToken.decimals),
+        });
+      } else {
+        updateQuery({
+          userAmount: amount,
+        });
+      }
     },
-    [updateQuery, sourceToken, additiveFees],
+    [updateQuery, sourceToken, maxSwapAmount],
   );
-
-  useUpdateToMaxAmount(fee, isFeeLoading, feeError, additiveFees);
 
   return (
     <Card>
@@ -61,7 +60,7 @@ export const SwapPair = () => {
         <TokenAmountInput
           id="swap-from-amount"
           tokenId={fromTokenId}
-          maxAmount={sourceToken?.balance ?? 0n}
+          maxAmount={maxSwapAmount}
           estimatedFee={fee}
           tokensForAccount={sourceTokenList}
           onTokenChange={(value) =>
@@ -69,17 +68,17 @@ export const SwapPair = () => {
               from: value,
               fromQuery: '',
               userAmount: '',
-              useMaxAmount: false,
             })
           }
           tokenQuery={fromQuery}
           onQueryChange={(q) => updateQuery({ fromQuery: q })}
-          isLoading={useMaxAmount || isFeeLoading}
-          amount={useMaxAmount ? '' : userAmount}
+          isLoading={isFeeLoading || isMaxSwapAmountLoading}
+          amount={userAmount}
           onAmountChange={onAmountChange}
           tokenHint={sourceToken ? t('You pay') : undefined}
           withPresetButtons
         />
+        <Divider sx={{ mx: 2 }} />
         <TokenAmountInput
           autoFocus={false}
           id="swap-to-amount"

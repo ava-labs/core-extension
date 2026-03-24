@@ -4,7 +4,6 @@ import { FungibleTokenBalance } from '@core/types';
 
 import { useQuotes } from './useQuotes';
 import { useNativeFeeEstimate } from './useNativeFeeEstimate';
-import { getAdditiveFees } from '../../lib/getAdditiveFees';
 
 type UseMaxButtonFeeEstimateProps = {
   manager?: TransferManager;
@@ -75,7 +74,7 @@ export const useMaxButtonFeeEstimate = ({
 
   return {
     fee,
-    additiveFees: getAdditiveFees(selectedQuote),
+    minimalQuote: selectedQuote,
     isFeeLoading,
     feeError,
   };
