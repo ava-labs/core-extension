@@ -19,9 +19,12 @@ import {
   SecretType,
 } from '@core/types';
 import {
+  AVALANCHE_LEDGER_APP_NAME,
   assert,
   getAvalancheExtendedKeyPath,
   getEvmExtendedKeyPath,
+  getLedgerAutoOpenAppFailedMessage,
+  getLedgerQuitAppFailedMessage,
   isLedgerVersionCompatible,
 } from '@core/common';
 
@@ -54,6 +57,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     wasTransportAttempted,
     initLedgerTransport,
     getExtendedPublicKey,
+    prepareTransportForAvalancheOnboarding,
   } = useLedgerContext();
   const { appType, appVersion } = useActiveLedgerAppInfo(true);
   const checkIfWalletExists = useDuplicatedWalletChecker();
@@ -351,18 +355,53 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
           setStatus('error');
           setError('unsupported-version');
         }
-      } else if (appType === LedgerAppType.DASHBOARD) {
-        // Device is unlocked but sitting on the dashboard with no app open.
-        setStatus('error');
-        setError('no-app');
-      } else if (appType === LedgerAppType.UNKNOWN) {
-        // Device is likely locked or unresponsive.
+        return;
+      }
+
+      if (status === 'error' && error) {
+        return;
+      }
+
+      setStatus('waiting');
+      setError(undefined);
+
+      let cancelled = false;
+
+      prepareTransportForAvalancheOnboarding().catch((err: unknown) => {
+        if (cancelled) {
+          return;
+        }
+        const message = err instanceof Error ? err.message : String(err);
+        if (message.includes('not installed on this Ledger device')) {
+          setStatus('error');
+          setError('app-not-installed');
+          return;
+        }
+        if (
+          message ===
+          getLedgerAutoOpenAppFailedMessage(AVALANCHE_LEDGER_APP_NAME)
+        ) {
+          setStatus('error');
+          setError('no-app');
+          return;
+        }
+        if (message === getLedgerQuitAppFailedMessage()) {
+          setStatus('error');
+          setError('no-app');
+          return;
+        }
+        if (message.includes('no device detected')) {
+          setStatus('error');
+          setError('unable-to-connect');
+          return;
+        }
         setStatus('error');
         setError('device-locked');
-      } else {
-        setStatus('error');
-        setError('incorrect-app');
-      }
+      });
+
+      return () => {
+        cancelled = true;
+      };
     } else if (!hasLedgerTransport && !wasTransportAttempted) {
       initLedgerTransport();
     } else if (!hasLedgerTransport && !wasManualConnectionAttempted) {
@@ -380,11 +419,11 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     hasLedgerTransport,
     initLedgerTransport,
     status,
-    retrieveKeys,
     wasTransportAttempted,
     popDeviceSelection,
     error,
     wasManualConnectionAttempted,
+    prepareTransportForAvalancheOnboarding,
   ]);
 
   const onRetry = useCallback(async () => {

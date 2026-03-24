@@ -27,10 +27,11 @@ import {
 import {
   DerivationPath,
   getLedgerAppInfo,
-  getLedgerExtendedPublicKey,
   getPubKeyFromTransport,
   quitLedgerApp,
 } from '@avalabs/core-wallets-sdk';
+import { ensureAvalancheLedgerAppOpen } from '@core/common';
+import { getAvalancheLedgerExtendedPublicKey } from './getAvalancheLedgerExtendedPublicKey';
 import { LockEvents } from '@core/types';
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
 import Eth from '@ledgerhq/hw-app-eth';
@@ -49,6 +50,15 @@ jest.mock('../ConnectionProvider', () => {
 });
 
 jest.mock('@avalabs/core-wallets-sdk');
+jest.mock('@core/common', () => ({
+  resolve: (promise: Promise<unknown>) =>
+    promise.then((res) => [res, null]).catch((err) => [null, err]),
+  withTimeout: <T,>(promise: Promise<T>, _timeout: number) => promise,
+  isLockStateChangedEvent: (evt: { name: string }) =>
+    evt.name === LockEvents.LOCK_STATE_CHANGED,
+  ensureAvalancheLedgerAppOpen: jest.fn().mockResolvedValue(undefined),
+}));
+jest.mock('./getAvalancheLedgerExtendedPublicKey');
 jest.mock('@avalabs/hw-app-avalanche');
 jest.mock('@ledgerhq/hw-app-eth');
 jest.mock('@ledgerhq/hw-app-solana');
@@ -719,6 +729,10 @@ describe('src/contexts/LedgerProvider.tsx', () => {
   });
 
   describe('getExtendedPublicKey', () => {
+    beforeEach(() => {
+      jest.mocked(ensureAvalancheLedgerAppOpen).mockResolvedValue(undefined);
+    });
+
     it('throws error if transport is missing', async () => {
       (React.useRef as jest.Mock).mockReturnValue({ current: undefined });
       renderTestComponent();
@@ -729,24 +743,28 @@ describe('src/contexts/LedgerProvider.tsx', () => {
         expect(screen.getByTestId('error').textContent).toBe(
           'no device detected',
         );
-        expect(getLedgerExtendedPublicKey).not.toHaveBeenCalled();
+        expect(ensureAvalancheLedgerAppOpen).not.toHaveBeenCalled();
+        expect(getAvalancheLedgerExtendedPublicKey).not.toHaveBeenCalled();
       });
     });
 
     it('throws error if the device thrown an error', async () => {
       const path = "m/44'/60'/0'";
       const error = new Error('some error');
-      (getLedgerExtendedPublicKey as jest.Mock).mockRejectedValueOnce(error);
+      jest
+        .mocked(getAvalancheLedgerExtendedPublicKey)
+        .mockRejectedValueOnce(error);
       renderTestComponent(path);
 
       fireEvent.click(screen.getByTestId('getExtendedPublicKey'));
 
       await waitFor(() => {
-        expect(screen.getByTestId('error').textContent).toBe(error.toString());
-        expect(getLedgerExtendedPublicKey).toHaveBeenCalledWith(
+        expect(screen.getByTestId('error').textContent).toBe(error.message);
+        expect(ensureAvalancheLedgerAppOpen).toHaveBeenCalledWith(refMock);
+        expect(getAvalancheLedgerExtendedPublicKey).toHaveBeenCalledWith(
           refMock,
-          false,
           path,
+          false,
         );
       });
     });
@@ -754,17 +772,20 @@ describe('src/contexts/LedgerProvider.tsx', () => {
     it('returns the extended public key correctly', async () => {
       const path = "m/44'/60'/0'";
       const xPub = '0x1';
-      (getLedgerExtendedPublicKey as jest.Mock).mockResolvedValueOnce(xPub);
+      jest
+        .mocked(getAvalancheLedgerExtendedPublicKey)
+        .mockResolvedValueOnce(xPub);
       renderTestComponent(path);
 
       fireEvent.click(screen.getByTestId('getExtendedPublicKey'));
 
       await waitFor(() => {
         expect(screen.getByTestId('result').textContent).toBe(xPub);
-        expect(getLedgerExtendedPublicKey).toHaveBeenCalledWith(
+        expect(ensureAvalancheLedgerAppOpen).toHaveBeenCalledWith(refMock);
+        expect(getAvalancheLedgerExtendedPublicKey).toHaveBeenCalledWith(
           refMock,
-          false,
           path,
+          false,
         );
       });
     });
