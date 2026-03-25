@@ -1,5 +1,7 @@
 import { getExponentialBackoffDelay } from '@core/common';
 
+type FetchInput = Parameters<typeof fetch>[0];
+
 class RequestBreaker {
   #originAttemptTracker = new Map<string, number>();
   #breakingState = new Map<string, boolean>();
@@ -10,7 +12,7 @@ class RequestBreaker {
    * @param input - The input to the fetch function.
    * @throws {RequestBreakerError} if the origin is in a breaking state.
    */
-  breakIfNeeded(input: Parameters<typeof fetch>[0]): void {
+  breakIfNeeded(input: FetchInput): void {
     const url = this.#getRequestUrl(input);
     const { origin } = url;
     if (this.#breakingState.get(origin) ?? false) {
@@ -26,14 +28,14 @@ class RequestBreaker {
     );
   }
 
-  reset(url: string): void {
-    const { origin } = new URL(url);
+  reset(url: FetchInput): void {
+    const { origin } = this.#getRequestUrl(url);
     this.#originAttemptTracker.delete(origin);
     this.#breakingState.delete(origin);
   }
 
-  trigger(url: string, headers: Headers) {
-    const { origin } = new URL(url);
+  trigger(url: FetchInput, headers: Headers) {
+    const { origin } = this.#getRequestUrl(url);
 
     this.#breakingState.set(origin, true);
 
@@ -45,7 +47,7 @@ class RequestBreaker {
     setTimeout(() => this.#breakingState.set(origin, false), delay);
   }
 
-  #getRequestUrl(request: Parameters<typeof fetch>[0]): URL {
+  #getRequestUrl(request: FetchInput): URL {
     return request instanceof URL
       ? request
       : new URL(typeof request === 'string' ? request : request.url);
@@ -94,9 +96,9 @@ export async function circuitBreakerFetch(
   const response = await fetch(input, init);
 
   if (breaker.shouldTrigger(response)) {
-    breaker.trigger(response.url, response.headers);
+    breaker.trigger(input, response.headers);
   } else {
-    breaker.reset(response.url);
+    breaker.reset(input);
   }
 
   return response;
