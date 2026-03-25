@@ -112,4 +112,4 @@ Only use this for testing. Production versions for Chrome Store submission shoul
 [yarn]: https://classic.yarnpkg.com/lang/en/docs/install
 [volta]: https://volta.sh/
 [npmjs.com]: https://www.npmjs.com/
-[conventional commmit]: https://www.conventionalcommits.org/en/v1.0.0/
+[conventional commmit]: https://www.conventionalcommits.org/en/v1.0.0//
