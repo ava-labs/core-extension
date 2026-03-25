@@ -301,12 +301,15 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     },
   );
 
-  const { isLoading: isMaxSwapAmountLoading, maxAmount: maxSwapAmount } =
-    useMaxSwapAmount({
-      fee,
-      sourceToken,
-      minimalQuote,
-    });
+  const {
+    isLoading: isMaxSwapAmountLoading,
+    maxAmount: maxSwapAmount,
+    maxAmountFees: maxSwapAmountFees,
+  } = useMaxSwapAmount({
+    fee,
+    sourceToken,
+    minimalQuote,
+  });
 
   const status = getSwapStatus(
     activeAccount,
@@ -323,13 +326,12 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     quotes,
     quotesStatus,
     sourceToken,
-    fee,
     isFeeLoading,
     feeError,
     minimumTransferAmount,
     isMaxSwapAmountLoading,
     maxSwapAmount,
-    minimalQuote,
+    maxSwapAmountFees,
   });
 
   return (
@@ -370,6 +372,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         isFeeLoading,
         feeError,
         maxSwapAmount,
+        maxSwapAmountFees,
         isMaxSwapAmountLoading,
         minimalQuote,
         formError,

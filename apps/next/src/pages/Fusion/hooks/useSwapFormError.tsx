@@ -1,14 +1,9 @@
 import { useTranslation, Trans } from 'react-i18next';
 import { bigintToBig, stringToBigint } from '@core/common';
-import { FeatureVars } from '@core/types';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 import { ComponentProps } from 'react';
-import { sumAdditiveFees } from '../lib/sumAdditiveFees';
-import { getBufferMultiplierFromBps } from '../lib/getBufferMultiplierFromBps';
-import { useFeatureFlagContext } from '@core/ui';
 import { FusionState } from '../types';
-import { getAdditiveFees } from '../lib/getAdditiveFees';
 
 const collapsedTokenAmountProps: Omit<
   ComponentProps<typeof CollapsedTokenAmount>,
@@ -25,13 +20,12 @@ type UseSwapFormErrorArgs = Pick<
   | 'quotes'
   | 'quotesStatus'
   | 'sourceToken'
-  | 'fee'
   | 'isFeeLoading'
   | 'feeError'
   | 'minimumTransferAmount'
   | 'maxSwapAmount'
+  | 'maxSwapAmountFees'
   | 'isMaxSwapAmountLoading'
-  | 'minimalQuote'
 >;
 
 export const useSwapFormError = ({
@@ -43,41 +37,49 @@ export const useSwapFormError = ({
   feeError,
   minimumTransferAmount,
   maxSwapAmount,
+  maxSwapAmountFees,
   isMaxSwapAmountLoading,
-  minimalQuote,
 }: UseSwapFormErrorArgs) => {
   const { t } = useTranslation();
-  const { selectFeatureFlag } = useFeatureFlagContext();
 
-  if (!debouncedUserAmount || isFeeLoading || isMaxSwapAmountLoading) {
-    return '';
+  let sourceAmountBigInt: bigint = 0n;
+
+  try {
+    sourceAmountBigInt =
+      sourceToken && debouncedUserAmount
+        ? stringToBigint(debouncedUserAmount, sourceToken.decimals)
+        : 0n;
+  } catch {
+    return t('Please enter a valid amount.');
   }
 
-  const sourceAmountBigInt =
-    sourceToken && debouncedUserAmount
-      ? stringToBigint(debouncedUserAmount, sourceToken.decimals)
-      : 0n;
+  if (!sourceAmountBigInt || isFeeLoading || isMaxSwapAmountLoading) {
+    return '';
+  }
 
   if (sourceToken) {
     if (!isFeeLoading && !isMaxSwapAmountLoading) {
       if (maxSwapAmount === 0n) {
-        const additiveFeesAmount = sumAdditiveFees(
-          sourceToken,
-          getAdditiveFees(minimalQuote),
-          getBufferMultiplierFromBps(
-            selectFeatureFlag(FeatureVars.FUSION_ADDITIVE_FEES_BUFFER_BPS),
-          ),
-        );
+        const maxSwapAmountFeesString = bigintToBig(
+          maxSwapAmountFees,
+          sourceToken.decimals,
+        ).toFixed(); // Avoid scientific notation
 
-        return t(
-          'Fees are higher than balance. Required fee is {{amount}} {{symbol}}',
-          {
-            amount: bigintToBig(
-              additiveFeesAmount,
-              sourceToken.decimals,
-            ).toFixed(), // Avoid scientific notation
-            symbol: sourceToken.symbol,
-          },
+        return (
+          <Trans
+            i18nKey="Fees are higher than balance. Required fee is <amount /> {{symbol}}"
+            components={{
+              amount: (
+                <CollapsedTokenAmount
+                  amount={maxSwapAmountFeesString}
+                  {...collapsedTokenAmountProps}
+                />
+              ),
+            }}
+            values={{
+              symbol: sourceToken.symbol,
+            }}
+          />
         );
       }
 

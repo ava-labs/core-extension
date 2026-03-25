@@ -86,6 +86,7 @@ export type FusionState = QueryState &
     status: SwapStatus;
     quotesStatus: QuoteStreamingStatus;
     maxSwapAmount: bigint;
+    maxSwapAmountFees: bigint;
     isMaxSwapAmountLoading: boolean;
     minimalQuote: Quote | null;
     formError: string | React.ReactNode;

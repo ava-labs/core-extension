@@ -1,5 +1,4 @@
 {
-  "+{{sum}} {{symbol}} for network and bridge fees": "+{{sum}} {{symbol}} for network and bridge fees",
   "1 saved address": "1 saved address",
   "1 {{from}} = <rate>{{rate}}</rate> {{to}}": "1 {{from}} = <rate>{{rate}}</rate> {{to}}",
   "12-word phrase": "12-word phrase",
@@ -345,7 +344,7 @@
   "Fast. Secure. Free gas.": "Fast. Secure. Free gas.",
   "Feature is disabled": "Feature is disabled",
   "Fees": "Fees",
-  "Fees are higher than balance. Required fee is {{amount}} {{symbol}}": "Fees are higher than balance. Required fee is {{amount}} {{symbol}}",
+  "Fees are higher than balance. Required fee is <amount /> {{symbol}}": "Fees are higher than balance. Required fee is <amount /> {{symbol}}",
   "Fetching available authentication methods...": "Fetching available authentication methods...",
   "File Upload Failed": "File Upload Failed",
   "Fill out your wallet details": "Fill out your wallet details",
