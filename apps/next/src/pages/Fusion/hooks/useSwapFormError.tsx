@@ -1,14 +1,9 @@
 import { useTranslation, Trans } from 'react-i18next';
 import { bigintToBig, stringToBigint } from '@core/common';
-import { FeatureVars, isNativeToken } from '@core/types';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 import { ComponentProps } from 'react';
-import { sumAdditiveFees } from '../lib/sumAdditiveFees';
-import { getBufferMultiplierFromBps } from '../lib/getBufferMultiplierFromBps';
-import { useFeatureFlagContext } from '@core/ui';
 import { FusionState } from '../types';
-import { getAdditiveFees } from '../lib/getAdditiveFees';
 
 const collapsedTokenAmountProps: Omit<
   ComponentProps<typeof CollapsedTokenAmount>,
@@ -25,13 +20,12 @@ type UseSwapFormErrorArgs = Pick<
   | 'quotes'
   | 'quotesStatus'
   | 'sourceToken'
-  | 'fee'
   | 'isFeeLoading'
   | 'feeError'
   | 'minimumTransferAmount'
   | 'maxSwapAmount'
+  | 'maxSwapAmountFees'
   | 'isMaxSwapAmountLoading'
-  | 'minimalQuote'
 >;
 
 export const useSwapFormError = ({
@@ -40,54 +34,34 @@ export const useSwapFormError = ({
   quotesStatus,
   sourceToken,
   isFeeLoading,
-  fee,
   feeError,
   minimumTransferAmount,
   maxSwapAmount,
+  maxSwapAmountFees,
   isMaxSwapAmountLoading,
-  minimalQuote,
 }: UseSwapFormErrorArgs) => {
   const { t } = useTranslation();
-  const { selectFeatureFlag } = useFeatureFlagContext();
 
-  const parsedUserAmount = parseFloat(debouncedUserAmount);
+  let sourceAmountBigInt: bigint = 0n;
 
-  if (
-    debouncedUserAmount &&
-    (Number.isNaN(parsedUserAmount) || !Number.isFinite(parsedUserAmount))
-  ) {
+  try {
+    sourceAmountBigInt =
+      sourceToken && debouncedUserAmount
+        ? stringToBigint(debouncedUserAmount, sourceToken.decimals)
+        : 0n;
+  } catch {
     return t('Please enter a valid amount.');
   }
 
-  if (
-    !debouncedUserAmount ||
-    !parsedUserAmount ||
-    isFeeLoading ||
-    isMaxSwapAmountLoading
-  ) {
+  if (!sourceAmountBigInt || isFeeLoading || isMaxSwapAmountLoading) {
     return '';
   }
-
-  const sourceAmountBigInt =
-    sourceToken && debouncedUserAmount
-      ? stringToBigint(debouncedUserAmount, sourceToken.decimals)
-      : 0n;
 
   if (sourceToken) {
     if (!isFeeLoading && !isMaxSwapAmountLoading) {
       if (maxSwapAmount === 0n) {
-        const additiveFeesAmount = sumAdditiveFees(
-          sourceToken,
-          getAdditiveFees(minimalQuote),
-          getBufferMultiplierFromBps(
-            selectFeatureFlag(FeatureVars.FUSION_ADDITIVE_FEES_BUFFER_BPS),
-          ),
-        );
-        const allSourceTokenFees =
-          additiveFeesAmount + (isNativeToken(sourceToken) ? (fee ?? 0n) : 0n);
-
-        const allSourceTokenFeesString = bigintToBig(
-          allSourceTokenFees,
+        const maxSwapAmountFeesString = bigintToBig(
+          maxSwapAmountFees,
           sourceToken.decimals,
         ).toFixed(); // Avoid scientific notation
 
@@ -97,7 +71,7 @@ export const useSwapFormError = ({
             components={{
               amount: (
                 <CollapsedTokenAmount
-                  amount={allSourceTokenFeesString}
+                  amount={maxSwapAmountFeesString}
                   {...collapsedTokenAmountProps}
                 />
               ),

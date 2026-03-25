@@ -32,6 +32,7 @@ export const useMaxSwapAmount = ({
     return {
       isLoading: true,
       maxAmount: 0n,
+      maxAmountFees: 0n,
     };
   }
 
@@ -68,6 +69,7 @@ export const useMaxSwapAmount = ({
   // it's fees that are causing
   return {
     isLoading: false,
+    maxAmountFees: allFees,
     maxAmount: maxAmount < 0n ? 0n : maxAmount,
   };
 };
