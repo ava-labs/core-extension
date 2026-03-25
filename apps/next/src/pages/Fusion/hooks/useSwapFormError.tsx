@@ -1,6 +1,6 @@
 import { useTranslation, Trans } from 'react-i18next';
 import { bigintToBig, stringToBigint } from '@core/common';
-import { FeatureVars } from '@core/types';
+import { FeatureVars, isNativeToken } from '@core/types';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 import { ComponentProps } from 'react';
@@ -40,6 +40,7 @@ export const useSwapFormError = ({
   quotesStatus,
   sourceToken,
   isFeeLoading,
+  fee,
   feeError,
   minimumTransferAmount,
   maxSwapAmount,
@@ -49,7 +50,21 @@ export const useSwapFormError = ({
   const { t } = useTranslation();
   const { selectFeatureFlag } = useFeatureFlagContext();
 
-  if (!debouncedUserAmount || isFeeLoading || isMaxSwapAmountLoading) {
+  const parsedUserAmount = parseFloat(debouncedUserAmount);
+
+  if (
+    debouncedUserAmount &&
+    (Number.isNaN(parsedUserAmount) || !Number.isFinite(parsedUserAmount))
+  ) {
+    return t('Please enter a valid amount.');
+  }
+
+  if (
+    !debouncedUserAmount ||
+    !parsedUserAmount ||
+    isFeeLoading ||
+    isMaxSwapAmountLoading
+  ) {
     return '';
   }
 
@@ -68,16 +83,29 @@ export const useSwapFormError = ({
             selectFeatureFlag(FeatureVars.FUSION_ADDITIVE_FEES_BUFFER_BPS),
           ),
         );
+        const allSourceTokenFees =
+          additiveFeesAmount + (isNativeToken(sourceToken) ? (fee ?? 0n) : 0n);
 
-        return t(
-          'Fees are higher than balance. Required fee is {{amount}} {{symbol}}',
-          {
-            amount: bigintToBig(
-              additiveFeesAmount,
-              sourceToken.decimals,
-            ).toFixed(), // Avoid scientific notation
-            symbol: sourceToken.symbol,
-          },
+        const allSourceTokenFeesString = bigintToBig(
+          allSourceTokenFees,
+          sourceToken.decimals,
+        ).toFixed(); // Avoid scientific notation
+
+        return (
+          <Trans
+            i18nKey="Fees are higher than balance. Required fee is <amount /> {{symbol}}"
+            components={{
+              amount: (
+                <CollapsedTokenAmount
+                  amount={allSourceTokenFeesString}
+                  {...collapsedTokenAmountProps}
+                />
+              ),
+            }}
+            values={{
+              symbol: sourceToken.symbol,
+            }}
+          />
         );
       }
 

@@ -5,9 +5,14 @@ import { Typography } from '@avalabs/k2-alpine';
 type Props = {
   sum: string;
   symbol: string;
+  isNativeToken: boolean;
 };
 
-export const AdditiveFeesNotice: FC<Props> = ({ sum, symbol }) => {
+export const AdditiveFeesNotice: FC<Props> = ({
+  sum,
+  symbol,
+  isNativeToken,
+}) => {
   const { t } = useTranslation();
 
   return (
@@ -20,10 +25,15 @@ export const AdditiveFeesNotice: FC<Props> = ({ sum, symbol }) => {
     >
       {sum &&
         symbol &&
-        t('+{{sum}} {{symbol}} for network and bridge fees', {
-          sum,
-          symbol,
-        })}
+        t(
+          isNativeToken
+            ? '+{{sum}} {{symbol}} for network and bridge fees'
+            : '+{{sum}} {{symbol}} for bridge fees',
+          {
+            sum,
+            symbol,
+          },
+        )}
     </Typography>
   );
 };

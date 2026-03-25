@@ -1,5 +1,7 @@
 import { Collapse, Stack } from '@avalabs/k2-alpine';
 
+import { isNativeToken } from '@core/types';
+
 import { useFusionState } from '../contexts';
 import { useAdditiveFeesAmount } from '../hooks/useAdditiveFeesAmount';
 
@@ -11,7 +13,7 @@ import { AdditiveFeesNotice } from './AdditiveFeesNotice';
  * Also ensures that any errors take priority over the fees notice.
  */
 export const SwapHelperText = () => {
-  const { formError } = useFusionState();
+  const { formError, sourceToken } = useFusionState();
   const { sum, symbol } = useAdditiveFeesAmount();
   const isFormErrorVisible = Boolean(formError);
   const isAdditiveFeesVisible =
@@ -23,7 +25,11 @@ export const SwapHelperText = () => {
         <SwapErrorMessage formError={formError} />
       </Collapse>
       <Collapse in={isAdditiveFeesVisible} appear unmountOnExit={false}>
-        <AdditiveFeesNotice sum={sum} symbol={symbol} />
+        <AdditiveFeesNotice
+          sum={sum}
+          symbol={symbol}
+          isNativeToken={sourceToken ? isNativeToken(sourceToken) : false}
+        />
       </Collapse>
     </Stack>
   );
