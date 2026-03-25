@@ -27,6 +27,7 @@ export const SwapPair = () => {
     quotesStatus,
     selectedQuote,
     fee,
+    feeError,
     isFeeLoading,
     maxSwapAmount,
     isMaxSwapAmountLoading,
@@ -72,11 +73,11 @@ export const SwapPair = () => {
           }
           tokenQuery={fromQuery}
           onQueryChange={(q) => updateQuery({ fromQuery: q })}
-          isLoading={isFeeLoading || isMaxSwapAmountLoading}
+          isLoading={isFeeLoading || (isMaxSwapAmountLoading && !feeError)}
           amount={userAmount}
           onAmountChange={onAmountChange}
           tokenHint={sourceToken ? t('You pay') : undefined}
-          withPresetButtons
+          withPresetButtons={!feeError}
         />
         <Divider sx={{ mx: 2 }} />
         <TokenAmountInput

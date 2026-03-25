@@ -21,6 +21,7 @@ type UseSwapFormErrorArgs = Pick<
   | 'quotesStatus'
   | 'sourceToken'
   | 'isFeeLoading'
+  | 'fee'
   | 'feeError'
   | 'minimumTransferAmount'
   | 'maxSwapAmount'
@@ -34,6 +35,7 @@ export const useSwapFormError = ({
   quotesStatus,
   sourceToken,
   isFeeLoading,
+  fee,
   feeError,
   minimumTransferAmount,
   maxSwapAmount,
@@ -58,7 +60,12 @@ export const useSwapFormError = ({
   }
 
   if (sourceToken) {
-    if (!isFeeLoading && !isMaxSwapAmountLoading) {
+    if (
+      typeof fee === 'bigint' &&
+      !feeError &&
+      !isFeeLoading &&
+      !isMaxSwapAmountLoading
+    ) {
       if (maxSwapAmount === 0n) {
         const maxSwapAmountFeesString = bigintToBig(
           maxSwapAmountFees,
@@ -132,10 +139,6 @@ export const useSwapFormError = ({
 
   if (quotesStatus !== 'loading' && quotes.length === 0) {
     return t('No quotes found for selected token pair.');
-  }
-
-  if (feeError) {
-    return t('Error estimating the network fee.');
   }
 
   return '';
