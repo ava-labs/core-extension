@@ -1,13 +1,9 @@
 import { useTranslation, Trans } from 'react-i18next';
-import { useFusionState } from '../contexts';
 import { bigintToBig, stringToBigint } from '@core/common';
-import { FeatureVars, isNativeToken } from '@core/types';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 import { ComponentProps } from 'react';
-import { sumAdditiveFees } from '../lib/sumAdditiveFees';
-import { getBufferMultiplierFromBps } from '../lib/getBufferMultiplierFromBps';
-import { useFeatureFlagContext } from '@core/ui';
+import { FusionState } from '../types';
 
 const collapsedTokenAmountProps: Omit<
   ComponentProps<typeof CollapsedTokenAmount>,
@@ -18,84 +14,81 @@ const collapsedTokenAmountProps: Omit<
   showApproximationSign: false,
 };
 
-export const useSwapFormError = () => {
+type UseSwapFormErrorArgs = Pick<
+  FusionState,
+  | 'debouncedUserAmount'
+  | 'quotes'
+  | 'quotesStatus'
+  | 'sourceToken'
+  | 'isFeeLoading'
+  | 'feeError'
+  | 'minimumTransferAmount'
+  | 'maxSwapAmount'
+  | 'maxSwapAmountFees'
+  | 'isMaxSwapAmountLoading'
+>;
+
+export const useSwapFormError = ({
+  debouncedUserAmount,
+  quotes,
+  quotesStatus,
+  sourceToken,
+  isFeeLoading,
+  feeError,
+  minimumTransferAmount,
+  maxSwapAmount,
+  maxSwapAmountFees,
+  isMaxSwapAmountLoading,
+}: UseSwapFormErrorArgs) => {
   const { t } = useTranslation();
-  const { selectFeatureFlag } = useFeatureFlagContext();
 
-  const {
-    debouncedUserAmount,
-    quotes,
-    quotesStatus,
-    sourceToken,
-    fee,
-    isFeeLoading,
-    feeError,
-    minimumTransferAmount,
-    additiveFees,
-    useMaxAmount,
-  } = useFusionState();
+  let sourceAmountBigInt: bigint = 0n;
 
-  if (!debouncedUserAmount || isFeeLoading || useMaxAmount) {
+  try {
+    sourceAmountBigInt =
+      sourceToken && debouncedUserAmount
+        ? stringToBigint(debouncedUserAmount, sourceToken.decimals)
+        : 0n;
+  } catch {
+    return t('Please enter a valid amount.');
+  }
+
+  if (!sourceAmountBigInt || isFeeLoading || isMaxSwapAmountLoading) {
     return '';
   }
 
-  const sourceAmountBigInt =
-    sourceToken && debouncedUserAmount
-      ? stringToBigint(debouncedUserAmount, sourceToken.decimals)
-      : 0n;
-
-  if (sourceToken && sourceAmountBigInt <= 0n) {
-    return t('Please enter an amount greater than 0.');
-  }
-
-  if (sourceToken && sourceAmountBigInt > sourceToken.balance) {
-    return t('Amount higher than balance.');
-  }
-
   if (sourceToken) {
-    if (
-      typeof minimumTransferAmount === 'bigint' &&
-      sourceAmountBigInt < minimumTransferAmount
-    ) {
-      return t('Minimum possible amount is {{amount}} {{symbol}}', {
-        amount: bigintToBig(
-          minimumTransferAmount,
+    if (!isFeeLoading && !isMaxSwapAmountLoading) {
+      if (maxSwapAmount === 0n) {
+        const maxSwapAmountFeesString = bigintToBig(
+          maxSwapAmountFees,
           sourceToken.decimals,
-        ).toFixed(), // Avoid scientific notation
-        symbol: sourceToken.symbol,
-      });
-    }
+        ).toFixed(); // Avoid scientific notation
 
-    if (!isFeeLoading) {
-      const additiveFeesAmount = sumAdditiveFees(
-        sourceToken,
-        additiveFees,
-        getBufferMultiplierFromBps(
-          selectFeatureFlag(FeatureVars.FUSION_ADDITIVE_FEES_BUFFER_BPS),
-        ),
-      );
-
-      const maxAmount =
-        sourceToken.balance -
-        additiveFeesAmount -
-        (isNativeToken(sourceToken) ? (fee ?? 0n) : 0n);
-
-      if (maxAmount < 0) {
-        return t(
-          'Fees are higher than balance. Required fee is {{amount}} {{symbol}}',
-          {
-            amount: bigintToBig(
-              additiveFeesAmount,
-              sourceToken.decimals,
-            ).toFixed(), // Avoid scientific notation
-            symbol: sourceToken.symbol,
-          },
+        return (
+          <Trans
+            i18nKey="Fees are higher than balance. Required fee is <amount /> {{symbol}}"
+            components={{
+              amount: (
+                <CollapsedTokenAmount
+                  amount={maxSwapAmountFeesString}
+                  {...collapsedTokenAmountProps}
+                />
+              ),
+            }}
+            values={{
+              symbol: sourceToken.symbol,
+            }}
+          />
         );
       }
 
-      const maxAmountString = bigIntToString(maxAmount, sourceToken.decimals);
+      if (sourceAmountBigInt > maxSwapAmount) {
+        const maxAmountString = bigIntToString(
+          maxSwapAmount,
+          sourceToken.decimals,
+        );
 
-      if (sourceAmountBigInt > maxAmount) {
         return (
           <Trans
             i18nKey="Maximum available after fees is <amount /> {{symbol}}"
@@ -113,6 +106,27 @@ export const useSwapFormError = () => {
           />
         );
       }
+    }
+
+    if (
+      typeof minimumTransferAmount === 'bigint' &&
+      sourceAmountBigInt < minimumTransferAmount
+    ) {
+      return t('Minimum possible amount is {{amount}} {{symbol}}', {
+        amount: bigintToBig(
+          minimumTransferAmount,
+          sourceToken.decimals,
+        ).toFixed(), // Avoid scientific notation
+        symbol: sourceToken.symbol,
+      });
+    }
+
+    if (sourceAmountBigInt <= 0n) {
+      return t('Please enter an amount greater than 0.');
+    }
+
+    if (sourceAmountBigInt > sourceToken.balance) {
+      return t('Amount higher than balance.');
     }
   }
 

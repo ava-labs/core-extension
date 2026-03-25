@@ -1,5 +1,5 @@
 import { NetworkContractToken } from '@avalabs/core-chains-sdk';
-import { DAppRequestHandler, DAppProviderRequest } from '@core/types';
+import { DAppProviderRequest, DAppRequestHandler } from '@core/types';
 import { injectable } from 'tsyringe';
 import { SettingsService } from '../SettingsService';
 
@@ -28,7 +28,7 @@ interface WalletGetSettingsHandlerResult {
   language:
     | 'en'
     | 'de-DE'
-    | 'es-EM'
+    | 'es-ES'
     | 'fr-FR'
     | 'ja-JP'
     | 'hi-IN'

@@ -3,7 +3,7 @@ import { Stack, Typography, Button } from '@avalabs/k2-alpine';
 
 import { ActionStatus, MultiTxAction, NetworkWithCaipId } from '@core/types';
 import {
-  useApproveAction,
+  useBatchApproveAction,
   useGetRequestId,
   useNetworkContext,
   useLiveBalance,
@@ -191,7 +191,7 @@ export const BatchApprovalScreen = () => {
   const { getNetwork, networks } = useNetworkContext();
 
   const { action, updateAction, cancelHandler, error } =
-    useApproveAction<DisplayData>(requestId);
+    useBatchApproveAction(requestId);
 
   const network = action ? getNetwork(action.scope) : undefined;
 

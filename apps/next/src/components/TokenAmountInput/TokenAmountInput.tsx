@@ -180,6 +180,9 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
       ? convertedCurrencyFormatter(usdValue)
       : undefined;
 
+  const arePresetButtonsDisabled =
+    isLoading || disabled || !token || !maxAmount || maxAmount <= 0n;
+
   return (
     <Stack py={1} px={1.5} gap={1}>
       <Stack
@@ -245,19 +248,19 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
         >
           <AmountPresetButton
             onClick={() => handlePresetClick(25)}
-            disabled={isLoading}
+            disabled={arePresetButtonsDisabled}
           >
             {t('25%')}
           </AmountPresetButton>
           <AmountPresetButton
             onClick={() => handlePresetClick(50)}
-            disabled={isLoading}
+            disabled={arePresetButtonsDisabled}
           >
             {t('50%')}
           </AmountPresetButton>
           <AmountPresetButton
             onClick={() => handlePresetClick(100)}
-            disabled={isLoading}
+            disabled={arePresetButtonsDisabled}
           >
             {t('Max')}
           </AmountPresetButton>

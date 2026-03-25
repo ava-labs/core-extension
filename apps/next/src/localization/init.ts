@@ -17,7 +17,7 @@ i18next
       'tr-TR',
       'zh-CN',
       'zh-TW',
-      'es-EM',
+      'es-ES',
       'ja-JP',
       'fr-FR',
     ],

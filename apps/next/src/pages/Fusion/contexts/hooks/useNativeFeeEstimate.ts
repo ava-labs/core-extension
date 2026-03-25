@@ -39,7 +39,7 @@ export const useNativeFeeEstimate = (
                   return null;
                 });
 
-              return await manager.estimateNativeFee(selectedQuote, {
+              const estimate = await manager.estimateNativeFee(selectedQuote, {
                 feeUnitsMarginBps: Number(
                   selectFeatureFlag(FeatureVars.FUSION_FEE_UNITS_MARGIN_BPS),
                 ),
@@ -48,6 +48,8 @@ export const useNativeFeeEstimate = (
                   ...fees,
                 },
               });
+
+              return estimate;
             } catch (error) {
               console.error('[useNativeFeeEstimate]', {
                 error,
@@ -58,7 +60,7 @@ export const useNativeFeeEstimate = (
           }
         : skipToken,
     retry: false,
-    select: (estimate) => estimate.totalFee,
+    select: (estimate) => estimate.totalUpfrontFee,
   });
 
   return {

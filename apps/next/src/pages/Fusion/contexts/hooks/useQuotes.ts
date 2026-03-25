@@ -40,6 +40,10 @@ export const useQuotes = (
 
   useEffect(() => {
     if (!quoter || skipFetching) {
+      setStatus('done');
+      setBestQuote(null);
+      setAllQuotes([]);
+      setUserQuote(null);
       return;
     }
 
