@@ -23,7 +23,7 @@
     "@avalabs/fusion-sdk": "0.14.0",
     "@avalabs/k2-alpine": "1.266.0",
     "@avalabs/types": "3.1.0-alpha.77",
-    "@avalabs/vm-module-types": "0.0.0-cp-13783-base-activity-token-s-20260323211014",
+    "@avalabs/vm-module-types": "3.5.1",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/service-worker": "workspace:*",
