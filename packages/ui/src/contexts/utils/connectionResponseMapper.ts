@@ -63,7 +63,7 @@ export function requestEngine(
   return async (
     request: PartialBy<Omit<JsonRpcRequestPayload, 'id'>, 'params'>,
     scope: string,
-    context: { tabId?: number } & Record<string, unknown>,
+    context: { tabId?: number; signal?: AbortSignal } & Record<string, unknown>,
   ) => {
     const id = `${request.method}-${Math.floor(Math.random() * 10000000)}`;
 
@@ -82,7 +82,33 @@ export function requestEngine(
       },
       context,
     };
-    const response = connectionRequest(requestWithId);
+
+    const { signal } = context;
+
+    if (signal?.aborted) {
+      return Promise.reject(
+        new DOMException('The operation was aborted.', 'AbortError'),
+      );
+    }
+
+    const responsePromise = connectionRequest(requestWithId);
+
+    if (signal) {
+      const onAbort = () => {
+        const handler = responseMap.get(id);
+        if (handler) {
+          handler.error(
+            new DOMException('The operation was aborted.', 'AbortError'),
+          );
+          responseMap.delete(id);
+        }
+      };
+      signal.addEventListener('abort', onAbort, { once: true });
+      void responsePromise.finally(() => {
+        signal.removeEventListener('abort', onAbort);
+      });
+    }
+
     if (isDevelopment()) {
       requestLog(
         `Extension Request  (${requestWithId.params.request.method})`,
@@ -91,12 +117,12 @@ export function requestEngine(
     }
 
     connection.postMessage(serializeToJSON(requestWithId));
-    response.then((res) => {
+    void responsePromise.then((res) => {
       if (isDevelopment()) {
         responseLog(`Extension Response (${res.method})`, res);
       }
       return res;
     });
-    return response;
+    return responsePromise;
   };
 }

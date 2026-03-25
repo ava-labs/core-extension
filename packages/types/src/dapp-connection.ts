@@ -99,6 +99,12 @@ export type JsonRpcRequestContext = {
   tabId?: number;
 
   /**
+   * When aborted (e.g. effect cleanup), the UI layer drops the pending extension response
+   * without applying it — same idea as `fetch` with `AbortSignal`.
+   */
+  signal?: AbortSignal;
+
+  /**
    * When performing a multi-step action, this should include the information about the current step.
    * (which out of how many steps, and why it needs to be done).
    */

@@ -13,10 +13,38 @@ jest.mock('@core/ui');
 
 function createDeferred<T>() {
   let resolvePromise!: (value: T) => void;
-  const promise = new Promise<T>((resolve) => {
+  let rejectPromise!: (reason?: unknown) => void;
+  const promise = new Promise<T>((resolve, reject) => {
     resolvePromise = resolve;
+    rejectPromise = reject;
   });
-  return { promise, resolve: resolvePromise };
+  return { promise, resolve: resolvePromise, reject: rejectPromise };
+}
+
+function historyPromiseForAbortSignal(
+  deferred: ReturnType<typeof createDeferred<TxHistoryItem[]>>,
+  signal: AbortSignal | undefined,
+): Promise<TxHistoryItem[]> {
+  if (signal?.aborted) {
+    return Promise.reject(
+      new DOMException('The operation was aborted.', 'AbortError'),
+    );
+  }
+
+  if (!signal) {
+    return deferred.promise;
+  }
+
+  const onAbort = () => {
+    deferred.reject(
+      new DOMException('The operation was aborted.', 'AbortError'),
+    );
+  };
+  signal.addEventListener('abort', onAbort);
+
+  return deferred.promise.finally(() => {
+    signal.removeEventListener('abort', onAbort);
+  });
 }
 
 function txWithHash(hash: string): TxHistoryItem {
@@ -49,7 +77,7 @@ function txWithHash(hash: string): TxHistoryItem {
 describe('useAccountHistory', () => {
   const getTransactionHistory = jest.fn<
     Promise<TxHistoryItem[]>,
-    [networkId?: number]
+    [networkId?: number, options?: { signal?: AbortSignal }]
   >();
 
   beforeEach(() => {
@@ -81,7 +109,12 @@ describe('useAccountHistory', () => {
       expect(result.current).toEqual(txs);
     });
 
-    expect(getTransactionHistory).toHaveBeenCalledWith(1);
+    expect(getTransactionHistory).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({
+        signal: expect.objectContaining({ aborted: expect.any(Boolean) }),
+      }),
+    );
   });
 
   it('does not apply a fetch that completes after the network has changed', async () => {
@@ -89,20 +122,34 @@ describe('useAccountHistory', () => {
     const second = createDeferred<TxHistoryItem[]>();
 
     getTransactionHistory
-      .mockReturnValueOnce(first.promise)
-      .mockReturnValueOnce(second.promise);
+      .mockImplementationOnce((_networkId, options) =>
+        historyPromiseForAbortSignal(first, options?.signal),
+      )
+      .mockImplementationOnce((_networkId, options) =>
+        historyPromiseForAbortSignal(second, options?.signal),
+      );
 
     const { result, rerender } = renderHook(
       ({ chainId }: { chainId: number }) => useAccountHistory(chainId),
       { initialProps: { chainId: 1 } },
     );
 
-    expect(getTransactionHistory).toHaveBeenCalledWith(1);
+    expect(getTransactionHistory).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({
+        signal: expect.objectContaining({ aborted: expect.any(Boolean) }),
+      }),
+    );
 
     rerender({ chainId: 2 });
 
     expect(result.current).toBeNull();
-    expect(getTransactionHistory).toHaveBeenCalledWith(2);
+    expect(getTransactionHistory).toHaveBeenCalledWith(
+      2,
+      expect.objectContaining({
+        signal: expect.objectContaining({ aborted: expect.any(Boolean) }),
+      }),
+    );
 
     const staleForChain1 = [txWithHash('0xstale')];
     const freshForChain2 = [txWithHash('0xfresh')];

@@ -51,6 +51,7 @@ type WalletStateAndMethods = {
   getUnencryptedMnemonic(password: string): Promise<string>;
   getTransactionHistory(
     networkId?: NetworkWithCaipId['chainId'],
+    options?: { signal?: AbortSignal },
   ): Promise<TxHistoryItem[]>;
   renameWallet(id: string, name: string): Promise<any>;
 };
@@ -193,13 +194,17 @@ export function WalletContextProvider({
   );
 
   const getTransactionHistory = useCallback(
-    (networkId?: NetworkWithCaipId['chainId']) => {
+    (
+      networkId?: NetworkWithCaipId['chainId'],
+      options?: { signal?: AbortSignal },
+    ) => {
       return request<GetHistoryHandler>(
         {
           method: ExtensionRequest.HISTORY_GET,
         },
         {
           scope: networkId as string | undefined,
+          context: options?.signal ? { signal: options.signal } : undefined,
         },
       );
     },
