@@ -28,6 +28,7 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
     wasTransportAttempted,
     getExtendedPublicKey,
     retryConnection,
+    popDeviceSelection,
   } = useKeystoneUsbContext();
 
   const [error, setError] = useState<ErrorType>();
@@ -236,9 +237,13 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
   const onRetry = useCallback(async () => {
     isRetrying.current = true;
     setError(undefined);
+
     setStatus('waiting');
 
     try {
+      if (!wasManualConnectionAttempted || status === 'needs-user-gesture') {
+        await popDeviceSelection();
+      }
       await retryConnection();
     } catch {
       setStatus('error');
@@ -246,7 +251,12 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
     } finally {
       isRetrying.current = false;
     }
-  }, [retryConnection]);
+  }, [
+    retryConnection,
+    wasManualConnectionAttempted,
+    popDeviceSelection,
+    status,
+  ]);
 
   return {
     status,
