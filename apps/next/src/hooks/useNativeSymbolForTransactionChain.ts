@@ -22,9 +22,9 @@ export function useNativeSymbolForTransactionChain(
       return undefined;
     }
     for (const key of buildNetworkLookupKeys(chainId)) {
-      const n = getNetwork(key);
-      if (n) {
-        return n;
+      const network = getNetwork(key);
+      if (network) {
+        return network;
       }
     }
     return undefined;

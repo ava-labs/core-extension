@@ -16,16 +16,18 @@ jest.mock('@/hooks/useNativeSymbolForTransactionChain', () => ({
   useNativeSymbolForTransactionChain: (
     chainId: string | number | undefined,
   ): string | undefined => {
-    const common =
-      jest.requireMock<typeof import('@core/common')>('@core/common');
     if (chainId === undefined || String(chainId).trim() === '') {
       return undefined;
     }
+
     const { buildNetworkLookupKeys } =
       jest.requireActual<typeof import('@core/common')>('@core/common');
+    const { getEthNativeSymbolForKnownChainId } =
+      jest.requireMock<typeof import('@core/common')>('@core/common');
+
     for (const key of buildNetworkLookupKeys(chainId)) {
       if (typeof key === 'number') {
-        const sym = common.getEthNativeSymbolForKnownChainId(key);
+        const sym = getEthNativeSymbolForKnownChainId(key);
         if (sym) {
           return sym;
         }
@@ -188,6 +190,27 @@ function buildSwapTx(): TxHistoryItem {
   };
 }
 
+function buildTx(overrides: Partial<TxHistoryItem>): TxHistoryItem {
+  return {
+    bridgeAnalysis: { isBridgeTx: false },
+    isContractCall: false,
+    isIncoming: true,
+    isOutgoing: false,
+    isSender: false,
+    timestamp: 1_700_000_000_000,
+    hash: '0xhash',
+    from: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    to: LOWER_USER,
+    tokens: [],
+    gasUsed: '210000',
+    explorerLink: 'https://explorer.example/tx',
+    chainId: '8453',
+    txType: TransactionType.RECEIVE,
+    vmType: NetworkVMType.EVM,
+    ...overrides,
+  } as TxHistoryItem;
+}
+
 describe('TransactionDescription', () => {
   let i18n: ReturnType<typeof createInstance>;
 
@@ -278,16 +301,10 @@ describe('TransactionDescription', () => {
   });
 
   it('shows NFT received for Base RECEIVE when main token is ERC721 (any symbol)', () => {
-    const tx: TxHistoryItem = {
-      bridgeAnalysis: { isBridgeTx: false },
+    const tx = buildTx({
       isContractCall: true,
-      isIncoming: true,
-      isOutgoing: false,
-      isSender: false,
-      timestamp: 1_700_000_000_000,
       hash: '0x97a0127e26cd73540fa1b13ee16f87e77c3a6696f7c425556d8c1bbb737bcdee',
-      from: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-      to: LOWER_USER,
+      explorerLink: 'https://basescan.org/tx/0x97a0',
       tokens: [
         {
           name: '',
@@ -300,12 +317,7 @@ describe('TransactionDescription', () => {
           to: { address: LOWER_USER },
         },
       ],
-      gasUsed: '210000',
-      explorerLink: 'https://basescan.org/tx/0x97a0',
-      chainId: '8453',
-      txType: TransactionType.RECEIVE,
-      vmType: NetworkVMType.EVM,
-    };
+    });
     const { container } = renderDescription(tx);
     const text = container.textContent ?? '';
 
@@ -314,16 +326,7 @@ describe('TransactionDescription', () => {
   });
 
   it('shows NFT received for ERC721 RECEIVE even when token has a symbol', () => {
-    const tx: TxHistoryItem = {
-      bridgeAnalysis: { isBridgeTx: false },
-      isContractCall: false,
-      isIncoming: true,
-      isOutgoing: false,
-      isSender: false,
-      timestamp: 1_700_000_000_000,
-      hash: '0xhash',
-      from: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-      to: LOWER_USER,
+    const tx = buildTx({
       tokens: [
         {
           name: 'Cool Cats',
@@ -336,12 +339,7 @@ describe('TransactionDescription', () => {
           to: { address: LOWER_USER },
         },
       ],
-      gasUsed: '210000',
-      explorerLink: 'https://explorer.example/tx',
-      chainId: '8453',
-      txType: TransactionType.RECEIVE,
-      vmType: NetworkVMType.EVM,
-    };
+    });
     const { container } = renderDescription(tx);
     const text = container.textContent ?? '';
 
@@ -350,14 +348,11 @@ describe('TransactionDescription', () => {
   });
 
   it('shows NFT sent when main token is ERC721 on SEND', () => {
-    const tx: TxHistoryItem = {
-      bridgeAnalysis: { isBridgeTx: false },
+    const tx = buildTx({
       isContractCall: true,
       isIncoming: false,
       isOutgoing: true,
       isSender: true,
-      timestamp: 1_700_000_000_000,
-      hash: '0xhash',
       from: LOWER_USER,
       to: '0x2222222222222222222222222222222222222222',
       tokens: [
@@ -372,12 +367,8 @@ describe('TransactionDescription', () => {
           to: { address: '0x2222222222222222222222222222222222222222' },
         },
       ],
-      gasUsed: '210000',
-      explorerLink: 'https://explorer.example/tx',
-      chainId: '8453',
       txType: TransactionType.SEND,
-      vmType: NetworkVMType.EVM,
-    };
+    });
     const { container } = renderDescription(tx);
     expect(container.textContent ?? '').toMatch(/NFT sent/i);
   });

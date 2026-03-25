@@ -60,26 +60,18 @@ export const useTokensWithBalances = (
     restrictToExplicitNetwork = false,
   } = options;
 
-  const selectedNetwork = useMemo(
-    () => (restrictToExplicitNetwork ? network : (network ?? activeNetwork)),
-    [restrictToExplicitNetwork, network, activeNetwork],
-  );
+  const selectedNetwork = restrictToExplicitNetwork
+    ? network
+    : (network ?? activeNetwork);
 
-  const tokenVisibilityCaipId = useMemo(
-    () =>
-      restrictToExplicitNetwork
-        ? selectedNetwork?.caipId
-        : activeNetwork?.caipId,
-    [restrictToExplicitNetwork, selectedNetwork?.caipId, activeNetwork?.caipId],
-  );
+  const tokenVisibilityCaipId = restrictToExplicitNetwork
+    ? selectedNetwork?.caipId
+    : activeNetwork?.caipId;
 
-  const customTokenChainId = useMemo(
-    () =>
-      restrictToExplicitNetwork && network?.chainId != null
-        ? network.chainId
-        : activeNetwork?.chainId,
-    [restrictToExplicitNetwork, network?.chainId, activeNetwork?.chainId],
-  );
+  const customTokenChainId =
+    restrictToExplicitNetwork && network?.chainId != null
+      ? network.chainId
+      : activeNetwork?.chainId;
 
   const customTokensWithZeroBalance: {
     [address: string]: TokenWithBalance;
@@ -87,10 +79,7 @@ export const useTokensWithBalances = (
     if (!customTokenChainId) {
       return {};
     }
-    const customTokensForNetwork = customTokens?.[customTokenChainId];
-    if (!customTokensForNetwork) {
-      return {};
-    }
+    const customTokensForNetwork = customTokens?.[customTokenChainId] ?? {};
 
     return Object.entries(customTokensForNetwork).reduce<{
       [address: string]: TokenWithBalance;

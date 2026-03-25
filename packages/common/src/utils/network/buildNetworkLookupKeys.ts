@@ -5,8 +5,8 @@
 export function buildNetworkLookupKeys(
   chainId: string | number,
 ): Array<number | string> {
-  const t = String(chainId ?? '').trim();
-  if (t.length === 0) {
+  const trimmedChainId = String(chainId ?? '').trim();
+  if (trimmedChainId.length === 0) {
     return [];
   }
 
@@ -14,7 +14,13 @@ export function buildNetworkLookupKeys(
   const seen = new Set<string>();
 
   const push = (key: number | string) => {
-    const marker = typeof key === 'number' ? `n:${key}` : `s:${key}`;
+    const isNumber = typeof key === 'number';
+
+    if (isNumber && Number.isNaN(key)) {
+      return;
+    }
+
+    const marker = isNumber ? `n:${key}` : `s:${key}`;
     if (seen.has(marker)) {
       return;
     }
@@ -22,31 +28,31 @@ export function buildNetworkLookupKeys(
     keys.push(key);
   };
 
-  push(t);
+  push(trimmedChainId);
 
-  if (t.startsWith('eip155:')) {
-    const suffix = t.slice('eip155:'.length);
-    const n = Number.parseInt(suffix, 10);
-    if (!Number.isNaN(n)) {
-      push(n);
+  if (trimmedChainId.startsWith('eip155:')) {
+    const [, eip155NumericPart] = trimmedChainId.split('eip155:');
+    const parsedFromEip155 = Number.parseInt(eip155NumericPart ?? '', 10);
+    if (!Number.isNaN(parsedFromEip155)) {
+      push(parsedFromEip155);
     }
     return keys;
   }
 
-  if (/^0x[0-9a-fA-F]+$/i.test(t)) {
-    const n = Number.parseInt(t, 16);
-    if (!Number.isNaN(n)) {
-      push(n);
-      push(`eip155:${n}`);
+  if (/^0x[0-9a-fA-F]+$/i.test(trimmedChainId)) {
+    const parsedFromHex = Number.parseInt(trimmedChainId, 16);
+    if (!Number.isNaN(parsedFromHex)) {
+      push(parsedFromHex);
+      push(`eip155:${parsedFromHex}`);
     }
     return keys;
   }
 
-  if (/^\d+$/.test(t)) {
-    const n = Number.parseInt(t, 10);
-    if (!Number.isNaN(n)) {
-      push(n);
-      push(`eip155:${n}`);
+  if (/^\d+$/.test(trimmedChainId)) {
+    const parsedFromDecimal = Number.parseInt(trimmedChainId, 10);
+    if (!Number.isNaN(parsedFromDecimal)) {
+      push(parsedFromDecimal);
+      push(`eip155:${parsedFromDecimal}`);
     }
   }
 
