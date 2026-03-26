@@ -3,15 +3,9 @@ import { bigToBigInt } from '@avalabs/core-utils-sdk';
 
 import { bigintToBig } from '@core/common';
 import { useFeatureFlagContext } from '@core/ui';
-import {
-  FeatureVars,
-  FungibleTokenBalance,
-  isCrossChainTransfer,
-  isNativeToken,
-} from '@core/types';
+import { FeatureVars, FungibleTokenBalance, isNativeToken } from '@core/types';
 
 import { getBufferMultiplierFromBps } from '../../lib/getBufferMultiplierFromBps';
-import { getNativeBridgeFee } from '../lib/extractBridgeFee';
 import { sumAdditiveFees } from '../../lib/sumAdditiveFees';
 import { getAdditiveFees } from '../../lib/getAdditiveFees';
 
@@ -28,21 +22,13 @@ export const useMaxSwapAmount = ({
 }: UseMaxSwapAmountProps) => {
   const { selectFeatureFlag } = useFeatureFlagContext();
 
-  if (!fee || !sourceToken || !minimalQuote) {
+  if (typeof fee !== 'bigint' || !sourceToken || !minimalQuote) {
     return {
       isLoading: true,
       maxAmount: 0n,
       maxAmountFees: 0n,
     };
   }
-
-  const bridgeFee =
-    isNativeToken(sourceToken) && isCrossChainTransfer(minimalQuote)
-      ? getNativeBridgeFee(
-          minimalQuote,
-          selectFeatureFlag(FeatureVars.FUSION_BRIDGE_FEE_SAFETY_BPS),
-        )
-      : 0n;
 
   const additiveFeesAmount = sumAdditiveFees(
     sourceToken,
@@ -61,8 +47,7 @@ export const useMaxSwapAmount = ({
   );
 
   const allFees =
-    additiveFeesAmount +
-    (isNativeToken(sourceToken) ? bridgeFee + paddedFee : 0n);
+    additiveFeesAmount + (isNativeToken(sourceToken) ? paddedFee : 0n);
   const maxAmount = sourceToken.balance - allFees;
 
   // Specifically allow negative amounts here so we can determine when

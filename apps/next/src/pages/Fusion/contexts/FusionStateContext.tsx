@@ -327,6 +327,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     quotesStatus,
     sourceToken,
     isFeeLoading,
+    fee,
     feeError,
     minimumTransferAmount,
     isMaxSwapAmountLoading,
