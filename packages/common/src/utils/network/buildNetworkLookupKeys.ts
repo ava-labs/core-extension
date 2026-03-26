@@ -33,16 +33,14 @@ export function buildNetworkLookupKeys(
   if (trimmedChainId.startsWith('eip155:')) {
     const [, eip155NumericPart] = trimmedChainId.split('eip155:');
     const parsedFromEip155 = Number.parseInt(eip155NumericPart ?? '', 10);
-    if (!Number.isNaN(parsedFromEip155)) {
-      push(parsedFromEip155);
-    }
+    push(parsedFromEip155);
     return keys;
   }
 
   if (/^0x[0-9a-fA-F]+$/i.test(trimmedChainId)) {
     const parsedFromHex = Number.parseInt(trimmedChainId, 16);
+    push(parsedFromHex);
     if (!Number.isNaN(parsedFromHex)) {
-      push(parsedFromHex);
       push(`eip155:${parsedFromHex}`);
     }
     return keys;
@@ -50,8 +48,8 @@ export function buildNetworkLookupKeys(
 
   if (/^\d+$/.test(trimmedChainId)) {
     const parsedFromDecimal = Number.parseInt(trimmedChainId, 10);
+    push(parsedFromDecimal);
     if (!Number.isNaN(parsedFromDecimal)) {
-      push(parsedFromDecimal);
       push(`eip155:${parsedFromDecimal}`);
     }
   }

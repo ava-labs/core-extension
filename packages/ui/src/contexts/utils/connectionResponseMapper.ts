@@ -85,10 +85,8 @@ export function requestEngine(
 
     const { signal } = context;
 
-    if (signal?.aborted) {
-      return Promise.reject(
-        new DOMException('The operation was aborted.', 'AbortError'),
-      );
+    if (signal) {
+      signal.throwIfAborted();
     }
 
     const responsePromise = connectionRequest(requestWithId);
@@ -117,12 +115,12 @@ export function requestEngine(
     }
 
     connection.postMessage(serializeToJSON(requestWithId));
-    void responsePromise.then((res) => {
-      if (isDevelopment()) {
+    if (isDevelopment()) {
+      responsePromise.then((res) => {
         responseLog(`Extension Response (${res.method})`, res);
-      }
-      return res;
-    });
+        return res;
+      });
+    }
     return responsePromise;
   };
 }
