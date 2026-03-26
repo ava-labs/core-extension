@@ -13,8 +13,8 @@
     "typecheck": "yarn tsc --skipLibCheck --noEmit"
   },
   "dependencies": {
-    "@avalabs/evm-module": "3.6.0",
-    "@avalabs/svm-module": "3.6.0",
+    "@avalabs/evm-module": "0.0.0-cp-13841-activity-token-order-20260326040954",
+    "@avalabs/svm-module": "0.0.0-cp-13841-activity-token-order-20260326040954",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/types": "workspace:*",

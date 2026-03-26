@@ -34,6 +34,14 @@ export const GeneralTokenDetails: FC<Props> = ({
     tokenAddress,
   });
 
+  if (transactionHistory === null) {
+    return (
+      <Suspense fallback={<TransactionListSkeleton />}>
+        <TransactionListSkeleton />
+      </Suspense>
+    );
+  }
+
   if (transactionHistory.length === 0) {
     return <NoTokenActivity network={network} />;
   }

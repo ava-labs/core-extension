@@ -25,9 +25,6 @@ import {
   MIN_FILTERED_RESULTS,
 } from './activitySpamFilter';
 
-/** CP-13841: temporary — remove before shipping. Forces Glacier/Moralis history for one EVM account. */
-const DEBUG_EVM_HISTORY_ADDRESS = '0x1EAECC18B1cE33a2dfFA01bc3A5E421344999027';
-
 @singleton()
 export class HistoryService {
   constructor(
@@ -42,11 +39,7 @@ export class HistoryService {
     network: NetworkWithCaipId,
     otherAddress?: string,
   ): Promise<TxHistoryItem[]> {
-    let address = otherAddress ?? (await this.#getAddress(network));
-
-    if (network.vmName === NetworkVMType.EVM) {
-      address = DEBUG_EVM_HISTORY_ADDRESS;
-    }
+    const address = otherAddress ?? (await this.#getAddress(network));
 
     if (!address) {
       return [];

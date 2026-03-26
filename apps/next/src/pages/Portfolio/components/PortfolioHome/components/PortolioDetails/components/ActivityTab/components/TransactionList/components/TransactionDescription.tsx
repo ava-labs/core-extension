@@ -1,15 +1,16 @@
 import { styled, Typography } from '@avalabs/k2-alpine';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
+import { getAddressForChain, isNftTokenType } from '@core/common';
 import { TxHistoryItem } from '@core/types';
+import { useAccountsContext, useNetworkContext } from '@core/ui';
 import { Trans, useTranslation } from 'react-i18next';
 import { TransactionType } from '@avalabs/vm-module-types';
 import { FC, useMemo } from 'react';
-import { useAccountsContext } from '@core/ui/src/contexts/AccountsProvider';
-import { getAllAddressesForAccount, isNftTokenType } from '@core/common';
 import {
   isCctImportTransaction,
   isCctTransaction,
 } from '../../../utils/cctTransaction';
+import { resolveSwapDisplayTokens } from './resolveSwapDisplayTokens';
 
 export interface Props {
   transaction: TxHistoryItem;
@@ -20,12 +21,26 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
+  const { getNetwork } = useNetworkContext();
 
-  const userAddresses = useMemo(
-    () => (activeAccount ? getAllAddressesForAccount(activeAccount) : []),
-    [activeAccount],
-  );
   const [mainToken] = transaction.tokens;
+
+  const swapLegs = useMemo(() => {
+    if (transaction.txType !== TransactionType.SWAP) {
+      return null;
+    }
+    const network = getNetwork(Number(transaction.chainId));
+    const userAddress =
+      getAddressForChain(network, activeAccount) || transaction.from || '';
+    return resolveSwapDisplayTokens(transaction.tokens, userAddress);
+  }, [
+    activeAccount,
+    getNetwork,
+    transaction.chainId,
+    transaction.from,
+    transaction.tokens,
+    transaction.txType,
+  ]);
 
   const amount = useMemo(
     () => (
@@ -101,16 +116,16 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
       );
     }
     case TransactionType.SWAP: {
-      const sourceToken = transaction.tokens.find(
-        (token) =>
-          token.from?.address && userAddresses.includes(token.from.address),
-      );
+      if (!swapLegs || (!swapLegs.source && !swapLegs.target)) {
+        return (
+          <TransactionDescriptionContainer>
+            {t('Swap')}
+          </TransactionDescriptionContainer>
+        );
+      }
 
-      const targetToken = transaction.tokens.find(
-        (token) =>
-          token.to?.address && userAddresses.includes(token.to.address),
-      );
-
+      const { source: sourceToken, target: targetToken } = swapLegs;
+      const unknownLabel = t('Unknown');
       const sourceAmount = (
         <CollapsedTokenAmount
           amount={sourceToken?.amount?.toString() ?? '0'}
@@ -129,8 +144,8 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
           <Trans
             i18nKey="<sourceAmount /> {{sourceSymbol}} swapped for {{targetSymbol}}"
             values={{
-              sourceSymbol: sourceToken?.symbol,
-              targetSymbol: targetToken?.symbol,
+              sourceSymbol: sourceToken?.symbol ?? unknownLabel,
+              targetSymbol: targetToken?.symbol ?? unknownLabel,
             }}
             components={{ sourceAmount }}
           />
