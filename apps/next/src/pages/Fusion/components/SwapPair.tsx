@@ -3,7 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { Divider, Stack } from '@avalabs/k2-alpine';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 
-import { getUniqueTokenId } from '@core/types';
+import {
+  getUniqueTokenId,
+  isSolanaFungibleToken,
+  isSolanaNativeToken,
+} from '@core/types';
 
 import { Card } from '@/components/Card';
 import { TokenAmountInput } from '@/components/TokenAmountInput';
@@ -50,7 +54,7 @@ export const SwapPair = () => {
         return;
       }
 
-      if (isMax) {
+      if (isMax && maxAmount) {
         updateQuery({
           userAmount: bigIntToString(maxAmount, sourceToken.decimals),
         });
@@ -64,6 +68,16 @@ export const SwapPair = () => {
     },
     [updateQuery, sourceToken, maxAmount, pin, unpin],
   );
+
+  const isSolanaNativeCrossChainSwap =
+    sourceToken &&
+    targetToken &&
+    isSolanaNativeToken(sourceToken) &&
+    !isSolanaFungibleToken(targetToken);
+
+  // Due to network fee estimation issues, preset buttons are disabled when cross-chain swapping SOL.
+  const enabledPresetButtons =
+    minimumRequiredTokens.state === 'complete' && !isSolanaNativeCrossChainSwap;
 
   return (
     <Card>
@@ -91,7 +105,7 @@ export const SwapPair = () => {
           amount={userAmount}
           onAmountChange={onAmountChange}
           tokenHint={sourceToken ? t('You pay') : undefined}
-          withPresetButtons={minimumRequiredTokens.state === 'complete'}
+          withPresetButtons={enabledPresetButtons}
         />
         <Divider sx={{ mx: 2 }} />
         <TokenAmountInput

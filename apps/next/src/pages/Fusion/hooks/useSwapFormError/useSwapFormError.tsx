@@ -12,7 +12,6 @@ type UseSwapFormErrorArgs = Pick<
   | 'quotesStatus'
   | 'sourceToken'
   | 'minimumTransferAmount'
-  | 'minimumRequiredTokens'
   | 'currentRequiredTokens'
 >;
 
@@ -23,7 +22,6 @@ export const useSwapFormError = ({
   sourceToken,
   minimumTransferAmount,
   currentRequiredTokens,
-  minimumRequiredTokens,
 }: UseSwapFormErrorArgs) => {
   const { t } = useTranslation();
 
@@ -37,12 +35,8 @@ export const useSwapFormError = ({
   if (!sourceToken || !sourceAmountBigInt) {
     return '';
   }
-  const tokenRequirements =
-    currentRequiredTokens.state === 'complete'
-      ? currentRequiredTokens
-      : minimumRequiredTokens;
 
-  if (tokenRequirements.state === 'loading') {
+  if (currentRequiredTokens.state === 'loading') {
     return null;
   }
 
@@ -50,7 +44,7 @@ export const useSwapFormError = ({
   const userQuoteAmountError = validateSwapAmount(sourceAmountBigInt, t, {
     minimumTransferAmount,
     sourceToken,
-    requiredTokens: tokenRequirements,
+    requiredTokens: currentRequiredTokens,
   });
 
   if (userQuoteAmountError) {

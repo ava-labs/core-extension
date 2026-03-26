@@ -30,7 +30,7 @@ export const usePinnedMaxAmount = (
   tokenRequirements: RequiredTokenAmounts,
 ) => {
   const { updateQuery } = useFusionState();
-  const pinnedAmount = useRef<bigint | null>(null);
+  const pinnedAmount = useRef<bigint | undefined>(undefined);
   const lastAdjustmentTime = useRef(0);
 
   const sourceTokenId = sourceToken ? getUniqueTokenId(sourceToken) : undefined;
@@ -42,7 +42,7 @@ export const usePinnedMaxAmount = (
       !sourceTokenBalance ||
       tokenRequirements.state !== 'complete'
     ) {
-      return 0n;
+      return undefined;
     }
 
     return calculateMaxAmount(
@@ -57,8 +57,8 @@ export const usePinnedMaxAmount = (
     const timeSinceLastAdjustment = now - lastAdjustmentTime.current;
 
     if (
-      pinnedAmount.current !== null &&
-      maxAmount > 0n &&
+      pinnedAmount.current !== undefined &&
+      maxAmount !== undefined &&
       maxAmount < pinnedAmount.current &&
       (isBitcoin || timeSinceLastAdjustment >= THROTTLE_MS)
     ) {
@@ -75,7 +75,7 @@ export const usePinnedMaxAmount = (
   }, [maxAmount]);
 
   const unpin = useCallback(() => {
-    pinnedAmount.current = null;
+    pinnedAmount.current = undefined;
     lastAdjustmentTime.current = 0;
   }, []);
 

@@ -28,7 +28,7 @@ const getFeeBuffer = (
     return 0.6; // 60% buffer for network fees
   }
 
-  return 0.15; // 15% buffer for additive fees
+  return 0.3; // 30% buffer for additive fees
 };
 
 export const useRequiredTokenAmounts = (

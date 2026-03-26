@@ -318,7 +318,6 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     quotesStatus,
     sourceToken,
     minimumTransferAmount,
-    minimumRequiredTokens,
     currentRequiredTokens,
   });
 
