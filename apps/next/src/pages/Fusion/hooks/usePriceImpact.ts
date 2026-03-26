@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { calculatePriceImpactFromQuote, Quote } from '@avalabs/fusion-sdk';
 
 import { bigintToBig } from '@core/common';
-import { FungibleTokenBalance } from '@core/types';
+import { FungibleTokenBalance, isNativeToken } from '@core/types';
+import { useNetworkContext, useTokenPrice } from '@core/ui';
 
 export type PriceImpactSeverity = 'low' | 'high' | 'critical';
 
@@ -44,15 +45,28 @@ export function usePriceImpact(
   const [priceImpactAvailability, setPriceImpactAvailability] =
     useState<PriceImpactAvailability>('hidden');
 
+  const { getNetwork } = useNetworkContext();
+
+  const sourcePrice = useTokenPrice(
+    sourceToken && isNativeToken(sourceToken)
+      ? sourceToken.symbol
+      : sourceToken?.address,
+    sourceToken && getNetwork(sourceToken?.chainCaipId),
+  );
+
+  const targetPrice = useTokenPrice(
+    targetToken && isNativeToken(targetToken)
+      ? targetToken.symbol
+      : targetToken?.address,
+    targetToken && getNetwork(targetToken?.chainCaipId),
+  );
+
   useEffect(() => {
     if (!quote || !sourceToken || !targetToken) {
       setPriceImpact(undefined);
       setPriceImpactAvailability('hidden');
       return;
     }
-
-    const sourcePrice = sourceToken.priceInCurrency;
-    const targetPrice = targetToken.priceInCurrency;
 
     if (!sourcePrice || !targetPrice) {
       setPriceImpact(undefined);
@@ -65,7 +79,14 @@ export function usePriceImpact(
 
     let cancelled = false;
 
+    const sourcePriceSnapshot = sourcePrice;
+    const targetPriceSnapshot = targetPrice;
+
     calculatePriceImpactFromQuote(quote, async (input, output) => {
+      if (cancelled) {
+        return [0, 0];
+      }
+
       const inputAmount = bigintToBig(
         input.amount,
         input.asset.decimals,
@@ -75,7 +96,10 @@ export function usePriceImpact(
         output.asset.decimals,
       ).toNumber();
 
-      return [inputAmount * sourcePrice, outputAmount * targetPrice];
+      return [
+        inputAmount * sourcePriceSnapshot,
+        outputAmount * targetPriceSnapshot,
+      ];
     }).then((bps) => {
       if (cancelled) {
         return;
@@ -94,7 +118,7 @@ export function usePriceImpact(
     return () => {
       cancelled = true;
     };
-  }, [quote, sourceToken, targetToken]);
+  }, [quote, sourceToken, targetToken, sourcePrice, targetPrice]);
 
   return {
     priceImpact,

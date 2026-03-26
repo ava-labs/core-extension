@@ -11,12 +11,21 @@ jest.mock('@avalabs/fusion-sdk', () => {
   };
 });
 
+jest.mock('@core/ui', () => ({
+  useNetworkContext: jest.fn(),
+  useTokenPrice: jest.fn(),
+}));
+
 import { renderHook, waitFor } from '@testing-library/react';
 import * as FusionSdk from '@avalabs/fusion-sdk';
+import { useNetworkContext, useTokenPrice } from '@core/ui';
 
 import { FungibleTokenBalance } from '@core/types';
 
 import { usePriceImpact, getPriceImpactSeverity } from './usePriceImpact';
+
+const mockUseNetworkContext = jest.mocked(useNetworkContext);
+const mockUseTokenPrice = jest.mocked(useTokenPrice);
 
 const mockCalculatePriceImpactFromQuote = jest.mocked(
   FusionSdk.calculatePriceImpactFromQuote,
@@ -71,19 +80,53 @@ function createMockQuote(
   };
 }
 
-function createMockToken(
+const SOURCE_TOKEN_ADDRESS = '0xSourceToken';
+const TARGET_TOKEN_ADDRESS = '0xTargetToken';
+
+function createMockSourceToken(
   overrides: Partial<FungibleTokenBalance> = {},
 ): FungibleTokenBalance {
   return {
-    priceInCurrency: 100,
+    address: SOURCE_TOKEN_ADDRESS,
     decimals: 18,
     balance: 1000000000000000000n,
+    chainCaipId: 'eip155:43114',
     ...overrides,
   } as FungibleTokenBalance;
 }
 
+function createMockTargetToken(
+  overrides: Partial<FungibleTokenBalance> = {},
+): FungibleTokenBalance {
+  return {
+    address: TARGET_TOKEN_ADDRESS,
+    decimals: 6,
+    balance: 1000000n,
+    chainCaipId: 'eip155:43114',
+    ...overrides,
+  } as FungibleTokenBalance;
+}
+
+function setupTokenPriceMock(
+  sourcePrice: number | null,
+  targetPrice: number | null,
+) {
+  mockUseTokenPrice.mockImplementation((address) => {
+    if (address === SOURCE_TOKEN_ADDRESS) return sourcePrice;
+    if (address === TARGET_TOKEN_ADDRESS) return targetPrice;
+    return null;
+  });
+}
+
 describe('usePriceImpact', () => {
+  beforeEach(() => {
+    mockUseNetworkContext.mockReturnValue({
+      getNetwork: jest.fn().mockReturnValue({ chainId: 43114 }),
+    } as unknown as ReturnType<typeof useNetworkContext>);
+  });
+
   afterEach(() => {
+    jest.clearAllMocks();
     const actual = jest.requireActual<typeof import('@avalabs/fusion-sdk')>(
       '@avalabs/fusion-sdk',
     );
@@ -93,8 +136,9 @@ describe('usePriceImpact', () => {
   });
 
   it('returns undefined when quote is null', () => {
-    const source = createMockToken({ priceInCurrency: 100 });
-    const target = createMockToken({ priceInCurrency: 100 });
+    setupTokenPriceMock(100, 100);
+    const source = createMockSourceToken();
+    const target = createMockTargetToken();
 
     const { result } = renderHook(() => usePriceImpact(null, source, target));
 
@@ -104,8 +148,9 @@ describe('usePriceImpact', () => {
   });
 
   it('returns undefined when sourceToken is undefined', () => {
+    setupTokenPriceMock(100, 100);
     const quote = createMockQuote();
-    const target = createMockToken();
+    const target = createMockTargetToken();
 
     const { result } = renderHook(() =>
       usePriceImpact(quote, undefined, target),
@@ -116,8 +161,9 @@ describe('usePriceImpact', () => {
   });
 
   it('returns undefined when targetToken is undefined', () => {
+    setupTokenPriceMock(100, 100);
     const quote = createMockQuote();
-    const source = createMockToken();
+    const source = createMockSourceToken();
 
     const { result } = renderHook(() =>
       usePriceImpact(quote, source, undefined),
@@ -128,9 +174,10 @@ describe('usePriceImpact', () => {
   });
 
   it('returns undefined when sourceToken has no price', () => {
+    setupTokenPriceMock(null, 1);
     const quote = createMockQuote();
-    const source = createMockToken({ priceInCurrency: undefined });
-    const target = createMockToken({ priceInCurrency: 1 });
+    const source = createMockSourceToken();
+    const target = createMockTargetToken();
 
     const { result } = renderHook(() => usePriceImpact(quote, source, target));
 
@@ -139,9 +186,10 @@ describe('usePriceImpact', () => {
   });
 
   it('returns undefined when targetToken has no price', () => {
+    setupTokenPriceMock(100, null);
     const quote = createMockQuote();
-    const source = createMockToken({ priceInCurrency: 100 });
-    const target = createMockToken({ priceInCurrency: undefined });
+    const source = createMockSourceToken();
+    const target = createMockTargetToken();
 
     const { result } = renderHook(() => usePriceImpact(quote, source, target));
 
@@ -150,6 +198,8 @@ describe('usePriceImpact', () => {
   });
 
   it('is calculating until the SDK resolves', async () => {
+    setupTokenPriceMock(100, 1);
+
     let resolveBps!: (value: number | null) => void;
     const pendingPromise = new Promise<number | null>((resolve) => {
       resolveBps = resolve;
@@ -162,8 +212,8 @@ describe('usePriceImpact', () => {
       assetIn: { ...MOCK_ASSET_IN, decimals: 18 },
       assetOut: { ...MOCK_ASSET_OUT, decimals: 6 },
     });
-    const source = createMockToken({ priceInCurrency: 100 });
-    const target = createMockToken({ priceInCurrency: 1 });
+    const source = createMockSourceToken();
+    const target = createMockTargetToken();
 
     const { result } = renderHook(() => usePriceImpact(quote, source, target));
 
@@ -180,6 +230,7 @@ describe('usePriceImpact', () => {
   });
 
   it('sets unavailable when the SDK returns null basis points', async () => {
+    setupTokenPriceMock(100, 1);
     mockCalculatePriceImpactFromQuote.mockResolvedValueOnce(null);
 
     const quote = createMockQuote({
@@ -188,8 +239,8 @@ describe('usePriceImpact', () => {
       assetIn: { ...MOCK_ASSET_IN, decimals: 18 },
       assetOut: { ...MOCK_ASSET_OUT, decimals: 6 },
     });
-    const source = createMockToken({ priceInCurrency: 100 });
-    const target = createMockToken({ priceInCurrency: 1 });
+    const source = createMockSourceToken();
+    const target = createMockTargetToken();
 
     const { result } = renderHook(() => usePriceImpact(quote, source, target));
 
@@ -202,14 +253,16 @@ describe('usePriceImpact', () => {
   it('calculates 0% impact when market and quote rates match', async () => {
     // source: 1 token at $100 = $100 input
     // target: 100 tokens at $1 = $100 output → 0% impact
+    setupTokenPriceMock(100, 1);
+
     const quote = createMockQuote({
       amountIn: 1000000000000000000n,
       amountOut: 100000000n,
       assetIn: { ...MOCK_ASSET_IN, decimals: 18 },
       assetOut: { ...MOCK_ASSET_OUT, decimals: 6 },
     });
-    const source = createMockToken({ priceInCurrency: 100 });
-    const target = createMockToken({ priceInCurrency: 1 });
+    const source = createMockSourceToken();
+    const target = createMockTargetToken();
 
     const { result } = renderHook(() => usePriceImpact(quote, source, target));
 
@@ -222,14 +275,16 @@ describe('usePriceImpact', () => {
   it('calculates positive price impact when output value is less than input', async () => {
     // source: 1 token at $100 = $100 input
     // target: 90 tokens at $1 = $90 output → 10% impact
+    setupTokenPriceMock(100, 1);
+
     const quote = createMockQuote({
       amountIn: 1000000000000000000n,
       amountOut: 90000000n,
       assetIn: { ...MOCK_ASSET_IN, decimals: 18 },
       assetOut: { ...MOCK_ASSET_OUT, decimals: 6 },
     });
-    const source = createMockToken({ priceInCurrency: 100 });
-    const target = createMockToken({ priceInCurrency: 1 });
+    const source = createMockSourceToken();
+    const target = createMockTargetToken();
 
     const { result } = renderHook(() => usePriceImpact(quote, source, target));
 
@@ -243,14 +298,16 @@ describe('usePriceImpact', () => {
   it('clamps favorable impact (negative) to 0', async () => {
     // source: 1 token at $100 = $100 input
     // target: 110 tokens at $1 = $110 output → -10% (favorable)
+    setupTokenPriceMock(100, 1);
+
     const quote = createMockQuote({
       amountIn: 1000000000000000000n,
       amountOut: 110000000n,
       assetIn: { ...MOCK_ASSET_IN, decimals: 18 },
       assetOut: { ...MOCK_ASSET_OUT, decimals: 6 },
     });
-    const source = createMockToken({ priceInCurrency: 100 });
-    const target = createMockToken({ priceInCurrency: 1 });
+    const source = createMockSourceToken();
+    const target = createMockTargetToken();
 
     const { result } = renderHook(() => usePriceImpact(quote, source, target));
 
@@ -263,14 +320,16 @@ describe('usePriceImpact', () => {
   it('handles large price impact (> 50%) as critical', async () => {
     // source: 1 token at $100 = $100 input
     // target: 40 tokens at $1 = $40 output → 60% impact
+    setupTokenPriceMock(100, 1);
+
     const quote = createMockQuote({
       amountIn: 1000000000000000000n,
       amountOut: 40000000n,
       assetIn: { ...MOCK_ASSET_IN, decimals: 18 },
       assetOut: { ...MOCK_ASSET_OUT, decimals: 6 },
     });
-    const source = createMockToken({ priceInCurrency: 100 });
-    const target = createMockToken({ priceInCurrency: 1 });
+    const source = createMockSourceToken();
+    const target = createMockTargetToken();
 
     const { result } = renderHook(() => usePriceImpact(quote, source, target));
 
