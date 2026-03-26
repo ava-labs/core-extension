@@ -13,11 +13,21 @@ import {
   NETWORK_OVERRIDES_STORAGE_KEY,
   NETWORK_STORAGE_KEY,
   FeatureGates,
+  type Network,
 } from '@core/types';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { runtime } from 'webextension-polyfill';
-import { decorateWithCaipId } from '@core/common';
+import { decorateWithCaipId, withDefaultNativeTokenSymbol } from '@core/common';
 import { GlacierService } from '../glacier/GlacierService';
+
+function decorateChainListLikeService(chainList: Record<string, Network>) {
+  return Object.fromEntries(
+    Object.entries(chainList).map(([chainId, network]) => [
+      chainId,
+      decorateWithCaipId(withDefaultNativeTokenSymbol(network)),
+    ]),
+  );
+}
 
 jest.mock('@avalabs/core-wallets-sdk', () => {
   const BitcoinProviderMock = jest.fn();
@@ -939,13 +949,15 @@ describe('background/services/network/NetworkService', () => {
 
       const networksPromise = await networkService.allNetworks.promisify();
 
-      expect(await networksPromise).toEqual({
-        ...originalChainList,
-        '1337': {
-          ...originalChainList['1337'],
-          rpcUrl: 'http://my.custom.rpc',
-        },
-      });
+      expect(await networksPromise).toEqual(
+        decorateChainListLikeService({
+          ...originalChainList,
+          '1337': {
+            ...originalChainList['1337'],
+            rpcUrl: 'http://my.custom.rpc',
+          },
+        } as unknown as Record<string, Network>),
+      );
     });
 
     it('applies config overrides to .activeNetworks signal', async () => {
@@ -961,13 +973,15 @@ describe('background/services/network/NetworkService', () => {
 
       const networksPromise = await networkService.activeNetworks.promisify();
 
-      expect(await networksPromise).toEqual({
-        ...originalChainList,
-        '1337': {
-          ...originalChainList['1337'],
-          rpcUrl: 'http://my.custom.rpc',
-        },
-      });
+      expect(await networksPromise).toEqual(
+        decorateChainListLikeService({
+          ...originalChainList,
+          '1337': {
+            ...originalChainList['1337'],
+            rpcUrl: 'http://my.custom.rpc',
+          },
+        } as unknown as Record<string, Network>),
+      );
     });
   });
 
@@ -1002,14 +1016,15 @@ describe('background/services/network/NetworkService', () => {
     const mainnetNetworksPromise =
       await networkService.activeNetworks.promisify();
 
-    expect(await mainnetNetworksPromise).toEqual({
-      '1': {
-        vmName: NetworkVMType.EVM,
-        caipId: 'eip155:1',
-        chainId: 1,
-        isTestnet: false,
-      },
-    });
+    expect(await mainnetNetworksPromise).toEqual(
+      decorateChainListLikeService({
+        '1': {
+          chainId: 1,
+          vmName: 'EVM',
+          isTestnet: false,
+        },
+      } as unknown as Record<string, Network>),
+    );
 
     jest
       .spyOn(networkService, 'uiActiveNetwork', 'get')
@@ -1021,14 +1036,15 @@ describe('background/services/network/NetworkService', () => {
     const testnetNetworksPromise =
       await networkService.activeNetworks.promisify();
 
-    expect(await testnetNetworksPromise).toEqual({
-      '1337': {
-        vmName: NetworkVMType.EVM,
-        caipId: 'eip155:1337',
-        chainId: 1337,
-        isTestnet: true,
-      },
-    });
+    expect(await testnetNetworksPromise).toEqual(
+      decorateChainListLikeService({
+        '1337': {
+          chainId: 1337,
+          vmName: 'EVM',
+          isTestnet: true,
+        },
+      } as unknown as Record<string, Network>),
+    );
   });
 
   it('filters pchain network by feature flag when dispatching allNetowrks signal', async () => {
@@ -1063,7 +1079,11 @@ describe('background/services/network/NetworkService', () => {
     networkService._allNetworks.dispatch(allNetworks);
 
     const result1 = await networkService.activeNetworks.promisify();
-    expect(await result1).toEqual(allNetworks);
+    expect(await result1).toEqual(
+      decorateChainListLikeService(
+        allNetworks as unknown as Record<string, Network>,
+      ),
+    );
 
     featureFlagsServiceMock.featureFlags[FeatureGates.IN_APP_SUPPORT_P_CHAIN] =
       false;
@@ -1075,13 +1095,10 @@ describe('background/services/network/NetworkService', () => {
     networkService._allNetworks.dispatch(allNetworks);
 
     const result2 = await networkService.activeNetworks.promisify();
-    expect(await result2).toEqual({
-      '1': {
-        caipId: 'eip155:1',
-        vmName: 'EVM',
-        chainId: 1,
-        isTestnet: false,
-      },
-    });
+    expect(await result2).toEqual(
+      decorateChainListLikeService({
+        '1': allNetworks['1'],
+      } as unknown as Record<string, Network>),
+    );
   });
 });
