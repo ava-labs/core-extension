@@ -6,7 +6,7 @@ import { TokenType, TransactionType } from '@avalabs/vm-module-types';
 import { FC, useMemo } from 'react';
 import { useAccountsContext } from '@core/ui/src/contexts/AccountsProvider';
 import { getAllAddressesForAccount, isNftTokenType } from '@core/common';
-import { useNativeSymbolForTransactionChain } from '@/hooks/useNativeSymbolForTransactionChain';
+import { useActivityListNativeSymbol } from './ActivityListNativeSymbols';
 import {
   isCctImportTransaction,
   isCctTransaction,
@@ -159,7 +159,7 @@ export interface Props {
 
 export const TransactionDescription: FC<Props> = ({ transaction }) => {
   const { t } = useTranslation();
-  const nativeSymbolForTxChain = useNativeSymbolForTransactionChain(
+  const nativeSymbolForTxChain = useActivityListNativeSymbol(
     transaction.chainId,
   );
   const {

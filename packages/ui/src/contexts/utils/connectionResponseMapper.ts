@@ -67,6 +67,8 @@ export function requestEngine(
   ) => {
     const id = `${request.method}-${Math.floor(Math.random() * 10000000)}`;
 
+    const { signal, ...contextForWire } = context;
+
     const requestWithId: JsonRpcRequest = {
       id,
       jsonrpc: '2.0',
@@ -80,10 +82,8 @@ export function requestEngine(
           ...request,
         },
       },
-      context,
+      context: contextForWire,
     };
-
-    const { signal } = context;
 
     if (signal) {
       signal.throwIfAborted();
@@ -102,9 +102,11 @@ export function requestEngine(
         }
       };
       signal.addEventListener('abort', onAbort, { once: true });
-      void responsePromise.finally(() => {
-        signal.removeEventListener('abort', onAbort);
-      });
+      void responsePromise
+        .finally(() => {
+          signal.removeEventListener('abort', onAbort);
+        })
+        .catch(() => {});
     }
 
     if (isDevelopment()) {
@@ -116,10 +118,12 @@ export function requestEngine(
 
     connection.postMessage(serializeToJSON(requestWithId));
     if (isDevelopment()) {
-      responsePromise.then((res) => {
-        responseLog(`Extension Response (${res.method})`, res);
-        return res;
-      });
+      responsePromise
+        .then((res) => {
+          responseLog(`Extension Response (${res.method})`, res);
+          return res;
+        })
+        .catch(() => {});
     }
     return responsePromise;
   };

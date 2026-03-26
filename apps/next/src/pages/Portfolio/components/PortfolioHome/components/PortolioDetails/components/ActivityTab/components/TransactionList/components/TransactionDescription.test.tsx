@@ -10,6 +10,7 @@ import { createInstance } from 'i18next';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 
 import translationEn from '@/localization/locales/en/translation.json';
+import { ActivityListNativeSymbolsProvider } from './ActivityListNativeSymbols';
 import { TransactionDescription } from './TransactionDescription';
 
 jest.mock('@/hooks/useNativeSymbolForTransactionChain', () => ({
@@ -236,7 +237,9 @@ describe('TransactionDescription', () => {
     return render(
       <ThemeProvider theme="light" toastVariant="extension">
         <I18nextProvider i18n={i18n}>
-          <TransactionDescription transaction={transaction} />
+          <ActivityListNativeSymbolsProvider chainIds={['1', '8453']}>
+            <TransactionDescription transaction={transaction} />
+          </ActivityListNativeSymbolsProvider>
         </I18nextProvider>
       </ThemeProvider>,
     );
