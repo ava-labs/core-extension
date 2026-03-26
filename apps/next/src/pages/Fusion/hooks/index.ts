@@ -1,2 +1,2 @@
 export * from './useSwapQuery';
-export * from './useSwapFormError';
+export * from './useSwapFormError/useSwapFormError';

@@ -51,8 +51,8 @@ import {
 import { getSwapStatus } from './lib/getSwapStatus';
 import { FusionState } from '../types';
 import { useFusionMinimumTransferAmount } from './hooks/useMinimumTransferAmount';
-import { useMaxButtonFeeEstimate } from './hooks/useMaxButtonFeeEstimate';
-import { useMaxSwapAmount } from './hooks/useMaxSwapAmount';
+import { useRequiredTokenAmounts } from './hooks/useRequiredTokenAmounts';
+import { useMinimalQuote } from './hooks/useMinimalQuote';
 
 const FusionStateContext = createContext<FusionState | undefined>(undefined);
 
@@ -284,31 +284,19 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     ],
   );
 
-  const { fee, isFeeLoading, feeError, minimalQuote } = useMaxButtonFeeEstimate(
-    {
-      manager,
-      fromAddress,
-      toAddress,
-      sourceAsset,
-      sourceChain,
-      targetAsset,
-      targetChain,
-      sourceToken,
-      minimumTransferAmount: isMinimumTransferAmountLoading
-        ? undefined
-        : minimumTransferAmount,
-      slippageBps: autoSlippage ? undefined : slippage * 100,
-    },
-  );
-
-  const {
-    isLoading: isMaxSwapAmountLoading,
-    maxAmount: maxSwapAmount,
-    maxAmountFees: maxSwapAmountFees,
-  } = useMaxSwapAmount({
-    fee,
+  const minimalQuote = useMinimalQuote({
+    manager,
+    fromAddress,
+    toAddress,
+    sourceAsset,
     sourceToken,
-    minimalQuote,
+    sourceChain,
+    targetAsset,
+    targetChain,
+    minimumTransferAmount: isMinimumTransferAmountLoading
+      ? undefined
+      : minimumTransferAmount,
+    slippageBps: autoSlippage ? undefined : slippage * 100,
   });
 
   const status = getSwapStatus(
@@ -321,18 +309,17 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     selectedQuote,
   );
 
+  const minimumRequiredTokens = useRequiredTokenAmounts(manager, minimalQuote);
+  const currentRequiredTokens = useRequiredTokenAmounts(manager, selectedQuote);
+
   const formError = useSwapFormError({
     debouncedUserAmount,
     quotes,
     quotesStatus,
     sourceToken,
-    isFeeLoading,
-    fee,
-    feeError,
     minimumTransferAmount,
-    isMaxSwapAmountLoading,
-    maxSwapAmount,
-    maxSwapAmountFees,
+    minimumRequiredTokens,
+    currentRequiredTokens,
   });
 
   return (
@@ -369,14 +356,10 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         selectQuoteById,
         transfer,
         minimumTransferAmount,
-        fee,
-        isFeeLoading,
-        feeError,
-        maxSwapAmount,
-        maxSwapAmountFees,
-        isMaxSwapAmountLoading,
         minimalQuote,
         formError,
+        minimumRequiredTokens,
+        currentRequiredTokens,
       }}
     >
       {children}

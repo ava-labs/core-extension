@@ -5,6 +5,7 @@ import { Divider, Stack, styled, Typography } from '@avalabs/k2-alpine';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 
 import { TokenAmount } from './types';
+import { useNetworkContext } from '@core/ui';
 
 const collapsedTokenAmountProps: Omit<
   ComponentProps<typeof CollapsedTokenAmount>,
@@ -26,26 +27,35 @@ const FeesDivider = styled(Divider)(({ theme }) => ({
 export const SwapFeesBreakdown: FC<{ tokenAmounts: TokenAmount[] }> = ({
   tokenAmounts,
 }) => {
+  const { getNetwork } = useNetworkContext();
+
   return (
     <Stack divider={<FeesDivider />}>
-      {tokenAmounts.map((tokenAmount) => (
-        <Stack
-          key={`${tokenAmount.token.chainCaipId}-${tokenAmount.token.symbol}`}
-          direction="row"
-          alignItems="center"
-          justifyContent="flex-end"
-          gap={0.5}
-        >
-          <CollapsedTokenAmount
-            amount={bigIntToString(
-              tokenAmount.amount,
-              tokenAmount.token.decimals,
-            )}
-            {...collapsedTokenAmountProps}
-          />
-          <Typography variant="body3">{tokenAmount.token.symbol}</Typography>
-        </Stack>
-      ))}
+      {tokenAmounts.map((tokenAmount) => {
+        const chainName = getNetwork(tokenAmount.token.chainCaipId)?.chainName;
+
+        return (
+          <Stack
+            key={`${tokenAmount.token.chainCaipId}-${tokenAmount.token.symbol}`}
+            direction="row"
+            alignItems="center"
+            justifyContent="flex-end"
+            gap={0.5}
+          >
+            <CollapsedTokenAmount
+              amount={bigIntToString(
+                tokenAmount.amount,
+                tokenAmount.token.decimals,
+              )}
+              {...collapsedTokenAmountProps}
+            />
+            <Typography variant="body3">
+              {tokenAmount.token.symbol}
+              {chainName ? ` (${chainName})` : ''}
+            </Typography>
+          </Stack>
+        );
+      })}
     </Stack>
   );
 };

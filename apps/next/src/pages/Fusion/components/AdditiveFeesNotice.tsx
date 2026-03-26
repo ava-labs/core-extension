@@ -1,20 +1,15 @@
-import { FC } from 'react';
-import { useTranslation } from 'react-i18next';
+import { ComponentProps, FC } from 'react';
+import { Trans } from 'react-i18next';
 import { Typography } from '@avalabs/k2-alpine';
+
+import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 
 type Props = {
   sum: string;
   symbol: string;
-  isNativeToken: boolean;
 };
 
-export const AdditiveFeesNotice: FC<Props> = ({
-  sum,
-  symbol,
-  isNativeToken,
-}) => {
-  const { t } = useTranslation();
-
+export const AdditiveFeesNotice: FC<Props> = ({ sum, symbol }) => {
   return (
     <Typography
       component="p"
@@ -23,17 +18,29 @@ export const AdditiveFeesNotice: FC<Props> = ({
       variant="caption"
       minHeight="1lh"
     >
-      {sum &&
-        symbol &&
-        t(
-          isNativeToken
-            ? '+{{sum}} {{symbol}} for network and bridge fees'
-            : '+{{sum}} {{symbol}} for bridge fees',
-          {
-            sum,
-            symbol,
-          },
-        )}
+      {sum && symbol && (
+        <Trans
+          i18nKey="+<total /> {{symbol}} for bridge fees"
+          components={{
+            total: (
+              <CollapsedTokenAmount
+                amount={sum}
+                {...collapsedTokenAmountProps}
+              />
+            ),
+          }}
+          values={{ symbol }}
+        />
+      )}
     </Typography>
   );
+};
+
+const collapsedTokenAmountProps: Omit<
+  ComponentProps<typeof CollapsedTokenAmount>,
+  'amount'
+> = {
+  regularProps: { variant: 'caption' },
+  overlineProps: { variant: 'caption2', sx: { transform: 'scale(0.8)' } },
+  showApproximationSign: false,
 };
