@@ -40,18 +40,14 @@ export function buildNetworkLookupKeys(
   if (/^0x[0-9a-fA-F]+$/i.test(trimmedChainId)) {
     const parsedFromHex = Number.parseInt(trimmedChainId, 16);
     push(parsedFromHex);
-    if (!Number.isNaN(parsedFromHex)) {
-      push(`eip155:${parsedFromHex}`);
-    }
+    push(`eip155:${parsedFromHex}`);
     return keys;
   }
 
   if (/^\d+$/.test(trimmedChainId)) {
     const parsedFromDecimal = Number.parseInt(trimmedChainId, 10);
     push(parsedFromDecimal);
-    if (!Number.isNaN(parsedFromDecimal)) {
-      push(`eip155:${parsedFromDecimal}`);
-    }
+    push(`eip155:${parsedFromDecimal}`);
   }
 
   return keys;
