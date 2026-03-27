@@ -102,7 +102,7 @@ export function requestEngine(
         }
       };
       signal.addEventListener('abort', onAbort, { once: true });
-      void responsePromise
+      responsePromise
         .finally(() => {
           signal.removeEventListener('abort', onAbort);
         })

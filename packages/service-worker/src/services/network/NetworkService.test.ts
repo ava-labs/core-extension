@@ -1047,7 +1047,7 @@ describe('background/services/network/NetworkService', () => {
     );
   });
 
-  it('filters pchain network by feature flag when dispatching allNetowrks signal', async () => {
+  it('filters pchain network by feature flag when dispatching allNetworks signal', async () => {
     const allNetworks = {
       '1': {
         vmName: NetworkVMType.EVM,

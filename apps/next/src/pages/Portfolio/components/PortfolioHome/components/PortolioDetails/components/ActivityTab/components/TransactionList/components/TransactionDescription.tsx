@@ -33,7 +33,7 @@ function addressMatchesUser(
 
 function shortenHexAddress(address: string): string {
   const normalized = address.trim().toLowerCase();
-  if (!normalized.startsWith('0x') || normalized.length < 12) {
+  if (!isHexAddress(normalized) || normalized.length < 12) {
     return address.trim();
   }
   return `${normalized.slice(0, 6)}…${normalized.slice(-4)}`;
@@ -84,14 +84,11 @@ function tokenIsIncomingToUser(
     return true;
   }
   const toUnset = !token.to?.address;
-  if (
+  return (
     toUnset &&
     token.type === TokenType.NATIVE &&
     addressMatchesUser(transaction.to, userAddresses)
-  ) {
-    return true;
-  }
-  return false;
+  );
 }
 
 function tokenIsOutgoingFromUser(
@@ -103,14 +100,11 @@ function tokenIsOutgoingFromUser(
     return true;
   }
   const fromUnset = !token.from?.address;
-  if (
+  return (
     fromUnset &&
     token.type === TokenType.NATIVE &&
     addressMatchesUser(transaction.from, userAddresses)
-  ) {
-    return true;
-  }
-  return false;
+  );
 }
 
 function pickIncomingToken(
@@ -121,8 +115,8 @@ function pickIncomingToken(
   if (tokens.length === 0) {
     return undefined;
   }
-  const first = tokens[0];
-  if (first === undefined) {
+  const [first] = tokens;
+  if (first == null) {
     return undefined;
   }
   const candidates = tokens.filter((token) =>
@@ -141,8 +135,8 @@ function pickOutgoingToken(
   if (tokens.length === 0) {
     return undefined;
   }
-  const first = tokens[0];
-  if (first === undefined) {
+  const [first] = tokens;
+  if (first == null) {
     return undefined;
   }
   const candidates = tokens.filter((token) =>
@@ -177,7 +171,7 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
       return undefined;
     }
 
-    const first = tokens[0];
+    const [first] = tokens;
     const incoming =
       pickIncomingToken(tokens, transaction, userAddresses) ?? first;
     const outgoing =
