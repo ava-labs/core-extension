@@ -3,9 +3,8 @@ import { Asset, Chain, TransferManager } from '@avalabs/fusion-sdk';
 import { FungibleTokenBalance } from '@core/types';
 
 import { useQuotes } from './useQuotes';
-import { useNativeFeeEstimate } from './useNativeFeeEstimate';
 
-type UseMaxButtonFeeEstimateProps = {
+type UseMinimalQuoteProps = {
   manager?: TransferManager;
   fromAddress?: string;
   toAddress?: string;
@@ -18,7 +17,7 @@ type UseMaxButtonFeeEstimateProps = {
   slippageBps?: number;
 };
 
-export const useMaxButtonFeeEstimate = ({
+export const useMinimalQuote = ({
   manager,
   fromAddress,
   toAddress,
@@ -29,7 +28,7 @@ export const useMaxButtonFeeEstimate = ({
   targetChain,
   minimumTransferAmount,
   slippageBps,
-}: UseMaxButtonFeeEstimateProps) => {
+}: UseMinimalQuoteProps) => {
   const skipFetching =
     !manager ||
     !fromAddress ||
@@ -67,15 +66,5 @@ export const useMaxButtonFeeEstimate = ({
     skipFetching,
   );
 
-  const { fee, isFeeLoading, feeError } = useNativeFeeEstimate(
-    manager,
-    selectedQuote,
-  );
-
-  return {
-    fee,
-    minimalQuote: selectedQuote,
-    isFeeLoading,
-    feeError,
-  };
+  return selectedQuote;
 };
