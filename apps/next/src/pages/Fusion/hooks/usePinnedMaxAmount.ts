@@ -10,6 +10,7 @@ import {
 import { useFusionState } from '../contexts';
 import { RequiredTokenAmounts } from '../types';
 import { calculateMaxAmount } from '../lib/calculateMaxAmount';
+import { bumpRequiredFeeAmounts } from '../lib/bumpRequiredFeeAmounts';
 
 // Throttle adjustments to a maximum of once per 10 seconds to prevent feedback loops from fee recalculations.
 const THROTTLE_MS = 10_000;
@@ -33,6 +34,11 @@ export const usePinnedMaxAmount = (
   const pinnedAmount = useRef<bigint | undefined>(undefined);
   const lastAdjustmentTime = useRef(0);
 
+  const maxAmountTokenRequirements = useMemo(
+    () => bumpRequiredFeeAmounts(tokenRequirements, 0.1),
+    [tokenRequirements],
+  );
+
   const sourceTokenId = sourceToken ? getUniqueTokenId(sourceToken) : undefined;
   const sourceTokenBalance = sourceToken ? sourceToken.balance : 0n;
   const isBitcoin = sourceToken ? isBtcToken(sourceToken) : false;
@@ -40,17 +46,19 @@ export const usePinnedMaxAmount = (
     if (
       !sourceTokenId ||
       !sourceTokenBalance ||
-      tokenRequirements.state !== 'complete'
+      maxAmountTokenRequirements.state !== 'complete'
     ) {
       return undefined;
     }
 
-    return calculateMaxAmount(
+    const max = calculateMaxAmount(
       sourceTokenId,
       sourceTokenBalance,
-      tokenRequirements,
+      maxAmountTokenRequirements,
     );
-  }, [sourceTokenId, sourceTokenBalance, tokenRequirements]);
+
+    return max > 0n ? max : undefined;
+  }, [sourceTokenId, sourceTokenBalance, maxAmountTokenRequirements]);
 
   useEffect(() => {
     const now = Date.now();
