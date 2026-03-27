@@ -1,14 +1,20 @@
-import { Divider, Stack } from '@avalabs/k2-alpine';
-import { useTranslation } from 'react-i18next';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Divider, Stack } from '@avalabs/k2-alpine';
+import { bigIntToString } from '@avalabs/core-utils-sdk';
 
-import { getUniqueTokenId } from '@core/types';
+import {
+  getUniqueTokenId,
+  isSolanaFungibleToken,
+  isSolanaNativeToken,
+} from '@core/types';
 
 import { Card } from '@/components/Card';
 import { TokenAmountInput } from '@/components/TokenAmountInput';
 
 import { useFusionState } from '../contexts';
-import { bigIntToString } from '@avalabs/core-utils-sdk';
+import { calculateNativeFee } from '../lib/calculateNativeFee';
+import { usePinnedMaxAmount } from '../hooks/usePinnedMaxAmount';
 
 export const SwapPair = () => {
   const { t } = useTranslation();
@@ -26,34 +32,52 @@ export const SwapPair = () => {
     toAmount,
     quotesStatus,
     selectedQuote,
-    fee,
-    feeError,
-    isFeeLoading,
-    maxSwapAmount,
-    isMaxSwapAmountLoading,
+    currentRequiredTokens,
+    minimumRequiredTokens,
   } = useFusionState();
 
   const fromTokenId = sourceToken ? getUniqueTokenId(sourceToken) : queryFromId;
   const toTokenId = targetToken ? getUniqueTokenId(targetToken) : queryToId;
 
+  const { maxAmount, pin, unpin } = usePinnedMaxAmount(
+    sourceToken,
+    currentRequiredTokens.state === 'complete'
+      ? currentRequiredTokens
+      : minimumRequiredTokens,
+  );
+  const fee = calculateNativeFee(minimumRequiredTokens);
+
   const onAmountChange = useCallback(
     (amount: string, isMax: boolean) => {
       if (!sourceToken) {
+        unpin();
         return;
       }
 
-      if (isMax) {
+      if (isMax && maxAmount) {
         updateQuery({
-          userAmount: bigIntToString(maxSwapAmount, sourceToken.decimals),
+          userAmount: bigIntToString(maxAmount, sourceToken.decimals),
         });
+        pin();
       } else {
         updateQuery({
           userAmount: amount,
         });
+        unpin();
       }
     },
-    [updateQuery, sourceToken, maxSwapAmount],
+    [updateQuery, sourceToken, maxAmount, pin, unpin],
   );
+
+  const isSolanaNativeCrossChainSwap =
+    sourceToken &&
+    targetToken &&
+    isSolanaNativeToken(sourceToken) &&
+    !isSolanaFungibleToken(targetToken);
+
+  // Due to network fee estimation issues, preset buttons are disabled when cross-chain swapping SOL.
+  const enabledPresetButtons =
+    minimumRequiredTokens.state === 'complete' && !isSolanaNativeCrossChainSwap;
 
   return (
     <Card>
@@ -61,23 +85,27 @@ export const SwapPair = () => {
         <TokenAmountInput
           id="swap-from-amount"
           tokenId={fromTokenId}
-          maxAmount={maxSwapAmount}
+          maxAmount={maxAmount}
           estimatedFee={fee}
           tokensForAccount={sourceTokenList}
-          onTokenChange={(value) =>
+          onTokenChange={(value) => {
+            unpin();
             updateQuery({
               from: value,
               fromQuery: '',
               userAmount: '',
-            })
-          }
+            });
+          }}
           tokenQuery={fromQuery}
           onQueryChange={(q) => updateQuery({ fromQuery: q })}
-          isLoading={isFeeLoading || (isMaxSwapAmountLoading && !feeError)}
+          isLoading={
+            minimumRequiredTokens.state === 'loading' ||
+            minimumRequiredTokens.state === 'idle'
+          }
           amount={userAmount}
           onAmountChange={onAmountChange}
           tokenHint={sourceToken ? t('You pay') : undefined}
-          withPresetButtons={!feeError}
+          withPresetButtons={enabledPresetButtons}
         />
         <Divider sx={{ mx: 2 }} />
         <TokenAmountInput
@@ -85,15 +113,19 @@ export const SwapPair = () => {
           id="swap-to-amount"
           tokenId={toTokenId}
           tokensForAccount={targetTokenList}
-          onTokenChange={(value) => updateQuery({ to: value, toQuery: '' })}
+          onTokenChange={(value) => {
+            unpin();
+            updateQuery({ to: value, toQuery: '' });
+          }}
           tokenQuery={toQuery}
           onQueryChange={(q) => updateQuery({ toQuery: q })}
           isAmountReadOnly
-          amount={isFeeLoading ? '' : userAmount ? (toAmount ?? '') : ''}
+          amount={userAmount ? (toAmount ?? '') : ''}
           withPresetButtons={false}
           tokenHint={sourceToken ? t('You receive') : undefined}
           isLoading={
-            isFeeLoading || (quotesStatus === 'loading' && !selectedQuote)
+            minimumRequiredTokens.state === 'loading' ||
+            (quotesStatus === 'loading' && !selectedQuote)
           }
         />
       </Stack>

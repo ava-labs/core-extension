@@ -41,6 +41,7 @@ jest.mock('@/hooks/useNativeSymbolForTransactionChain', () => ({
 const SWAP_I18N_KEY =
   '<sourceAmount /> {{sourceSymbol}} swapped for {{targetSymbol}}';
 const RECEIVE_I18N_KEY = '<amount /> {{symbol}} received';
+const CONTRACT_CALL_I18N_KEY = `<amount /> {{symbol}} Contract\u00A0Call`;
 
 const CHECKSUM_USER = '0xAbCdAbCdAbCdAbCdAbCdAbCdAbCdAbCdAbCdAbCd';
 const LOWER_USER = CHECKSUM_USER.toLowerCase();
@@ -212,6 +213,34 @@ function buildTx(overrides: Partial<TxHistoryItem>): TxHistoryItem {
   } as TxHistoryItem;
 }
 
+function buildContractCallTransaction(amount: string): TxHistoryItem {
+  return {
+    bridgeAnalysis: { isBridgeTx: false },
+    isContractCall: true,
+    isIncoming: false,
+    isOutgoing: true,
+    isSender: true,
+    timestamp: 1_700_000_000_000,
+    hash: '0xhash',
+    from: '0xfrom',
+    to: '0xto',
+    tokens: [
+      {
+        name: 'BEAM',
+        symbol: 'BEAM',
+        amount,
+        type: TokenType.ERC20,
+        address: '0xbeam',
+      },
+    ],
+    gasUsed: '21000',
+    explorerLink: 'https://explorer.example/tx',
+    chainId: 'eip155:1',
+    txType: TransactionType.UNKNOWN,
+    vmType: NetworkVMType.EVM,
+  };
+}
+
 describe('TransactionDescription', () => {
   let i18n: ReturnType<typeof createInstance>;
 
@@ -227,6 +256,7 @@ describe('TransactionDescription', () => {
             ...translationEn,
             [SWAP_I18N_KEY]: SWAP_I18N_KEY,
             [RECEIVE_I18N_KEY]: RECEIVE_I18N_KEY,
+            [CONTRACT_CALL_I18N_KEY]: '<amount /> {{symbol}} Contract Call',
           },
         },
       },
@@ -374,5 +404,26 @@ describe('TransactionDescription', () => {
     });
     const { container } = renderDescription(tx);
     expect(container.textContent ?? '').toMatch(/NFT sent/i);
+  });
+
+  it('renders contract call copy with long decimal amount and BEAM symbol', () => {
+    const { container } = renderDescription(
+      buildContractCallTransaction('445.37927'),
+    );
+
+    const text = container.textContent ?? '';
+    expect(text).toMatch(/445\.37927/);
+    expect(text).toMatch(/BEAM/);
+    expect(text).toMatch(/Contract Call/);
+  });
+
+  it('renders truncated approximation for very long fractional amounts', () => {
+    const { container } = renderDescription(
+      buildContractCallTransaction('1.123456789'),
+    );
+
+    const text = container.textContent ?? '';
+    expect(text).toMatch(/~1\.12345/);
+    expect(text).toMatch(/BEAM/);
   });
 });

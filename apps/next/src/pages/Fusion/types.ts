@@ -52,42 +52,54 @@ export type EstimatedFeeResult = {
   feeError: Error | null;
 };
 
+export type RequiredTokenPurpose = 'input' | 'network-fee' | 'additive-fee';
+
+export type RequiredToken = {
+  id: string;
+  token: FungibleTokenBalance;
+  amounts: [bigint, RequiredTokenPurpose][];
+  total: bigint;
+};
+
+export type RequiredTokenAmounts = {
+  state: 'idle' | 'loading' | 'complete' | 'incomplete';
+  tokens: RequiredToken[];
+};
+
 export type QueryState = Omit<
   ReturnType<typeof useSwapQuery>,
   'update' | 'clear'
 > & {
   updateQuery: ReturnType<typeof useSwapQuery>['update'];
 };
-export type FusionState = QueryState &
-  EstimatedFeeResult & {
-    debouncedUserAmount: string;
-    manager: TransferManager | undefined;
-    sourceTokenList: FungibleTokenBalance[];
-    targetTokenList: FungibleTokenBalance[];
-    sourceToken: FungibleTokenBalance | undefined;
-    targetToken: FungibleTokenBalance | undefined;
-    account?: Account;
-    isConfirming: boolean;
-    slippage: number;
-    setSlippage: (slippage: number) => void;
-    autoSlippage: boolean;
-    setAutoSlippage: (autoSlippage: boolean) => void;
-    minimumTransferAmount: bigint | undefined;
-    toAmount?: string;
-    priceImpact: number | undefined;
-    priceImpactSeverity: PriceImpactSeverity;
-    priceImpactAvailability: PriceImpactAvailability;
-    userQuote: Quote | null;
-    bestQuote: Quote | null;
-    selectedQuote: Quote | null;
-    quotes: Quote[];
-    selectQuoteById: (quoteId: string | null) => void;
-    transfer: (specificQuote?: Quote) => Promise<void>;
-    status: SwapStatus;
-    quotesStatus: QuoteStreamingStatus;
-    maxSwapAmount: bigint;
-    maxSwapAmountFees: bigint;
-    isMaxSwapAmountLoading: boolean;
-    minimalQuote: Quote | null;
-    formError: string | React.ReactNode;
-  };
+export type FusionState = QueryState & {
+  debouncedUserAmount: string;
+  manager: TransferManager | undefined;
+  sourceTokenList: FungibleTokenBalance[];
+  targetTokenList: FungibleTokenBalance[];
+  sourceToken: FungibleTokenBalance | undefined;
+  targetToken: FungibleTokenBalance | undefined;
+  account?: Account;
+  isConfirming: boolean;
+  slippage: number;
+  setSlippage: (slippage: number) => void;
+  autoSlippage: boolean;
+  setAutoSlippage: (autoSlippage: boolean) => void;
+  minimumTransferAmount: bigint | undefined;
+  toAmount?: string;
+  priceImpact: number | undefined;
+  priceImpactSeverity: PriceImpactSeverity;
+  priceImpactAvailability: PriceImpactAvailability;
+  userQuote: Quote | null;
+  bestQuote: Quote | null;
+  selectedQuote: Quote | null;
+  quotes: Quote[];
+  selectQuoteById: (quoteId: string | null) => void;
+  transfer: (specificQuote?: Quote) => Promise<void>;
+  status: SwapStatus;
+  quotesStatus: QuoteStreamingStatus;
+  minimalQuote: Quote | null;
+  formError: string | React.ReactNode;
+  minimumRequiredTokens: RequiredTokenAmounts;
+  currentRequiredTokens: RequiredTokenAmounts;
+};

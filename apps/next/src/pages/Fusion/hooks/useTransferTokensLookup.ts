@@ -12,12 +12,13 @@ import { getNetworksForTransfer } from '../lib/getNetworksForTransfer';
 export const useTransferTokensLookup = (
   transferLike: Required<
     PartialBy<Transfer | Quote, 'sourceChain' | 'targetChain' | 'fees'>
-  >,
+  > | null,
 ) => {
   const { getNetwork } = useNetworkContext();
 
   const networks = useMemo(
-    () => getNetworksForTransfer(transferLike, getNetwork),
+    () =>
+      transferLike ? getNetworksForTransfer(transferLike, getNetwork) : [],
     [transferLike, getNetwork],
   );
   const tokens = useAllTokens(networks, true);
