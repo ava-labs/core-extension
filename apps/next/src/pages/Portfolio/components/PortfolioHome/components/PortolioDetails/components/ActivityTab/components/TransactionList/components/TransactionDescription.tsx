@@ -1,16 +1,35 @@
 import { styled, truncateAddress, Typography } from '@avalabs/k2-alpine';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
-import { TxHistoryItem } from '@core/types';
+import type { Network, TxHistoryItem } from '@core/types';
 import { Trans, useTranslation } from 'react-i18next';
 import { TokenType, TransactionType } from '@avalabs/vm-module-types';
 import { FC, useMemo } from 'react';
 import { useAccountsContext } from '@core/ui/src/contexts/AccountsProvider';
-import { getAllAddressesForAccount, isNftTokenType } from '@core/common';
-import { useActivityListNativeSymbol } from './ActivityListNativeSymbols';
+import {
+  getAllAddressesForAccount,
+  getEthNativeSymbolForKnownChainId,
+  isNftTokenType,
+  withDefaultNativeTokenSymbol,
+} from '@core/common';
+import { useActivityFilterNetwork } from '../../../ActivityFilterNetworkContext';
 import {
   isCctImportTransaction,
   isCctTransaction,
 } from '../../../utils/cctTransaction';
+
+function resolveNativeSymbolFromActivityFilterNetwork(
+  network: Network | undefined,
+): string | undefined {
+  if (!network) {
+    return undefined;
+  }
+  const normalizedNetwork = withDefaultNativeTokenSymbol(network);
+  const fromNetworkToken = normalizedNetwork.networkToken?.symbol?.trim();
+  if (fromNetworkToken) {
+    return fromNetworkToken;
+  }
+  return getEthNativeSymbolForKnownChainId(network.chainId);
+}
 
 function isHexAddress(address: string): boolean {
   return address.startsWith('0x') || address.startsWith('0X');
@@ -67,7 +86,7 @@ function displayTokenSymbol(
     if (!isHexAddress(normalizedLower) || normalizedLower.length < 12) {
       return trimmedAddress;
     }
-    return truncateAddress(normalizedLower, 6, 4);
+    return truncateAddress(normalizedLower, 10);
   }
   return undefined;
 }
@@ -150,8 +169,10 @@ export interface Props {
 
 export const TransactionDescription: FC<Props> = ({ transaction }) => {
   const { t } = useTranslation();
-  const nativeSymbolForTxChain = useActivityListNativeSymbol(
-    transaction.chainId,
+  const activityFilterNetwork = useActivityFilterNetwork();
+  const nativeSymbolForTxChain = useMemo(
+    () => resolveNativeSymbolFromActivityFilterNetwork(activityFilterNetwork),
+    [activityFilterNetwork],
   );
   const {
     accounts: { active: activeAccount },

@@ -1,5 +1,5 @@
 import { ThemeProvider } from '@avalabs/k2-alpine';
-import { TxHistoryItem } from '@core/types';
+import type { Network, TxHistoryItem } from '@core/types';
 import {
   NetworkVMType,
   TokenType,
@@ -10,33 +10,8 @@ import { createInstance } from 'i18next';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 
 import translationEn from '@/localization/locales/en/translation.json';
-import { ActivityListNativeSymbolsProvider } from './ActivityListNativeSymbols';
+import { ActivityFilterNetworkProvider } from '../../../ActivityFilterNetworkContext';
 import { TransactionDescription } from './TransactionDescription';
-
-jest.mock('@/hooks/useNativeSymbolForTransactionChain', () => ({
-  useNativeSymbolForTransactionChain: (
-    chainId: string | number | undefined,
-  ): string | undefined => {
-    if (chainId === undefined || String(chainId).trim() === '') {
-      return undefined;
-    }
-
-    const { buildNetworkLookupKeys } =
-      jest.requireActual<typeof import('@core/common')>('@core/common');
-    const { getEthNativeSymbolForKnownChainId } =
-      jest.requireMock<typeof import('@core/common')>('@core/common');
-
-    for (const key of buildNetworkLookupKeys(chainId)) {
-      if (typeof key === 'number') {
-        const sym = getEthNativeSymbolForKnownChainId(key);
-        if (sym) {
-          return sym;
-        }
-      }
-    }
-    return undefined;
-  },
-}));
 
 const SWAP_I18N_KEY =
   '<sourceAmount /> {{sourceSymbol}} swapped for {{targetSymbol}}';
@@ -46,10 +21,25 @@ const CONTRACT_CALL_I18N_KEY = `<amount /> {{symbol}} Contract\u00A0Call`;
 const CHECKSUM_USER = '0xAbCdAbCdAbCdAbCdAbCdAbCdAbCdAbCdAbCdAbCd';
 const LOWER_USER = CHECKSUM_USER.toLowerCase();
 
+/** Base (and hex 0x2105) activity filter — native symbol fallback for tests. */
+const TEST_BASE_ACTIVITY_FILTER_NETWORK = {
+  chainId: 8453,
+  chainName: 'Base',
+  vmName: NetworkVMType.EVM,
+  rpcUrl: 'https://mainnet.base.org',
+  logoUri: '',
+  networkToken: {
+    symbol: 'ETH',
+    name: 'Ether',
+    decimals: 18,
+    logoUri: '',
+    description: '',
+  },
+} as Network;
+
 jest.mock('@core/common', () => ({
   ...jest.requireActual<typeof import('@core/common')>('@core/common'),
   getAllAddressesForAccount: jest.fn(() => [CHECKSUM_USER]),
-  // Deterministic fallback for tests; keep chain set aligned with withDefaultNativeTokenSymbol.ts
   getEthNativeSymbolForKnownChainId: (chainId: number) =>
     new Set([1, 11155111, 8453, 42161, 10]).has(chainId) ? 'ETH' : undefined,
 }));
@@ -57,29 +47,6 @@ jest.mock('@core/common', () => ({
 jest.mock('@core/ui/src/contexts/AccountsProvider', () => ({
   useAccountsContext: () => ({
     accounts: { active: { id: '1', name: 'Test', addressC: CHECKSUM_USER } },
-  }),
-}));
-
-jest.mock('@core/ui/src/contexts/NetworkProvider', () => ({
-  useNetworkContext: () => ({
-    getNetwork: (key: number | string) => {
-      let id: number;
-      if (typeof key === 'number') {
-        id = key;
-      } else if (key.startsWith('eip155:')) {
-        id = Number.parseInt(key.slice('eip155:'.length), 10);
-      } else if (/^0x[0-9a-fA-F]+$/i.test(key)) {
-        id = Number.parseInt(key, 16);
-      } else {
-        id = Number.parseInt(key, 10);
-      }
-      if (Number.isNaN(id) || (id !== 1 && id !== 8453)) {
-        return undefined;
-      }
-      return {
-        networkToken: { symbol: 'ETH' },
-      };
-    },
   }),
 }));
 
@@ -263,13 +230,16 @@ describe('TransactionDescription', () => {
     });
   });
 
-  function renderDescription(transaction: TxHistoryItem) {
+  function renderDescription(
+    transaction: TxHistoryItem,
+    filterNetwork: Network = TEST_BASE_ACTIVITY_FILTER_NETWORK,
+  ) {
     return render(
       <ThemeProvider theme="light" toastVariant="extension">
         <I18nextProvider i18n={i18n}>
-          <ActivityListNativeSymbolsProvider chainIds={['1', '8453']}>
+          <ActivityFilterNetworkProvider network={filterNetwork}>
             <TransactionDescription transaction={transaction} />
-          </ActivityListNativeSymbolsProvider>
+          </ActivityFilterNetworkProvider>
         </I18nextProvider>
       </ThemeProvider>,
     );
@@ -407,8 +377,24 @@ describe('TransactionDescription', () => {
   });
 
   it('renders contract call copy with long decimal amount and BEAM symbol', () => {
+    const ethereumFilter: Network = {
+      chainId: 1,
+      chainName: 'Ethereum',
+      vmName: NetworkVMType.EVM,
+      rpcUrl: 'https://eth.llamarpc.com',
+      logoUri: '',
+      networkToken: {
+        symbol: 'ETH',
+        name: 'Ether',
+        decimals: 18,
+        logoUri: '',
+        description: '',
+      },
+    } as Network;
+
     const { container } = renderDescription(
       buildContractCallTransaction('445.37927'),
+      ethereumFilter,
     );
 
     const text = container.textContent ?? '';
@@ -418,8 +404,24 @@ describe('TransactionDescription', () => {
   });
 
   it('renders truncated approximation for very long fractional amounts', () => {
+    const ethereumFilter: Network = {
+      chainId: 1,
+      chainName: 'Ethereum',
+      vmName: NetworkVMType.EVM,
+      rpcUrl: 'https://eth.llamarpc.com',
+      logoUri: '',
+      networkToken: {
+        symbol: 'ETH',
+        name: 'Ether',
+        decimals: 18,
+        logoUri: '',
+        description: '',
+      },
+    } as Network;
+
     const { container } = renderDescription(
       buildContractCallTransaction('1.123456789'),
+      ethereumFilter,
     );
 
     const text = container.textContent ?? '';

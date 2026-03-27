@@ -10,7 +10,7 @@ import { SelectTrigger } from './components/SelectTrigger';
 type Props = {
   ref?: RefObject<HTMLElement>;
   selected: Network['chainId'];
-  onChange(chainId: Network['chainId']): void;
+  onChange(network: Network): void;
 };
 
 type SelectProps = ComponentProps<typeof SearchableSelect<Network>>;
@@ -35,7 +35,9 @@ export const NetworkFilterSelector: FC<Props> = ({
         getOptionId={getOptionId}
         query={query}
         onQueryChange={setQuery}
-        onValueChange={(n) => onChange(n.chainId)}
+        onValueChange={(n) => {
+          onChange(n);
+        }}
         skipGroupingEntirely
         isOptionEqualToValue={isOptionEqualToValue}
         searchFn={searchFn}
