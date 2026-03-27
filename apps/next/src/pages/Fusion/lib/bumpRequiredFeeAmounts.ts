@@ -3,18 +3,22 @@ import { applyBuffer } from './applyBuffer';
 
 export const bumpRequiredFeeAmounts = (
   requiredTokens: RequiredTokenAmounts,
-  additionalBuffer: number,
+  additionalNativeFeeBuffer: number,
 ) => {
   return {
     ...requiredTokens,
     tokens: requiredTokens.tokens.map((token) => {
       const newAmounts: RequiredToken['amounts'] = token.amounts.map(
         ([amount, purpose]) => {
-          if (purpose === 'input') {
+          if (purpose !== 'network-fee') {
             return [amount, purpose];
           }
           return [
-            applyBuffer(amount, token.token.decimals, additionalBuffer),
+            applyBuffer(
+              amount,
+              token.token.decimals,
+              additionalNativeFeeBuffer,
+            ),
             purpose,
           ];
         },
