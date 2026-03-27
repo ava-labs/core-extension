@@ -51,11 +51,13 @@ export const usePinnedMaxAmount = (
       return undefined;
     }
 
-    return calculateMaxAmount(
+    const max = calculateMaxAmount(
       sourceTokenId,
       sourceTokenBalance,
       maxAmountTokenRequirements,
     );
+
+    return max > 0n ? max : undefined;
   }, [sourceTokenId, sourceTokenBalance, maxAmountTokenRequirements]);
 
   useEffect(() => {
