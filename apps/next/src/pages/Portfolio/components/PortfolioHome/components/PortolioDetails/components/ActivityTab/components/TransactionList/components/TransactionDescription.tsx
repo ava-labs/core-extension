@@ -1,4 +1,4 @@
-import { styled, Typography } from '@avalabs/k2-alpine';
+import { styled, truncateAddress, Typography } from '@avalabs/k2-alpine';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 import { TxHistoryItem } from '@core/types';
 import { Trans, useTranslation } from 'react-i18next';
@@ -29,14 +29,6 @@ function addressMatchesUser(
     }
     return transferAddress === userAddr;
   });
-}
-
-function shortenHexAddress(address: string): string {
-  const normalized = address.trim().toLowerCase();
-  if (!isHexAddress(normalized) || normalized.length < 12) {
-    return address.trim();
-  }
-  return `${normalized.slice(0, 6)}…${normalized.slice(-4)}`;
 }
 
 function tokenHasContractAddress(
@@ -70,7 +62,12 @@ function displayTokenSymbol(
     return nativeFallback;
   }
   if (token && tokenHasContractAddress(token) && !isNftTokenType(token.type)) {
-    return shortenHexAddress(token.address);
+    const trimmedAddress = token.address.trim();
+    const normalizedLower = trimmedAddress.toLowerCase();
+    if (!isHexAddress(normalizedLower) || normalizedLower.length < 12) {
+      return trimmedAddress;
+    }
+    return truncateAddress(normalizedLower, 6, 4);
   }
   return undefined;
 }

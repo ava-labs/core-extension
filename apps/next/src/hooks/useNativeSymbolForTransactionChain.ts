@@ -42,13 +42,15 @@ export function useNativeSymbolForTransactionChain(
   }, [tokens]);
 
   return useMemo(() => {
-    if (fromTokenList) {
-      return fromTokenList;
-    }
     const fromConfig = transactionNetwork?.networkToken?.symbol?.trim();
     if (fromConfig) {
       return fromConfig;
     }
+
+    if (fromTokenList) {
+      return fromTokenList;
+    }
+
     if (chainId === undefined || String(chainId).trim() === '') {
       return undefined;
     }
