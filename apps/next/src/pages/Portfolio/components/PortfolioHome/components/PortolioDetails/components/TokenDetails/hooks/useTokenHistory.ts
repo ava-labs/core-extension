@@ -9,11 +9,10 @@ type Props = {
 };
 
 const tokenMatcher = (tx: TxHistoryItem, token: FungibleTokenBalance) => {
-  const matchedTokens = tx.tokens.filter((txToken) => {
-    return txToken.symbol?.toLowerCase() === token.symbol.toLowerCase();
-  });
-
-  return matchedTokens.length > 0;
+  const tokenSymbolLower = token.symbol.toLowerCase();
+  return tx.tokens.some(
+    (txToken) => txToken.symbol?.toLowerCase() === tokenSymbolLower,
+  );
 };
 
 export const useTokenHistory = ({
