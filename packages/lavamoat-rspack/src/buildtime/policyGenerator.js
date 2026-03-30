@@ -137,7 +137,10 @@ module.exports = {
       if (isExcludedUnsafe(module)) continue;
 
       if (module.userRequest === undefined) {
-        diag.rawDebug(1, `LavaMoatPlugin: Module ${module} has no userRequest`);
+        diag.rawDebug(
+          1,
+          `LavaMoatPlugin: Module ${module.identifier()} has no userRequest`,
+        );
         diag.rawDebug(2, { skippingInspectingModule: module });
         continue;
       }
