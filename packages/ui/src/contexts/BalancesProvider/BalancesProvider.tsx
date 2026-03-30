@@ -241,24 +241,6 @@ export function BalancesProvider({ children }: PropsWithChildren) {
   }, []);
 
   useEffect(() => {
-    const subscription = events()
-      .pipe(
-        filter(isBalancesUpdatedEvent),
-        map((evt) => evt.value),
-      )
-      .subscribe((balancesData) => {
-        dispatch({
-          type: BalanceActionType.UPDATE_BALANCES,
-          payload: balancesData,
-        });
-      });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [events]);
-
-  useEffect(() => {
     dispatch({
       type: BalanceActionType.SET_LOADING,
       payload: true,
@@ -325,6 +307,27 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     },
     [request],
   );
+
+  useEffect(() => {
+    const subscription = events()
+      .pipe(
+        filter(isBalancesUpdatedEvent),
+        map((evt) => evt.value),
+      )
+      .subscribe((balancesData) => {
+        dispatch({
+          type: BalanceActionType.UPDATE_BALANCES,
+          payload: balancesData,
+        });
+        if (activeAccount) {
+          void fetchAtomicBalanceForAccount(activeAccount.id);
+        }
+      });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [events, activeAccount, fetchAtomicBalanceForAccount]);
 
   useEffect(() => {
     if (!activeAccount) {
