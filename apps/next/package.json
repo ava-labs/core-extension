@@ -66,6 +66,7 @@
     "@commitlint/cli": "17.0.3",
     "@commitlint/config-angular": "17.0.3",
     "@commitlint/config-conventional": "17.0.3",
+    "@core/lavamoat-rspack": "workspace:*",
     "@eslint/compat": "1.2.4",
     "@eslint/eslintrc": "3.2.0",
     "@eslint/js": "9.16.0",

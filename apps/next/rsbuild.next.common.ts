@@ -1,8 +1,8 @@
+import LavaMoatRspackPlugin from '@core/lavamoat-rspack';
 import { defineConfig } from '@rsbuild/core';
 import { pluginNodePolyfill } from '@rsbuild/plugin-node-polyfill';
 import { pluginReact } from '@rsbuild/plugin-react';
 import { RsdoctorRspackPlugin } from '@rsdoctor/rspack-plugin';
-import { CopyRspackPlugin } from '@rspack/core';
 import path from 'path';
 
 export default defineConfig(() => ({
@@ -27,6 +27,12 @@ export default defineConfig(() => ({
       },
       output: {
         target: 'web',
+        copy: {
+          patterns: [
+            { from: 'src/images', to: 'images' },
+            { from: 'src/localization/locales', to: 'locales', force: true },
+          ],
+        },
       },
     },
   },
@@ -85,14 +91,6 @@ export default defineConfig(() => ({
   ],
   tools: {
     rspack: (_, { appendPlugins, appendRules }) => {
-      appendPlugins(
-        new CopyRspackPlugin({
-          patterns: [
-            { from: 'src/images', to: 'images' },
-            { from: 'src/localization/locales', to: 'locales', force: true },
-          ],
-        }),
-      );
       if (process.env.RSDOCTOR === 'true') {
         appendPlugins(new RsdoctorRspackPlugin({}));
       }
@@ -108,6 +106,12 @@ export default defineConfig(() => ({
         // Error: WebAssembly module is included in initial chunk.
         type: 'javascript/auto',
       });
+
+      appendPlugins(
+        new LavaMoatRspackPlugin({
+          generatePolicy: true,
+        }),
+      );
     },
   },
 }));
