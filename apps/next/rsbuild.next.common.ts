@@ -110,6 +110,9 @@ export default defineConfig(() => ({
       appendPlugins(
         new LavaMoatRspackPlugin({
           generatePolicy: true,
+          readableResourceIds: true,
+          diagnosticsVerbosity: 1,
+          policyLocation: path.join(__dirname, 'lavamoat/rspack/policy.json'),
         }),
       );
     },
