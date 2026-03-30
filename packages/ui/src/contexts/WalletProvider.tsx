@@ -2,6 +2,7 @@ import {
   AccountType,
   DAppProviderRequest,
   ExtensionRequest,
+  IMPORTED_ACCOUNTS_WALLET_ID,
   NetworkWithCaipId,
   SecretType,
   TxHistoryItem,
@@ -35,6 +36,7 @@ import { filter, map } from 'rxjs';
 import { useAccountsContext } from './AccountsProvider';
 import { useConnectionContext } from './ConnectionProvider';
 import { useLedgerContext } from './LedgerProvider';
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
 
 type WalletStateAndMethods = {
   isWalletLoading: boolean;
@@ -65,6 +67,12 @@ export type WalletContextProviderProps = PropsWithChildren<{
     unlockWallet: (password: string) => Promise<true>;
   }>;
 }>;
+
+const IMPORTED_WALLET_DETAILS: WalletDetails = {
+  id: IMPORTED_ACCOUNTS_WALLET_ID,
+  type: SecretType.PrivateKey,
+  derivationPath: DerivationPath.BIP44,
+};
 
 export function WalletContextProvider({
   children,
@@ -100,6 +108,8 @@ export function WalletContextProvider({
   useEffect(() => {
     if (activeAccount?.type === AccountType.PRIMARY) {
       setWalletDetails(wallets.find((w) => w.id === activeAccount.walletId));
+    } else if (activeAccount?.type === AccountType.IMPORTED) {
+      setWalletDetails(IMPORTED_WALLET_DETAILS);
     } else {
       setWalletDetails(undefined);
     }
