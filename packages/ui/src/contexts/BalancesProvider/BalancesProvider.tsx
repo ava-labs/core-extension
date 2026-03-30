@@ -24,7 +24,7 @@ import {
   useReducer,
   useState,
 } from 'react';
-import { filter, map } from 'rxjs';
+import { filter, tap, throttleTime } from 'rxjs';
 
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 import {
@@ -190,6 +190,10 @@ function balancesReducer(
   }
 }
 
+// Cap how often we refetch atomic totals on balance UPDATED (polling can burst);
+// tokens/NFTs still update on every event via tap below.
+const ATOMIC_BALANCE_REFETCH_THROTTLE_MS = 150;
+
 export function BalancesProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
   const { network, enabledNetworkIds, getNetwork } = useNetworkContext();
@@ -308,26 +312,33 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     [request],
   );
 
+  const activeAccountId = activeAccount?.id;
+
   useEffect(() => {
     const subscription = events()
       .pipe(
         filter(isBalancesUpdatedEvent),
-        map((evt) => evt.value),
+        tap((evt) => {
+          dispatch({
+            type: BalanceActionType.UPDATE_BALANCES,
+            payload: evt.value,
+          });
+        }),
+        throttleTime(ATOMIC_BALANCE_REFETCH_THROTTLE_MS, undefined, {
+          leading: true,
+          trailing: true,
+        }),
       )
-      .subscribe((balancesData) => {
-        dispatch({
-          type: BalanceActionType.UPDATE_BALANCES,
-          payload: balancesData,
-        });
-        if (activeAccount) {
-          void fetchAtomicBalanceForAccount(activeAccount.id);
+      .subscribe(() => {
+        if (activeAccountId) {
+          void fetchAtomicBalanceForAccount(activeAccountId);
         }
       });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [events, activeAccount, fetchAtomicBalanceForAccount]);
+  }, [events, activeAccountId, fetchAtomicBalanceForAccount]);
 
   useEffect(() => {
     if (!activeAccount) {
