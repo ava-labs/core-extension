@@ -1,0 +1,231 @@
+const { getPackageNameForModulePath } = require('@lavamoat/aa');
+const diag = require('./diagnostics');
+
+const ROOT_IDENTIFIER = '$root$';
+
+/**
+ * Looks up a value in a haystack object based on the given needle.
+ *
+ * @template {string | number} T
+ * @param {T} needle - The value to look for.
+ * @param {Record<T, any>} haystack - The object to search in.
+ * @returns {any} - The value found in the haystack, or undefined if not found.
+ */
+const lookUp = (needle, haystack) => {
+  const value = haystack[needle];
+  if (value === undefined) {
+    // TODO: remove this or replace with a better integrated warning
+    // When using the resolve-related hooks for finding out paths we'd get paths not included in the bundle trigger this case. Now it should not happen unless policy is incomplete.
+    // This needs more observation/investigation
+    console.trace(`Cannot find a match for ${needle} in policy`);
+  }
+  return value;
+};
+
+/**
+ * @param {Set<string>} neededIds
+ * @param {string[]} policyIds
+ */
+const crossReference = (neededIds, policyIds) => {
+  // Policy generator skips packages that don't use anything, so it's ok for policy to be missing.
+  // This is only for debugging
+
+  /** @type {string[]} */
+  const missingIds = [];
+  neededIds.forEach((id) => {
+    if (!policyIds.includes(id)) {
+      missingIds.push(id);
+    }
+  });
+  diag.rawDebug(4, { missingIds, policyIds, neededIds });
+  if (missingIds.length > 0) {
+    diag.rawDebug(
+      1,
+      `Policy is missing for the following resources (disallow all by default): \n  ${missingIds.join(', ')}`,
+    );
+  }
+};
+
+/**
+ * @import {LavaMoatPolicy, ResourcePolicy} from '@lavamoat/types'
+ * @import {CanonicalNameMap} from '@lavamoat/aa'
+ */
+
+/**
+ * @typedef {Object} IdentifierLookup
+ * @property {string} root
+ * @property {[string, (string | number)[]][]} identifiersForModuleIds
+ * @property {(path: string) => string | undefined} pathToResourceId
+ * @property {(path: string) => boolean} isKnownPath
+ * @property {(id: string) => string} policyIdentifierToResourceId
+ * @property {() => LavaMoatPolicy} getTranslatedPolicy
+ */
+
+/**
+ * @param {object} options
+ * @param {{ path: string; moduleId: string | number }[]} options.paths
+ * @param {LavaMoatPolicy} options.policy
+ * @param {CanonicalNameMap} options.canonicalNameMap
+ * @param {{ moduleId: string | number; context: string }[]} options.contextModules
+ * @param {Record<string | number, string>} options.externals
+ * @param {boolean | undefined} options.readableResourceIds
+ * @returns {IdentifierLookup}
+ */
+exports.generateIdentifierLookup = ({
+  paths,
+  policy,
+  canonicalNameMap,
+  contextModules,
+  readableResourceIds,
+}) => {
+  /**
+   * @typedef {Record<string, { aa: string; moduleIds: (number | string)[] }>} PathMapping
+   */
+  const pathsToIdentifiers = () => {
+    /** @type {PathMapping} */
+    const mapping = {};
+    for (const { path, moduleId } of paths) {
+      if (path) {
+        if (mapping[path]) {
+          mapping[path].moduleIds.push(moduleId);
+          diag.rawDebug(
+            2,
+            `Duplicated moduleId at path ${path}, moduleIds: ${mapping[path].moduleIds.join(', ')}`,
+          );
+        } else {
+          mapping[path] = {
+            aa: getPackageNameForModulePath(canonicalNameMap, path),
+            moduleIds: [moduleId],
+          };
+        }
+      }
+    }
+    for (const c of contextModules) {
+      const resourceId = getPackageNameForModulePath(
+        canonicalNameMap,
+        c.context,
+      );
+      // The context in Context Module represents a package the CM is capable of loading from.
+      // If the context can't be resolved to a package, the CM won't be usable.
+      if (resourceId && !mapping[c.context]) {
+        mapping[c.context] = {
+          aa: resourceId,
+          moduleIds: [c.moduleId],
+        };
+      }
+    }
+    return mapping;
+  };
+
+  const usedIdentifiers = Object.keys(policy.resources || {});
+  usedIdentifiers.unshift(ROOT_IDENTIFIER);
+  const usedIdentifiersIndex = Object.fromEntries(
+    usedIdentifiers.map((id, index) => [id, index]),
+  );
+  /**
+   * @type {(i: string) => string}
+   */
+  let translate;
+  if (readableResourceIds) {
+    translate = (i) => i;
+  } else {
+    // Why is this a string? There was way too much confusion involved when it was not. If the 2 extra characters are ever worth the hassle, feel free to change it back to numbers.
+    translate = (i) => `${usedIdentifiersIndex[i]}`;
+  }
+
+  // TODO: consider scoping AA to paths seen in the compilation instead of the full graph.
+  // It might give us identifiers that are more stable and would surely be much faster.
+
+  const pathLookup = pathsToIdentifiers();
+  const identifiersWithKnownPaths = new Set(
+    Object.values(pathLookup).map((pl) => pl.aa),
+  );
+
+  crossReference(identifiersWithKnownPaths, usedIdentifiers);
+
+  const identifiersForModuleIds = Object.entries(
+    Object.entries(pathLookup).reduce((acc, [, { aa, moduleIds }]) => {
+      const key = translate(aa);
+      if (acc[key] === undefined) {
+        acc[key] = [];
+      }
+      acc[key].push(...moduleIds);
+      return acc;
+    }, /** @type {Record<string, (string | number)[]>} */ ({})),
+  );
+
+  /**
+   * TODO: use real policy type here
+   *
+   * @param {any} resource
+   * @returns
+   */
+  const translateResource = (resource) => ({
+    ...resource,
+    packages:
+      resource.packages &&
+      Object.fromEntries(
+        Object.entries(resource.packages).map(([id, value]) => [
+          translate(id),
+          value,
+        ]),
+      ),
+  });
+
+  /**
+   * @param {ResourcePolicy} resource
+   * @returns
+   */
+  const stripMetaFromResource = (resource) => {
+    const { meta: _meta, ...rest } = resource;
+    return rest;
+  };
+  /**
+   * @param {LavaMoatPolicy} policy
+   * @returns {LavaMoatPolicy}
+   */
+  const stripMeta = (policy) => {
+    const { resources = Object.create(null) } = policy;
+    const strippedPolicy = {
+      resources: Object.fromEntries(
+        Object.entries(resources)
+          .filter(([id]) => identifiersWithKnownPaths.has(id)) // only saves resources that are actually used
+          .map(([id, resource]) => [id, stripMetaFromResource(resource)]),
+      ),
+    };
+    return strippedPolicy;
+  };
+
+  return {
+    root: translate(ROOT_IDENTIFIER),
+    identifiersForModuleIds,
+    isKnownPath: (path) => {
+      return !!pathLookup[path];
+    },
+    pathToResourceId: (path) => {
+      const pathInfo = lookUp(path, pathLookup);
+      if (!pathInfo) {
+        return undefined;
+      }
+      return translate(pathInfo.aa);
+    },
+    policyIdentifierToResourceId: (id) => translate(id),
+    getTranslatedPolicy: () => {
+      if (readableResourceIds) {
+        return stripMeta(policy);
+      }
+      const { resources = Object.create(null) } = policy;
+      const translatedPolicy = {
+        resources: Object.fromEntries(
+          Object.entries(resources)
+            .filter(([id]) => identifiersWithKnownPaths.has(id)) // only saves resources that are actually used
+            .map(([id, resource]) => [
+              translate(id),
+              stripMetaFromResource(translateResource(resource)),
+            ]),
+        ),
+      };
+      return translatedPolicy;
+    },
+  };
+};
