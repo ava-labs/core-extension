@@ -387,6 +387,7 @@ class LavaMoatRspackPlugin {
           const moduleData = analyzeModules({
             mainCompilationWarnings: STORE.mainCompilationWarnings,
             allIdentifiedModules,
+            compilerContext: compilation.compiler.context,
           });
           diag.rawDebug(
             3,

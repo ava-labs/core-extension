@@ -31,8 +31,24 @@
       }
     },
     "@core/ui>@avalabs/core-bridge-sdk": {
+      "globals": {
+        "clearInterval": true,
+        "console.error": true,
+        "fetch": true,
+        "process.env.ETHERSCAN_API_KEY": true,
+        "process.env.INFURA_API_KEY": true,
+        "process.env.REACT_APP_ETHERSCAN_API_KEY": true,
+        "process.env.REACT_APP_INFURA_API_KEY": true,
+        "setInterval": true
+      },
       "packages": {
-        "@core/ui>bitcoinjs-lib": true
+        "@avalabs/core-utils-sdk": true,
+        "@avalabs/core-wallets-sdk": true,
+        "@avalabs/core-utils-sdk>big.js": true,
+        "@core/ui>bitcoinjs-lib": true,
+        "ethers": true,
+        "@rsbuild/plugin-node-polyfill>process": true,
+        "react": true
       }
     },
     "@avalabs/core-utils-sdk": {
@@ -223,6 +239,36 @@
     "@avalabs/fusion-sdk>@bitcoinerlab/secp256k1": {
       "packages": {
         "@avalabs/fusion-sdk>@bitcoinerlab/secp256k1>@noble/curves": true
+      }
+    },
+    "@core/ui>@blockaid/client": {
+      "globals": {
+        "AbortController": true,
+        "Blob": true,
+        "Buffer": true,
+        "Deno": true,
+        "EdgeRuntime": true,
+        "File": true,
+        "FormData": true,
+        "Headers": true,
+        "ReadableStream": true,
+        "Request": true,
+        "Response": true,
+        "TextEncoder": true,
+        "URL": true,
+        "btoa": true,
+        "clearTimeout": true,
+        "console.log": true,
+        "console.warn": true,
+        "document": true,
+        "fetch": true,
+        "navigator": true,
+        "process": true,
+        "setTimeout": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>buffer": true,
+        "@rsbuild/plugin-node-polyfill>process": true
       }
     },
     "@keystonehq/bc-ur-registry-eth>@ethereumjs/util>@chainsafe/ssz>@chainsafe/as-sha256": {
@@ -478,6 +524,7 @@
     },
     "@emotion/react>@emotion/cache": {
       "globals": {
+        "console.error": true,
         "document.head": true,
         "document.querySelectorAll": true
       },
@@ -495,8 +542,13 @@
     },
     "@emotion/react": {
       "globals": {
+        "EMOTION_RUNTIME_AUTO_LABEL": true,
         "HTMLElement": true,
-        "document.querySelector": true
+        "console.error": true,
+        "console.warn": true,
+        "document": true,
+        "jest": true,
+        "vi": true
       },
       "packages": {
         "@emotion/react>@babel/runtime": true,
@@ -510,6 +562,9 @@
       }
     },
     "@emotion/react>@emotion/serialize": {
+      "globals": {
+        "console.error": true
+      },
       "packages": {
         "@emotion/react>@emotion/serialize>@emotion/hash": true,
         "motion>@emotion/is-prop-valid>@emotion/memoize": true,
@@ -518,12 +573,16 @@
     },
     "@emotion/react>@emotion/cache>@emotion/sheet": {
       "globals": {
+        "console.error": true,
         "document.createElement": true,
         "document.createTextNode": true,
         "document.styleSheets": true
       }
     },
     "@avalabs/k2-alpine>@emotion/styled": {
+      "globals": {
+        "console.error": true
+      },
       "packages": {
         "@avalabs/k2-alpine>@emotion/styled>@babel/runtime": true,
         "motion>@emotion/is-prop-valid": true,
@@ -628,6 +687,13 @@
         "@core/ui>bn.js": true
       }
     },
+    "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash>@ethersproject/bignumber": {
+      "packages": {
+        "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash>@ethersproject/bytes": true,
+        "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash>@ethersproject/logger": true,
+        "@core/ui>bn.js": true
+      }
+    },
     "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/bignumber": {
       "packages": {
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/bytes": true,
@@ -639,6 +705,13 @@
       "packages": {
         "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>@ethersproject/bytes": true,
         "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>@ethersproject/bytes>@ethersproject/logger": true,
+        "@core/ui>bn.js": true
+      }
+    },
+    "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/bignumber": {
+      "packages": {
+        "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/bytes": true,
+        "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/abi>@ethersproject/logger": true,
         "@core/ui>bn.js": true
       }
     },
@@ -682,6 +755,11 @@
         "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>@ethersproject/bytes>@ethersproject/logger": true
       }
     },
+    "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/bytes": {
+      "packages": {
+        "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/abi>@ethersproject/logger": true
+      }
+    },
     "@core/service-worker>fireblocks-sdk>@notabene/pii-sdk>@ethersproject/bytes": {
       "packages": {
         "@core/service-worker>fireblocks-sdk>@notabene/pii-sdk>@ethersproject/bytes>@ethersproject/logger": true
@@ -694,7 +772,12 @@
     },
     "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash": {
       "packages": {
+        "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>@ethersproject/address": true,
+        "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash>@ethersproject/bignumber": true,
+        "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash>@ethersproject/bytes": true,
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash>@ethersproject/keccak256": true,
+        "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash>@ethersproject/logger": true,
+        "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/properties": true,
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash>@ethersproject/strings": true
       }
     },
@@ -720,6 +803,23 @@
       "packages": {
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/bytes": true,
         "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/keccak256>js-sha3": true
+      }
+    },
+    "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>@ethersproject/keccak256": {
+      "packages": {
+        "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>@ethersproject/bytes": true,
+        "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/keccak256>js-sha3": true
+      }
+    },
+    "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/keccak256": {
+      "packages": {
+        "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/bytes": true,
+        "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/keccak256>js-sha3": true
+      }
+    },
+    "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/abi>@ethersproject/logger": {
+      "globals": {
+        "console": true
       }
     },
     "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/logger": {
@@ -783,6 +883,13 @@
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/rlp>@ethersproject/logger": true
       }
     },
+    "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/solidity>@ethersproject/sha2": {
+      "packages": {
+        "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/bytes": true,
+        "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/abi>@ethersproject/logger": true,
+        "@keystonehq/hw-app-eth>elliptic>hash.js": true
+      }
+    },
     "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/signing-key": {
       "packages": {
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/signing-key>@ethersproject/bytes": true,
@@ -790,6 +897,22 @@
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/properties": true,
         "@core/ui>bn.js": true,
         "@keystonehq/hw-app-eth>elliptic>hash.js": true
+      }
+    },
+    "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/solidity": {
+      "packages": {
+        "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/bignumber": true,
+        "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/bytes": true,
+        "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/keccak256": true,
+        "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/abi>@ethersproject/logger": true,
+        "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/solidity>@ethersproject/sha2": true,
+        "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/abi>@ethersproject/strings": true
+      }
+    },
+    "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/abi>@ethersproject/strings": {
+      "packages": {
+        "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/bytes": true,
+        "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/abi>@ethersproject/logger": true
       }
     },
     "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/strings": {
@@ -1273,8 +1396,34 @@
         "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/utils>superstruct": true
       }
     },
+    "@avalabs/k2-alpine>@mui/lab": {
+      "globals": {
+        "Node.ELEMENT_NODE": true,
+        "ResizeObserver": true,
+        "cancelAnimationFrame": true,
+        "getComputedStyle": true,
+        "process.env.NODE_ENV": true,
+        "requestAnimationFrame": true
+      },
+      "meta": {
+        "graph-optimization": [
+          "Dependency '@avalabs/k2-alpine>@mui/lab>@mui/base' reexports from '@avalabs/k2-alpine>@mui/lab>@mui/utils' and the bundler collapsed that to a direct import."
+        ]
+      },
+      "packages": {
+        "@avalabs/k2-alpine>@mui/lab>@mui/base": true,
+        "@avalabs/k2-alpine>@mui/material": true,
+        "@avalabs/k2-alpine>@mui/lab>@mui/system": true,
+        "@avalabs/k2-alpine>@mui/lab>@mui/utils": true,
+        "@avalabs/k2-alpine>@mui/lab>clsx": true,
+        "eslint-plugin-react>prop-types": true,
+        "react": true,
+        "react-dom": true
+      }
+    },
     "@avalabs/k2-alpine>@mui/material": {
       "globals": {
+        "CSS": true,
         "DocumentFragment": true,
         "Image": true,
         "IntersectionObserver": true,
@@ -1286,6 +1435,7 @@
         "clearTimeout": true,
         "console.error": true,
         "console.warn": true,
+        "document.activeElement": true,
         "document.addEventListener": true,
         "document.body": true,
         "document.removeEventListener": true,
@@ -1332,11 +1482,14 @@
     "@avalabs/k2-alpine>@mui/lab>@mui/system>@mui/styled-engine": {
       "globals": {
         "console.error": true,
+        "document": true,
         "process.env.NODE_ENV": true
       },
       "packages": {
+        "@emotion/react>@emotion/cache": true,
         "@emotion/react": true,
         "@emotion/react>@emotion/serialize": true,
+        "@emotion/react>@emotion/cache>@emotion/sheet": true,
         "@avalabs/k2-alpine>@emotion/styled": true,
         "eslint-plugin-react>prop-types": true,
         "react": true
@@ -1370,7 +1523,6 @@
     },
     "@avalabs/k2-alpine>@mui/lab>@mui/utils": {
       "globals": {
-        "URL": true,
         "clearTimeout": true,
         "console.error": true,
         "console.warn": true,
@@ -1381,6 +1533,7 @@
       },
       "packages": {
         "@avalabs/k2-alpine>@mui/lab>clsx": true,
+        "eslint-plugin-react>prop-types": true,
         "react": true,
         "@avalabs/k2-alpine>@mui/lab>@mui/utils>react-is": true
       }
@@ -1457,7 +1610,8 @@
     },
     "@avalabs/bridge-unified>@noble/hashes": {
       "globals": {
-        "TextEncoder": true
+        "TextEncoder": true,
+        "crypto": true
       }
     },
     "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/abi-utils>@metamask/utils>@noble/hashes": {
@@ -1537,13 +1691,15 @@
     "viem>ox>@noble/hashes": {
       "globals": {
         "TextDecoder": true,
-        "TextEncoder": true
+        "TextEncoder": true,
+        "crypto": true
       }
     },
     "viem>@noble/hashes": {
       "globals": {
         "TextDecoder": true,
-        "TextEncoder": true
+        "TextEncoder": true,
+        "crypto": true
       }
     },
     "@core/ui>ledger-bitcoin>@bitcoinerlab/secp256k1>@noble/secp256k1": {
@@ -1634,7 +1790,7 @@
     },
     "@core/ui>@sentry/browser": {
       "globals": {
-        "XMLHttpRequest.prototype": true,
+        "XMLHttpRequest": true,
         "__SENTRY_DEBUG__": true,
         "__SENTRY_RELEASE__": true,
         "setTimeout": true
@@ -1647,7 +1803,9 @@
     "@core/ui>@sentry/browser>@sentry/core": {
       "globals": {
         "__SENTRY_DEBUG__": true,
-        "console.warn": true
+        "clearInterval": true,
+        "console.warn": true,
+        "setInterval": true
       },
       "packages": {
         "@core/ui>@sentry/react>@sentry/utils": true
@@ -1681,6 +1839,7 @@
         "Headers": true,
         "Request": true,
         "Response": true,
+        "TextEncoder": true,
         "XMLHttpRequest.prototype": true,
         "__SENTRY_BROWSER_BUNDLE__": true,
         "__SENTRY_DEBUG__": true,
@@ -1688,7 +1847,8 @@
         "console.error": true,
         "document": true,
         "module": true,
-        "process": true
+        "process": true,
+        "setTimeout": true
       },
       "packages": {
         "@rsbuild/plugin-node-polyfill>process": true
@@ -1700,15 +1860,15 @@
       },
       "meta": {
         "graph-optimization": [
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/addresses' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-numbers' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-core' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/accounts' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-data-structures' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/addresses' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-strings' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-data-structures' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/instructions' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/programs' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/signers' and the bundler collapsed that to a direct import."
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/signers' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/programs' and the bundler collapsed that to a direct import."
         ]
       },
       "packages": {
@@ -1731,14 +1891,14 @@
       "meta": {
         "graph-optimization": [
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-numbers' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-core' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/options' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-data-structures' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-core' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/addresses' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-strings' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/accounts' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/options' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/instructions' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-strings' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/programs' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/accounts' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/signers' and the bundler collapsed that to a direct import."
         ]
       },
@@ -1764,26 +1924,26 @@
       "meta": {
         "graph-optimization": [
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-core' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/accounts' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-data-structures' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-numbers' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/instructions' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/addresses' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/instructions' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/options' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/programs' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/accounts' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/signers' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-strings' and the bundler collapsed that to a direct import.",
-          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/keys>@solana/codecs-core' and the bundler collapsed that to a direct import.",
-          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/codecs>@solana/codecs-numbers' and the bundler collapsed that to a direct import.",
-          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/codecs>@solana/codecs-data-structures' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/signers' and the bundler collapsed that to a direct import.",
           "Dependency '@solana/kit' reexports from '@solana/kit>@solana/addresses' and the bundler collapsed that to a direct import.",
           "Dependency '@solana/kit' reexports from '@solana/kit>@solana/instructions' and the bundler collapsed that to a direct import.",
-          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/codecs>@solana/options' and the bundler collapsed that to a direct import.",
-          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/keys>@solana/codecs-strings' and the bundler collapsed that to a direct import.",
-          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/accounts' and the bundler collapsed that to a direct import.",
-          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/instruction-plans' and the bundler collapsed that to a direct import.",
+          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/codecs>@solana/codecs-numbers' and the bundler collapsed that to a direct import.",
           "Dependency '@solana/kit' reexports from '@solana/kit>@solana/programs' and the bundler collapsed that to a direct import.",
-          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/signers' and the bundler collapsed that to a direct import."
+          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/codecs>@solana/codecs-data-structures' and the bundler collapsed that to a direct import.",
+          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/codecs>@solana/options' and the bundler collapsed that to a direct import.",
+          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/keys>@solana/codecs-core' and the bundler collapsed that to a direct import.",
+          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/signers' and the bundler collapsed that to a direct import.",
+          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/accounts' and the bundler collapsed that to a direct import.",
+          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/keys>@solana/codecs-strings' and the bundler collapsed that to a direct import.",
+          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/instruction-plans' and the bundler collapsed that to a direct import."
         ]
       },
       "packages": {
@@ -1816,6 +1976,12 @@
       "packages": {
         "@solana/kit>@solana/keys>@solana/codecs-strings": true,
         "@solana/kit>@solana/errors": true
+      }
+    },
+    "@avalabs/core-wallets-sdk>@solana/kit>@solana/accounts": {
+      "packages": {
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-strings": true,
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/errors": true
       }
     },
     "@solana/kit>@solana/addresses": {
@@ -1926,6 +2092,15 @@
         "@avalabs/core-wallets-sdk>@solana/kit>@solana/errors": true
       }
     },
+    "@solana/kit>@solana/codecs": {
+      "packages": {
+        "@solana/kit>@solana/keys>@solana/codecs-core": true,
+        "@solana/kit>@solana/codecs>@solana/codecs-data-structures": true,
+        "@solana/kit>@solana/codecs>@solana/codecs-numbers": true,
+        "@solana/kit>@solana/keys>@solana/codecs-strings": true,
+        "@solana/kit>@solana/codecs>@solana/options": true
+      }
+    },
     "@solana/kit>@solana/errors": {
       "globals": {
         "btoa": true,
@@ -1936,6 +2111,14 @@
       "globals": {
         "btoa": true,
         "process.env.NODE_ENV": true
+      }
+    },
+    "@solana/kit>@solana/instruction-plans": {
+      "packages": {
+        "@solana/kit>@solana/errors": true,
+        "@solana/kit>@solana/instruction-plans>@solana/promises": true,
+        "@solana/kit>@solana/transaction-messages": true,
+        "@solana/kit>@solana/transactions": true
       }
     },
     "@solana/kit>@solana/instructions": {
@@ -1964,6 +2147,22 @@
         "@solana/kit>@solana/errors": true
       }
     },
+    "@avalabs/core-wallets-sdk>@solana/kit>@solana/keys": {
+      "globals": {
+        "crypto.getRandomValues": true,
+        "crypto.subtle.exportKey": true,
+        "crypto.subtle.generateKey": true,
+        "crypto.subtle.importKey": true,
+        "crypto.subtle.sign": true,
+        "crypto.subtle.verify": true
+      },
+      "packages": {
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/assertions": true,
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-core": true,
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-strings": true,
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/errors": true
+      }
+    },
     "@solana/kit": {
       "packages": {
         "@solana/kit>@solana/accounts": true,
@@ -1988,6 +2187,52 @@
         "@solana/kit>@solana/transactions": true
       }
     },
+    "@solana/kit>@solana/offchain-messages": {
+      "packages": {
+        "@solana/kit>@solana/addresses": true,
+        "@solana/kit>@solana/keys>@solana/codecs-core": true,
+        "@solana/kit>@solana/codecs>@solana/codecs-data-structures": true,
+        "@solana/kit>@solana/codecs>@solana/codecs-numbers": true,
+        "@solana/kit>@solana/keys>@solana/codecs-strings": true,
+        "@solana/kit>@solana/errors": true,
+        "@solana/kit>@solana/keys": true
+      }
+    },
+    "@avalabs/core-wallets-sdk>@solana/kit>@solana/offchain-messages": {
+      "packages": {
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/addresses": true,
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-core": true,
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-data-structures": true,
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-numbers": true,
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-strings": true,
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/errors": true,
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/keys": true
+      }
+    },
+    "@solana/kit>@solana/codecs>@solana/options": {
+      "packages": {
+        "@solana/kit>@solana/keys>@solana/codecs-core": true,
+        "@solana/kit>@solana/codecs>@solana/codecs-data-structures": true,
+        "@solana/kit>@solana/codecs>@solana/codecs-numbers": true
+      }
+    },
+    "@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/options": {
+      "packages": {
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-core": true,
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-data-structures": true,
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-numbers": true
+      }
+    },
+    "@solana/kit>@solana/programs": {
+      "packages": {
+        "@solana/kit>@solana/errors": true
+      }
+    },
+    "@avalabs/core-wallets-sdk>@solana/kit>@solana/programs": {
+      "packages": {
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/errors": true
+      }
+    },
     "@solana/kit>@solana/rpc-api": {
       "packages": {
         "@solana/kit>@solana/rpc>@solana/rpc-spec": true,
@@ -2010,6 +2255,56 @@
       "packages": {
         "@avalabs/core-wallets-sdk>@solana/kit>@solana/errors": true,
         "@avalabs/core-wallets-sdk>@solana/kit>@solana/rpc-spec-types": true
+      }
+    },
+    "@solana/kit>@solana/rpc-subscriptions>@solana/rpc-subscriptions-api": {
+      "packages": {
+        "@solana/kit>@solana/rpc-subscriptions>@solana/rpc-subscriptions-spec": true,
+        "@solana/kit>@solana/rpc>@solana/rpc-transformers": true
+      }
+    },
+    "@solana/kit>@solana/rpc-subscriptions>@solana/rpc-subscriptions-channel-websocket": {
+      "globals": {
+        "CustomEvent": true,
+        "EventTarget": true,
+        "WebSocket": true,
+        "clearInterval": true,
+        "setInterval": true
+      },
+      "packages": {
+        "@solana/kit>@solana/errors": true,
+        "@solana/kit>@solana/rpc-subscriptions>@solana/subscribable": true
+      }
+    },
+    "@solana/kit>@solana/rpc-subscriptions>@solana/rpc-subscriptions-spec": {
+      "globals": {
+        "AbortController": true
+      },
+      "packages": {
+        "@solana/kit>@solana/errors": true,
+        "@solana/kit>@solana/instruction-plans>@solana/promises": true,
+        "@solana/kit>@solana/rpc-spec-types": true,
+        "@solana/kit>@solana/rpc-subscriptions>@solana/subscribable": true
+      }
+    },
+    "@solana/kit>@solana/rpc-subscriptions": {
+      "globals": {
+        "AbortController": true,
+        "DOMException": true,
+        "addEventListener": true,
+        "clearInterval": true,
+        "navigator.onLine": true,
+        "queueMicrotask": true,
+        "setInterval": true
+      },
+      "packages": {
+        "@solana/kit>@solana/errors": true,
+        "@solana/kit>@solana/rpc>@solana/fast-stable-stringify": true,
+        "@solana/kit>@solana/functional": true,
+        "@solana/kit>@solana/rpc-spec-types": true,
+        "@solana/kit>@solana/rpc-subscriptions>@solana/rpc-subscriptions-api": true,
+        "@solana/kit>@solana/rpc-subscriptions>@solana/rpc-subscriptions-channel-websocket": true,
+        "@solana/kit>@solana/rpc-subscriptions>@solana/rpc-subscriptions-spec": true
       }
     },
     "@solana/kit>@solana/rpc>@solana/rpc-transformers": {
@@ -2100,6 +2395,19 @@
         "@avalabs/core-wallets-sdk>@solana/kit>@solana/rpc>@solana/rpc-transport-http": true
       }
     },
+    "@solana/kit>@solana/signers": {
+      "globals": {
+        "TextEncoder": true
+      },
+      "packages": {
+        "@solana/kit>@solana/addresses": true,
+        "@solana/kit>@solana/errors": true,
+        "@solana/kit>@solana/instructions": true,
+        "@solana/kit>@solana/keys": true,
+        "@solana/kit>@solana/offchain-messages": true,
+        "@solana/kit>@solana/transactions": true
+      }
+    },
     "@avalabs/core-wallets-sdk>@solana/kit>@solana/signers": {
       "globals": {
         "TextEncoder": true
@@ -2111,6 +2419,51 @@
         "@avalabs/core-wallets-sdk>@solana/kit>@solana/keys": true,
         "@avalabs/core-wallets-sdk>@solana/kit>@solana/offchain-messages": true,
         "@avalabs/core-wallets-sdk>@solana/kit>@solana/transactions": true
+      }
+    },
+    "@solana/kit>@solana/rpc-subscriptions>@solana/subscribable": {
+      "globals": {
+        "AbortController": true,
+        "CustomEvent": true,
+        "EventTarget": true,
+        "process.env.NODE_ENV": true
+      },
+      "packages": {
+        "@solana/kit>@solana/errors": true
+      }
+    },
+    "@avalabs/core-wallets-sdk>@solana/kit>@solana/sysvars": {
+      "meta": {
+        "graph-optimization": [
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-core' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-numbers' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-data-structures' and the bundler collapsed that to a direct import."
+        ]
+      },
+      "packages": {
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/accounts": true,
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-core": true,
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-data-structures": true,
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-numbers": true,
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs": true,
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/errors": true,
+        "@avalabs/core-wallets-sdk>@solana/kit>@solana/rpc-types": true
+      }
+    },
+    "@solana/kit>@solana/transaction-confirmation": {
+      "globals": {
+        "AbortController": true,
+        "DOMException": true,
+        "clearTimeout": true,
+        "performance.now": true,
+        "setTimeout": true
+      },
+      "packages": {
+        "@solana/kit>@solana/keys>@solana/codecs-strings": true,
+        "@solana/kit>@solana/errors": true,
+        "@solana/kit>@solana/instruction-plans>@solana/promises": true,
+        "@solana/kit>@solana/rpc-types": true,
+        "@solana/kit>@solana/transactions": true
       }
     },
     "@solana/kit>@solana/transaction-messages": {
@@ -3069,6 +3422,14 @@
         "@keystonehq/hw-app-eth>elliptic>minimalistic-assert": true
       }
     },
+    "react-markdown>devlop": {
+      "globals": {
+        "console.error": true
+      },
+      "packages": {
+        "react-markdown>devlop>dequal": true
+      }
+    },
     "@core/service-worker>fireblocks-sdk>@notabene/pii-sdk>did-jwt": {
       "packages": {
         "@core/service-worker>fireblocks-sdk>@notabene/pii-sdk>@stablelib/ed25519": true,
@@ -3729,10 +4090,12 @@
     "react-markdown>remark-parse>mdast-util-from-markdown": {
       "packages": {
         "react-markdown>remark-parse>mdast-util-from-markdown>decode-named-character-reference": true,
+        "react-markdown>devlop": true,
         "react-markdown>remark-parse>mdast-util-from-markdown>mdast-util-to-string": true,
         "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-decode-numeric-character-reference": true,
         "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-decode-string": true,
         "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-normalize-identifier": true,
+        "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-symbol": true,
         "react-markdown>remark-parse>mdast-util-from-markdown>micromark": true,
         "react-markdown>vfile>vfile-message>unist-util-stringify-position": true
       }
@@ -3778,6 +4141,7 @@
     "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-core-commonmark": {
       "packages": {
         "react-markdown>remark-parse>mdast-util-from-markdown>decode-named-character-reference": true,
+        "react-markdown>devlop": true,
         "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-core-commonmark>micromark-factory-destination": true,
         "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-core-commonmark>micromark-factory-label": true,
         "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-factory-space": true,
@@ -3789,17 +4153,21 @@
         "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-core-commonmark>micromark-util-html-tag-name": true,
         "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-normalize-identifier": true,
         "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-util-resolve-all": true,
-        "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-util-subtokenize": true
+        "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-util-subtokenize": true,
+        "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-symbol": true
       }
     },
     "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-core-commonmark>micromark-factory-destination": {
       "packages": {
-        "react-markdown>mdast-util-to-hast>micromark-util-sanitize-uri>micromark-util-character": true
+        "react-markdown>mdast-util-to-hast>micromark-util-sanitize-uri>micromark-util-character": true,
+        "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-symbol": true
       }
     },
     "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-core-commonmark>micromark-factory-label": {
       "packages": {
-        "react-markdown>mdast-util-to-hast>micromark-util-sanitize-uri>micromark-util-character": true
+        "react-markdown>devlop": true,
+        "react-markdown>mdast-util-to-hast>micromark-util-sanitize-uri>micromark-util-character": true,
+        "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-symbol": true
       }
     },
     "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-factory-space": {
@@ -3810,18 +4178,31 @@
     "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-core-commonmark>micromark-factory-title": {
       "packages": {
         "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-factory-space": true,
-        "react-markdown>mdast-util-to-hast>micromark-util-sanitize-uri>micromark-util-character": true
+        "react-markdown>mdast-util-to-hast>micromark-util-sanitize-uri>micromark-util-character": true,
+        "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-symbol": true
       }
     },
     "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-core-commonmark>micromark-factory-whitespace": {
       "packages": {
         "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-factory-space": true,
-        "react-markdown>mdast-util-to-hast>micromark-util-sanitize-uri>micromark-util-character": true
+        "react-markdown>mdast-util-to-hast>micromark-util-sanitize-uri>micromark-util-character": true,
+        "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-symbol": true
+      }
+    },
+    "react-markdown>mdast-util-to-hast>micromark-util-sanitize-uri>micromark-util-character": {
+      "packages": {
+        "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-symbol": true
+      }
+    },
+    "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-util-chunked": {
+      "packages": {
+        "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-symbol": true
       }
     },
     "react-markdown>hast-util-to-jsx-runtime>mdast-util-mdx-jsx>mdast-util-to-markdown>micromark-util-classify-character": {
       "packages": {
-        "react-markdown>mdast-util-to-hast>micromark-util-sanitize-uri>micromark-util-character": true
+        "react-markdown>mdast-util-to-hast>micromark-util-sanitize-uri>micromark-util-character": true,
+        "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-symbol": true
       }
     },
     "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-util-combine-extensions": {
@@ -3829,21 +4210,35 @@
         "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-util-chunked": true
       }
     },
+    "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-decode-numeric-character-reference": {
+      "packages": {
+        "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-symbol": true
+      }
+    },
     "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-decode-string": {
       "packages": {
         "react-markdown>remark-parse>mdast-util-from-markdown>decode-named-character-reference": true,
-        "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-decode-numeric-character-reference": true
+        "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-decode-numeric-character-reference": true,
+        "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-symbol": true
+      }
+    },
+    "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-normalize-identifier": {
+      "packages": {
+        "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-symbol": true
       }
     },
     "react-markdown>mdast-util-to-hast>micromark-util-sanitize-uri": {
       "packages": {
         "react-markdown>mdast-util-to-hast>micromark-util-sanitize-uri>micromark-util-character": true,
-        "react-markdown>mdast-util-to-hast>micromark-util-sanitize-uri>micromark-util-encode": true
+        "react-markdown>mdast-util-to-hast>micromark-util-sanitize-uri>micromark-util-encode": true,
+        "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-symbol": true
       }
     },
     "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-util-subtokenize": {
       "packages": {
-        "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-util-chunked": true
+        "react-markdown>devlop": true,
+        "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-util-chunked": true,
+        "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-symbol": true
       }
     },
     "react-markdown>remark-parse>mdast-util-from-markdown>micromark": {
@@ -3851,13 +4246,16 @@
         "TextDecoder": true
       },
       "packages": {
+        "eslint>debug": true,
+        "react-markdown>devlop": true,
         "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-core-commonmark": true,
         "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-factory-space": true,
         "react-markdown>mdast-util-to-hast>micromark-util-sanitize-uri>micromark-util-character": true,
         "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-util-chunked": true,
         "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-util-combine-extensions": true,
         "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-util-resolve-all": true,
-        "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-util-subtokenize": true
+        "react-markdown>remark-parse>mdast-util-from-markdown>micromark>micromark-util-subtokenize": true,
+        "react-markdown>remark-parse>mdast-util-from-markdown>micromark-util-symbol": true
       }
     },
     "@rsbuild/plugin-node-polyfill>crypto-browserify>diffie-hellman>miller-rabin": {
@@ -4034,7 +4432,12 @@
     },
     "eslint-plugin-react>prop-types": {
       "globals": {
+        "console": true,
         "process.env.NODE_ENV": true
+      },
+      "packages": {
+        "react-test-renderer>object-assign": true,
+        "@emotion/react>hoist-non-react-statics>react-is": true
       }
     },
     "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt": {
@@ -4135,10 +4538,14 @@
     },
     "react": {
       "globals": {
+        "AggregateError": true,
         "ErrorEvent": true,
-        "console.error": true,
+        "MessageChannel": true,
+        "__REACT_DEVTOOLS_GLOBAL_HOOK__": true,
+        "console": true,
         "dispatchEvent": true,
         "process": true,
+        "queueMicrotask": true,
         "reportError": true
       },
       "packages": {
@@ -4182,6 +4589,7 @@
     },
     "@avalabs/k2-alpine>react-day-picker": {
       "globals": {
+        "HTMLElement": true,
         "Intl.DateTimeFormat": true,
         "Intl.NumberFormat": true
       },
@@ -4196,20 +4604,25 @@
         "AbortController": true,
         "ErrorEvent": true,
         "FormData": true,
+        "IS_REACT_ACT_ENVIRONMENT": true,
         "__REACT_DEVTOOLS_GLOBAL_HOOK__": true,
         "addEventListener": true,
         "clearTimeout": true,
         "clipboardData": true,
-        "console.error": true,
+        "console": true,
         "dispatchEvent": true,
         "document": true,
         "event": true,
+        "location.protocol": true,
         "matchMedia": true,
+        "navigator.userAgent.indexOf": true,
         "process": true,
         "queueMicrotask": true,
         "removeEventListener": true,
         "reportError": true,
-        "setTimeout": true
+        "self": true,
+        "setTimeout": true,
+        "top": true
       },
       "packages": {
         "@rsbuild/plugin-node-polyfill>process": true,
@@ -4233,8 +4646,19 @@
         "react": true
       }
     },
+    "@avalabs/k2-alpine>@mui/material>react-is": {
+      "globals": {
+        "process.env.NODE_ENV": true
+      }
+    },
+    "@avalabs/k2-alpine>@mui/lab>@mui/utils>react-is": {
+      "globals": {
+        "process.env.NODE_ENV": true
+      }
+    },
     "@emotion/react>hoist-non-react-statics>react-is": {
       "globals": {
+        "console": true,
         "process.env.NODE_ENV": true
       }
     },
@@ -4436,6 +4860,7 @@
     "react-dom>scheduler": {
       "globals": {
         "MessageChannel": true,
+        "__REACT_DEVTOOLS_GLOBAL_HOOK__": true,
         "clearTimeout": true,
         "console.error": true,
         "performance": true,
@@ -4602,6 +5027,12 @@
         "@core/ui>bip32>tiny-secp256k1>elliptic": true
       }
     },
+    "@core/ui>react-router-dom>tiny-warning": {
+      "globals": {
+        "console": true,
+        "process.env.NODE_ENV": true
+      }
+    },
     "react-custom-scrollbars-2>dom-css>to-camel-case": {
       "packages": {
         "react-custom-scrollbars-2>dom-css>to-camel-case>to-space-case": true
@@ -4665,6 +5096,8 @@
     },
     "@tanstack/react-pacer>@tanstack/react-store>use-sync-external-store": {
       "globals": {
+        "__REACT_DEVTOOLS_GLOBAL_HOOK__": true,
+        "console.error": true,
         "document": true,
         "process.env.NODE_ENV": true
       },

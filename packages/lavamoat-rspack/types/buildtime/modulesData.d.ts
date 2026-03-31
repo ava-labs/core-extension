@@ -3,9 +3,11 @@ import type { InspectableModule } from './policyGenerator.js';
 export function analyzeModules({
   mainCompilationWarnings,
   allIdentifiedModules,
+  compilerContext,
 }: {
   mainCompilationWarnings: Error[];
   allIdentifiedModules: IdentifiedModule[];
+  compilerContext?: string;
 }): {
   inspectable: InspectableModule[];
   contextModules: {

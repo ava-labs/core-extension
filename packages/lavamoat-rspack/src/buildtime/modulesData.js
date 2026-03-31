@@ -1,3 +1,4 @@
+const path = require('node:path');
 const diag = require('./diagnostics.js');
 const { WebpackError } = require('@rspack/core');
 
@@ -36,6 +37,56 @@ const isIgnoredModule = (m) => {
  *   otherwise false.
  */
 const isContextModule = (_m, moduleClass) => moduleClass === 'ContextModule';
+
+/**
+ * Rspack often omits `module.context` on ContextModule; the filesystem directory is
+ * still in `identifier()`:
+ * - Webpack-style: `./src/dir lazy recursive ^\\.\\/.*$`
+ * - Rspack-style: `/abs/path/to/dir|lazy|/^\\.\\/.*$/|groupOptions: {}|...`
+ *
+ * @param {string} identifier
+ * @returns {string | undefined}
+ */
+const parseContextDirectoryFromIdentifier = (identifier) => {
+  if (typeof identifier !== 'string' || !identifier) {
+    return undefined;
+  }
+  if (identifier.includes('|')) {
+    const first = identifier.split('|')[0].trim();
+    return first || undefined;
+  }
+  const re =
+    /^(.+?)\s+((?:async\s+lazy|async\s+weak|lazy(?:-once)?|eager|sync|weak))\s/;
+  const m = identifier.match(re);
+  return m ? m[1].trim() : undefined;
+};
+
+/**
+ * @param {import('@rspack/core').Module} module
+ * @param {string} [compilerContext]
+ * @returns {string | undefined}
+ */
+const resolveContextModuleFilesystemContext = (module, compilerContext) => {
+  /** @type {string | undefined} */
+  let raw = module.context;
+  if (!raw && typeof module.nameForCondition === 'function') {
+    raw = module.nameForCondition() ?? undefined;
+  }
+  if (!raw && typeof module.identifier === 'function') {
+    raw = parseContextDirectoryFromIdentifier(module.identifier());
+  }
+  if (!raw) {
+    return undefined;
+  }
+  if (
+    compilerContext &&
+    !path.isAbsolute(raw) &&
+    (raw.startsWith('./') || raw.startsWith('../'))
+  ) {
+    return path.resolve(compilerContext, raw);
+  }
+  return raw;
+};
 
 /**
  * Identifies an asset that the bundler emits by default without a loader
@@ -97,6 +148,8 @@ const isInspectableModule = (m, moduleClass) =>
  * @param {Error[]} opts.mainCompilationWarnings - Array to store compilation
  *   warnings
  * @param {IdentifiedModule[]} opts.allIdentifiedModules
+ * @param {string} [opts.compilerContext] - Compiler `context` for resolving
+ *   relative context paths parsed from ContextModule identifiers (Rspack).
  * @returns {{
  *   inspectable: InspectableModule[]
  *   contextModules: { moduleId: string | number; context: string }[]
@@ -108,6 +161,7 @@ const isInspectableModule = (m, moduleClass) =>
 exports.analyzeModules = ({
   mainCompilationWarnings,
   allIdentifiedModules,
+  compilerContext,
 }) => {
   /**
    * Array of objects representing the paths and module ids found in the
@@ -225,14 +279,18 @@ exports.analyzeModules = ({
           _identifier: module?._identifier,
         },
       });
-      if (!module.context) {
+      const resolvedContext = resolveContextModuleFilesystemContext(
+        module,
+        compilerContext,
+      );
+      if (!resolvedContext) {
         mainCompilationWarnings.push(
           new WebpackError(
             `LavaMoatPlugin: context module ${moduleId} has no context information. It cannot be allowed to work if it's reached at runtime.`,
           ),
         );
       } else {
-        contextModules.push({ moduleId, context: module.context });
+        contextModules.push({ moduleId, context: resolvedContext });
       }
     }
     if (isIgnoredModule(module)) {
