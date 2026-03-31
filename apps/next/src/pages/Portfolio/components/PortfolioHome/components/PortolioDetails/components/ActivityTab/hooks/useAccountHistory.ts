@@ -1,8 +1,7 @@
 import { Network, TxHistoryItem } from '@core/types';
 import { useWalletContext } from '@core/ui';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useMemo } from 'react';
-import { resolveTxNumericChainId } from '../utils/resolveTxNumericChainId';
+import { useEffect } from 'react';
 
 export const PORTFOLIO_ACTIVITY_HISTORY_QUERY_KEY = 'portfolioActivityHistory';
 
@@ -50,15 +49,6 @@ export function useAccountHistory(
     queryClient.removeQueries({ predicate });
   }, [numericNetworkId, queryClient, queryEnabled]);
 
-  const filteredHistory = useMemo(() => {
-    if (rawData === undefined) {
-      return null;
-    }
-    return rawData.filter(
-      (tx) => resolveTxNumericChainId(tx.chainId) === numericNetworkId,
-    );
-  }, [rawData, numericNetworkId]);
-
   if (!queryEnabled) {
     return [];
   }
@@ -68,5 +58,5 @@ export function useAccountHistory(
   if (isError) {
     return [];
   }
-  return filteredHistory ?? [];
+  return rawData ?? [];
 }
