@@ -1,28 +1,12 @@
 import { Network, TxHistoryItem } from '@core/types';
 import { useWalletContext } from '@core/ui';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 export const PORTFOLIO_ACTIVITY_HISTORY_QUERY_KEY = 'portfolioActivityHistory';
-
-function otherPortfolioActivityPredicate(excludeNumericChainId: number) {
-  return (query: { queryKey: readonly unknown[] }): boolean => {
-    const [prefix, keyChainId] = query.queryKey;
-    if (prefix !== PORTFOLIO_ACTIVITY_HISTORY_QUERY_KEY) {
-      return false;
-    }
-    const numericKeyId = Number(keyChainId);
-    if (!Number.isFinite(numericKeyId)) {
-      return false;
-    }
-    return numericKeyId !== excludeNumericChainId;
-  };
-}
 
 export function useAccountHistory(
   networkId: Network['chainId'],
 ): TxHistoryItem[] | null {
-  const queryClient = useQueryClient();
   const { getTransactionHistory } = useWalletContext();
   const numericNetworkId = Number(networkId);
   const queryEnabled =
@@ -37,17 +21,10 @@ export function useAccountHistory(
     queryFn: () => getTransactionHistory(numericNetworkId),
     enabled: queryEnabled,
     structuralSharing: false,
+    // Keyed by chain; drop inactive networks from cache immediately so switching
+    // networks does not keep stale in-flight rows or resurrect old-chain data.
+    gcTime: 0,
   });
-
-  useEffect(() => {
-    if (!queryEnabled) {
-      return;
-    }
-    const predicate = otherPortfolioActivityPredicate(numericNetworkId);
-    // Drop other networks' activity only — clearing the active query left it pending forever.
-    void queryClient.cancelQueries({ predicate });
-    queryClient.removeQueries({ predicate });
-  }, [numericNetworkId, queryClient, queryEnabled]);
 
   if (!queryEnabled) {
     return [];
