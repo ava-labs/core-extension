@@ -3384,10 +3384,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@date-fns/tz@npm:^1.4.1":
+"@date-fns/tz@npm:1.4.1":
   version: 1.4.1
   resolution: "@date-fns/tz@npm:1.4.1"
   checksum: 10c0/9033fdc4682fe3d4d147625ce04fa88a8792653594e2de8d5a438c8f3bfc0990ee28fe773f91cac6810b06d818b5b281ae0608752ba8337257d0279ded3f019a
+  languageName: node
+  linkType: hard
+
+"@date-fns/tz@patch:@date-fns/tz@npm%3A1.4.1#.yarn/patches/@date-fns-tz-npm-1.4.1-e102649294.patch::locator=avalanche-extension%40workspace%3A.":
+  version: 1.4.1
+  resolution: "@date-fns/tz@patch:@date-fns/tz@npm%3A1.4.1#.yarn/patches/@date-fns-tz-npm-1.4.1-e102649294.patch::version=1.4.1&hash=4ab7bd&locator=avalanche-extension%40workspace%3A."
+  checksum: 10c0/05d8b84076a1f8b756c7d019eafca46a2fa2ee5df834108aeece231d7db427a13c6a4c8f0797ee2731bd0f5a49fa5da4dae41d60949244b2de6d37a93aa310a0
   languageName: node
   linkType: hard
 
