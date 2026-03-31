@@ -1,0 +1,16 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Run only on branch checkouts (not file checkouts)
+[ "$3" = "1" ] || exit 0
+
+changed_files="$(git diff --name-only "$1" "$2")"
+
+case "$changed_files" in
+  *"yarn.lock"*|*"package.json"*|*".yarnrc.yml"*|*".yarn/"*)
+    echo "Dependency files changed across branches. Running yarn..."
+    yarn
+    ;;
+  *)
+    ;;
+esac

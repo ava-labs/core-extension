@@ -11,6 +11,24 @@ import {
   isCctTransaction,
 } from '../../../utils/cctTransaction';
 
+const EVM_ADDRESS_HEX = /^0x[a-fA-F0-9]{40}$/;
+
+function addressBelongToUser(
+  addr: string | undefined,
+  userAddresses: string[],
+): boolean {
+  if (!addr) {
+    return false;
+  }
+  if (EVM_ADDRESS_HEX.test(addr)) {
+    const lower = addr.toLowerCase();
+    return userAddresses.some(
+      (u) => EVM_ADDRESS_HEX.test(u) && u.toLowerCase() === lower,
+    );
+  }
+  return userAddresses.includes(addr);
+}
+
 export interface Props {
   transaction: TxHistoryItem;
 }
@@ -43,6 +61,7 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
     ),
     [mainToken],
   );
+
   if (transaction.bridgeAnalysis.isBridgeTx) {
     return (
       <TransactionDescriptionContainer>
@@ -101,14 +120,12 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
       );
     }
     case TransactionType.SWAP: {
-      const sourceToken = transaction.tokens.find(
-        (token) =>
-          token.from?.address && userAddresses.includes(token.from.address),
+      const sourceToken = transaction.tokens.find((token) =>
+        addressBelongToUser(token.from?.address, userAddresses),
       );
 
-      const targetToken = transaction.tokens.find(
-        (token) =>
-          token.to?.address && userAddresses.includes(token.to.address),
+      const targetToken = transaction.tokens.find((token) =>
+        addressBelongToUser(token.to?.address, userAddresses),
       );
 
       const sourceAmount = (
@@ -134,6 +151,13 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
             }}
             components={{ sourceAmount }}
           />
+        </TransactionDescriptionContainer>
+      );
+    }
+    case TransactionType.APPROVE: {
+      return (
+        <TransactionDescriptionContainer>
+          {t('Spend limit approved')}
         </TransactionDescriptionContainer>
       );
     }
@@ -222,11 +246,14 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
   }
 };
 
-const StyledTypography = styled(Typography)({
+const DescriptionText = styled(Typography)({
   display: '-webkit-box',
   WebkitLineClamp: 2,
   WebkitBoxOrient: 'vertical',
   overflow: 'hidden',
+  wordBreak: 'break-word',
+  overflowWrap: 'break-word',
+  minWidth: 0,
 });
 
 const TransactionDescriptionContainer = ({
@@ -235,12 +262,8 @@ const TransactionDescriptionContainer = ({
   children: React.ReactNode;
 }) => {
   return (
-    <StyledTypography
-      variant="body3"
-      component="span"
-      justifyContent="flex-start"
-    >
+    <DescriptionText variant="body3" component="div">
       {children}
-    </StyledTypography>
+    </DescriptionText>
   );
 };

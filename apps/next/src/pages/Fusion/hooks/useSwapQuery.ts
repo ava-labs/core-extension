@@ -13,14 +13,9 @@ type SwapQuery = {
   toId: string;
   toQuery: string;
   userAmount: string;
-  useMaxAmount: boolean;
 };
 
-type UpdatePayload = Partial<
-  Omit<Record<keyof FusionQueryTokens, string>, 'useMaxAmount'>
-> & {
-  useMaxAmount?: boolean;
-};
+type UpdatePayload = Partial<Record<keyof FusionQueryTokens, string>>;
 type UseSwapQuery = () => SwapQuery & {
   update: (payload: UpdatePayload) => void;
 };
@@ -35,18 +30,13 @@ export const useSwapQuery: UseSwapQuery = () => {
   const toId = searchParams.get(FUSION_QUERY_TOKENS.to) ?? '';
   const toQuery = searchParams.get(FUSION_QUERY_TOKENS.toQuery) ?? '';
   const userAmount = searchParams.get(FUSION_QUERY_TOKENS.userAmount) ?? '';
-  const useMaxAmount =
-    searchParams.get(FUSION_QUERY_TOKENS.useMaxAmount) === 'true';
 
   const update = useCallback(
     (payload: UpdatePayload) => {
       const updated = new URLSearchParams(search);
 
       for (const [k, v] of Object.entries(payload)) {
-        updated.set(
-          FUSION_QUERY_TOKENS[k],
-          typeof v === 'boolean' ? v.toString() : v,
-        );
+        updated.set(FUSION_QUERY_TOKENS[k], v);
       }
 
       replace({
@@ -64,6 +54,5 @@ export const useSwapQuery: UseSwapQuery = () => {
     toId,
     toQuery,
     userAmount,
-    useMaxAmount,
   };
 };

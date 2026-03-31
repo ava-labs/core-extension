@@ -15,7 +15,7 @@ export type ColorTheme = 'DARK' | 'LIGHT' | 'SYSTEM';
 export enum Languages {
   EN = 'en',
   DE = 'de-DE',
-  ES = 'es-EM',
+  ES = 'es-ES',
   FR = 'fr-FR',
   JA = 'ja-JP',
   HI = 'hi-IN',

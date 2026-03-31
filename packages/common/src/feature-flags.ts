@@ -61,10 +61,11 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.CORE_ASSISTANT]: false,
   [FeatureGates.SWAP_USE_MARKR]: false,
   [FeatureVars.MARKR_SWAP_GAS_BUFFER]: '100',
-  [FeatureVars.FUSION_MAX_AMOUNT_GAS_SAFETY_BPS]: '5000', // 50%
+  [FeatureVars.FUSION_MAX_AMOUNT_GAS_SAFETY_BPS]: '2500', // 25%
   [FeatureVars.FUSION_BRIDGE_FEE_SAFETY_BPS]: '4000', // 40%
   [FeatureVars.FUSION_FEE_UNITS_MARGIN_BPS]: '2000', // 20%
   [FeatureVars.FUSION_TRANSFER_GAS_MARGIN_BPS]: '2000', // 20%
+  [FeatureVars.FUSION_ADDITIVE_FEES_BUFFER_BPS]: '2000', // 20%
   [FeatureGates.BALANCE_SERVICE_INTEGRATION]: false,
   [FeatureGates.LANGUAGES]: false,
   [FeatureGates.QUICK_SWAPS]: false,
@@ -136,10 +137,11 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.CORE_ASSISTANT]: true,
   [FeatureGates.SWAP_USE_MARKR]: true,
   [FeatureVars.MARKR_SWAP_GAS_BUFFER]: '120',
-  [FeatureVars.FUSION_MAX_AMOUNT_GAS_SAFETY_BPS]: '5000', // 50%
+  [FeatureVars.FUSION_MAX_AMOUNT_GAS_SAFETY_BPS]: '2500', // 25%
   [FeatureVars.FUSION_BRIDGE_FEE_SAFETY_BPS]: '4000', // 40%
   [FeatureVars.FUSION_FEE_UNITS_MARGIN_BPS]: '2000', // 20%
   [FeatureVars.FUSION_TRANSFER_GAS_MARGIN_BPS]: '2000', // 20%
+  [FeatureVars.FUSION_ADDITIVE_FEES_BUFFER_BPS]: '2000', // 20%
   [FeatureGates.BALANCE_SERVICE_INTEGRATION]: false,
   [FeatureGates.LANGUAGES]: false,
   [FeatureGates.QUICK_SWAPS]: false,

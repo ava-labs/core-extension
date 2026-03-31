@@ -1,0 +1,3 @@
+files:
+  - source: /apps/next/src/localization/locales/en/**/*.json
+    translation: /apps/next/src/localization/locales/%locale%/%original_file_name%

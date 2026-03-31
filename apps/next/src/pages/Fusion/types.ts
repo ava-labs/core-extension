@@ -1,11 +1,23 @@
-import { BtcSigner, EvmSignerWithMessage } from '@avalabs/fusion-sdk';
+import {
+  BtcSigner,
+  EvmSignerWithMessage,
+  Quote,
+  TransferManager,
+} from '@avalabs/fusion-sdk';
 
 import {
+  Account,
   Erc20TokenBalance,
   EvmNativeTokenBalance,
+  FungibleTokenBalance,
   SolanaNativeTokenBalance,
   SolanaSplTokenBalance,
 } from '@core/types';
+import { useSwapQuery } from './hooks';
+import {
+  PriceImpactAvailability,
+  PriceImpactSeverity,
+} from './hooks/usePriceImpact';
 
 export type SwappableAssetType =
   | 'evm_native'
@@ -38,4 +50,56 @@ export type EstimatedFeeResult = {
   fee: bigint | undefined;
   isFeeLoading: boolean;
   feeError: Error | null;
+};
+
+export type RequiredTokenPurpose = 'input' | 'network-fee' | 'additive-fee';
+
+export type RequiredToken = {
+  id: string;
+  token: FungibleTokenBalance;
+  amounts: [bigint, RequiredTokenPurpose][];
+  total: bigint;
+};
+
+export type RequiredTokenAmounts = {
+  state: 'idle' | 'loading' | 'complete' | 'incomplete';
+  tokens: RequiredToken[];
+};
+
+export type QueryState = Omit<
+  ReturnType<typeof useSwapQuery>,
+  'update' | 'clear'
+> & {
+  updateQuery: ReturnType<typeof useSwapQuery>['update'];
+};
+export type FusionState = QueryState & {
+  debouncedUserAmount: string;
+  manager: TransferManager | undefined;
+  sourceTokenList: FungibleTokenBalance[];
+  targetTokenList: FungibleTokenBalance[];
+  sourceToken: FungibleTokenBalance | undefined;
+  targetToken: FungibleTokenBalance | undefined;
+  account?: Account;
+  isConfirming: boolean;
+  slippage: number;
+  setSlippage: (slippage: number) => void;
+  autoSlippage: boolean;
+  setAutoSlippage: (autoSlippage: boolean) => void;
+  minimumTransferAmount: bigint | undefined;
+  toAmount?: string;
+  priceImpact: number | undefined;
+  priceImpactSeverity: PriceImpactSeverity;
+  priceImpactAvailability: PriceImpactAvailability;
+  userQuote: Quote | null;
+  bestQuote: Quote | null;
+  selectedQuote: Quote | null;
+  quotes: Quote[];
+  selectQuoteById: (quoteId: string | null) => void;
+  transfer: (specificQuote?: Quote) => Promise<void>;
+  status: SwapStatus;
+  quotesStatus: QuoteStreamingStatus;
+  minimalQuote: Quote | null;
+  formError: string | React.ReactNode;
+  minimumRequiredTokens: RequiredTokenAmounts;
+  currentRequiredTokens: RequiredTokenAmounts;
 };

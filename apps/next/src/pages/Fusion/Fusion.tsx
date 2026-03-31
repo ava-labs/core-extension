@@ -1,4 +1,4 @@
-import { alpha, Button, styled, Stack } from '@avalabs/k2-alpine';
+import { alpha, Button, styled, Stack, Tooltip } from '@avalabs/k2-alpine';
 import { TokenType as VmTokenType } from '@avalabs/vm-module-types';
 import { useTranslation } from 'react-i18next';
 
@@ -21,7 +21,15 @@ const FusionPage = () => {
 
   const { t } = useTranslation();
 
-  const { isConfirming, transfer, status } = useFusionState();
+  const { isConfirming, transfer, status, priceImpactSeverity, formError } =
+    useFusionState();
+
+  const isCriticalPriceImpact = priceImpactSeverity === 'critical';
+  const isSwapDisabled =
+    isConfirming ||
+    status !== 'ready-to-transfer' ||
+    isCriticalPriceImpact ||
+    Boolean(formError);
 
   return (
     <Page
@@ -39,17 +47,29 @@ const FusionPage = () => {
           textAlign="center"
         >
           <SwapProviderNotice />
-          <Button
-            fullWidth
-            size="extension"
-            variant="contained"
-            color="primary"
-            onClick={() => transfer()}
-            disabled={isConfirming || status !== 'ready-to-transfer'}
-            loading={isConfirming}
+          <Tooltip
+            title={
+              isCriticalPriceImpact
+                ? t(
+                    'Price impact is the effect of your swap on the price of a token. It is influenced by your order size and available liquidity. Core has no control over price impact.',
+                  )
+                : ''
+            }
           >
-            {t('Swap')}
-          </Button>
+            <span>
+              <Button
+                fullWidth
+                size="extension"
+                variant="contained"
+                color="primary"
+                onClick={() => transfer()}
+                disabled={isSwapDisabled}
+                loading={isConfirming}
+              >
+                {t('Swap')}
+              </Button>
+            </span>
+          </Tooltip>
         </Stack>
       </SwapActionButtonsContainer>
     </Page>

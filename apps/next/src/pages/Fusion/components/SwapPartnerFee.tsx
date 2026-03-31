@@ -21,7 +21,7 @@ export const SwapPartnerFee = () => {
         color="text.secondary"
         mx={2}
       >
-        {t('Quote includes a {{coreFee}} partner fee', {
+        {t('Quote includes a {{coreFee}} Core fee', {
           coreFee,
         })}
       </Typography>

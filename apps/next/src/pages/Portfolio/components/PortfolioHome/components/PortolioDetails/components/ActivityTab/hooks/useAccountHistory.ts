@@ -1,20 +1,17 @@
 import { Network, TxHistoryItem } from '@core/types';
 import { useWalletContext } from '@core/ui';
-import { use, useEffect, useState } from 'react';
-
-const DEFAULT_START_PROMISE = Promise.resolve<TxHistoryItem[] | null>(null);
+import { useEffect, useState } from 'react';
 
 export function useAccountHistory(
   networkId: Network['chainId'],
 ): TxHistoryItem[] | null {
   const { getTransactionHistory } = useWalletContext();
-  const [promise, setPromise] = useState<Promise<TxHistoryItem[] | null>>(
-    DEFAULT_START_PROMISE,
-  );
+  const [history, setHistory] = useState<TxHistoryItem[] | null>(null);
 
   useEffect(() => {
-    setPromise(getTransactionHistory(networkId));
+    setHistory(null);
+    getTransactionHistory(networkId).then(setHistory);
   }, [getTransactionHistory, networkId]);
 
-  return use(promise);
+  return history;
 }
