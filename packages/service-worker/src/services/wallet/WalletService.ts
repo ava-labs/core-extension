@@ -19,10 +19,15 @@ import {
 import { NetworkVMType, PartialBy, RpcMethod } from '@avalabs/vm-module-types';
 import {
   assertPresent,
+  ensureAvalancheLedgerAppOpen,
+  ensureBitcoinLedgerAppOpen,
+  ensureEthereumLedgerAppOpen,
+  ensureSolanaLedgerAppOpen,
   getAvalancheExtendedKeyPath,
   getLegacyXPDerivationPath,
   getProviderForNetwork,
   hasAtLeastOneElement,
+  isEthereumNetwork,
   isNotNullish,
   isPchainNetwork,
   isPrimaryAccount,
@@ -653,6 +658,22 @@ export class WalletService implements OnUnlock {
     );
   }
 
+  /**
+   * Match approval UI `getRequiredApp`: Ethereum (homestead + listed testnets) →
+   * Ethereum app; Avalanche C/X/P and all other EVM chains → Avalanche app.
+   */
+  async #ensureEvmLedgerAppOpenForSigning(network: Network): Promise<void> {
+    if (!this.ledgerService.recentTransport) {
+      throw new Error('Ledger transport not available');
+    }
+    const transport = this.ledgerService.recentTransport;
+    if (isEthereumNetwork(network)) {
+      await ensureEthereumLedgerAppOpen(transport);
+      return;
+    }
+    await ensureAvalancheLedgerAppOpen(transport);
+  }
+
   async sign(
     tx: SignTransactionRequest,
     network: Network,
@@ -712,6 +733,13 @@ export class WalletService implements OnUnlock {
         };
       }
 
+      if (wallet instanceof SolanaLedgerSigner) {
+        if (!this.ledgerService.recentTransport) {
+          throw new Error('Ledger transport not available');
+        }
+        await ensureSolanaLedgerAppOpen(this.ledgerService.recentTransport);
+      }
+
       return {
         signedTx: await wallet.signTx(tx.data, provider),
       };
@@ -727,6 +755,13 @@ export class WalletService implements OnUnlock {
         !(wallet instanceof SeedlessWallet)
       ) {
         throw new Error('Signing error, wrong network');
+      }
+
+      if (wallet instanceof BitcoinLedgerWallet) {
+        if (!this.ledgerService.recentTransport) {
+          throw new Error('Ledger transport not available');
+        }
+        await ensureBitcoinLedgerAppOpen(this.ledgerService.recentTransport);
       }
 
       // prepare transaction for ledger signing
@@ -786,6 +821,13 @@ export class WalletService implements OnUnlock {
         );
       }
 
+      if (isLedgerSigner) {
+        if (!this.ledgerService.recentTransport) {
+          throw new Error('Ledger transport not available');
+        }
+        await ensureAvalancheLedgerAppOpen(this.ledgerService.recentTransport);
+      }
+
       const signRequest = {
         tx: unsignedTx,
         ...(isLedgerSigner && {
@@ -841,6 +883,13 @@ export class WalletService implements OnUnlock {
         throw new Error('Signing error, wrong network');
       }
 
+      if (isLedgerSigner) {
+        if (!this.ledgerService.recentTransport) {
+          throw new Error('Ledger transport not available');
+        }
+        await ensureAvalancheLedgerAppOpen(this.ledgerService.recentTransport);
+      }
+
       const txToSign = {
         tx: tx.tx,
         ...(isLedgerSigner && {
@@ -875,6 +924,10 @@ export class WalletService implements OnUnlock {
       !(wallet instanceof SeedlessWallet)
     ) {
       throw new Error('Signing error, wrong network');
+    }
+
+    if (wallet instanceof LedgerSigner) {
+      await this.#ensureEvmLedgerAppOpenForSigning(network);
     }
 
     return this.#normalizeSigningResult(await wallet.signTransaction(tx));
@@ -1029,6 +1082,8 @@ export class WalletService implements OnUnlock {
     }
 
     if (wallet instanceof LedgerSigner) {
+      await this.#ensureEvmLedgerAppOpenForSigning(network);
+
       if (isTypedData(data.data)) {
         return wallet.signTypedData(
           data.data.domain,
@@ -1121,6 +1176,8 @@ export class WalletService implements OnUnlock {
         throw new Error('Ledger transport not available');
       }
 
+      await ensureAvalancheLedgerAppOpen(this.ledgerService.recentTransport);
+
       return await wallet.signMessage({
         message,
         chain: 'X',
@@ -1165,6 +1222,8 @@ export class WalletService implements OnUnlock {
     }
 
     if (wallet instanceof LedgerSigner) {
+      await this.#ensureEvmLedgerAppOpenForSigning(network);
+
       if (
         [
           MessageType.SIGN_TYPED_DATA,

@@ -61,6 +61,8 @@ jest.mock('@core/common', () => ({
   isLockStateChangedEvent: (evt: { name: string }) =>
     evt.name === LockEvents.LOCK_STATE_CHANGED,
   ensureAvalancheLedgerAppOpen: jest.fn().mockResolvedValue(undefined),
+  ensureBitcoinLedgerAppOpen: jest.fn().mockResolvedValue(undefined),
+  ensureEthereumLedgerAppOpen: jest.fn().mockResolvedValue(undefined),
   ensureSolanaLedgerAppOpen: jest.fn().mockResolvedValue(undefined),
 }));
 jest.mock('./getAvalancheLedgerExtendedPublicKey');

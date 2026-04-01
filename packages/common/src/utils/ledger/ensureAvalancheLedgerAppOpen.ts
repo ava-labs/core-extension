@@ -12,6 +12,9 @@ export const ETHEREUM_LEDGER_APP_NAME = 'Ethereum';
 /** BOLOS name for the Solana app (must match `getAppAndVersion`). */
 export const SOLANA_LEDGER_APP_NAME = 'Solana';
 
+/** BOLOS name for the Bitcoin app (must match `getAppAndVersion` / `LedgerAppType.BITCOIN`). */
+export const BITCOIN_LEDGER_APP_NAME = 'Bitcoin';
+
 /** Ledger DMK `GetAppAndVersionCommand` — CLA/INS. */
 const GET_APP_AND_VERSION_CLA = 0xb0;
 const GET_APP_AND_VERSION_INS = 0x01;
@@ -44,6 +47,10 @@ export function getLedgerAutoOpenAppFailedMessage(appName: string): string {
 
 export function getLedgerQuitAppFailedMessage(): string {
   return 'Could not exit the current Ledger app automatically. Return to the device home screen, then try again.';
+}
+
+export function getLedgerAppNotInstalledMessage(appName: string): string {
+  return `The ${appName} app is not installed on this Ledger device. Install it from Ledger Live, then try again.`;
 }
 
 export function isLedgerDashboardApplication(name: string): boolean {
@@ -252,7 +259,7 @@ export async function ensureAvalancheLedgerAppOpen(
   await ensureLedgerAppOpen(
     transport,
     AVALANCHE_LEDGER_APP_NAME,
-    `The ${AVALANCHE_LEDGER_APP_NAME} app is not installed on this Ledger device. Install it from Ledger Live, then try again.`,
+    getLedgerAppNotInstalledMessage(AVALANCHE_LEDGER_APP_NAME),
   );
 }
 
@@ -267,7 +274,7 @@ export async function ensureEthereumLedgerAppOpen(
   await ensureLedgerAppOpen(
     transport,
     ETHEREUM_LEDGER_APP_NAME,
-    `The ${ETHEREUM_LEDGER_APP_NAME} app is not installed on this Ledger device. Install it from Ledger Live, then try again.`,
+    getLedgerAppNotInstalledMessage(ETHEREUM_LEDGER_APP_NAME),
   );
 }
 
@@ -281,6 +288,20 @@ export async function ensureSolanaLedgerAppOpen(
   await ensureLedgerAppOpen(
     transport,
     SOLANA_LEDGER_APP_NAME,
-    `The ${SOLANA_LEDGER_APP_NAME} app is not installed on this Ledger device. Install it from Ledger Live, then try again.`,
+    getLedgerAppNotInstalledMessage(SOLANA_LEDGER_APP_NAME),
+  );
+}
+
+/**
+ * Same switching behavior as {@link ensureAvalancheLedgerAppOpen} for the
+ * Bitcoin Ledger app (`ledger-bitcoin` `AppClient`).
+ */
+export async function ensureBitcoinLedgerAppOpen(
+  transport: Pick<Transport, 'send'>,
+): Promise<void> {
+  await ensureLedgerAppOpen(
+    transport,
+    BITCOIN_LEDGER_APP_NAME,
+    getLedgerAppNotInstalledMessage(BITCOIN_LEDGER_APP_NAME),
   );
 }

@@ -4,9 +4,11 @@ import Transport, {
 } from '@ledgerhq/hw-transport';
 import {
   AVALANCHE_LEDGER_APP_NAME,
+  BITCOIN_LEDGER_APP_NAME,
   ETHEREUM_LEDGER_APP_NAME,
   SOLANA_LEDGER_APP_NAME,
   ensureAvalancheLedgerAppOpen,
+  ensureBitcoinLedgerAppOpen,
   ensureEthereumLedgerAppOpen,
   ensureSolanaLedgerAppOpen,
   getLedgerActiveApplication,
@@ -305,6 +307,62 @@ describe('ensureEthereumLedgerAppOpen', () => {
     await assertion;
 
     expect(send).toHaveBeenCalledTimes(3);
+    jest.useRealTimers();
+  });
+});
+
+describe('ensureBitcoinLedgerAppOpen', () => {
+  it('only queries the current app when Bitcoin is already open', async () => {
+    const send = jest.fn() as jest.MockedFunction<Transport['send']>;
+    send.mockResolvedValueOnce(
+      encodeGetAppAndVersion(BITCOIN_LEDGER_APP_NAME, '2.0.0'),
+    );
+
+    await ensureBitcoinLedgerAppOpen({ send });
+
+    expect(send).toHaveBeenCalledTimes(1);
+    expect(send).toHaveBeenCalledWith(0xb0, 0x01, 0x00, 0x00);
+  });
+
+  it('sends openApp when the dashboard (BOLOS) is active', async () => {
+    const send = jest.fn() as jest.MockedFunction<Transport['send']>;
+    send.mockResolvedValueOnce(encodeGetAppAndVersion('BOLOS', '2.0.0'));
+    send.mockResolvedValueOnce(Buffer.from([0x90, 0x00]));
+    send.mockResolvedValueOnce(
+      encodeGetAppAndVersion(BITCOIN_LEDGER_APP_NAME, '2.0.0'),
+    );
+
+    await ensureBitcoinLedgerAppOpen({ send });
+
+    expect(send).toHaveBeenCalledTimes(3);
+    expect(send).toHaveBeenNthCalledWith(
+      2,
+      0xe0,
+      0xd8,
+      0x00,
+      0x00,
+      Buffer.from(BITCOIN_LEDGER_APP_NAME, 'ascii'),
+    );
+  });
+
+  it('quits a non-dashboard app before opening Bitcoin', async () => {
+    jest.useFakeTimers();
+    const send = jest.fn() as jest.MockedFunction<Transport['send']>;
+    send.mockResolvedValueOnce(encodeGetAppAndVersion('Ethereum', '1.0.0'));
+    send.mockResolvedValueOnce(Buffer.from([0x90, 0x00]));
+    send.mockResolvedValueOnce(encodeGetAppAndVersion('BOLOS', '2.0.0'));
+    send.mockResolvedValueOnce(Buffer.from([0x90, 0x00]));
+    send.mockResolvedValueOnce(
+      encodeGetAppAndVersion(BITCOIN_LEDGER_APP_NAME, '2.0.0'),
+    );
+
+    const done = ensureBitcoinLedgerAppOpen({ send });
+    const assertion = expect(done).resolves.toBeUndefined();
+    await jest.runAllTimersAsync();
+    await assertion;
+
+    expect(send).toHaveBeenCalledTimes(5);
+    expect(send).toHaveBeenNthCalledWith(2, 0xb0, 0xa7, 0x00, 0x00);
     jest.useRealTimers();
   });
 });

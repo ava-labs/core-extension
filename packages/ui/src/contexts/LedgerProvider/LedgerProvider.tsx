@@ -2,6 +2,8 @@ import AppAvalanche from '@avalabs/hw-app-avalanche';
 import { ExtensionRequest } from '@core/types';
 import {
   ensureAvalancheLedgerAppOpen,
+  ensureBitcoinLedgerAppOpen,
+  ensureEthereumLedgerAppOpen,
   ensureSolanaLedgerAppOpen,
   isLockStateChangedEvent,
   resolve,
@@ -91,6 +93,14 @@ const LedgerContext = createContext<{
    * Quit / open-app to Solana (if needed) and refresh `appType` / `appVersion` from the device.
    */
   prepareTransportForSolanaOnboarding(): Promise<void>;
+  /**
+   * BOLOS open-app to Ethereum (if needed) and refresh `appType` / `appVersion` from the device.
+   */
+  prepareTransportForEthereumOnboarding(): Promise<void>;
+  /**
+   * BOLOS open-app to Bitcoin (if needed) and refresh `appType` / `appVersion` from the device.
+   */
+  prepareTransportForBitcoinOnboarding(): Promise<void>;
   initLedgerTransport(): Promise<void>;
   hasLedgerTransport: boolean;
   appType: LedgerAppType;
@@ -476,6 +486,24 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     await initLedgerApp(transport);
   }, [initLedgerApp]);
 
+  const prepareTransportForEthereumOnboarding = useCallback(async () => {
+    if (!transportRef.current) {
+      throw new Error('no device detected');
+    }
+    const transport = transportRef.current;
+    await ensureEthereumLedgerAppOpen(transport);
+    await initLedgerApp(transport);
+  }, [initLedgerApp]);
+
+  const prepareTransportForBitcoinOnboarding = useCallback(async () => {
+    if (!transportRef.current) {
+      throw new Error('no device detected');
+    }
+    const transport = transportRef.current;
+    await ensureBitcoinLedgerAppOpen(transport);
+    await initLedgerApp(transport);
+  }, [initLedgerApp]);
+
   const getPublicKey = useCallback(
     async (accountIndex: number, pathType: DerivationPath, vm: VM | 'SVM') => {
       if (!transportRef.current) {
@@ -648,6 +676,8 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         getExtendedPublicKey,
         prepareTransportForAvalancheOnboarding,
         prepareTransportForSolanaOnboarding,
+        prepareTransportForEthereumOnboarding,
+        prepareTransportForBitcoinOnboarding,
         initLedgerTransport,
         hasLedgerTransport: !!transportRef.current,
         wasTransportAttempted,
