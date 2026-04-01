@@ -91,6 +91,9 @@ export function parseLedgerGetAppAndVersionResponse(data: Buffer): {
   }
   const name = data.subarray(offset, offset + nameLength).toString('ascii');
   offset += nameLength;
+  if (offset >= data.length) {
+    throw new Error('getAppAndVersion: response truncated after app name');
+  }
   const versionLength = data.readUInt8(offset);
   offset += 1;
   if (offset + versionLength > data.length) {

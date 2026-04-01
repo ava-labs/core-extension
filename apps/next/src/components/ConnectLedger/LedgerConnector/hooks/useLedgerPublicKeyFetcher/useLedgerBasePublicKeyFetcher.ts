@@ -3,7 +3,7 @@ import {
   DerivationPath,
   getAddressPublicKeyFromXPub,
 } from '@avalabs/core-wallets-sdk';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   LedgerAppType,
@@ -74,6 +74,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   const [status, setStatus] = useState<DerivationStatus>('waiting');
   const [wasManualConnectionAttempted, setWasManualConnectionAttempted] =
     useState(false);
+  const appSwitchInFlight = useRef(false);
 
   const getEvmExtendedPublicKeys = useCallback(
     async (indexes: number[]) => {
@@ -362,42 +363,51 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
         return;
       }
 
+      if (appSwitchInFlight.current) {
+        return;
+      }
+
       setStatus('waiting');
       setError(undefined);
 
       let cancelled = false;
+      appSwitchInFlight.current = true;
 
-      prepareTransportForAvalancheOnboarding().catch((err: unknown) => {
-        if (cancelled) {
-          return;
-        }
-        const message = err instanceof Error ? err.message : String(err);
-        if (message.includes('not installed on this Ledger device')) {
+      prepareTransportForAvalancheOnboarding()
+        .catch((err: unknown) => {
+          if (cancelled) {
+            return;
+          }
+          const message = err instanceof Error ? err.message : String(err);
+          if (message.includes('not installed on this Ledger device')) {
+            setStatus('error');
+            setError('app-not-installed');
+            return;
+          }
+          if (
+            message ===
+            getLedgerAutoOpenAppFailedMessage(AVALANCHE_LEDGER_APP_NAME)
+          ) {
+            setStatus('error');
+            setError('no-app');
+            return;
+          }
+          if (message === getLedgerQuitAppFailedMessage()) {
+            setStatus('error');
+            setError('no-app');
+            return;
+          }
+          if (message.includes('no device detected')) {
+            setStatus('error');
+            setError('unable-to-connect');
+            return;
+          }
           setStatus('error');
-          setError('app-not-installed');
-          return;
-        }
-        if (
-          message ===
-          getLedgerAutoOpenAppFailedMessage(AVALANCHE_LEDGER_APP_NAME)
-        ) {
-          setStatus('error');
-          setError('no-app');
-          return;
-        }
-        if (message === getLedgerQuitAppFailedMessage()) {
-          setStatus('error');
-          setError('no-app');
-          return;
-        }
-        if (message.includes('no device detected')) {
-          setStatus('error');
-          setError('unable-to-connect');
-          return;
-        }
-        setStatus('error');
-        setError('device-locked');
-      });
+          setError('device-locked');
+        })
+        .finally(() => {
+          appSwitchInFlight.current = false;
+        });
 
       return () => {
         cancelled = true;
