@@ -57,10 +57,6 @@ export function isLedgerDashboardApplication(name: string): boolean {
   return LEDGER_DASHBOARD_APP_NAMES.has(name);
 }
 
-/**
- * Parses the successful response body of GetAppAndVersion (same layout as
- * `@ledgerhq/hw-app-eth` `getAppAndVersion`).
- */
 /** Strip SW when present (`transport.send` returns payload + `0x9000` on success). */
 function apduBodyWithoutSuccessSw(data: Buffer): Buffer {
   if (
@@ -161,8 +157,8 @@ async function openLedgerAppByName(
   notInstalledMessage: string,
   autoOpenFailedMessage: string,
 ): Promise<void> {
-  const t = transport as Transport;
-  const previousTimeout = t.exchangeTimeout;
+  const fullTransport = transport as Transport;
+  const previousTimeout = fullTransport.exchangeTimeout;
   const sendOpen = () =>
     transport.send(
       OPEN_APP_CLA,
@@ -172,7 +168,7 @@ async function openLedgerAppByName(
       buildOpenLedgerAppPayload(appName),
     );
 
-  t.setExchangeTimeout?.(OPEN_APP_EXCHANGE_MS);
+  fullTransport.setExchangeTimeout?.(OPEN_APP_EXCHANGE_MS);
 
   try {
     try {
@@ -203,7 +199,7 @@ async function openLedgerAppByName(
       );
     }
   } finally {
-    t.setExchangeTimeout?.(previousTimeout);
+    fullTransport.setExchangeTimeout?.(previousTimeout);
   }
 }
 

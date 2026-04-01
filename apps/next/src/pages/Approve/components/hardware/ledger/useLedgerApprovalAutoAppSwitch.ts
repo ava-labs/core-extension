@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { DisplayData } from '@avalabs/vm-module-types';
 
@@ -23,6 +23,22 @@ export function useLedgerApprovalAutoAppSwitch(
     prepareTransportForSolanaOnboarding,
   } = useLedgerContext();
 
+  const prepareFnByApp: Partial<Record<LedgerAppType, () => Promise<void>>> =
+    useMemo(
+      () => ({
+        [LedgerAppType.AVALANCHE]: prepareTransportForAvalancheOnboarding,
+        [LedgerAppType.ETHEREUM]: prepareTransportForEthereumOnboarding,
+        [LedgerAppType.SOLANA]: prepareTransportForSolanaOnboarding,
+        [LedgerAppType.BITCOIN]: prepareTransportForBitcoinOnboarding,
+      }),
+      [
+        prepareTransportForAvalancheOnboarding,
+        prepareTransportForBitcoinOnboarding,
+        prepareTransportForEthereumOnboarding,
+        prepareTransportForSolanaOnboarding,
+      ],
+    );
+
   const actionKeyRef = useRef<string | undefined>(undefined);
   const autoOpenAttemptedRef = useRef(false);
 
@@ -45,42 +61,12 @@ export function useLedgerApprovalAutoAppSwitch(
       return;
     }
 
-    if (requiredAppForSwitch === LedgerAppType.AVALANCHE) {
+    const prepareFn = prepareFnByApp[requiredAppForSwitch];
+    if (prepareFn) {
       autoOpenAttemptedRef.current = true;
-      void prepareTransportForAvalancheOnboarding().catch(() => {
-        /* User may fix device manually; avoid log noise */
-      });
-      return;
-    }
-
-    if (requiredAppForSwitch === LedgerAppType.ETHEREUM) {
-      autoOpenAttemptedRef.current = true;
-      void prepareTransportForEthereumOnboarding().catch(() => {
-        /* User may fix device manually; avoid log noise */
-      });
-      return;
-    }
-
-    if (requiredAppForSwitch === LedgerAppType.SOLANA) {
-      autoOpenAttemptedRef.current = true;
-      void prepareTransportForSolanaOnboarding().catch(() => {
-        /* User may fix device manually; avoid log noise */
-      });
-      return;
-    }
-
-    if (requiredAppForSwitch === LedgerAppType.BITCOIN) {
-      autoOpenAttemptedRef.current = true;
-      void prepareTransportForBitcoinOnboarding().catch(() => {
+      void prepareFn().catch(() => {
         /* User may fix device manually; avoid log noise */
       });
     }
-  }, [
-    isIncorrectApp,
-    requiredAppForSwitch,
-    prepareTransportForAvalancheOnboarding,
-    prepareTransportForBitcoinOnboarding,
-    prepareTransportForEthereumOnboarding,
-    prepareTransportForSolanaOnboarding,
-  ]);
+  }, [isIncorrectApp, requiredAppForSwitch, prepareFnByApp]);
 }

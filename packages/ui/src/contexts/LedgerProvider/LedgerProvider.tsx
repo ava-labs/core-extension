@@ -468,41 +468,37 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     return pubKey;
   }, []);
 
-  const prepareTransportForAvalancheOnboarding = useCallback(async () => {
-    if (!transportRef.current) {
-      throw new Error('no device detected');
-    }
-    const transport = transportRef.current;
-    await ensureAvalancheLedgerAppOpen(transport);
-    await initLedgerApp(transport);
-  }, [initLedgerApp]);
+  const prepareTransportForApp = useCallback(
+    async (ensureAppOpen: (t: Pick<Transport, 'send'>) => Promise<void>) => {
+      if (!transportRef.current) {
+        throw new Error('no device detected');
+      }
+      const transport = transportRef.current;
+      await ensureAppOpen(transport);
+      await initLedgerApp(transport);
+    },
+    [initLedgerApp],
+  );
 
-  const prepareTransportForSolanaOnboarding = useCallback(async () => {
-    if (!transportRef.current) {
-      throw new Error('no device detected');
-    }
-    const transport = transportRef.current;
-    await ensureSolanaLedgerAppOpen(transport);
-    await initLedgerApp(transport);
-  }, [initLedgerApp]);
+  const prepareTransportForAvalancheOnboarding = useCallback(
+    () => prepareTransportForApp(ensureAvalancheLedgerAppOpen),
+    [prepareTransportForApp],
+  );
 
-  const prepareTransportForEthereumOnboarding = useCallback(async () => {
-    if (!transportRef.current) {
-      throw new Error('no device detected');
-    }
-    const transport = transportRef.current;
-    await ensureEthereumLedgerAppOpen(transport);
-    await initLedgerApp(transport);
-  }, [initLedgerApp]);
+  const prepareTransportForSolanaOnboarding = useCallback(
+    () => prepareTransportForApp(ensureSolanaLedgerAppOpen),
+    [prepareTransportForApp],
+  );
 
-  const prepareTransportForBitcoinOnboarding = useCallback(async () => {
-    if (!transportRef.current) {
-      throw new Error('no device detected');
-    }
-    const transport = transportRef.current;
-    await ensureBitcoinLedgerAppOpen(transport);
-    await initLedgerApp(transport);
-  }, [initLedgerApp]);
+  const prepareTransportForEthereumOnboarding = useCallback(
+    () => prepareTransportForApp(ensureEthereumLedgerAppOpen),
+    [prepareTransportForApp],
+  );
+
+  const prepareTransportForBitcoinOnboarding = useCallback(
+    () => prepareTransportForApp(ensureBitcoinLedgerAppOpen),
+    [prepareTransportForApp],
+  );
 
   const getPublicKey = useCallback(
     async (accountIndex: number, pathType: DerivationPath, vm: VM | 'SVM') => {

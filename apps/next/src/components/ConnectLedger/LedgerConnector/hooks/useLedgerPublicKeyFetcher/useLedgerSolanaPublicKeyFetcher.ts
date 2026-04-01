@@ -2,11 +2,7 @@ import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { AddressPublicKeyJson, DerivationStatus } from '@core/types';
-import {
-  getLedgerAutoOpenAppFailedMessage,
-  getLedgerQuitAppFailedMessage,
-  SOLANA_LEDGER_APP_NAME,
-} from '@core/common';
+import { SOLANA_LEDGER_APP_NAME } from '@core/common';
 import {
   LedgerAppType,
   useActiveLedgerAppInfo,
@@ -15,6 +11,7 @@ import {
 
 import { ErrorType, PublicKey, UseLedgerPublicKeyFetcher } from '../../types';
 import { buildAddressPublicKey } from '../../util';
+import { classifyLedgerOnboardingError } from './classifyLedgerOnboardingError';
 
 export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   __,
@@ -120,31 +117,8 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
         if (cancelled) {
           return;
         }
-        const message = err instanceof Error ? err.message : String(err);
-        if (message.includes('not installed on this Ledger device')) {
-          setStatus('error');
-          setError('app-not-installed');
-          return;
-        }
-        if (
-          message === getLedgerAutoOpenAppFailedMessage(SOLANA_LEDGER_APP_NAME)
-        ) {
-          setStatus('error');
-          setError('no-app');
-          return;
-        }
-        if (message === getLedgerQuitAppFailedMessage()) {
-          setStatus('error');
-          setError('no-app');
-          return;
-        }
-        if (message.includes('no device detected')) {
-          setStatus('error');
-          setError('unable-to-connect');
-          return;
-        }
         setStatus('error');
-        setError('device-locked');
+        setError(classifyLedgerOnboardingError(err, SOLANA_LEDGER_APP_NAME));
       });
 
       return () => {

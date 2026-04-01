@@ -23,8 +23,6 @@ import {
   assert,
   getAvalancheExtendedKeyPath,
   getEvmExtendedKeyPath,
-  getLedgerAutoOpenAppFailedMessage,
-  getLedgerQuitAppFailedMessage,
   isLedgerVersionCompatible,
 } from '@core/common';
 
@@ -42,6 +40,7 @@ import {
   WalletExistsError,
 } from '../../types';
 import { buildAddressPublicKey, buildExtendedPublicKey } from '../../util';
+import { classifyLedgerOnboardingError } from './classifyLedgerOnboardingError';
 
 export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   derivationPathSpec,
@@ -378,32 +377,10 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
           if (cancelled) {
             return;
           }
-          const message = err instanceof Error ? err.message : String(err);
-          if (message.includes('not installed on this Ledger device')) {
-            setStatus('error');
-            setError('app-not-installed');
-            return;
-          }
-          if (
-            message ===
-            getLedgerAutoOpenAppFailedMessage(AVALANCHE_LEDGER_APP_NAME)
-          ) {
-            setStatus('error');
-            setError('no-app');
-            return;
-          }
-          if (message === getLedgerQuitAppFailedMessage()) {
-            setStatus('error');
-            setError('no-app');
-            return;
-          }
-          if (message.includes('no device detected')) {
-            setStatus('error');
-            setError('unable-to-connect');
-            return;
-          }
           setStatus('error');
-          setError('device-locked');
+          setError(
+            classifyLedgerOnboardingError(err, AVALANCHE_LEDGER_APP_NAME),
+          );
         })
         .finally(() => {
           appSwitchInFlight.current = false;

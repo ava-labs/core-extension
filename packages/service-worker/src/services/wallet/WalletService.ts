@@ -658,15 +658,20 @@ export class WalletService implements OnUnlock {
     );
   }
 
+  #requireLedgerTransport() {
+    const transport = this.ledgerService.recentTransport;
+    if (!transport) {
+      throw new Error('Ledger transport not available');
+    }
+    return transport;
+  }
+
   /**
    * Match approval UI `getRequiredApp`: Ethereum (homestead + listed testnets) →
    * Ethereum app; Avalanche C/X/P and all other EVM chains → Avalanche app.
    */
   async #ensureEvmLedgerAppOpenForSigning(network: Network): Promise<void> {
-    if (!this.ledgerService.recentTransport) {
-      throw new Error('Ledger transport not available');
-    }
-    const transport = this.ledgerService.recentTransport;
+    const transport = this.#requireLedgerTransport();
     if (isEthereumNetwork(network)) {
       await ensureEthereumLedgerAppOpen(transport);
       return;
@@ -734,10 +739,7 @@ export class WalletService implements OnUnlock {
       }
 
       if (wallet instanceof SolanaLedgerSigner) {
-        if (!this.ledgerService.recentTransport) {
-          throw new Error('Ledger transport not available');
-        }
-        await ensureSolanaLedgerAppOpen(this.ledgerService.recentTransport);
+        await ensureSolanaLedgerAppOpen(this.#requireLedgerTransport());
       }
 
       return {
@@ -758,10 +760,7 @@ export class WalletService implements OnUnlock {
       }
 
       if (wallet instanceof BitcoinLedgerWallet) {
-        if (!this.ledgerService.recentTransport) {
-          throw new Error('Ledger transport not available');
-        }
-        await ensureBitcoinLedgerAppOpen(this.ledgerService.recentTransport);
+        await ensureBitcoinLedgerAppOpen(this.#requireLedgerTransport());
       }
 
       // prepare transaction for ledger signing
@@ -822,10 +821,7 @@ export class WalletService implements OnUnlock {
       }
 
       if (isLedgerSigner) {
-        if (!this.ledgerService.recentTransport) {
-          throw new Error('Ledger transport not available');
-        }
-        await ensureAvalancheLedgerAppOpen(this.ledgerService.recentTransport);
+        await ensureAvalancheLedgerAppOpen(this.#requireLedgerTransport());
       }
 
       const signRequest = {
@@ -884,10 +880,7 @@ export class WalletService implements OnUnlock {
       }
 
       if (isLedgerSigner) {
-        if (!this.ledgerService.recentTransport) {
-          throw new Error('Ledger transport not available');
-        }
-        await ensureAvalancheLedgerAppOpen(this.ledgerService.recentTransport);
+        await ensureAvalancheLedgerAppOpen(this.#requireLedgerTransport());
       }
 
       const txToSign = {
@@ -1172,16 +1165,13 @@ export class WalletService implements OnUnlock {
       wallet instanceof Avalanche.SimpleLedgerSigner ||
       wallet instanceof Avalanche.LedgerSigner
     ) {
-      if (!this.ledgerService.recentTransport) {
-        throw new Error('Ledger transport not available');
-      }
-
-      await ensureAvalancheLedgerAppOpen(this.ledgerService.recentTransport);
+      const transport = this.#requireLedgerTransport();
+      await ensureAvalancheLedgerAppOpen(transport);
 
       return await wallet.signMessage({
         message,
         chain: 'X',
-        transport: this.ledgerService.recentTransport,
+        transport,
       });
     }
 
