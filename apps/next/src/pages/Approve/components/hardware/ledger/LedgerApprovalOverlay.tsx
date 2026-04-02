@@ -3,7 +3,7 @@ import { DisplayData } from '@avalabs/vm-module-types';
 
 import { Action, ActionStatus, NetworkWithCaipId } from '@core/types';
 
-import { HardwareApprovalDrawer } from '../common/ApprovalDrawer';
+import { HardwareApprovalDrawer } from '@/components/HardwareApprovalDrawer';
 import { useLedgerApprovalState } from './useLedgerApprovalState';
 import {
   Disconnected,
