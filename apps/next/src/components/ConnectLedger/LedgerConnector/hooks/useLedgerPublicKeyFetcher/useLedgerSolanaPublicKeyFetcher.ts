@@ -2,7 +2,6 @@ import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { AddressPublicKeyJson, DerivationStatus } from '@core/types';
-import { SOLANA_LEDGER_APP_NAME } from '@core/common';
 import {
   LedgerAppType,
   useActiveLedgerAppInfo,
@@ -23,7 +22,7 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     wasTransportAttempted,
     initLedgerTransport,
     getPublicKey,
-    prepareTransportForSolanaOnboarding,
+    prepareTransportForOnboarding,
   } = useLedgerContext();
   const { appType } = useActiveLedgerAppInfo(true);
 
@@ -106,11 +105,11 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
       setError(undefined);
 
       let cancelled = false;
-      const switchPromise = prepareTransportForSolanaOnboarding().finally(
-        () => {
-          solanaSwitchInFlightRef.current = null;
-        },
-      );
+      const switchPromise = prepareTransportForOnboarding(
+        LedgerAppType.SOLANA,
+      ).finally(() => {
+        solanaSwitchInFlightRef.current = null;
+      });
       solanaSwitchInFlightRef.current = switchPromise;
 
       switchPromise.catch((err: unknown) => {
@@ -118,7 +117,7 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
           return;
         }
         setStatus('error');
-        setError(classifyLedgerOnboardingError(err, SOLANA_LEDGER_APP_NAME));
+        setError(classifyLedgerOnboardingError(err, LedgerAppType.SOLANA));
       });
 
       return () => {
@@ -139,7 +138,7 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     error,
     hasLedgerTransport,
     initLedgerTransport,
-    prepareTransportForSolanaOnboarding,
+    prepareTransportForOnboarding,
     status,
     wasTransportAttempted,
   ]);

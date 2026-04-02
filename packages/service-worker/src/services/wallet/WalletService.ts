@@ -19,10 +19,7 @@ import {
 import { NetworkVMType, PartialBy, RpcMethod } from '@avalabs/vm-module-types';
 import {
   assertPresent,
-  ensureAvalancheLedgerAppOpen,
-  ensureBitcoinLedgerAppOpen,
-  ensureEthereumLedgerAppOpen,
-  ensureSolanaLedgerAppOpen,
+  ensureLedgerAppOpen,
   getAvalancheExtendedKeyPath,
   getLegacyXPDerivationPath,
   getProviderForNetwork,
@@ -673,10 +670,10 @@ export class WalletService implements OnUnlock {
   async #ensureEvmLedgerAppOpenForSigning(network: Network): Promise<void> {
     const transport = this.#requireLedgerTransport();
     if (isEthereumNetwork(network)) {
-      await ensureEthereumLedgerAppOpen(transport);
+      await ensureLedgerAppOpen(transport, 'Ethereum');
       return;
     }
-    await ensureAvalancheLedgerAppOpen(transport);
+    await ensureLedgerAppOpen(transport, 'Avalanche');
   }
 
   async sign(
@@ -739,7 +736,7 @@ export class WalletService implements OnUnlock {
       }
 
       if (wallet instanceof SolanaLedgerSigner) {
-        await ensureSolanaLedgerAppOpen(this.#requireLedgerTransport());
+        await ensureLedgerAppOpen(this.#requireLedgerTransport(), 'Solana');
       }
 
       return {
@@ -760,7 +757,7 @@ export class WalletService implements OnUnlock {
       }
 
       if (wallet instanceof BitcoinLedgerWallet) {
-        await ensureBitcoinLedgerAppOpen(this.#requireLedgerTransport());
+        await ensureLedgerAppOpen(this.#requireLedgerTransport(), 'Bitcoin');
       }
 
       // prepare transaction for ledger signing
@@ -821,7 +818,7 @@ export class WalletService implements OnUnlock {
       }
 
       if (isLedgerSigner) {
-        await ensureAvalancheLedgerAppOpen(this.#requireLedgerTransport());
+        await ensureLedgerAppOpen(this.#requireLedgerTransport(), 'Avalanche');
       }
 
       const signRequest = {
@@ -880,7 +877,7 @@ export class WalletService implements OnUnlock {
       }
 
       if (isLedgerSigner) {
-        await ensureAvalancheLedgerAppOpen(this.#requireLedgerTransport());
+        await ensureLedgerAppOpen(this.#requireLedgerTransport(), 'Avalanche');
       }
 
       const txToSign = {
@@ -1166,7 +1163,7 @@ export class WalletService implements OnUnlock {
       wallet instanceof Avalanche.LedgerSigner
     ) {
       const transport = this.#requireLedgerTransport();
-      await ensureAvalancheLedgerAppOpen(transport);
+      await ensureLedgerAppOpen(transport, 'Avalanche');
 
       return await wallet.signMessage({
         message,

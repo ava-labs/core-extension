@@ -31,10 +31,7 @@ import {
   getSolanaPublicKeyFromLedger,
   quitLedgerApp,
 } from '@avalabs/core-wallets-sdk';
-import {
-  ensureAvalancheLedgerAppOpen,
-  ensureSolanaLedgerAppOpen,
-} from '@core/common';
+import { ensureLedgerAppOpen } from '@core/common';
 import { getAvalancheLedgerExtendedPublicKey } from './getAvalancheLedgerExtendedPublicKey';
 import { LockEvents } from '@core/types';
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
@@ -60,10 +57,7 @@ jest.mock('@core/common', () => ({
   withTimeout: <T,>(promise: Promise<T>, _timeout: number) => promise,
   isLockStateChangedEvent: (evt: { name: string }) =>
     evt.name === LockEvents.LOCK_STATE_CHANGED,
-  ensureAvalancheLedgerAppOpen: jest.fn().mockResolvedValue(undefined),
-  ensureBitcoinLedgerAppOpen: jest.fn().mockResolvedValue(undefined),
-  ensureEthereumLedgerAppOpen: jest.fn().mockResolvedValue(undefined),
-  ensureSolanaLedgerAppOpen: jest.fn().mockResolvedValue(undefined),
+  ensureLedgerAppOpen: jest.fn().mockResolvedValue(undefined),
 }));
 jest.mock('./getAvalancheLedgerExtendedPublicKey');
 jest.mock('@avalabs/hw-app-avalanche');
@@ -737,7 +731,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
 
   describe('getExtendedPublicKey', () => {
     beforeEach(() => {
-      jest.mocked(ensureAvalancheLedgerAppOpen).mockResolvedValue(undefined);
+      jest.mocked(ensureLedgerAppOpen).mockResolvedValue(undefined);
     });
 
     it('throws error if transport is missing', async () => {
@@ -750,7 +744,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
         expect(screen.getByTestId('error').textContent).toBe(
           'no device detected',
         );
-        expect(ensureAvalancheLedgerAppOpen).not.toHaveBeenCalled();
+        expect(ensureLedgerAppOpen).not.toHaveBeenCalled();
         expect(getAvalancheLedgerExtendedPublicKey).not.toHaveBeenCalled();
       });
     });
@@ -767,7 +761,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('error').textContent).toBe(error.message);
-        expect(ensureAvalancheLedgerAppOpen).toHaveBeenCalledWith(refMock);
+        expect(ensureLedgerAppOpen).toHaveBeenCalledWith(refMock, 'Avalanche');
         expect(getAvalancheLedgerExtendedPublicKey).toHaveBeenCalledWith(
           refMock,
           path,
@@ -788,7 +782,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('result').textContent).toBe(xPub);
-        expect(ensureAvalancheLedgerAppOpen).toHaveBeenCalledWith(refMock);
+        expect(ensureLedgerAppOpen).toHaveBeenCalledWith(refMock, 'Avalanche');
         expect(getAvalancheLedgerExtendedPublicKey).toHaveBeenCalledWith(
           refMock,
           path,
@@ -800,7 +794,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
 
   describe('getPublicKey', () => {
     beforeEach(() => {
-      jest.mocked(ensureSolanaLedgerAppOpen).mockResolvedValue(undefined);
+      jest.mocked(ensureLedgerAppOpen).mockResolvedValue(undefined);
     });
 
     it('throws error if transport is missing', async () => {
@@ -814,7 +808,6 @@ describe('src/contexts/LedgerProvider.tsx', () => {
           'no device detected',
         );
         expect(getPubKeyFromTransport).not.toHaveBeenCalled();
-        expect(ensureSolanaLedgerAppOpen).not.toHaveBeenCalled();
       });
     });
 
@@ -833,7 +826,10 @@ describe('src/contexts/LedgerProvider.tsx', () => {
           DerivationPath.BIP44,
           'EVM',
         );
-        expect(ensureSolanaLedgerAppOpen).not.toHaveBeenCalled();
+        expect(ensureLedgerAppOpen).not.toHaveBeenCalledWith(
+          expect.anything(),
+          'Solana',
+        );
       });
     });
 
@@ -845,7 +841,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
       fireEvent.click(screen.getByTestId('getPublicKey'));
 
       await waitFor(() => {
-        expect(ensureSolanaLedgerAppOpen).toHaveBeenCalledWith(refMock);
+        expect(ensureLedgerAppOpen).toHaveBeenCalledWith(refMock, 'Solana');
         expect(getSolanaPublicKeyFromLedger).toHaveBeenCalledWith(0, refMock);
         expect(getPubKeyFromTransport).not.toHaveBeenCalled();
       });

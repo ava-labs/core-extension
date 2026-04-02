@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { DisplayData } from '@avalabs/vm-module-types';
 
-import { LedgerAppType, useLedgerContext } from '@core/ui';
+import { useLedgerContext } from '@core/ui';
 import { Action } from '@core/types';
 
 import { LedgerApprovalState } from './types';
@@ -16,28 +16,7 @@ export function useLedgerApprovalAutoAppSwitch(
   ledgerState: LedgerApprovalState,
   action: Action<DisplayData>,
 ) {
-  const {
-    prepareTransportForAvalancheOnboarding,
-    prepareTransportForBitcoinOnboarding,
-    prepareTransportForEthereumOnboarding,
-    prepareTransportForSolanaOnboarding,
-  } = useLedgerContext();
-
-  const prepareFnByApp: Partial<Record<LedgerAppType, () => Promise<void>>> =
-    useMemo(
-      () => ({
-        [LedgerAppType.AVALANCHE]: prepareTransportForAvalancheOnboarding,
-        [LedgerAppType.ETHEREUM]: prepareTransportForEthereumOnboarding,
-        [LedgerAppType.SOLANA]: prepareTransportForSolanaOnboarding,
-        [LedgerAppType.BITCOIN]: prepareTransportForBitcoinOnboarding,
-      }),
-      [
-        prepareTransportForAvalancheOnboarding,
-        prepareTransportForBitcoinOnboarding,
-        prepareTransportForEthereumOnboarding,
-        prepareTransportForSolanaOnboarding,
-      ],
-    );
+  const { prepareTransportForOnboarding } = useLedgerContext();
 
   const actionKeyRef = useRef<string | undefined>(undefined);
   const autoOpenAttemptedRef = useRef(false);
@@ -61,12 +40,9 @@ export function useLedgerApprovalAutoAppSwitch(
       return;
     }
 
-    const prepareFn = prepareFnByApp[requiredAppForSwitch];
-    if (prepareFn) {
-      autoOpenAttemptedRef.current = true;
-      void prepareFn().catch(() => {
-        /* User may fix device manually; avoid log noise */
-      });
-    }
-  }, [isIncorrectApp, requiredAppForSwitch, prepareFnByApp]);
+    autoOpenAttemptedRef.current = true;
+    prepareTransportForOnboarding(requiredAppForSwitch).catch(() => {
+      /* User may fix device manually; avoid log noise */
+    });
+  }, [isIncorrectApp, requiredAppForSwitch, prepareTransportForOnboarding]);
 }

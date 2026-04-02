@@ -19,7 +19,6 @@ import {
   SecretType,
 } from '@core/types';
 import {
-  AVALANCHE_LEDGER_APP_NAME,
   assert,
   getAvalancheExtendedKeyPath,
   getEvmExtendedKeyPath,
@@ -56,7 +55,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     wasTransportAttempted,
     initLedgerTransport,
     getExtendedPublicKey,
-    prepareTransportForAvalancheOnboarding,
+    prepareTransportForOnboarding,
   } = useLedgerContext();
   const { appType, appVersion } = useActiveLedgerAppInfo(true);
   const checkIfWalletExists = useDuplicatedWalletChecker();
@@ -346,52 +345,12 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
       return;
     }
 
-    if (hasLedgerTransport) {
-      if (appType === LedgerAppType.AVALANCHE && appVersion) {
-        if (isLedgerVersionCompatible(appVersion, REQUIRED_LEDGER_VERSION)) {
-          setStatus('ready');
-          setError(undefined);
-        } else {
-          setStatus('error');
-          setError('unsupported-version');
-        }
-        return;
-      }
-
-      if (status === 'error' && error) {
-        return;
-      }
-
-      if (appSwitchInFlight.current) {
-        return;
-      }
-
-      setStatus('waiting');
-      setError(undefined);
-
-      let cancelled = false;
-      appSwitchInFlight.current = true;
-
-      prepareTransportForAvalancheOnboarding()
-        .catch((err: unknown) => {
-          if (cancelled) {
-            return;
-          }
-          setStatus('error');
-          setError(
-            classifyLedgerOnboardingError(err, AVALANCHE_LEDGER_APP_NAME),
-          );
-        })
-        .finally(() => {
-          appSwitchInFlight.current = false;
-        });
-
-      return () => {
-        cancelled = true;
-      };
-    } else if (!hasLedgerTransport && !wasTransportAttempted) {
+    if (!hasLedgerTransport && !wasTransportAttempted) {
       initLedgerTransport();
-    } else if (!hasLedgerTransport && !wasManualConnectionAttempted) {
+      return;
+    }
+
+    if (!hasLedgerTransport && !wasManualConnectionAttempted) {
       getLedgerTransport().then((transport) => {
         if (!transport) {
           // If it fails, it's either disconnected or the call was not triggered by user gesture.
@@ -399,7 +358,49 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
           setWasManualConnectionAttempted(true);
         }
       });
+      return;
     }
+
+    if (!hasLedgerTransport) {
+      return;
+    }
+
+    if (appType === LedgerAppType.AVALANCHE && appVersion) {
+      if (isLedgerVersionCompatible(appVersion, REQUIRED_LEDGER_VERSION)) {
+        setStatus('ready');
+        setError(undefined);
+      } else {
+        setStatus('error');
+        setError('unsupported-version');
+      }
+      return;
+    }
+
+    if ((status === 'error' && error) || appSwitchInFlight.current) {
+      return;
+    }
+
+    setStatus('waiting');
+    setError(undefined);
+
+    let cancelled = false;
+    appSwitchInFlight.current = true;
+
+    prepareTransportForOnboarding(LedgerAppType.AVALANCHE)
+      .catch((err: unknown) => {
+        if (cancelled) {
+          return;
+        }
+        setStatus('error');
+        setError(classifyLedgerOnboardingError(err, LedgerAppType.AVALANCHE));
+      })
+      .finally(() => {
+        appSwitchInFlight.current = false;
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [
     appType,
     appVersion,
@@ -410,7 +411,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     popDeviceSelection,
     error,
     wasManualConnectionAttempted,
-    prepareTransportForAvalancheOnboarding,
+    prepareTransportForOnboarding,
   ]);
 
   const onRetry = useCallback(async () => {

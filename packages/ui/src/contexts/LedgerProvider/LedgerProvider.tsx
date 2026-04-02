@@ -1,10 +1,7 @@
 import AppAvalanche from '@avalabs/hw-app-avalanche';
 import { ExtensionRequest } from '@core/types';
 import {
-  ensureAvalancheLedgerAppOpen,
-  ensureBitcoinLedgerAppOpen,
-  ensureEthereumLedgerAppOpen,
-  ensureSolanaLedgerAppOpen,
+  ensureLedgerAppOpen,
   isLockStateChangedEvent,
   resolve,
   withTimeout,
@@ -86,21 +83,9 @@ const LedgerContext = createContext<{
   popDeviceSelection(): Promise<boolean>;
   getExtendedPublicKey(path?: string): Promise<string>;
   /**
-   * BOLOS open-app to Avalanche (if needed) and refresh `appType` / `appVersion` from the device.
+   * BOLOS quit/open-app to the given app (if needed) and refresh `appType` / `appVersion` from the device.
    */
-  prepareTransportForAvalancheOnboarding(): Promise<void>;
-  /**
-   * Quit / open-app to Solana (if needed) and refresh `appType` / `appVersion` from the device.
-   */
-  prepareTransportForSolanaOnboarding(): Promise<void>;
-  /**
-   * BOLOS open-app to Ethereum (if needed) and refresh `appType` / `appVersion` from the device.
-   */
-  prepareTransportForEthereumOnboarding(): Promise<void>;
-  /**
-   * BOLOS open-app to Bitcoin (if needed) and refresh `appType` / `appVersion` from the device.
-   */
-  prepareTransportForBitcoinOnboarding(): Promise<void>;
+  prepareTransportForOnboarding(appName: LedgerAppType): Promise<void>;
   initLedgerTransport(): Promise<void>;
   hasLedgerTransport: boolean;
   appType: LedgerAppType;
@@ -455,7 +440,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       throw new Error('no device detected');
     }
     const transport = transportRef.current;
-    await ensureAvalancheLedgerAppOpen(transport);
+    await ensureLedgerAppOpen(transport, LedgerAppType.AVALANCHE);
     const derivationPath = path ?? ETH_ACCOUNT_PATH;
     const [pubKey, pubKeyError] = await resolve(
       getAvalancheLedgerExtendedPublicKey(transport, derivationPath, false),
@@ -468,36 +453,16 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     return pubKey;
   }, []);
 
-  const prepareTransportForApp = useCallback(
-    async (ensureAppOpen: (t: Pick<Transport, 'send'>) => Promise<void>) => {
+  const prepareTransportForOnboarding = useCallback(
+    async (appName: LedgerAppType) => {
       if (!transportRef.current) {
         throw new Error('no device detected');
       }
       const transport = transportRef.current;
-      await ensureAppOpen(transport);
+      await ensureLedgerAppOpen(transport, appName);
       await initLedgerApp(transport);
     },
     [initLedgerApp],
-  );
-
-  const prepareTransportForAvalancheOnboarding = useCallback(
-    () => prepareTransportForApp(ensureAvalancheLedgerAppOpen),
-    [prepareTransportForApp],
-  );
-
-  const prepareTransportForSolanaOnboarding = useCallback(
-    () => prepareTransportForApp(ensureSolanaLedgerAppOpen),
-    [prepareTransportForApp],
-  );
-
-  const prepareTransportForEthereumOnboarding = useCallback(
-    () => prepareTransportForApp(ensureEthereumLedgerAppOpen),
-    [prepareTransportForApp],
-  );
-
-  const prepareTransportForBitcoinOnboarding = useCallback(
-    () => prepareTransportForApp(ensureBitcoinLedgerAppOpen),
-    [prepareTransportForApp],
   );
 
   const getPublicKey = useCallback(
@@ -509,7 +474,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       const transport = transportRef.current;
 
       if (vm === 'SVM') {
-        await ensureSolanaLedgerAppOpen(transport);
+        await ensureLedgerAppOpen(transport, LedgerAppType.SOLANA);
         return getSolanaPublicKeyFromLedger(accountIndex, transport);
       }
 
@@ -670,10 +635,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       value={{
         popDeviceSelection,
         getExtendedPublicKey,
-        prepareTransportForAvalancheOnboarding,
-        prepareTransportForSolanaOnboarding,
-        prepareTransportForEthereumOnboarding,
-        prepareTransportForBitcoinOnboarding,
+        prepareTransportForOnboarding,
         initLedgerTransport,
         hasLedgerTransport: !!transportRef.current,
         wasTransportAttempted,

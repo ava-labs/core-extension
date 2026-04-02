@@ -123,21 +123,21 @@ const LEDGER_GET_APP_AND_VERSION_BITCOIN_OK = Buffer.concat([
   Buffer.from([0x90, 0x00]),
 ]);
 
-/** Transport `send` shape so `ensureAvalancheLedgerAppOpen` is a no-op (already on Avalanche). */
+/** Transport `send` shape so `ensureLedgerAppOpen` is a no-op (already on Avalanche). */
 function createLedgerTransportMockWithAvalancheAppOpen(): LedgerTransport {
   return {
     send: jest.fn().mockResolvedValue(LEDGER_GET_APP_AND_VERSION_AVALANCHE_OK),
   } as unknown as LedgerTransport;
 }
 
-/** Transport `send` shape so `ensureEthereumLedgerAppOpen` is a no-op (already on Ethereum). */
+/** Transport `send` shape so `ensureLedgerAppOpen` is a no-op (already on Ethereum). */
 function createLedgerTransportMockWithEthereumAppOpen(): LedgerTransport {
   return {
     send: jest.fn().mockResolvedValue(LEDGER_GET_APP_AND_VERSION_ETHEREUM_OK),
   } as unknown as LedgerTransport;
 }
 
-/** Transport `send` shape so `ensureBitcoinLedgerAppOpen` is a no-op (already on Bitcoin). */
+/** Transport `send` shape so `ensureLedgerAppOpen` is a no-op (already on Bitcoin). */
 function createLedgerTransportMockWithBitcoinAppOpen(): LedgerTransport {
   return {
     send: jest.fn().mockResolvedValue(LEDGER_GET_APP_AND_VERSION_BITCOIN_OK),

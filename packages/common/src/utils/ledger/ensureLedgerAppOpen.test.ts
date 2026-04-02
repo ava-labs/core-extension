@@ -3,20 +3,13 @@ import Transport, {
   TransportStatusError,
 } from '@ledgerhq/hw-transport';
 import {
-  AVALANCHE_LEDGER_APP_NAME,
-  BITCOIN_LEDGER_APP_NAME,
-  ETHEREUM_LEDGER_APP_NAME,
-  SOLANA_LEDGER_APP_NAME,
-  ensureAvalancheLedgerAppOpen,
-  ensureBitcoinLedgerAppOpen,
-  ensureEthereumLedgerAppOpen,
-  ensureSolanaLedgerAppOpen,
+  ensureLedgerAppOpen,
   getLedgerActiveApplication,
   getLedgerAutoOpenAppFailedMessage,
   getLedgerQuitAppFailedMessage,
   isLedgerDashboardApplication,
   parseLedgerGetAppAndVersionResponse,
-} from './ensureAvalancheLedgerAppOpen';
+} from './ensureLedgerAppOpen';
 
 function encodeGetAppAndVersion(name: string, version: string): Buffer {
   const nameBytes = Buffer.from(name, 'ascii');
@@ -79,14 +72,12 @@ describe('isLedgerDashboardApplication', () => {
   });
 });
 
-describe('ensureAvalancheLedgerAppOpen', () => {
+describe('ensureLedgerAppOpen (Avalanche)', () => {
   it('only queries the current app when Avalanche is already open', async () => {
     const send = jest.fn() as jest.MockedFunction<Transport['send']>;
-    send.mockResolvedValueOnce(
-      encodeGetAppAndVersion(AVALANCHE_LEDGER_APP_NAME, '1.0.0'),
-    );
+    send.mockResolvedValueOnce(encodeGetAppAndVersion('Avalanche', '1.0.0'));
 
-    await ensureAvalancheLedgerAppOpen({ send });
+    await ensureLedgerAppOpen({ send }, 'Avalanche');
 
     expect(send).toHaveBeenCalledTimes(1);
     expect(send).toHaveBeenCalledWith(0xb0, 0x01, 0x00, 0x00);
@@ -96,11 +87,9 @@ describe('ensureAvalancheLedgerAppOpen', () => {
     const send = jest.fn() as jest.MockedFunction<Transport['send']>;
     send.mockResolvedValueOnce(encodeGetAppAndVersion('BOLOS', '2.0.0'));
     send.mockResolvedValueOnce(Buffer.from([0x90, 0x00]));
-    send.mockResolvedValueOnce(
-      encodeGetAppAndVersion(AVALANCHE_LEDGER_APP_NAME, '1.0.0'),
-    );
+    send.mockResolvedValueOnce(encodeGetAppAndVersion('Avalanche', '1.0.0'));
 
-    await ensureAvalancheLedgerAppOpen({ send });
+    await ensureLedgerAppOpen({ send }, 'Avalanche');
 
     expect(send).toHaveBeenCalledTimes(3);
     expect(send).toHaveBeenNthCalledWith(1, 0xb0, 0x01, 0x00, 0x00);
@@ -110,7 +99,7 @@ describe('ensureAvalancheLedgerAppOpen', () => {
       0xd8,
       0x00,
       0x00,
-      Buffer.from(AVALANCHE_LEDGER_APP_NAME, 'ascii'),
+      Buffer.from('Avalanche', 'ascii'),
     );
     expect(send).toHaveBeenNthCalledWith(3, 0xb0, 0x01, 0x00, 0x00);
   });
@@ -122,11 +111,9 @@ describe('ensureAvalancheLedgerAppOpen', () => {
     send.mockResolvedValueOnce(Buffer.from([0x90, 0x00]));
     send.mockResolvedValueOnce(encodeGetAppAndVersion('BOLOS', '2.0.0'));
     send.mockResolvedValueOnce(Buffer.from([0x90, 0x00]));
-    send.mockResolvedValueOnce(
-      encodeGetAppAndVersion(AVALANCHE_LEDGER_APP_NAME, '1.0.0'),
-    );
+    send.mockResolvedValueOnce(encodeGetAppAndVersion('Avalanche', '1.0.0'));
 
-    const done = ensureAvalancheLedgerAppOpen({ send });
+    const done = ensureLedgerAppOpen({ send }, 'Avalanche');
     const assertion = expect(done).resolves.toBeUndefined();
     await jest.runAllTimersAsync();
     await assertion;
@@ -139,7 +126,7 @@ describe('ensureAvalancheLedgerAppOpen', () => {
       0xd8,
       0x00,
       0x00,
-      Buffer.from(AVALANCHE_LEDGER_APP_NAME, 'ascii'),
+      Buffer.from('Avalanche', 'ascii'),
     );
     jest.useRealTimers();
   });
@@ -149,7 +136,7 @@ describe('ensureAvalancheLedgerAppOpen', () => {
     send.mockResolvedValueOnce(encodeGetAppAndVersion('Ethereum', '1.0.0'));
     send.mockRejectedValueOnce(new TransportStatusError(0x6985));
 
-    await expect(ensureAvalancheLedgerAppOpen({ send })).rejects.toThrow(
+    await expect(ensureLedgerAppOpen({ send }, 'Avalanche')).rejects.toThrow(
       getLedgerQuitAppFailedMessage(),
     );
 
@@ -167,7 +154,7 @@ describe('ensureAvalancheLedgerAppOpen', () => {
       new TransportStatusError(StatusCodes.APP_NOT_FOUND_OR_INVALID_CONTEXT),
     );
 
-    const p = ensureAvalancheLedgerAppOpen({ send });
+    const p = ensureLedgerAppOpen({ send }, 'Avalanche');
     const assertion = expect(p).rejects.toThrow(
       'The Avalanche app is not installed on this Ledger device',
     );
@@ -178,16 +165,16 @@ describe('ensureAvalancheLedgerAppOpen', () => {
     jest.useRealTimers();
   });
 
-  it('maps 0x6807 to an auto-open hint (not “not installed”)', async () => {
+  it('maps 0x6807 to an auto-open hint (not "not installed")', async () => {
     jest.useFakeTimers();
     const send = jest.fn() as jest.MockedFunction<Transport['send']>;
     send.mockResolvedValueOnce(encodeGetAppAndVersion('BOLOS', '2.0.0'));
     send.mockRejectedValueOnce(new TransportStatusError(0x6807));
     send.mockRejectedValueOnce(new TransportStatusError(0x6807));
 
-    const p = ensureAvalancheLedgerAppOpen({ send });
+    const p = ensureLedgerAppOpen({ send }, 'Avalanche');
     const assertion = expect(p).rejects.toThrow(
-      getLedgerAutoOpenAppFailedMessage(AVALANCHE_LEDGER_APP_NAME),
+      getLedgerAutoOpenAppFailedMessage('Avalanche'),
     );
     await jest.runAllTimersAsync();
     await assertion;
@@ -202,11 +189,9 @@ describe('ensureAvalancheLedgerAppOpen', () => {
     send.mockResolvedValueOnce(encodeGetAppAndVersion('BOLOS', '2.0.0'));
     send.mockRejectedValueOnce(new TransportStatusError(0x6807));
     send.mockResolvedValueOnce(Buffer.from([0x90, 0x00]));
-    send.mockResolvedValueOnce(
-      encodeGetAppAndVersion(AVALANCHE_LEDGER_APP_NAME, '1.0.0'),
-    );
+    send.mockResolvedValueOnce(encodeGetAppAndVersion('Avalanche', '1.0.0'));
 
-    const done = ensureAvalancheLedgerAppOpen({ send });
+    const done = ensureLedgerAppOpen({ send }, 'Avalanche');
     const assertion = expect(done).resolves.toBeUndefined();
     await jest.runAllTimersAsync();
     await assertion;
@@ -216,14 +201,12 @@ describe('ensureAvalancheLedgerAppOpen', () => {
   });
 });
 
-describe('ensureEthereumLedgerAppOpen', () => {
+describe('ensureLedgerAppOpen (Ethereum)', () => {
   it('only queries the current app when Ethereum is already open', async () => {
     const send = jest.fn() as jest.MockedFunction<Transport['send']>;
-    send.mockResolvedValueOnce(
-      encodeGetAppAndVersion(ETHEREUM_LEDGER_APP_NAME, '1.0.0'),
-    );
+    send.mockResolvedValueOnce(encodeGetAppAndVersion('Ethereum', '1.0.0'));
 
-    await ensureEthereumLedgerAppOpen({ send });
+    await ensureLedgerAppOpen({ send }, 'Ethereum');
 
     expect(send).toHaveBeenCalledTimes(1);
     expect(send).toHaveBeenCalledWith(0xb0, 0x01, 0x00, 0x00);
@@ -233,11 +216,9 @@ describe('ensureEthereumLedgerAppOpen', () => {
     const send = jest.fn() as jest.MockedFunction<Transport['send']>;
     send.mockResolvedValueOnce(encodeGetAppAndVersion('BOLOS', '2.0.0'));
     send.mockResolvedValueOnce(Buffer.from([0x90, 0x00]));
-    send.mockResolvedValueOnce(
-      encodeGetAppAndVersion(ETHEREUM_LEDGER_APP_NAME, '1.0.0'),
-    );
+    send.mockResolvedValueOnce(encodeGetAppAndVersion('Ethereum', '1.0.0'));
 
-    await ensureEthereumLedgerAppOpen({ send });
+    await ensureLedgerAppOpen({ send }, 'Ethereum');
 
     expect(send).toHaveBeenCalledTimes(3);
     expect(send).toHaveBeenNthCalledWith(
@@ -246,7 +227,7 @@ describe('ensureEthereumLedgerAppOpen', () => {
       0xd8,
       0x00,
       0x00,
-      Buffer.from(ETHEREUM_LEDGER_APP_NAME, 'ascii'),
+      Buffer.from('Ethereum', 'ascii'),
     );
   });
 
@@ -257,11 +238,9 @@ describe('ensureEthereumLedgerAppOpen', () => {
     send.mockResolvedValueOnce(Buffer.from([0x90, 0x00]));
     send.mockResolvedValueOnce(encodeGetAppAndVersion('BOLOS', '2.0.0'));
     send.mockResolvedValueOnce(Buffer.from([0x90, 0x00]));
-    send.mockResolvedValueOnce(
-      encodeGetAppAndVersion(ETHEREUM_LEDGER_APP_NAME, '1.0.0'),
-    );
+    send.mockResolvedValueOnce(encodeGetAppAndVersion('Ethereum', '1.0.0'));
 
-    const done = ensureEthereumLedgerAppOpen({ send });
+    const done = ensureLedgerAppOpen({ send }, 'Ethereum');
     const assertion = expect(done).resolves.toBeUndefined();
     await jest.runAllTimersAsync();
     await assertion;
@@ -281,7 +260,7 @@ describe('ensureEthereumLedgerAppOpen', () => {
       new TransportStatusError(StatusCodes.APP_NOT_FOUND_OR_INVALID_CONTEXT),
     );
 
-    const p = ensureEthereumLedgerAppOpen({ send });
+    const p = ensureLedgerAppOpen({ send }, 'Ethereum');
     const assertion = expect(p).rejects.toThrow(
       'The Ethereum app is not installed on this Ledger device',
     );
@@ -292,16 +271,16 @@ describe('ensureEthereumLedgerAppOpen', () => {
     jest.useRealTimers();
   });
 
-  it('maps 0x6807 to an auto-open hint (not “not installed”)', async () => {
+  it('maps 0x6807 to an auto-open hint (not "not installed")', async () => {
     jest.useFakeTimers();
     const send = jest.fn() as jest.MockedFunction<Transport['send']>;
     send.mockResolvedValueOnce(encodeGetAppAndVersion('BOLOS', '2.0.0'));
     send.mockRejectedValueOnce(new TransportStatusError(0x6807));
     send.mockRejectedValueOnce(new TransportStatusError(0x6807));
 
-    const p = ensureEthereumLedgerAppOpen({ send });
+    const p = ensureLedgerAppOpen({ send }, 'Ethereum');
     const assertion = expect(p).rejects.toThrow(
-      getLedgerAutoOpenAppFailedMessage(ETHEREUM_LEDGER_APP_NAME),
+      getLedgerAutoOpenAppFailedMessage('Ethereum'),
     );
     await jest.runAllTimersAsync();
     await assertion;
@@ -311,14 +290,12 @@ describe('ensureEthereumLedgerAppOpen', () => {
   });
 });
 
-describe('ensureBitcoinLedgerAppOpen', () => {
+describe('ensureLedgerAppOpen (Bitcoin)', () => {
   it('only queries the current app when Bitcoin is already open', async () => {
     const send = jest.fn() as jest.MockedFunction<Transport['send']>;
-    send.mockResolvedValueOnce(
-      encodeGetAppAndVersion(BITCOIN_LEDGER_APP_NAME, '2.0.0'),
-    );
+    send.mockResolvedValueOnce(encodeGetAppAndVersion('Bitcoin', '2.0.0'));
 
-    await ensureBitcoinLedgerAppOpen({ send });
+    await ensureLedgerAppOpen({ send }, 'Bitcoin');
 
     expect(send).toHaveBeenCalledTimes(1);
     expect(send).toHaveBeenCalledWith(0xb0, 0x01, 0x00, 0x00);
@@ -328,11 +305,9 @@ describe('ensureBitcoinLedgerAppOpen', () => {
     const send = jest.fn() as jest.MockedFunction<Transport['send']>;
     send.mockResolvedValueOnce(encodeGetAppAndVersion('BOLOS', '2.0.0'));
     send.mockResolvedValueOnce(Buffer.from([0x90, 0x00]));
-    send.mockResolvedValueOnce(
-      encodeGetAppAndVersion(BITCOIN_LEDGER_APP_NAME, '2.0.0'),
-    );
+    send.mockResolvedValueOnce(encodeGetAppAndVersion('Bitcoin', '2.0.0'));
 
-    await ensureBitcoinLedgerAppOpen({ send });
+    await ensureLedgerAppOpen({ send }, 'Bitcoin');
 
     expect(send).toHaveBeenCalledTimes(3);
     expect(send).toHaveBeenNthCalledWith(
@@ -341,7 +316,7 @@ describe('ensureBitcoinLedgerAppOpen', () => {
       0xd8,
       0x00,
       0x00,
-      Buffer.from(BITCOIN_LEDGER_APP_NAME, 'ascii'),
+      Buffer.from('Bitcoin', 'ascii'),
     );
   });
 
@@ -352,11 +327,9 @@ describe('ensureBitcoinLedgerAppOpen', () => {
     send.mockResolvedValueOnce(Buffer.from([0x90, 0x00]));
     send.mockResolvedValueOnce(encodeGetAppAndVersion('BOLOS', '2.0.0'));
     send.mockResolvedValueOnce(Buffer.from([0x90, 0x00]));
-    send.mockResolvedValueOnce(
-      encodeGetAppAndVersion(BITCOIN_LEDGER_APP_NAME, '2.0.0'),
-    );
+    send.mockResolvedValueOnce(encodeGetAppAndVersion('Bitcoin', '2.0.0'));
 
-    const done = ensureBitcoinLedgerAppOpen({ send });
+    const done = ensureLedgerAppOpen({ send }, 'Bitcoin');
     const assertion = expect(done).resolves.toBeUndefined();
     await jest.runAllTimersAsync();
     await assertion;
@@ -367,14 +340,12 @@ describe('ensureBitcoinLedgerAppOpen', () => {
   });
 });
 
-describe('ensureSolanaLedgerAppOpen', () => {
+describe('ensureLedgerAppOpen (Solana)', () => {
   it('only queries the current app when Solana is already open', async () => {
     const send = jest.fn() as jest.MockedFunction<Transport['send']>;
-    send.mockResolvedValueOnce(
-      encodeGetAppAndVersion(SOLANA_LEDGER_APP_NAME, '1.0.0'),
-    );
+    send.mockResolvedValueOnce(encodeGetAppAndVersion('Solana', '1.0.0'));
 
-    await ensureSolanaLedgerAppOpen({ send });
+    await ensureLedgerAppOpen({ send }, 'Solana');
 
     expect(send).toHaveBeenCalledTimes(1);
     expect(send).toHaveBeenCalledWith(0xb0, 0x01, 0x00, 0x00);
@@ -384,11 +355,9 @@ describe('ensureSolanaLedgerAppOpen', () => {
     const send = jest.fn() as jest.MockedFunction<Transport['send']>;
     send.mockResolvedValueOnce(encodeGetAppAndVersion('BOLOS', '2.0.0'));
     send.mockResolvedValueOnce(Buffer.from([0x90, 0x00]));
-    send.mockResolvedValueOnce(
-      encodeGetAppAndVersion(SOLANA_LEDGER_APP_NAME, '1.0.0'),
-    );
+    send.mockResolvedValueOnce(encodeGetAppAndVersion('Solana', '1.0.0'));
 
-    await ensureSolanaLedgerAppOpen({ send });
+    await ensureLedgerAppOpen({ send }, 'Solana');
 
     expect(send).toHaveBeenCalledTimes(3);
     expect(send).toHaveBeenNthCalledWith(
@@ -397,7 +366,7 @@ describe('ensureSolanaLedgerAppOpen', () => {
       0xd8,
       0x00,
       0x00,
-      Buffer.from(SOLANA_LEDGER_APP_NAME, 'ascii'),
+      Buffer.from('Solana', 'ascii'),
     );
   });
 
@@ -408,11 +377,9 @@ describe('ensureSolanaLedgerAppOpen', () => {
     send.mockResolvedValueOnce(Buffer.from([0x90, 0x00]));
     send.mockResolvedValueOnce(encodeGetAppAndVersion('BOLOS', '2.0.0'));
     send.mockResolvedValueOnce(Buffer.from([0x90, 0x00]));
-    send.mockResolvedValueOnce(
-      encodeGetAppAndVersion(SOLANA_LEDGER_APP_NAME, '1.0.0'),
-    );
+    send.mockResolvedValueOnce(encodeGetAppAndVersion('Solana', '1.0.0'));
 
-    const done = ensureSolanaLedgerAppOpen({ send });
+    const done = ensureLedgerAppOpen({ send }, 'Solana');
     const assertion = expect(done).resolves.toBeUndefined();
     await jest.runAllTimersAsync();
     await assertion;

@@ -2,18 +2,7 @@ import Transport, {
   StatusCodes,
   TransportStatusError,
 } from '@ledgerhq/hw-transport';
-
-/** BOLOS name for the Zondax Avalanche app (must match `getAppAndVersion`). */
-export const AVALANCHE_LEDGER_APP_NAME = 'Avalanche';
-
-/** BOLOS name for the Ethereum app (must match `getAppAndVersion`). */
-export const ETHEREUM_LEDGER_APP_NAME = 'Ethereum';
-
-/** BOLOS name for the Solana app (must match `getAppAndVersion`). */
-export const SOLANA_LEDGER_APP_NAME = 'Solana';
-
-/** BOLOS name for the Bitcoin app (must match `getAppAndVersion` / `LedgerAppType.BITCOIN`). */
-export const BITCOIN_LEDGER_APP_NAME = 'Bitcoin';
+import { wait } from '@avalabs/core-utils-sdk';
 
 /** Ledger DMK `GetAppAndVersionCommand` — CLA/INS. */
 const GET_APP_AND_VERSION_CLA = 0xb0;
@@ -178,9 +167,7 @@ async function openLedgerAppByName(
         first instanceof TransportStatusError &&
         first.statusCode === 0x6807
       ) {
-        await new Promise<void>((resolve) => {
-          setTimeout(resolve, OPEN_APP_RETRY_DELAY_MS);
-        });
+        await wait(OPEN_APP_RETRY_DELAY_MS);
         try {
           await sendOpen();
         } catch (second) {
@@ -216,11 +203,21 @@ async function quitLedgerApplication(
   }
 }
 
-async function ensureLedgerAppOpen(
+/**
+ * If the device is not already running the requested Ledger app: from the home
+ * screen sends `OpenAppCommand` (0xe0 / 0xd8); from another app sends `QuitApp`
+ * (0xb0 / 0xa7) first, then opens the target app once BOLOS is active. If the
+ * app is not installed, throws with an install hint (status 0x5123).
+ *
+ * @param appName BOLOS application name — must match `getAppAndVersion` output
+ *   (e.g. `'Avalanche'`, `'Ethereum'`, `'Solana'`, `'Bitcoin'`). Matches
+ *   `LedgerAppType` enum values from `@core/ui`.
+ */
+export async function ensureLedgerAppOpen(
   transport: Pick<Transport, 'send'>,
   appName: string,
-  notInstalledMessage: string,
 ): Promise<void> {
+  const notInstalledMessage = getLedgerAppNotInstalledMessage(appName);
   const autoOpenFailedMessage = getLedgerAutoOpenAppFailedMessage(appName);
 
   for (let round = 0; round < MAX_ENSURE_APP_ROUNDS; round += 1) {
@@ -238,69 +235,8 @@ async function ensureLedgerAppOpen(
       continue;
     }
     await quitLedgerApplication(transport);
-    await new Promise<void>((resolve) => {
-      setTimeout(resolve, POST_QUIT_SETTLE_MS);
-    });
+    await wait(POST_QUIT_SETTLE_MS);
   }
 
   throw new Error(autoOpenFailedMessage);
-}
-
-/**
- * If the device is not already running the Avalanche Ledger app: from the home
- * screen sends `OpenAppCommand` (0xe0 / 0xd8); from another app sends `QuitApp`
- * (0xb0 / 0xa7) first, then opens Avalanche once BOLOS is active. If the app is
- * not installed, throws with an install hint (status 0x5123).
- */
-export async function ensureAvalancheLedgerAppOpen(
-  transport: Pick<Transport, 'send'>,
-): Promise<void> {
-  await ensureLedgerAppOpen(
-    transport,
-    AVALANCHE_LEDGER_APP_NAME,
-    getLedgerAppNotInstalledMessage(AVALANCHE_LEDGER_APP_NAME),
-  );
-}
-
-/**
- * Same switching behavior as {@link ensureAvalancheLedgerAppOpen} for the
- * Ethereum app. Use with `@ledgerhq/hw-app-eth` (`LedgerSigner`,
- * `getLedgerExtendedPublicKey`, `getPubKeyFromTransport` in core-wallets-sdk).
- */
-export async function ensureEthereumLedgerAppOpen(
-  transport: Pick<Transport, 'send'>,
-): Promise<void> {
-  await ensureLedgerAppOpen(
-    transport,
-    ETHEREUM_LEDGER_APP_NAME,
-    getLedgerAppNotInstalledMessage(ETHEREUM_LEDGER_APP_NAME),
-  );
-}
-
-/**
- * Same switching behavior as {@link ensureAvalancheLedgerAppOpen} for the
- * Solana Ledger app (`@ledgerhq/hw-app-solana`).
- */
-export async function ensureSolanaLedgerAppOpen(
-  transport: Pick<Transport, 'send'>,
-): Promise<void> {
-  await ensureLedgerAppOpen(
-    transport,
-    SOLANA_LEDGER_APP_NAME,
-    getLedgerAppNotInstalledMessage(SOLANA_LEDGER_APP_NAME),
-  );
-}
-
-/**
- * Same switching behavior as {@link ensureAvalancheLedgerAppOpen} for the
- * Bitcoin Ledger app (`ledger-bitcoin` `AppClient`).
- */
-export async function ensureBitcoinLedgerAppOpen(
-  transport: Pick<Transport, 'send'>,
-): Promise<void> {
-  await ensureLedgerAppOpen(
-    transport,
-    BITCOIN_LEDGER_APP_NAME,
-    getLedgerAppNotInstalledMessage(BITCOIN_LEDGER_APP_NAME),
-  );
 }
