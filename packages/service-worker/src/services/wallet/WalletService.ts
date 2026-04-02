@@ -669,11 +669,10 @@ export class WalletService implements OnUnlock {
    */
   async #ensureEvmLedgerAppOpenForSigning(network: Network): Promise<void> {
     const transport = this.#requireLedgerTransport();
-    if (isEthereumNetwork(network)) {
-      await ensureLedgerAppOpen(transport, 'Ethereum');
-      return;
-    }
-    await ensureLedgerAppOpen(transport, 'Avalanche');
+    await ensureLedgerAppOpen(
+      transport,
+      isEthereumNetwork(network) ? 'Ethereum' : 'Avalanche',
+    );
   }
 
   async sign(
