@@ -139,6 +139,7 @@
     "@solana/kit": "5.4.0",
     "cipher-base": "1.0.5",
     "elliptic": "6.6.1",
+    "form-data@npm:^4.0.0": "4.0.5",
     "form-data@npm:^4.0.4": "4.0.5",
     "form-data@npm:~2.3.2": "2.5.4",
     "ledger-bitcoin/@ledgerhq/hw-transport": "6.31.10",
