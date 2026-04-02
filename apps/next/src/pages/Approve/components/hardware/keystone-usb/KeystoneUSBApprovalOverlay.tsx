@@ -1,7 +1,7 @@
 import { FC, useEffect } from 'react';
 import { DisplayData } from '@avalabs/vm-module-types';
 import { Action } from '@core/types';
-import { HardwareApprovalDrawer } from '../common/ApprovalDrawer';
+import { HardwareApprovalDrawer } from '@/components/HardwareApprovalDrawer';
 import { useKeystoneUsbApprovalState } from './useKeystoneUsbApprovalState';
 import { StateComponentMapper } from './types';
 import { useKeystoneUsbContext } from '@core/ui';

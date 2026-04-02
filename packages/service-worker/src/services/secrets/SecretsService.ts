@@ -51,6 +51,7 @@ import {
   hasPublicKeyFor,
   isPrimaryWalletSecrets,
 } from './utils';
+import { getAvalancheExtendedPublicKeyFromKeystoneUsb } from './utils/getAvalancheExtendedPublicKeyFromKeystoneUsb';
 
 type WalletStateUpdateCallback = (data: WalletDetails[]) => void;
 type WalletNameUpdateCallback = (data: {
@@ -1030,18 +1031,24 @@ export class SecretsService implements OnUnlock {
             ).toJSON(),
           );
         } else {
-          // TODO: uncomment when new SDK is released:
-          // https://ava-labs.atlassian.net/browse/CP-12875
-          // const newXPXpub =
-          //   await getAvalancheExtendedPublicKeyFromKeystoneUsb(index);
-          // newExtendedPublicKeys.push(newXPXpub);
-          // newPublicKeys.push(
-          //   AddressPublicKey.fromExtendedPublicKeys(
-          //     [newXPXpub],
-          //     'secp256k1',
-          //     derivationPathAVM,
-          //   ).toJSON(),
-          // );
+          await getAvalancheExtendedPublicKeyFromKeystoneUsb(index)
+            .then((newXPXpub) => {
+              newExtendedPublicKeys.push(newXPXpub);
+              newPublicKeys.push(
+                AddressPublicKey.fromExtendedPublicKeys(
+                  [newXPXpub],
+                  'secp256k1',
+                  derivationPathAVM,
+                ).toJSON(),
+              );
+            })
+            .catch((error) => {
+              // Device connection not active or device not found, the user can add the X/P addresses manually later on.
+              console.error(
+                '[addAddress] Failed to get Avalanche extended public key from Keystone USB:',
+                error,
+              );
+            });
         }
       }
     }
