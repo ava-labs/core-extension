@@ -10,7 +10,6 @@ import { useImportMissingKeysFromKeystone } from '../hooks/useImportMissingKeysF
 import { XPEnablerContent } from './XPEnablerContent';
 
 export const XPChainAddressImportPrompt: FC<{
-  open: boolean;
   onClose: () => void;
   /**
    * Used to verify the EVM address of the first account in order
@@ -22,8 +21,10 @@ export const XPChainAddressImportPrompt: FC<{
    * Otherwise the rendered hardware connection drawer will have the color theme inverted.
    */
   invertTheme?: boolean;
-}> = ({ open, onClose, firstAccount, invertTheme = false }) => {
-  const { status, initialize } = useImportMissingKeysFromKeystone();
+}> = ({ onClose, firstAccount, invertTheme = false }) => {
+  const { status, retry } = useImportMissingKeysFromKeystone(
+    firstAccount.addressC,
+  );
 
   const ThemeAwareDrawer = invertTheme
     ? withThemeInvert(HardwareApprovalDrawer)
@@ -31,11 +32,8 @@ export const XPChainAddressImportPrompt: FC<{
 
   // Creating a portal to escape the positioning of CSS-`transform`ed parent component.
   return createPortal(
-    <ThemeAwareDrawer open={open} reject={onClose}>
-      <XPEnablerContent
-        status={status}
-        onImportClick={() => initialize(firstAccount.addressC)}
-      />
+    <ThemeAwareDrawer open reject={onClose}>
+      <XPEnablerContent status={status} onRetry={retry} />
     </ThemeAwareDrawer>,
     document.body,
   );

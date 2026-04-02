@@ -49,12 +49,13 @@ export const XPChainAddressEnabler: FC<AddressEnablerProps> = ({
           </ActionButton>
         }
       />
-      <XPChainAddressImportPrompt
-        open={isPromptVisible}
-        onClose={() => setIsPromptVisible(false)}
-        firstAccount={firstAccount}
-        invertTheme={invertTheme}
-      />
+      {isPromptVisible && (
+        <XPChainAddressImportPrompt
+          onClose={() => setIsPromptVisible(false)}
+          firstAccount={firstAccount}
+          invertTheme={invertTheme}
+        />
+      )}
     </>
   );
 };

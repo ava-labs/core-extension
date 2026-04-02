@@ -9,80 +9,85 @@ import { MigrateMissingPublicKeysFromKeystoneHandler } from '@core/service-worke
 
 import { ImportMissingKeysStatus } from '../types';
 
-export const useImportMissingKeysFromKeystone = () => {
+export const useImportMissingKeysFromKeystone = (
+  expectedFirstEvmAddress: string,
+) => {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
   const {
     hasKeystoneTransport,
     getExtendedPublicKey,
     wasTransportAttempted,
+    initKeystoneTransport,
     retryConnection,
   } = useKeystoneUsbContext();
 
-  const [status, setStatus] = useState<ImportMissingKeysStatus>('idle');
-  const [firstEvmAddress, setFirstEvmAddress] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (status !== 'initialized' && status !== 'connecting') {
-      return;
-    }
-
-    if (hasKeystoneTransport) {
-      setStatus('connected');
-    } else if (!wasTransportAttempted) {
-      setStatus('connecting');
-      retryConnection();
-    } else {
-      setStatus('connection-error');
-    }
-  }, [hasKeystoneTransport, wasTransportAttempted, retryConnection, status]);
+  const [status, setStatus] = useState<ImportMissingKeysStatus>('waiting');
 
   const verifyAndImport = useCallback(async () => {
     try {
-      setStatus('verifying-device');
+      setStatus('importing');
+
       const evmXpub = await getExtendedPublicKey(ChainIDAlias.C, 0);
+
       const firstEvmAddressFromDevice = getAddressFromXPub(evmXpub, 0);
 
-      const isCorrectDevice = firstEvmAddressFromDevice === firstEvmAddress;
+      const isCorrectDevice =
+        firstEvmAddressFromDevice === expectedFirstEvmAddress;
 
       if (!isCorrectDevice) {
-        setStatus('incorrect-device');
+        setStatus('incorrect-device-error');
         return;
       }
 
-      setStatus('importing');
       await request<MigrateMissingPublicKeysFromKeystoneHandler>({
         method: ExtensionRequest.KEYSTONE_MIGRATE_MISSING_PUBKEYS,
       });
+
       toast.success(t('Import successful!'));
-      setStatus('success');
-      return true;
     } catch (err) {
       setStatus('import-error');
       console.error(
         '[useImportMissingKeysFromKeystone] Failed to import missing public keys from Keystone',
         err,
       );
-      return false;
     }
-  }, [getExtendedPublicKey, request, firstEvmAddress, t]);
+  }, [getExtendedPublicKey, request, t, expectedFirstEvmAddress]);
 
   useEffect(() => {
-    if (status !== 'connected' || !firstEvmAddress) {
+    if (status !== 'waiting') {
       return;
     }
 
-    verifyAndImport();
-  }, [status, firstEvmAddress, verifyAndImport]);
+    if (hasKeystoneTransport) {
+      setStatus('connected');
 
-  const initialize = useCallback(async (expectedEvmAddress: string) => {
-    setFirstEvmAddress(expectedEvmAddress);
-    setStatus('initialized');
-  }, []);
+      // This will trigger the "wallet connection" request approval on the device.
+      getExtendedPublicKey(ChainIDAlias.C, 0)
+        .then(() => setStatus('request-approved'))
+        .catch(() => setStatus('request-rejected'));
+    } else if (!wasTransportAttempted) {
+      initKeystoneTransport();
+    } else {
+      retryConnection();
+    }
+  }, [
+    hasKeystoneTransport,
+    wasTransportAttempted,
+    initKeystoneTransport,
+    status,
+    getExtendedPublicKey,
+    retryConnection,
+  ]);
+
+  useEffect(() => {
+    if (status === 'request-approved') {
+      verifyAndImport();
+    }
+  }, [status, verifyAndImport]);
 
   return {
     status,
-    initialize,
-    verifyAndImport,
+    retry: () => setStatus('waiting'),
   };
 };

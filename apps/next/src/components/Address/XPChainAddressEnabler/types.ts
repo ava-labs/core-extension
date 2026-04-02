@@ -1,11 +1,8 @@
 export type ImportMissingKeysStatus =
-  | 'idle'
-  | 'initialized'
-  | 'connecting'
+  | 'waiting'
   | 'importing'
   | 'connected'
-  | 'success'
-  | 'connection-error'
-  | 'incorrect-device'
-  | 'verifying-device'
+  | 'request-approved'
+  | 'request-rejected'
+  | 'incorrect-device-error'
   | 'import-error';
