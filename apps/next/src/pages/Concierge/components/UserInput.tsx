@@ -1,7 +1,6 @@
 import {
   getHexAlpha,
   InputAdornment,
-  styled,
   TextField,
   useTheme,
 } from '@avalabs/k2-alpine';
@@ -16,14 +15,6 @@ interface UserInputProps {
   userMessages?: string[];
 }
 
-const BorderTextField = styled(TextField)`
-  & .MuiOutlinedInput-root {
-    &.Mui-focused fieldset.MuiOutlinedInput-notchedOutline {
-      border: none;
-    }
-  }
-`;
-
 export const UserInput = ({
   input,
   setInput,
@@ -34,18 +25,47 @@ export const UserInput = ({
   const [userMessageHistoryIndex, setUserMessageHistoryIndex] =
     useState<number>();
   const { t } = useTranslation();
+  const hasMessage = input.trim().length > 0;
+  const isLight = theme.palette.mode === 'light';
+
+  // Light: rgba(255, 255, 255, 0.6), Dark: rgba(40, 40, 46, 0.6) per Figma
+  const inputBackground = isLight
+    ? getHexAlpha('#FFFFFF', 60)
+    : getHexAlpha('#28282E', 60);
 
   return (
-    <BorderTextField
-      placeholder={t('Core Concierge')}
+    <TextField
+      variant="outlined"
+      placeholder={t('Ask me to buy crypto')}
       value={input}
       size="medium"
+      multiline
+      minRows={2}
       sx={{
-        color: 'grey.400',
-        backgroundColor: getHexAlpha(theme.palette.background.default, 60),
-        borderRadius: 1,
+        '& .MuiOutlinedInput-root': {
+          borderRadius: '12px',
+          backgroundColor: inputBackground,
+          padding: '11px 13.5px',
+          '& fieldset': {
+            borderColor: 'transparent',
+          },
+          '&:hover fieldset': {
+            borderColor: 'transparent',
+          },
+          '&.Mui-focused fieldset': {
+            borderColor: theme.palette.primary.main,
+            borderWidth: '1px',
+          },
+        },
+        '& .MuiOutlinedInput-input': {
+          color: theme.palette.text.primary,
+          padding: 0,
+          '&::placeholder': {
+            opacity: 0.5,
+            color: theme.palette.text.primary,
+          },
+        },
       }}
-      focused
       color="primary"
       autoComplete="off"
       InputProps={{
@@ -53,11 +73,17 @@ export const UserInput = ({
           <InputAdornment
             position="end"
             sx={{
-              cursor: 'pointer',
+              cursor: hasMessage ? 'pointer' : 'default',
+              marginRight: theme.spacing(0.5),
             }}
           >
             <MdSend
               size={20}
+              color={theme.palette.text.secondary}
+              style={{
+                opacity: hasMessage ? 1 : 0.38,
+                pointerEvents: hasMessage ? 'auto' : 'none',
+              }}
               onClick={() => {
                 if (input) {
                   setPrompt(input);

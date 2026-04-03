@@ -4,6 +4,7 @@ import { LedgerRegisterBtcWalletPolicy } from '@/components/ledger';
 import { useSeedlessMissingKeysDerivation } from '@/hooks/seedless';
 import { SeedlessAuthPrompt } from '@/components/Seedless/SeedlessAuthPrompt';
 import { useNavigationRequests } from '@/hooks/useNavigationRequests';
+import { useConciergeHotkey } from '@/hooks/useConciergeHotkey';
 import { useImportMissingKeysFromLedger } from '@core/ui';
 
 /**
@@ -27,6 +28,7 @@ export const EventDrivenComponentsAndHooks: FC = () => {
   // useImportMissingKeysFromKeystone();
   useNavigationRequests();
   useImportMissingKeysFromLedger();
+  useConciergeHotkey();
 
   return (
     <>
