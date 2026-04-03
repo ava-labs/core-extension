@@ -130,7 +130,7 @@ export const PromptButtonBackground = styled(Stack)`
   filter: blur(75px);
   animation: ${promptBackgroundAnimation} 10s linear infinite;
 
-  @media (prefers-reduced-motion) {
+  @media (prefers-reduced-motion: reduce) {
     animation: none;
   }
 `;

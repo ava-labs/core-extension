@@ -96,8 +96,8 @@ export const UserInput = ({
       onChange={(e) => {
         setInput(e.target.value);
       }}
-      onKeyPress={(e) => {
-        if (e.key === 'Enter' && input) {
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' && !e.shiftKey && input) {
           e.preventDefault();
           setPrompt(input);
           setUserMessageHistoryIndex(userMessages?.length || 1);

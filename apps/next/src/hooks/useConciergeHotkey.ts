@@ -14,7 +14,11 @@ export const useConciergeHotkey = () => {
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+      if (event.repeat) {
+        return;
+      }
+
+      if ((event.ctrlKey || event.metaKey) && event.code === 'KeyK') {
         event.preventDefault();
         history.push('/concierge');
       }
