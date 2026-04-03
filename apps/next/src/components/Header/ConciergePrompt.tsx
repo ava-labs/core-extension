@@ -46,7 +46,6 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
   const buttonLabels = [
     t('Ask Core to send crypto'),
     t('Ask Core to swap tokens'),
-    t('Ask Core to bridge tokens'),
     t('Ask Core to transfer for you'),
     t('Ask Core to manage accounts'),
   ];
