@@ -41,7 +41,7 @@ import { WalletSetSettingsHandler } from '~/services/settings/handlers/wallet_se
 import { WalletGetSettingsHandler } from '~/services/settings/handlers/wallet_getSettings';
 import { WalletGetCapabilitiesHandler } from '../../services/web3/handlers/wallet_getCapabilities';
 import { WalletEnableNetworkHandler } from '../../services/network/handlers/wallet_enableNetwork';
-import { WalletNotifyNotificationCenterChangedHandler } from '../../services/notifications/handlers/wallet_notifyNotificationCenterChanged';
+import { WalletNotifyNotificationCenterChangedHandler } from '../../services/notifications/handlers/walletNotifyNotificationCenterChanged';
 import { NotificationCenterChangedEvents } from '~/services/notifications/events/notificationCenterChangedEvents';
 import { WalletGetNotificationDeviceArnHandler } from '~/services/notifications/handlers/walletGetNotificationDeviceArn';
 
