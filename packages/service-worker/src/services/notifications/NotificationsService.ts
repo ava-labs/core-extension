@@ -1,5 +1,10 @@
 import { incrementalPromiseResolve, Monitoring } from '@core/common';
-import { FirebaseEvents, RegisterDeviceResponse } from '@core/types';
+import {
+  FirebaseEvents,
+  NotificationsEvents,
+  RegisterDeviceResponse,
+} from '@core/types';
+import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { FirebaseService } from '../firebase/FirebaseService';
 import { StorageService } from '../storage/StorageService';
@@ -14,6 +19,7 @@ import { sendRequest } from './utils/sendRequest';
 @singleton()
 export class NotificationsService {
   #clientId?: string;
+  private eventEmitter = new EventEmitter();
 
   constructor(
     private storageService: StorageService,
@@ -71,8 +77,20 @@ export class NotificationsService {
     }
 
     // init individual notification services when device is registered
-    await this.balanceNotificationService.init(deviceArn);
-    await this.newsNotificationService.init(deviceArn);
+    const onPushReceived = () => this.notifyNotificationCenterChanged();
+    await this.balanceNotificationService.init(deviceArn, onPushReceived);
+    await this.newsNotificationService.init(deviceArn, onPushReceived);
+  }
+
+  /** Called by `wallet_notifyNotificationCenterChanged` RPC (from Core Web). */
+  notifyNotificationCenterChanged() {
+    this.eventEmitter.emit(
+      NotificationsEvents.NOTIFICATION_CENTER_CHANGED_EVENT,
+    );
+  }
+
+  addListener(event: NotificationsEvents, callback: () => void) {
+    this.eventEmitter.on(event, callback);
   }
 
   async #registerDevice(fcmToken: string) {

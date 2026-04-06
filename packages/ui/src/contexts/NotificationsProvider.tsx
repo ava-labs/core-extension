@@ -19,7 +19,7 @@ import {
 } from 'react';
 import { filter } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
-import { isSubscriptionsChangedEvent } from './isSubscriptionsChangedEvent';
+import { isNotificationsSyncEvent } from './isNotificationsSyncEvent';
 
 const NotificationsContext = createContext<{
   subscriptions: Record<NotificationTypes, boolean>;
@@ -107,7 +107,7 @@ export function NotificationsContextProvider({ children }: { children: any }) {
 
   useEffect(() => {
     const notificationChangesSubscription = events()
-      .pipe(filter(isSubscriptionsChangedEvent))
+      .pipe(filter(isNotificationsSyncEvent))
       .subscribe(() => {
         syncSubscriptions();
       });

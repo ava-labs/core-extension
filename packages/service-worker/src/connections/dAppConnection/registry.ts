@@ -41,6 +41,9 @@ import { WalletSetSettingsHandler } from '~/services/settings/handlers/wallet_se
 import { WalletGetSettingsHandler } from '~/services/settings/handlers/wallet_getSettings';
 import { WalletGetCapabilitiesHandler } from '../../services/web3/handlers/wallet_getCapabilities';
 import { WalletEnableNetworkHandler } from '../../services/network/handlers/wallet_enableNetwork';
+import { WalletNotifyNotificationCenterChangedHandler } from '../../services/notifications/handlers/wallet_notifyNotificationCenterChanged';
+import { NotificationCenterChangedEvents } from '~/services/notifications/events/notificationCenterChangedEvents';
+import { WalletGetNotificationDeviceArnHandler } from '~/services/notifications/handlers/walletGetNotificationDeviceArn';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -94,6 +97,14 @@ const SHARED_HANDLERS = [
   { token: 'DAppRequestHandler', useToken: WalletSetSettingsHandler },
   { token: 'DAppRequestHandler', useToken: WalletGetCapabilitiesHandler },
   { token: 'DAppRequestHandler', useToken: WalletEnableNetworkHandler },
+  {
+    token: 'DAppRequestHandler',
+    useToken: WalletNotifyNotificationCenterChangedHandler,
+  },
+  {
+    token: 'DAppRequestHandler',
+    useToken: WalletGetNotificationDeviceArnHandler,
+  },
 ];
 
 const ALL_REQUEST_HANDLERS = [...SHARED_HANDLERS];
@@ -119,5 +130,6 @@ export class DappRequestHandlerRegistry {}
   { token: 'DAppEventEmitter', useToken: ActionEvents },
   { token: 'DAppEventEmitter', useToken: NetworkStateChangedEvents },
   { token: 'DAppEventEmitter', useToken: SettingsUpdatedEventsCore },
+  { token: 'DAppEventEmitter', useToken: NotificationCenterChangedEvents },
 ])
 export class DappEventEmitterRegistry {}
