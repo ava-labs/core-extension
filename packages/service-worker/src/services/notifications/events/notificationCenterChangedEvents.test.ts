@@ -2,6 +2,14 @@ import { NotificationsEvents, Web3Event } from '@core/types';
 import type { NotificationsService } from '../NotificationsService';
 import { NotificationCenterChangedEvents } from './notificationCenterChangedEvents';
 
+jest.mock('@core/common', () => ({
+  isSyncDomain: (domain: string) => domain === 'core.app',
+}));
+
+jest.mock('../NotificationsService', () => ({
+  NotificationsService: jest.fn(),
+}));
+
 jest.mock('webextension-polyfill', () => ({
   runtime: { id: 'ext-id-123' },
 }));
@@ -14,6 +22,7 @@ describe('notificationCenterChangedEvents', () => {
         centerChangedCallback = cb;
       }
     }),
+    removeListener: jest.fn(),
   } as unknown as NotificationsService;
 
   beforeEach(() => {

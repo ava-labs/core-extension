@@ -134,7 +134,11 @@ describe('NotificationsService', () => {
 
     expect(balanceNotificationServiceMock.init).toHaveBeenCalledWith(
       'deviceArn',
+      expect.any(Function),
     );
-    expect(newsNotificationServiceMock.init).toHaveBeenCalledWith('deviceArn');
+    expect(newsNotificationServiceMock.init).toHaveBeenCalledWith(
+      'deviceArn',
+      expect.any(Function),
+    );
   });
 });

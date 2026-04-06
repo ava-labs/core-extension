@@ -93,6 +93,10 @@ export class NotificationsService {
     this.eventEmitter.on(event, callback);
   }
 
+  removeListener(event: NotificationsEvents, callback: () => void) {
+    this.eventEmitter.off(event, callback);
+  }
+
   async #registerDevice(fcmToken: string) {
     return sendRequest<RegisterDeviceResponse>({
       path: 'v1/push/register',

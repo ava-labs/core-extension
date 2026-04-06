@@ -27,28 +27,30 @@ export class NotificationCenterChangedEvents implements DAppEventEmitter {
     this._connectionInfo = connectionInfo;
   }
 
+  private onNotificationCenterChanged = () => {
+    const domain = this._connectionInfo?.domain;
+    if (!domain) {
+      return;
+    }
+    if (domain === runtime.id) {
+      this.eventEmitter.emit('update', {
+        name: NotificationsEvents.NOTIFICATION_CENTER_CHANGED_EVENT,
+        value: undefined,
+      });
+      return;
+    }
+    if (isSyncDomain(domain)) {
+      this.eventEmitter.emit('update', {
+        method: Web3Event.NOTIFICATION_CENTER_CHANGED_EVENT,
+        params: {},
+      });
+    }
+  };
+
   constructor(private notificationsService: NotificationsService) {
     this.notificationsService.addListener(
       NotificationsEvents.NOTIFICATION_CENTER_CHANGED_EVENT,
-      () => {
-        const domain = this._connectionInfo?.domain;
-        if (!domain) {
-          return;
-        }
-        if (domain === runtime.id) {
-          this.eventEmitter.emit('update', {
-            name: NotificationsEvents.NOTIFICATION_CENTER_CHANGED_EVENT,
-            value: undefined,
-          });
-          return;
-        }
-        if (isSyncDomain(domain)) {
-          this.eventEmitter.emit('update', {
-            method: Web3Event.NOTIFICATION_CENTER_CHANGED_EVENT,
-            params: {},
-          });
-        }
-      },
+      this.onNotificationCenterChanged,
     );
   }
 
@@ -60,5 +62,9 @@ export class NotificationCenterChangedEvents implements DAppEventEmitter {
     handler: (event: ExtensionConnectionEvent<any>) => void,
   ): void {
     this.eventEmitter.off('update', handler);
+    this.notificationsService.removeListener(
+      NotificationsEvents.NOTIFICATION_CENTER_CHANGED_EVENT,
+      this.onNotificationCenterChanged,
+    );
   }
 }
