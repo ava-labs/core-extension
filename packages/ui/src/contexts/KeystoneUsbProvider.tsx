@@ -16,6 +16,7 @@ import { getAvalancheExtendedKeyPath, resolve } from '@core/common';
 import { fromPublicKey } from 'bip32';
 import Avalanche, { ChainIDAlias } from '@keystonehq/hw-app-avalanche';
 import { Curve, DerivationAlgorithm } from '@keystonehq/bc-ur-registry';
+import { parseKeystoneFirmwareVersion } from './utils/parseKeystoneFirmwareVersion';
 
 const isWebUsbUserCancelError = (err: unknown): boolean =>
   err instanceof DOMException && err.name === 'NotFoundError';
@@ -80,7 +81,7 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
           // If this fails, the device might be locked but transport still exists.
           try {
             const appConfig = await app.getAppConfig();
-            setVersion(appConfig.version);
+            setVersion(parseKeystoneFirmwareVersion(appConfig.version));
           } catch (_error) {
             throw new Error('Keystone device locked or unavailable');
           }
