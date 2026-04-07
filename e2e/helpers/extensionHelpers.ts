@@ -90,9 +90,9 @@ export async function waitForExtensionLoad(
   }
 }
 
-/**
- * Opens the extension popup in a new page
- */
+// Matches the extension popup dimensions from useAppDimensions (miniMode)
+const POPUP_VIEWPORT = { width: 375, height: 600 };
+
 export async function openExtensionPopup(
   context: BrowserContext,
   extensionId: string,
@@ -103,6 +103,7 @@ export async function openExtensionPopup(
   const popupUrl = `chrome-extension://${extensionId}/${pagePath}`;
   console.log(`Opening extension ${pageType}: ${popupUrl}`);
   const page = await context.newPage();
+  await page.setViewportSize(POPUP_VIEWPORT);
   await page.goto(popupUrl, { waitUntil: 'domcontentloaded' });
   await waitForExtensionLoad(page, 45000); // Increased timeout for CI
   return page;

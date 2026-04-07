@@ -63,6 +63,8 @@ const ExplorerLink = ({
   hash: string;
 }) => (
   <IconButton
+    data-testid="tx-toast-explorer-link"
+    data-tx-hash={hash}
     size="small"
     sx={{ color: 'background.default', padding: 0 }}
     onClick={() => {
