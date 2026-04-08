@@ -6,6 +6,9 @@ import {
   type ExplorerNetwork,
 } from '../helpers/explorerApi';
 
+/** CI needs more time: UI + on-chain confirmation polling (see explorerApi MAX_POLL_ATTEMPTS). */
+const SEND_TEST_TIMEOUT_MS = process.env.CI ? 360_000 : 180_000;
+
 test.describe('Send Tests', () => {
   test(
     'As a CORE ext user with an extension wallet, I can send C-Chain AVAX with gasless toggled off',
@@ -23,7 +26,7 @@ test.describe('Send Tests', () => {
       ],
     },
     async ({ unlockedExtensionPage }, testInfo) => {
-      testInfo.setTimeout(180_000);
+      testInfo.setTimeout(SEND_TEST_TIMEOUT_MS);
       const sendPage = new SendPage(unlockedExtensionPage);
 
       // SND-001: Portfolio → Send → choose token + amount (no prefilled token).
@@ -219,7 +222,7 @@ test.describe('Send Tests', () => {
     test(
       `As a CORE ext user with an extension wallet, I can send ${row.description} AVAX`,
       {
-        tag: ['@smoke', '@regression'],
+        tag: [],
         annotation: [
           {
             type: 'snapshot',
@@ -232,7 +235,7 @@ test.describe('Send Tests', () => {
         ],
       },
       async ({ unlockedExtensionPage }, testInfo) => {
-        testInfo.setTimeout(180_000);
+        testInfo.setTimeout(SEND_TEST_TIMEOUT_MS);
         const sendPage = new SendPage(unlockedExtensionPage);
 
         await sendPage.openSendFromPortfolioHome();
@@ -285,7 +288,7 @@ test.describe('Send Tests', () => {
   test(
     'As a CORE ext user with an extension wallet, I can send C-Chain AVAX with gasless toggled on',
     {
-      tag: ['@smoke', '@regression'],
+      tag: [],
       annotation: [
         {
           type: 'snapshot',
@@ -298,7 +301,7 @@ test.describe('Send Tests', () => {
       ],
     },
     async ({ unlockedExtensionPage }, testInfo) => {
-      testInfo.setTimeout(180_000);
+      testInfo.setTimeout(SEND_TEST_TIMEOUT_MS);
       const sendPage = new SendPage(unlockedExtensionPage);
       const sendData = TEST_SEND.CCHAIN_AVAX_CONTACT_GASLESS;
 

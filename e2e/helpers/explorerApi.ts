@@ -11,6 +11,7 @@ interface JsonRpcResponse<T> {
   jsonrpc: string;
   id: number;
   result: T | null;
+  error?: { code: number; message: string };
 }
 
 /**
@@ -43,7 +44,20 @@ interface CryptoApisResponse {
 }
 
 const POLL_INTERVAL_MS = 5000;
-const MAX_POLL_ATTEMPTS = 24; // 2 minutes max
+/**
+ * Public RPC + CI runners can lag behind actual inclusion; allow longer polling in CI.
+ * Override with E2E_TX_POLL_MAX_ATTEMPTS (positive integer) if needed.
+ */
+const MAX_POLL_ATTEMPTS = (() => {
+  const fromEnv = process.env.E2E_TX_POLL_MAX_ATTEMPTS;
+  if (fromEnv) {
+    const n = Number.parseInt(fromEnv, 10);
+    if (Number.isFinite(n) && n > 0) {
+      return n;
+    }
+  }
+  return process.env.CI ? 48 : 24;
+})();
 
 function getApiKeys() {
   return {
@@ -170,16 +184,26 @@ export async function verifyEvmTransaction(
   const rpcUrl = rpcUrls[net];
 
   const response = await pollUntilConfirmed(
-    () =>
-      fetchJson<JsonRpcResponse<EvmTransactionReceipt>>(rpcUrl, {
-        method: 'POST',
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          method: 'eth_getTransactionReceipt',
-          params: [txHash],
-          id: 1,
-        }),
-      }),
+    async () => {
+      const data = await fetchJson<JsonRpcResponse<EvmTransactionReceipt>>(
+        rpcUrl,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            method: 'eth_getTransactionReceipt',
+            params: [txHash],
+            id: 1,
+          }),
+        },
+      );
+      if (data.error) {
+        throw new Error(
+          `eth_getTransactionReceipt RPC error: ${data.error.code} ${data.error.message}`,
+        );
+      }
+      return data;
+    },
     (data) => data.result !== null,
   );
 
