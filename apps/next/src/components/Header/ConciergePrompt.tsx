@@ -5,7 +5,7 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
-import { FC, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -58,6 +58,21 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
   const conciergeBackgroundRef = useRef(null);
   const conciergeBackdropRef = useRef(null);
 
+  useEffect(() => {
+    const abortController = new AbortController();
+    document.body.addEventListener(
+      'mouseleave',
+      () => {
+        setIsAIBackdropOpen(false);
+      },
+      { signal: abortController.signal },
+    );
+
+    return () => {
+      abortController.abort();
+    };
+  }, [setIsAIBackdropOpen]);
+
   if (!coreAssistant || !featureFlags[FeatureGates.CORE_ASSISTANT]) {
     return null;
   }
@@ -67,9 +82,10 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
       {/* THE BOX AREA WHERE WE WANT TO CATCH THE CURSOR */}
       <Stack
         sx={{
-          width: '100%',
-          height: '48px',
+          width: '50%',
+          height: '24px',
           position: 'absolute',
+          alignSelf: 'center',
           top: `${HEADER_HEIGHT}px`,
           cursor: 'pointer',
           zIndex: isHoverAreaHidden ? 0 : theme.zIndex.tooltip - 1,
@@ -156,6 +172,11 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
               right: 0,
               px: 1.5,
               zIndex: theme.zIndex.appBar + 7,
+              cursor: 'pointer',
+            }}
+            role="button"
+            onClick={() => {
+              history.push('/concierge');
             }}
           >
             <AnimatedButton
@@ -236,23 +257,6 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
           </Stack>
         </CSSTransition>,
         document.body,
-      )}
-      {/* CANCEL ZONE - 24px below header */}
-      {isAIBackdropOpen && (
-        <Stack
-          sx={{
-            position: 'fixed',
-            top: `${HEADER_HEIGHT + 48}px`, // header height + hover strip height
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: theme.zIndex.appBar + 6,
-          }}
-          onMouseEnter={() => {
-            setIsAIBackdropOpen(false);
-            setIsHoverAreaHidden(false);
-          }}
-        />
       )}
     </>
   );

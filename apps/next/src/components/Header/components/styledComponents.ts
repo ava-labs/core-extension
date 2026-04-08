@@ -81,6 +81,17 @@ export const AnimatedButton = styled(Button)(({ theme }) => ({
       transform: 'scale(0)',
     },
   },
+
+  // This adds an invisible clickable area above the button such that the button
+  // can be clicked even when the cursor is still in the place where the little bar was rendered.
+  '&::before': {
+    content: "''",
+    height: 16,
+    width: '100%',
+    position: 'absolute',
+    top: '-16px',
+    left: '0',
+  },
   [`&.${getClassSelector('BUTTON', 'enter')}`]: {
     span: {
       display: 'inline',
