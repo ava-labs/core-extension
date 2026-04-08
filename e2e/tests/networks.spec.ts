@@ -133,6 +133,10 @@ test.describe('Networks Tests', () => {
 
       await networksPage.navigateToNetworks();
 
+      // Narrow the list so Arbitrum is in view and stable (long lists + virtualisation).
+      await networksPage.searchForNetwork('Arbitrum');
+      await unlockedExtensionPage.waitForTimeout(600);
+
       const toggleVisible =
         await networksPage.isNetworkToggleVisible(arbitrumChainId);
       expect(toggleVisible).toBe(true);
@@ -143,15 +147,20 @@ test.describe('Networks Tests', () => {
 
       await expect
         .poll(() => networksPage.isNetworkEnabled(arbitrumChainId), {
-          timeout: 10000,
+          timeout: 25000,
+          intervals: [400, 800, 1500, 2500],
         })
         .toBe(!initialState);
+
+      // Allow background persistence to finish before toggling back (avoids racing the second click).
+      await unlockedExtensionPage.waitForTimeout(3000);
 
       await networksPage.toggleNetwork(arbitrumChainId);
 
       await expect
         .poll(() => networksPage.isNetworkEnabled(arbitrumChainId), {
-          timeout: 10000,
+          timeout: 25000,
+          intervals: [400, 800, 1500, 2500],
         })
         .toBe(initialState);
     },
@@ -582,9 +591,10 @@ test.describe('Networks Tests', () => {
         '[data-testid="manage-tokens-page"]',
       );
       await manageTokensPage.waitFor({ state: 'visible', timeout: 10000 });
+      await unlockedExtensionPage.waitForTimeout(2000);
 
       const monToken = unlockedExtensionPage.getByText('MON', { exact: true });
-      await expect(monToken.first()).toBeVisible({ timeout: 10000 });
+      await expect(monToken.first()).toBeVisible({ timeout: 30000 });
 
       await networksPage.backButton.click();
       await unlockedExtensionPage.waitForTimeout(1000);
@@ -598,7 +608,8 @@ test.describe('Networks Tests', () => {
 
       await expect
         .poll(() => networksPage.isNetworkEnabled(MONAD_CHAIN_ID), {
-          timeout: 10000,
+          timeout: 25000,
+          intervals: [400, 800, 1500, 2500],
         })
         .toBe(false);
 

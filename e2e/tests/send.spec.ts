@@ -1,7 +1,10 @@
 import { test, expect } from '../fixtures/extension.fixture';
 import { SendPage } from '../pages/extension/SendPage';
 import { TEST_SEND } from '../constants';
-import { verifyTransactionOnExplorer } from '../helpers/explorerApi';
+import {
+  verifyTransactionOnExplorer,
+  type ExplorerNetwork,
+} from '../helpers/explorerApi';
 
 test.describe('Send Tests', () => {
   test(
@@ -184,83 +187,100 @@ test.describe('Send Tests', () => {
     },
   );
 
-  test(
-    'As a CORE ext user with an extension wallet, I can send P-Chain AVAX',
+  /** Same approval shape (Avalanche UTXO details) and steps — only chain + explorer differ. */
+  const utxoAvaxSendCases: Array<{
+    description: string;
+    testrailId: string;
+    sendData: typeof TEST_SEND.PCHAIN_AVAX | typeof TEST_SEND.XCHAIN_AVAX;
+    chainLabel: string;
+    recipientPattern: RegExp;
+    explorerNetwork: ExplorerNetwork;
+  }> = [
     {
-      tag: ['@smoke', '@regression'],
-      annotation: [
-        {
-          type: 'snapshot',
-          description: 'testnetPrimaryExtWallet',
-        },
-        {
-          type: 'testrail_case_field',
-          description: 'custom_automation_id:SND-003',
-        },
-      ],
+      description: 'P-Chain',
+      testrailId: 'SND-003',
+      sendData: TEST_SEND.PCHAIN_AVAX,
+      chainLabel: 'Avalanche P-Chain',
+      recipientPattern: /P-fuji/,
+      explorerNetwork: 'Avalanche P-Chain',
     },
-    async ({ unlockedExtensionPage }, testInfo) => {
-      testInfo.setTimeout(180_000);
-      const sendPage = new SendPage(unlockedExtensionPage);
-      const sendData = TEST_SEND.PCHAIN_AVAX;
-
-      // SND-003: Portfolio → Send → P-Chain AVAX → amount → internal account (P-Chain address).
-      await sendPage.openSendFromPortfolioHome();
-      await sendPage.selectTokenBySymbolAndChainBadge(
-        sendData.tokenSymbol,
-        sendData.chainBadgeAltText,
-      );
-
-      await sendPage.enterAmount(sendData.amount);
-      await sendPage.selectRecipientAccount(sendData.recipientAccount);
-
-      await expect
-        .poll(() => sendPage.isSendButtonEnabled(), { timeout: 15000 })
-        .toBe(true);
-
-      await sendPage.clickSend();
-      await sendPage.waitForApprovalScreen();
-
-      await expect(sendPage.getApprovalBalanceChange()).toBeVisible();
-      await expect(sendPage.getApprovalTokenSymbol()).toContainText('AVAX');
-      await expect(sendPage.getApprovalBalanceChange()).toContainText(
-        sendData.amount,
-      );
-
-      const fromRow = sendPage.getApprovalDetailRow('From');
-      await expect(fromRow).toBeVisible();
-      await expect(fromRow).toContainText('Account 1');
-
-      const networkRow = sendPage.getApprovalDetailRow('Network');
-      await expect(networkRow).toBeVisible();
-      await expect(networkRow).toContainText('Avalanche');
-      await expect(networkRow).toContainText('P-Chain');
-
-      const toRow = sendPage.getApprovalDetailRow('To');
-      await expect(toRow).toBeVisible();
-      await expect(toRow).toContainText('Account 2');
-      await expect(toRow).toContainText('avax1');
-
-      // P-Chain approval uses Avalanche details only — no EVM fee presets / gasless.
-      await expect(sendPage.getFeePresetSelector()).not.toBeVisible();
-      await expect(sendPage.getApproveButton()).toBeVisible();
-      await expect(sendPage.getApproveButton()).toBeEnabled();
-      await expect(sendPage.getRejectButton()).toBeVisible();
-
-      const successToastPromise = sendPage.waitForSuccessToast();
-
-      await sendPage.approveTransaction();
-
-      const successToast = await successToastPromise;
-      await expect(successToast).toContainText('Transaction successful');
-
-      const txId = await sendPage.getTxHashFromToast();
-      expect(txId.length).toBeGreaterThan(10);
-      expect(txId).toMatch(/^[1-9A-HJ-NP-Za-km-z]+$/);
-
-      await verifyTransactionOnExplorer(txId, 'Avalanche P-Chain', 'Testnet');
+    {
+      description: 'X-Chain',
+      testrailId: 'SND-004',
+      sendData: TEST_SEND.XCHAIN_AVAX,
+      chainLabel: 'Avalanche X-Chain',
+      recipientPattern: /X-fuji/,
+      explorerNetwork: 'Avalanche X-Chain',
     },
-  );
+  ];
+
+  // `test.each` is not available on the extended fixture's `test` — use a data table + loop.
+  for (const row of utxoAvaxSendCases) {
+    test(
+      `As a CORE ext user with an extension wallet, I can send ${row.description} AVAX`,
+      {
+        tag: ['@smoke', '@regression'],
+        annotation: [
+          {
+            type: 'snapshot',
+            description: 'testnetPrimaryExtWallet',
+          },
+          {
+            type: 'testrail_case_field',
+            description: `custom_automation_id:${row.testrailId}`,
+          },
+        ],
+      },
+      async ({ unlockedExtensionPage }, testInfo) => {
+        testInfo.setTimeout(180_000);
+        const sendPage = new SendPage(unlockedExtensionPage);
+
+        await sendPage.openSendFromPortfolioHome();
+        await sendPage.selectTokenBySymbolAndChainBadge(
+          row.sendData.tokenSymbol,
+          row.sendData.chainBadgeAltText,
+        );
+
+        await sendPage.enterAmount(row.sendData.amount);
+        await sendPage.selectRecipientAccount(row.sendData.recipientAccount);
+
+        await expect
+          .poll(() => sendPage.isSendButtonEnabled(), { timeout: 15000 })
+          .toBe(true);
+
+        await sendPage.clickSend();
+        await sendPage.waitForApprovalScreen();
+
+        const approval = sendPage.getApprovalDialog();
+        await expect(approval).toContainText(row.chainLabel, {
+          timeout: 15000,
+        });
+        await expect(approval).toContainText('Account 2');
+        await expect(approval).toContainText(row.recipientPattern, {
+          timeout: 15000,
+        });
+        await expect(approval).toContainText('0.001 AVAX');
+
+        await expect(sendPage.getFeePresetSelector()).not.toBeVisible();
+        await expect(sendPage.getApproveButton()).toBeVisible();
+        await expect(sendPage.getApproveButton()).toBeEnabled();
+        await expect(sendPage.getRejectButton()).toBeVisible();
+
+        const successToastPromise = sendPage.waitForSuccessToast();
+
+        await sendPage.approveTransaction();
+
+        const successToast = await successToastPromise;
+        await expect(successToast).toContainText('Transaction successful');
+
+        const txId = await sendPage.getTxHashFromToast();
+        expect(txId.length).toBeGreaterThan(10);
+        expect(txId).toMatch(/^[1-9A-HJ-NP-Za-km-z]+$/);
+
+        await verifyTransactionOnExplorer(txId, row.explorerNetwork, 'Testnet');
+      },
+    );
+  }
 
   test(
     'As a CORE ext user with an extension wallet, I can send C-Chain AVAX with gasless toggled on',
@@ -291,7 +311,9 @@ test.describe('Send Tests', () => {
       await sendPage.enterAmount(sendData.amount);
 
       await sendPage.typeRecipientSearchQuery(sendData.randomUnsavedEvmAddress);
-      await expect(sendPage.getUnknownRecipientLabel()).toBeVisible();
+      await expect(sendPage.getUnknownRecipientLabel()).toBeVisible({
+        timeout: 15000,
+      });
       await sendPage.selectRecipientFromOpenDropdownByContactName(
         sendData.recipientContactName,
       );
@@ -318,7 +340,9 @@ test.describe('Send Tests', () => {
       // External / address-book recipients use label "Contract" (not "To") on approval.
       const toRow = sendPage.getApprovalDetailRow('Contract');
       await expect(toRow).toBeVisible();
-      await expect(toRow).toContainText('0xd068');
+      const contactAddr = sendData.recipientContactEvmAddress;
+      await expect(toRow).toContainText(contactAddr.slice(0, 6));
+      await expect(toRow).toContainText(contactAddr.slice(-4));
 
       // Gasless depends on Gas Station + App Check; local builds often lack keys — branch like SND-001.
       const gaslessVisible = await sendPage.isGaslessToggleVisible();

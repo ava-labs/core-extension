@@ -1,6 +1,7 @@
 export type ExplorerNetwork =
   | 'Avalanche C-Chain'
   | 'Avalanche P-Chain'
+  | 'Avalanche X-Chain'
   | 'Ethereum'
   | 'Bitcoin';
 
@@ -111,7 +112,10 @@ async function pollUntilConfirmed<T>(
 
 const EVM_RPC: Partial<
   Record<
-    Exclude<ExplorerNetwork, 'Bitcoin' | 'Avalanche P-Chain'>,
+    Exclude<
+      ExplorerNetwork,
+      'Bitcoin' | 'Avalanche P-Chain' | 'Avalanche X-Chain'
+    >,
     Record<NetEnv, string>
   >
 > = {
@@ -130,6 +134,11 @@ const P_CHAIN_RPC: Record<NetEnv, string> = {
   Testnet: 'https://api.avax-test.network/ext/bc/P',
 };
 
+const X_CHAIN_RPC: Record<NetEnv, string> = {
+  Mainnet: 'https://api.avax.network/ext/bc/X',
+  Testnet: 'https://api.avax-test.network/ext/bc/X',
+};
+
 interface PlatformGetTxStatusResult {
   status: string;
 }
@@ -144,7 +153,10 @@ interface PlatformGetTxStatusResult {
  */
 export async function verifyEvmTransaction(
   txHash: string,
-  network: Exclude<ExplorerNetwork, 'Bitcoin' | 'Avalanche P-Chain'>,
+  network: Exclude<
+    ExplorerNetwork,
+    'Bitcoin' | 'Avalanche P-Chain' | 'Avalanche X-Chain'
+  >,
   net: NetEnv = 'Testnet',
 ): Promise<EvmTransactionReceipt> {
   const rpcUrls = EVM_RPC[network];
@@ -239,12 +251,50 @@ export async function verifyPChainTransaction(
   }
 }
 
+function isAvmOrPlatformTxDone(status: string | undefined): boolean {
+  if (!status) return false;
+  const s = status.toLowerCase();
+  return s === 'committed' || s === 'accepted';
+}
+
+/**
+ * Verifies an X-Chain transaction via AvalancheGo `avm.getTxStatus`
+ * (cb58 txID, not an EVM 0x hash).
+ */
+export async function verifyXChainTransaction(
+  txID: string,
+  net: NetEnv = 'Testnet',
+): Promise<void> {
+  const rpcUrl = X_CHAIN_RPC[net];
+
+  const response = await pollUntilConfirmed(
+    () =>
+      fetchJson<JsonRpcResponse<PlatformGetTxStatusResult>>(rpcUrl, {
+        method: 'POST',
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'avm.getTxStatus',
+          params: { txID },
+          id: 1,
+        }),
+      }),
+    (data) => isAvmOrPlatformTxDone(data.result?.status),
+  );
+
+  if (!isAvmOrPlatformTxDone(response.result?.status)) {
+    throw new Error(
+      `Avalanche X-Chain tx not accepted for ${txID}: ${JSON.stringify(response.result)}`,
+    );
+  }
+}
+
 /**
  * Verifies a transaction on the specified network.
  *
  * - EVM chains (Avalanche C-Chain, Ethereum): eth_getTransactionReceipt via public RPC
  *   → No API key needed, instant confirmation once mined
  * - Avalanche P-Chain: platform.getTxStatus via public AvalancheGo API
+ * - Avalanche X-Chain: avm.getTxStatus via public AvalancheGo API
  * - Bitcoin: CryptoAPIs REST endpoint
  *   → Requires APITOKEN_CRYPTOAPIS env var
  */
@@ -257,6 +307,8 @@ export async function verifyTransactionOnExplorer(
     await verifyBitcoinTx(txHash, net);
   } else if (network === 'Avalanche P-Chain') {
     await verifyPChainTransaction(txHash, net);
+  } else if (network === 'Avalanche X-Chain') {
+    await verifyXChainTransaction(txHash, net);
   } else {
     await verifyEvmTransaction(txHash, network, net);
   }

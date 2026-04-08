@@ -100,13 +100,25 @@ export const TEST_SEND = {
     recipientAccount: 'Account 2',
   },
   /**
+   * X-Chain native AVAX send. Same flow as P-Chain; disambiguate via ChainBadge alt.
+   * Uses `testnetPrimaryExtWallet` snapshot (testnet).
+   */
+  XCHAIN_AVAX: {
+    tokenSymbol: 'AVAX',
+    chainBadgeAltText: 'Avalanche (X-Chain)',
+    amount: '0.001',
+    recipientAccount: 'Account 2',
+  },
+  /**
    * C-Chain send to an existing Saved address contact + gasless.
-   * Requires testnetContactExtWallet snapshot (includes contact "Ext Wallet 2").
+   * Requires testnetContactExtWallet snapshot (includes contact "QA Wallet 2").
    */
   CCHAIN_AVAX_CONTACT_GASLESS: {
     tokenSymbol: 'AVAX',
     amount: '0.001',
-    recipientContactName: 'Ext Wallet 2',
+    recipientContactName: 'QA Wallet 2',
+    /** C-Chain address for that contact in `testnetContactExtWallet` (matches approval Contract row). */
+    recipientContactEvmAddress: '0xdfEF57229201BD241E1bE24159DBdaec7a1fA38A',
     /** Not in address book — recipient dropdown shows translated "Unknown" label. */
     randomUnsavedEvmAddress: '0x1234567890123456789012345678901234567890',
   },

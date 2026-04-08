@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { expect, Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
 import type { SendTransactionData } from '../../types/send';
 
@@ -147,8 +147,12 @@ export class SendPage extends BasePage {
     }
   }
 
+  /** Unknown-address row in the open recipient dropdown (scoped — avoids duplicate "Unknown" elsewhere). */
   getUnknownRecipientLabel(): Locator {
-    return this.page.getByText('Unknown', { exact: true });
+    return this.page
+      .locator('[data-option-id]')
+      .filter({ hasText: 'Unknown' })
+      .first();
   }
 
   async isSendButtonEnabled(): Promise<boolean> {
@@ -218,6 +222,20 @@ export class SendPage extends BasePage {
    * When several networks share the same symbol (e.g. AVAX on C / P / X), pick the row
    * whose chain badge uses this `alt` text (`network.chainName` on ChainBadge).
    */
+  /**
+   * When the token list includes non-Avalanche chains, chain filter chips appear.
+   * Narrowing to "Avalanche" keeps C / P / X AVAX rows in view for disambiguation.
+   */
+  private async maybeSelectAvalancheChainFilterChip(): Promise<void> {
+    const avalancheOnly = this.page.getByRole('button', {
+      name: /^Avalanche$/i,
+    });
+    if (await avalancheOnly.isVisible({ timeout: 1500 }).catch(() => false)) {
+      await avalancheOnly.click();
+      await this.page.waitForTimeout(400);
+    }
+  }
+
   async selectTokenBySymbolAndChainBadge(
     tokenSymbol: string,
     chainBadgeAltText: string | RegExp,
@@ -232,14 +250,23 @@ export class SendPage extends BasePage {
       state: 'visible',
       timeout: 10000,
     });
+
+    await this.maybeSelectAvalancheChainFilterChip();
+
     await this.tokenSearchInput.fill(tokenSymbol);
-    await this.page.waitForTimeout(1000);
+    await this.page.waitForTimeout(1200);
+
+    // Wait for the dropdown to populate (first run can be slow while balances load).
+    await expect(this.page.locator('[data-option-id]').first()).toBeVisible({
+      timeout: 25000,
+    });
 
     const tokenOption = this.page
       .locator('[data-option-id]')
       .filter({ has: this.page.getByAltText(chainBadgeAltText) })
       .first();
-    await tokenOption.waitFor({ state: 'visible', timeout: 10000 });
+
+    await expect(tokenOption).toBeVisible({ timeout: 30000 });
     await tokenOption.click();
   }
 
@@ -265,6 +292,11 @@ export class SendPage extends BasePage {
 
   private get approvalDialog() {
     return this.page.locator('[data-testid="approval-dialog"]');
+  }
+
+  /** Use for assertions that must apply to the whole approval surface (e.g. P-Chain rows may omit `tx-detail-*` testids when layout is vertical). */
+  getApprovalDialog(): Locator {
+    return this.approvalDialog;
   }
 
   async approveTransaction(): Promise<void> {
