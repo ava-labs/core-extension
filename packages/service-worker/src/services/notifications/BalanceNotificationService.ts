@@ -26,6 +26,7 @@ import { sendRequest } from './utils/sendRequest';
 export class BalanceNotificationService {
   #clientId?: string;
   #eventEmitter = new EventEmitter();
+  #onMessageReceived?: () => void;
 
   constructor(
     private accountService: AccountsService,
@@ -34,11 +35,12 @@ export class BalanceNotificationService {
     private lockService: LockService,
   ) {}
 
-  async init(clientId: string) {
+  async init(clientId: string, onMessageReceived?: () => void) {
     this.#clientId = clientId;
+    this.#onMessageReceived = onMessageReceived;
     this.firebaseService.addFcmMessageListener(
       NotificationCategories.BALANCE_CHANGES,
-      this.#handleMessage,
+      (payload) => this.#handleMessage(payload),
     );
 
     this.accountService.addListener(
@@ -92,10 +94,11 @@ export class BalanceNotificationService {
   }
 
   #handleMessage(payload: MessagePayload) {
-    return sendNotification({
+    sendNotification({
       payload,
       allowedType: NotificationCategories.BALANCE_CHANGES,
     });
+    this.#onMessageReceived?.();
   }
 
   async subscribe(shouldVerifyStorageState = false) {
