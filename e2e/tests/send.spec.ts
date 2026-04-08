@@ -6,8 +6,7 @@ import {
   type ExplorerNetwork,
 } from '../helpers/explorerApi';
 
-/** CI needs more time: UI + on-chain confirmation polling (see explorerApi MAX_POLL_ATTEMPTS). */
-const SEND_TEST_TIMEOUT_MS = process.env.CI ? 360_000 : 180_000;
+const SEND_TEST_TIMEOUT_MS = 180_000;
 
 test.describe('Send Tests', () => {
   test(

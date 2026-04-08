@@ -45,7 +45,6 @@ interface CryptoApisResponse {
 
 const POLL_INTERVAL_MS = 5000;
 /**
- * Public RPC + CI runners can lag behind actual inclusion; allow longer polling in CI.
  * Override with E2E_TX_POLL_MAX_ATTEMPTS (positive integer) if needed.
  */
 const MAX_POLL_ATTEMPTS = (() => {
@@ -56,7 +55,7 @@ const MAX_POLL_ATTEMPTS = (() => {
       return n;
     }
   }
-  return process.env.CI ? 48 : 24;
+  return 24;
 })();
 
 function getApiKeys() {
@@ -123,6 +122,11 @@ async function pollUntilConfirmed<T>(
 }
 
 // ── EVM RPC endpoints ──────────────────────────────────────────────────
+//
+// Use multiple providers per network where practical. Avalanche docs note rate
+// limits on public APIs; CI egress often shares datacenter IPs, so a single
+// endpoint can return errors or never surface a receipt while another provider
+// on the same chain does (same tx hash on Fuji / mainnet C-Chain).
 
 const EVM_RPC: Partial<
   Record<
@@ -130,18 +134,77 @@ const EVM_RPC: Partial<
       ExplorerNetwork,
       'Bitcoin' | 'Avalanche P-Chain' | 'Avalanche X-Chain'
     >,
-    Record<NetEnv, string>
+    Record<NetEnv, readonly string[]>
   >
 > = {
   'Avalanche C-Chain': {
-    Mainnet: 'https://api.avax.network/ext/bc/C/rpc',
-    Testnet: 'https://api.avax-test.network/ext/bc/C/rpc',
+    Mainnet: [
+      'https://api.avax.network/ext/bc/C/rpc',
+      'https://avalanche-c-chain-rpc.publicnode.com',
+    ],
+    Testnet: [
+      'https://api.avax-test.network/ext/bc/C/rpc',
+      'https://avalanche-fuji-c-chain-rpc.publicnode.com',
+    ],
   },
   Ethereum: {
-    Mainnet: 'https://ethereum-rpc.publicnode.com',
-    Testnet: 'https://ethereum-sepolia-rpc.publicnode.com',
+    Mainnet: ['https://ethereum-rpc.publicnode.com'],
+    Testnet: ['https://ethereum-sepolia-rpc.publicnode.com'],
   },
 };
+
+async function getEthTransactionReceiptFromRpc(
+  txHash: string,
+  rpcUrl: string,
+): Promise<JsonRpcResponse<EvmTransactionReceipt>> {
+  return fetchJson<JsonRpcResponse<EvmTransactionReceipt>>(rpcUrl, {
+    method: 'POST',
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      method: 'eth_getTransactionReceipt',
+      params: [txHash],
+      id: 1,
+    }),
+  });
+}
+
+/**
+ * Tries each RPC URL in order for one poll tick. Returns as soon as a node
+ * returns a non-null receipt. If every node responds OK with a null receipt
+ * (pending), returns the last such response. Throws if every URL fails (HTTP
+ * or JSON-RPC error).
+ */
+async function getEthTransactionReceiptFromCluster(
+  txHash: string,
+  rpcUrls: readonly string[],
+): Promise<JsonRpcResponse<EvmTransactionReceipt>> {
+  const failures: string[] = [];
+  let lastPending: JsonRpcResponse<EvmTransactionReceipt> | null = null;
+
+  for (const rpcUrl of rpcUrls) {
+    try {
+      const data = await getEthTransactionReceiptFromRpc(txHash, rpcUrl);
+      if (data.error) {
+        failures.push(`${rpcUrl}: ${data.error.code} ${data.error.message}`);
+        continue;
+      }
+      if (data.result !== null) {
+        return data;
+      }
+      lastPending = data;
+    } catch (e) {
+      failures.push(`${rpcUrl}: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  }
+
+  if (lastPending) {
+    return lastPending;
+  }
+
+  throw new Error(
+    `eth_getTransactionReceipt failed on all RPC endpoints:\n${failures.join('\n')}`,
+  );
+}
 
 const P_CHAIN_RPC: Record<NetEnv, string> = {
   Mainnet: 'https://api.avax.network/ext/bc/P',
@@ -173,37 +236,18 @@ export async function verifyEvmTransaction(
   >,
   net: NetEnv = 'Testnet',
 ): Promise<EvmTransactionReceipt> {
-  const rpcUrls = EVM_RPC[network];
+  const rpcUrlsByNet = EVM_RPC[network];
 
-  if (!rpcUrls) {
+  if (!rpcUrlsByNet) {
     throw new Error(
       `${network} is not an EVM chain — cannot use eth_getTransactionReceipt`,
     );
   }
 
-  const rpcUrl = rpcUrls[net];
+  const rpcUrls = rpcUrlsByNet[net];
 
   const response = await pollUntilConfirmed(
-    async () => {
-      const data = await fetchJson<JsonRpcResponse<EvmTransactionReceipt>>(
-        rpcUrl,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            jsonrpc: '2.0',
-            method: 'eth_getTransactionReceipt',
-            params: [txHash],
-            id: 1,
-          }),
-        },
-      );
-      if (data.error) {
-        throw new Error(
-          `eth_getTransactionReceipt RPC error: ${data.error.code} ${data.error.message}`,
-        );
-      }
-      return data;
-    },
+    () => getEthTransactionReceiptFromCluster(txHash, rpcUrls),
     (data) => data.result !== null,
   );
 
@@ -315,8 +359,8 @@ export async function verifyXChainTransaction(
 /**
  * Verifies a transaction on the specified network.
  *
- * - EVM chains (Avalanche C-Chain, Ethereum): eth_getTransactionReceipt via public RPC
- *   → No API key needed, instant confirmation once mined
+ * - EVM chains (Avalanche C-Chain, Ethereum): eth_getTransactionReceipt via public RPCs
+ *   (failover across providers where configured; see EVM_RPC)
  * - Avalanche P-Chain: platform.getTxStatus via public AvalancheGo API
  * - Avalanche X-Chain: avm.getTxStatus via public AvalancheGo API
  * - Bitcoin: CryptoAPIs REST endpoint
