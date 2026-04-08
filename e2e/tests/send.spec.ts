@@ -221,7 +221,7 @@ test.describe('Send Tests', () => {
     test(
       `As a CORE ext user with an extension wallet, I can send ${row.description} AVAX`,
       {
-        tag: [],
+        tag: ['@smoke', '@regression'],
         annotation: [
           {
             type: 'snapshot',
@@ -287,7 +287,7 @@ test.describe('Send Tests', () => {
   test(
     'As a CORE ext user with an extension wallet, I can send C-Chain AVAX with gasless toggled on',
     {
-      tag: [],
+      tag: ['@smoke', '@regression'],
       annotation: [
         {
           type: 'snapshot',

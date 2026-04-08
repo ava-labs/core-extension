@@ -130,6 +130,9 @@ jobs:
       WALLET_PASSWORD: ${{ secrets.WALLET_PASSWORD }}
       RECOVERY_PHRASE_12_WORDS: ${{ secrets.RECOVERY_PHRASE_12_WORDS }}
       RECOVERY_PHRASE_24_WORDS: ${{ secrets.RECOVERY_PHRASE_24_WORDS }}
+      APITOKEN_CRYPTOAPIS: ${{ secrets.APITOKEN_CRYPTOAPIS }}
+      APITOKEN_ETHERSCAN: ${{ secrets.APITOKEN_ETHERSCAN }}
+      APITOKEN_GLACIER: ${{ secrets.APITOKEN_GLACIER }}
 
     container:
       image: mcr.microsoft.com/playwright:v1.55.1-noble

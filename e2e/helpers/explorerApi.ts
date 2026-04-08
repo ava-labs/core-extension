@@ -61,12 +61,121 @@ const MAX_POLL_ATTEMPTS = (() => {
 function getApiKeys() {
   return {
     cryptoApis: process.env.APITOKEN_CRYPTOAPIS ?? '',
+    etherscan: process.env.APITOKEN_ETHERSCAN ?? '',
+    /** AvaCloud Glacier Data API — header `x-glacier-api-key` */
+    glacier: process.env.APITOKEN_GLACIER ?? process.env.GLACIER_API_KEY ?? '',
   };
 }
 
+function requireGlacierApiKey(): string {
+  const k = getApiKeys().glacier;
+  if (!k) {
+    throw new Error(
+      'APITOKEN_GLACIER (or GLACIER_API_KEY) is required for Glacier verification',
+    );
+  }
+  return k;
+}
+
+/** Etherscan `gettxreceiptstatus` JSON. */
+interface ExplorerTxReceiptStatusResponse {
+  status?: string;
+  message: string;
+  result?: string | { status?: string } | null;
+}
+
+function getTxReceiptStatusFromExplorerResponse(
+  data: ExplorerTxReceiptStatusResponse,
+): 'pending' | 'success' | 'failed' {
+  const msg = String(data.message ?? '');
+  const result = data.result;
+
+  if (msg === 'OK' && result && typeof result === 'object') {
+    const s = String((result as { status?: string }).status ?? '');
+    if (s === '1') {
+      return 'success';
+    }
+    if (s === '0') {
+      return 'failed';
+    }
+  }
+
+  if (msg === 'OK' && result === '1') {
+    return 'success';
+  }
+  if (msg === 'OK' && result === '0') {
+    return 'failed';
+  }
+
+  return 'pending';
+}
+
+function buildEtherscanTxReceiptStatusUrl(
+  txHash: string,
+  net: NetEnv,
+  apiKey: string,
+): string {
+  const host =
+    net === 'Mainnet'
+      ? 'https://api.etherscan.io'
+      : 'https://api-sepolia.etherscan.io';
+  const url = new URL(`${host}/api`);
+  url.searchParams.set('module', 'transaction');
+  url.searchParams.set('action', 'gettxreceiptstatus');
+  url.searchParams.set('txhash', txHash);
+  url.searchParams.set('apikey', apiKey);
+  return url.toString();
+}
+
+async function verifyEthereumViaEtherscan(
+  txHash: string,
+  net: NetEnv,
+): Promise<void> {
+  const { etherscan } = getApiKeys();
+  if (!etherscan) {
+    throw new Error(
+      'APITOKEN_ETHERSCAN is required for Ethereum explorer verification',
+    );
+  }
+
+  const url = buildEtherscanTxReceiptStatusUrl(txHash, net, etherscan);
+
+  const data = await pollUntilConfirmed(
+    async () => {
+      const res = await fetchJson<ExplorerTxReceiptStatusResponse>(url);
+      const state = getTxReceiptStatusFromExplorerResponse(res);
+      if (state === 'failed') {
+        throw new Error(
+          `Ethereum tx reverted or failed (Etherscan): ${JSON.stringify(res)}`,
+        );
+      }
+      return res;
+    },
+    (res) => getTxReceiptStatusFromExplorerResponse(res) === 'success',
+    { intervalMs: 20_000 },
+  );
+
+  expectExplorerOkReceipt(data, 'Ethereum (Etherscan)');
+}
+
+function expectExplorerOkReceipt(
+  data: ExplorerTxReceiptStatusResponse,
+  label: string,
+): void {
+  if (data.message !== 'OK') {
+    throw new Error(
+      `${label}: expected message OK, got ${JSON.stringify(data)}`,
+    );
+  }
+  if (getTxReceiptStatusFromExplorerResponse(data) !== 'success') {
+    throw new Error(
+      `${label}: expected success receipt status, got ${JSON.stringify(data)}`,
+    );
+  }
+}
+
 /**
- * Extracts a transaction hash from a block explorer URL.
- * Supports URLs like https://testnet.snowtrace.io/tx/0x...
+ * Extracts a transaction hash from a block explorer URL (`0x` + 64 hex).
  */
 export function extractTxHashFromUrl(url: string): string {
   const match = url.match(/(0x[a-fA-F0-9]{64})/);
@@ -216,17 +325,217 @@ const X_CHAIN_RPC: Record<NetEnv, string> = {
   Testnet: 'https://api.avax-test.network/ext/bc/X',
 };
 
+const GLACIER_API_BASE = 'https://glacier-api.avax.network';
+
+/** EVM chain ids for Glacier `/v1/chains/{chainId}/transactions/...` */
+const GLACIER_AVALANCHE_C_CHAIN_ID: Record<NetEnv, string> = {
+  Mainnet: '43114',
+  Testnet: '43113',
+};
+
+function glacierNetworkSlug(net: NetEnv): string {
+  return net === 'Mainnet' ? 'mainnet' : 'fuji';
+}
+
+type GlacierTxPollState = { indexed: true } | { indexed: false };
+
+type GlacierUtxoBlockchainId = 'p-chain' | 'x-chain';
+
+/**
+ * Glacier Primary Network P- / X-Chain (cb58 tx id).
+ * @see https://developers.avacloud.io/data-api/primary-network-transactions/get-transaction
+ */
+async function fetchGlacierUtxoTransaction(
+  txID: string,
+  blockchainId: GlacierUtxoBlockchainId,
+  net: NetEnv,
+  apiKey: string,
+): Promise<GlacierTxPollState> {
+  const network = glacierNetworkSlug(net);
+  const url = `${GLACIER_API_BASE}/v1/networks/${network}/blockchains/${blockchainId}/transactions/${encodeURIComponent(txID)}`;
+
+  const response = await fetch(url, {
+    headers: {
+      accept: 'application/json',
+      'x-glacier-api-key': apiKey,
+    },
+  });
+
+  if (response.status === 200) {
+    await response.json().catch(() => undefined);
+    return { indexed: true };
+  }
+
+  if (
+    response.status === 404 ||
+    response.status === 429 ||
+    (response.status >= 500 && response.status < 600)
+  ) {
+    return { indexed: false };
+  }
+
+  const body = await response.text();
+  throw new Error(
+    `Glacier get transaction failed (${response.status}) for ${blockchainId} tx ${txID}: ${body}`,
+  );
+}
+
+/**
+ * Glacier EVM transaction (`0x` hash). Primary-network `.../c-chain/...` does not
+ * accept full EVM hashes (length limit); use `/v1/chains/{chainId}/transactions/...`.
+ * @see https://developers.avacloud.io/data-api/evm-transactions/get-transaction
+ */
+async function fetchGlacierEvmTransaction(
+  txHash: string,
+  net: NetEnv,
+  apiKey: string,
+): Promise<GlacierTxPollState> {
+  const chainId = GLACIER_AVALANCHE_C_CHAIN_ID[net];
+  const url = `${GLACIER_API_BASE}/v1/chains/${chainId}/transactions/${encodeURIComponent(txHash)}`;
+
+  const response = await fetch(url, {
+    headers: {
+      accept: 'application/json',
+      'x-glacier-api-key': apiKey,
+    },
+  });
+
+  if (response.status === 200) {
+    await response.json().catch(() => undefined);
+    return { indexed: true };
+  }
+
+  if (
+    response.status === 404 ||
+    response.status === 429 ||
+    (response.status >= 500 && response.status < 600)
+  ) {
+    return { indexed: false };
+  }
+
+  const body = await response.text();
+  throw new Error(
+    `Glacier EVM get transaction failed (${response.status}) chain ${chainId} tx ${txHash}: ${body}`,
+  );
+}
+
+async function pollGlacierUtxoUntilIndexed(
+  txID: string,
+  blockchainId: GlacierUtxoBlockchainId,
+  net: NetEnv,
+): Promise<void> {
+  const apiKey = requireGlacierApiKey();
+  await pollUntilConfirmed(
+    () => fetchGlacierUtxoTransaction(txID, blockchainId, net, apiKey),
+    (state) => state.indexed === true,
+  );
+}
+
+async function pollGlacierCChainEvmUntilIndexed(
+  txHash: string,
+  net: NetEnv,
+): Promise<void> {
+  const apiKey = requireGlacierApiKey();
+  await pollUntilConfirmed(
+    () => fetchGlacierEvmTransaction(txHash, net, apiKey),
+    (state) => state.indexed === true,
+  );
+}
+
+/** P- or X-Chain: Glacier index + AvalancheGo finality. */
+async function verifyUtxoChainViaGlacier(
+  txID: string,
+  blockchainId: 'p-chain' | 'x-chain',
+  net: NetEnv,
+): Promise<void> {
+  await pollGlacierUtxoUntilIndexed(txID, blockchainId, net);
+  if (blockchainId === 'p-chain') {
+    await waitForPChainCommittedOnNode(txID, net);
+  } else {
+    await waitForXChainAcceptedOnNode(txID, net);
+  }
+}
+
+/** C-Chain: Glacier EVM index + successful `eth_getTransactionReceipt` on RPC. */
+async function verifyCChainViaGlacier(
+  txHash: string,
+  net: NetEnv,
+): Promise<void> {
+  await pollGlacierCChainEvmUntilIndexed(txHash, net);
+  await verifyEvmTransactionViaRpc(txHash, 'Avalanche C-Chain', net);
+}
+
 interface PlatformGetTxStatusResult {
   status: string;
 }
 
+function isAvmOrPlatformTxDone(status: string | undefined): boolean {
+  if (!status) return false;
+  const s = status.toLowerCase();
+  return s === 'committed' || s === 'accepted';
+}
+
+/** AvalancheGo: P-Chain tx is successfully finalized when status is `Committed`. */
+async function waitForPChainCommittedOnNode(
+  txID: string,
+  net: NetEnv,
+): Promise<void> {
+  const rpcUrl = P_CHAIN_RPC[net];
+
+  const response = await pollUntilConfirmed(
+    () =>
+      fetchJson<JsonRpcResponse<PlatformGetTxStatusResult>>(rpcUrl, {
+        method: 'POST',
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'platform.getTxStatus',
+          params: { txID },
+          id: 1,
+        }),
+      }),
+    (data) => data.result?.status === 'Committed',
+  );
+
+  if (response.result?.status !== 'Committed') {
+    throw new Error(
+      `Avalanche P-Chain tx not committed for ${txID}: ${JSON.stringify(response.result)}`,
+    );
+  }
+}
+
+/** AvalancheGo: X-Chain export/import style finality is `Accepted` or `Committed`. */
+async function waitForXChainAcceptedOnNode(
+  txID: string,
+  net: NetEnv,
+): Promise<void> {
+  const rpcUrl = X_CHAIN_RPC[net];
+
+  const response = await pollUntilConfirmed(
+    () =>
+      fetchJson<JsonRpcResponse<PlatformGetTxStatusResult>>(rpcUrl, {
+        method: 'POST',
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'avm.getTxStatus',
+          params: { txID },
+          id: 1,
+        }),
+      }),
+    (data) => isAvmOrPlatformTxDone(data.result?.status),
+  );
+
+  if (!isAvmOrPlatformTxDone(response.result?.status)) {
+    throw new Error(
+      `Avalanche X-Chain tx not accepted for ${txID}: ${JSON.stringify(response.result)}`,
+    );
+  }
+}
+
 /**
- * Verifies an EVM transaction via eth_getTransactionReceipt.
- * Works for any EVM chain (Avalanche C-Chain, Ethereum, etc.).
+ * Verifies an EVM transaction.
  *
- * Polls until the receipt is non-null, then checks:
- *   result.status === "0x1"  →  success
- *   result.status === "0x0"  →  reverted (throws)
+ * - Avalanche C-Chain: Glacier + RPC receipt when glacier key is set; else RPC only.
+ * - Ethereum: Etherscan when `APITOKEN_ETHERSCAN` is set; else RPC.
  */
 export async function verifyEvmTransaction(
   txHash: string,
@@ -235,7 +544,30 @@ export async function verifyEvmTransaction(
     'Bitcoin' | 'Avalanche P-Chain' | 'Avalanche X-Chain'
   >,
   net: NetEnv = 'Testnet',
-): Promise<EvmTransactionReceipt> {
+): Promise<void> {
+  const { etherscan, glacier } = getApiKeys();
+
+  if (network === 'Avalanche C-Chain' && glacier) {
+    await verifyCChainViaGlacier(txHash, net);
+    return;
+  }
+
+  if (network === 'Ethereum' && etherscan) {
+    await verifyEthereumViaEtherscan(txHash, net);
+    return;
+  }
+
+  await verifyEvmTransactionViaRpc(txHash, network, net);
+}
+
+async function verifyEvmTransactionViaRpc(
+  txHash: string,
+  network: Exclude<
+    ExplorerNetwork,
+    'Bitcoin' | 'Avalanche P-Chain' | 'Avalanche X-Chain'
+  >,
+  net: NetEnv,
+): Promise<void> {
   const rpcUrlsByNet = EVM_RPC[network];
 
   if (!rpcUrlsByNet) {
@@ -260,8 +592,6 @@ export async function verifyEvmTransaction(
       `${network} tx reverted (status ${response.result.status}): ${JSON.stringify(response.result)}`,
     );
   }
-
-  return response.result;
 }
 
 /**
@@ -289,80 +619,51 @@ export async function verifyBitcoinTx(
 }
 
 /**
- * Verifies a P-Chain transaction via AvalancheGo `platform.getTxStatus`
- * (cb58 txID, not an EVM 0x hash).
+ * Verifies a P-Chain transaction (cb58 txID, not an EVM 0x hash).
+ *
+ * With `APITOKEN_GLACIER` / `GLACIER_API_KEY`: poll Glacier until the tx is
+ * indexed, then assert `Committed` via `platform.getTxStatus` on the node.
+ * Without Glacier: only the node RPC poll (same final assertion).
  */
 export async function verifyPChainTransaction(
   txID: string,
   net: NetEnv = 'Testnet',
 ): Promise<void> {
-  const rpcUrl = P_CHAIN_RPC[net];
-
-  const response = await pollUntilConfirmed(
-    () =>
-      fetchJson<JsonRpcResponse<PlatformGetTxStatusResult>>(rpcUrl, {
-        method: 'POST',
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          method: 'platform.getTxStatus',
-          params: { txID },
-          id: 1,
-        }),
-      }),
-    (data) => data.result?.status === 'Committed',
-  );
-
-  if (response.result?.status !== 'Committed') {
-    throw new Error(
-      `Avalanche P-Chain tx not committed for ${txID}: ${JSON.stringify(response.result)}`,
-    );
+  const { glacier } = getApiKeys();
+  if (glacier) {
+    await verifyUtxoChainViaGlacier(txID, 'p-chain', net);
+    return;
   }
-}
 
-function isAvmOrPlatformTxDone(status: string | undefined): boolean {
-  if (!status) return false;
-  const s = status.toLowerCase();
-  return s === 'committed' || s === 'accepted';
+  await waitForPChainCommittedOnNode(txID, net);
 }
 
 /**
- * Verifies an X-Chain transaction via AvalancheGo `avm.getTxStatus`
- * (cb58 txID, not an EVM 0x hash).
+ * Verifies an X-Chain transaction (cb58 txID, not an EVM 0x hash).
+ *
+ * With Glacier key: poll indexer until 200, then assert `Accepted` / `Committed`
+ * via `avm.getTxStatus`. Without Glacier: node RPC only.
  */
 export async function verifyXChainTransaction(
   txID: string,
   net: NetEnv = 'Testnet',
 ): Promise<void> {
-  const rpcUrl = X_CHAIN_RPC[net];
-
-  const response = await pollUntilConfirmed(
-    () =>
-      fetchJson<JsonRpcResponse<PlatformGetTxStatusResult>>(rpcUrl, {
-        method: 'POST',
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          method: 'avm.getTxStatus',
-          params: { txID },
-          id: 1,
-        }),
-      }),
-    (data) => isAvmOrPlatformTxDone(data.result?.status),
-  );
-
-  if (!isAvmOrPlatformTxDone(response.result?.status)) {
-    throw new Error(
-      `Avalanche X-Chain tx not accepted for ${txID}: ${JSON.stringify(response.result)}`,
-    );
+  const { glacier } = getApiKeys();
+  if (glacier) {
+    await verifyUtxoChainViaGlacier(txID, 'x-chain', net);
+    return;
   }
+
+  await waitForXChainAcceptedOnNode(txID, net);
 }
 
 /**
  * Verifies a transaction on the specified network.
  *
- * - EVM chains (Avalanche C-Chain, Ethereum): eth_getTransactionReceipt via public RPCs
- *   (failover across providers where configured; see EVM_RPC)
- * - Avalanche P-Chain: platform.getTxStatus via public AvalancheGo API
- * - Avalanche X-Chain: avm.getTxStatus via public AvalancheGo API
+ * - Avalanche C-Chain: Glacier + receipt RPC when glacier key set; else public RPCs
+ * - Ethereum: Etherscan when APITOKEN_ETHERSCAN; else public RPCs
+ * - Avalanche P-Chain / X-Chain: when APITOKEN_GLACIER (or GLACIER_API_KEY) is
+ *   set, Glacier poll until indexed then node getTxStatus; otherwise node RPC only
  * - Bitcoin: CryptoAPIs REST endpoint
  *   → Requires APITOKEN_CRYPTOAPIS env var
  */
