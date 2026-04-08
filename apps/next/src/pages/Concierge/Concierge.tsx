@@ -1,6 +1,7 @@
 import { keyframes, Slide, Stack } from '@avalabs/k2-alpine';
 import { useFirebaseContext } from '@core/ui';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AIDialog } from './components/AIDialog';
 import { UserDialog } from './components/UserDialog';
 import { UserInput } from './components/UserInput';
@@ -19,6 +20,7 @@ const promptBackgroundAnimation = keyframes`
 `;
 
 export const Concierge = () => {
+  const { t } = useTranslation();
   const [input, setInput] = useState<string>('');
   const [isTyping, setIsTyping] = useState(false);
   const scrollbarRef = useRef<Scrollbars | null>(null);
@@ -51,7 +53,12 @@ export const Concierge = () => {
             animation: `15s ${promptBackgroundAnimation} ease-in infinite`,
           }}
         />
-        <Page withBackButton px={0}>
+        <Page
+          title={t('Core Concierge')}
+          showContentTitle={false}
+          withBackButton
+          px={0}
+        >
           <Stack
             sx={{
               height: '100%',
@@ -62,21 +69,27 @@ export const Concierge = () => {
               ref={scrollbarRef}
               style={{ height: '100%', width: '100%' }}
             >
-              <Stack sx={{ p: 1.5, flexGrow: 1 }}>
-                {prompts.map((message, i) => {
+              <Stack
+                sx={{ p: 1.5, minHeight: '100%', justifyContent: 'flex-end' }}
+              >
+                {prompts.map((message, index) => {
                   if (message.role === 'model') {
+                    const previousPrompt = prompts[index - 1];
+                    const isConsecutive = previousPrompt?.role === 'model';
+
                     return (
                       <AIDialog
                         message={message}
-                        key={i}
+                        key={index}
                         scrollToBottom={
                           scrollbarRef.current?.scrollToBottom || (() => {})
                         }
-                        lastMessage={i === prompts.length - 1}
+                        lastMessage={index === prompts.length - 1}
+                        isConsecutive={isConsecutive}
                       />
                     );
                   }
-                  return <UserDialog message={message} key={i} />;
+                  return <UserDialog message={message} key={index} />;
                 })}
                 {isTyping && <TypingAvatar />}
               </Stack>
