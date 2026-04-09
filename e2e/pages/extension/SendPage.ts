@@ -62,6 +62,14 @@ export class SendPage extends BasePage {
   async openSendFromPortfolioHome(): Promise<void> {
     await this.navigateToPortfolioHome();
 
+    // Ensure at least one asset has loaded before navigating to Send,
+    // otherwise the token list on the Send page will be empty.
+    const assetTimeout = process.env.CI ? 90_000 : 30_000;
+    await this.page
+      .getByRole('button', { name: /avax/i })
+      .first()
+      .waitFor({ state: 'visible', timeout: assetTimeout });
+
     const sendNavButton = this.portfolioSendNavButton();
     await sendNavButton.waitFor({ state: 'visible', timeout: 15000 });
     await sendNavButton.click();
