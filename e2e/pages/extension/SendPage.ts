@@ -27,7 +27,12 @@ export class SendPage extends BasePage {
     );
   }
 
-  /** Token menu search field (wrapper or inner input, depending on K2 SearchInput). */
+  /**
+   * Token menu search field. K2 SearchInput forwards `data-testid` to the MUI
+   * TextField root; the actual `<input>` is nested inside.  Fall back to the
+   * "Search…" placeholder that K2 SearchInput renders by default so the locator
+   * still works if the testid attribute is stripped or renamed by a K2 upgrade.
+   */
   private tokenSelectSearchField(): Locator {
     return this.page
       .locator(
@@ -37,18 +42,27 @@ export class SendPage extends BasePage {
         this.page.locator(
           '[data-testid="send-token-amount-token-select-search-input"]',
         ),
-      );
+      )
+      .or(this.page.getByPlaceholder(/search/i));
   }
 
   /**
-   * SearchableSelect only calls setIsOpen when `options.length > 0`. On slow CI, Send can paint
-   * before balances load, so the first clicks are no-ops. Retry until the search field appears.
+   * Opens the token-select popover reliably in CI.
+   *
+   * Two hazards are addressed:
+   *  1. `options.length === 0` guard — the component ignores clicks when the
+   *     balance list has not loaded yet.  Retrying handles this.
+   *  2. Toggle oscillation — MUI Popover renders an invisible backdrop; a
+   *     coordinate-based `force: true` click can hit the backdrop instead of
+   *     the trigger, closing the popover on even-numbered retries.
+   *     Fix: check if the popover is already open before clicking, and press
+   *     Escape to close a stuck popover when the search locator cannot match.
    */
   private async openTokenSelectPopover(): Promise<void> {
     const triggerWaitMs = process.env.CI ? 45_000 : 15_000;
-    const perClickWaitMs = process.env.CI ? 3_500 : 2_000;
-    const attempts = process.env.CI ? 24 : 10;
-    const pauseMs = process.env.CI ? 900 : 450;
+    const perClickMs = process.env.CI ? 5_000 : 3_000;
+    const attempts = process.env.CI ? 20 : 10;
+    const pauseMs = process.env.CI ? 1_500 : 500;
 
     await this.tokenSelectTrigger.waitFor({
       state: 'visible',
@@ -59,12 +73,24 @@ export class SendPage extends BasePage {
     const search = this.tokenSelectSearchField();
 
     for (let i = 0; i < attempts; i++) {
-      await this.tokenSelectTrigger.click({ force: true });
+      if (await search.isVisible().catch(() => false)) {
+        return;
+      }
+
       try {
-        await search.waitFor({ state: 'visible', timeout: perClickWaitMs });
+        await this.tokenSelectTrigger.click({ timeout: perClickMs });
+      } catch {
+        await this.page.keyboard.press('Escape');
+        await this.page.waitForTimeout(300);
+        continue;
+      }
+
+      try {
+        await search.waitFor({ state: 'visible', timeout: perClickMs });
         return;
       } catch {
-        // Token list still empty; wait for balances and retry.
+        await this.page.keyboard.press('Escape');
+        await this.page.waitForTimeout(300);
       }
       await this.page.waitForTimeout(pauseMs);
     }
