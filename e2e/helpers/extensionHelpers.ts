@@ -11,6 +11,64 @@ export function resolveWalletSnapshotName(testInfo: TestInfo): string {
   return snapshotAnnotation?.description || TEST_CONFIG.wallet.snapshotName;
 }
 
+/** Time to wait for portfolio UI after unlock (balances + header); CI is slower. */
+const portfolioShellTimeoutMs = process.env.CI ? 90_000 : 45_000;
+
+export type WaitForPortfolioShellOptions = {
+  /**
+   * Also wait for the assets toolbar Send control (matches SendPage portfolio entry).
+   * Use after returning to Portfolio when the next step opens Send; skip for empty-wallet flows.
+   */
+  requireSendNav?: boolean;
+};
+
+/**
+ * Waits until the extension shows the main Portfolio chrome: loading spinner gone and
+ * header settings control visible. Call after unlock before relying on routing or toggles.
+ */
+export async function waitForPortfolioShellReady(
+  page: Page,
+  timeout = portfolioShellTimeoutMs,
+  options: WaitForPortfolioShellOptions = {},
+): Promise<void> {
+  console.log(
+    '[e2e] Waiting for Portfolio shell (spinner cleared, header ready)…',
+  );
+  await page.waitForFunction(
+    () => {
+      const spinner = document.querySelector('[class*="CircularProgress"]');
+      if (spinner) return false;
+
+      const settingsBtn = document.querySelector(
+        '[data-testid="settings-button"]',
+      );
+      if (!settingsBtn) return false;
+
+      const el = settingsBtn as HTMLElement;
+      const rect = el.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return false;
+
+      const style = window.getComputedStyle(el);
+      return style.visibility !== 'hidden' && style.display !== 'none';
+    },
+    { timeout },
+  );
+  console.log('[e2e] Portfolio shell ready');
+
+  if (options.requireSendNav) {
+    console.log('[e2e] Waiting for Portfolio Send control…');
+    const sendNav = page
+      .locator('[data-testid="send-nav-button"]')
+      .or(page.getByRole('button', { name: 'Send', exact: true }))
+      .first();
+    await sendNav.waitFor({
+      state: 'visible',
+      timeout: Math.min(timeout, 60_000),
+    });
+    console.log('[e2e] Portfolio Send control visible');
+  }
+}
+
 /**
  * When using a testnet-named wallet snapshot, ensure Settings → Testnet mode is on.
  * Fixes CI/local runs where a fresh profile or extension ID would otherwise leave mainnet mode on.
@@ -24,13 +82,19 @@ export async function ensureTestnetModeIfNeeded(
     return;
   }
 
+  const switchTimeout = process.env.CI ? 45_000 : 25_000;
+
+  // Load portfolio first so app state/network context are ready before Settings (CI timing).
+  await navigateToRoute(page, extensionId, '/');
+  await waitForPortfolioShellReady(page, portfolioShellTimeoutMs);
+
   await navigateToRoute(page, extensionId, '/settings');
 
   // Testnet row: apps/next/.../Home.tsx `data-testid="settings-testnet-mode-row"`.
   const testnetSwitch = page.locator(
     '[data-testid="settings-testnet-mode-row"] input[type="checkbox"]',
   );
-  await testnetSwitch.waitFor({ state: 'attached', timeout: 20000 });
+  await testnetSwitch.waitFor({ state: 'attached', timeout: switchTimeout });
 
   const alreadyOn = await testnetSwitch.isChecked();
   if (alreadyOn) {
@@ -38,6 +102,9 @@ export async function ensureTestnetModeIfNeeded(
       '[e2e] Testnet mode already enabled (matches testnet wallet snapshot)',
     );
     await navigateToRoute(page, extensionId, '/');
+    await waitForPortfolioShellReady(page, portfolioShellTimeoutMs, {
+      requireSendNav: true,
+    });
     return;
   }
 
@@ -50,10 +117,13 @@ export async function ensureTestnetModeIfNeeded(
       );
       return el?.checked === true;
     },
-    { timeout: 25000 },
+    { timeout: switchTimeout },
   );
 
   await navigateToRoute(page, extensionId, '/');
+  await waitForPortfolioShellReady(page, portfolioShellTimeoutMs, {
+    requireSendNav: true,
+  });
 }
 
 export async function getExtensionId(context: BrowserContext): Promise<string> {
