@@ -88,6 +88,7 @@ export class SendPage extends BasePage {
    */
   async openSendFromPortfolioHome(): Promise<void> {
     await this.navigateToPortfolioHome();
+    await this.waitForPortfolioAssetsLoaded();
 
     const sendNavButton = this.portfolioSendNavButton();
     await sendNavButton.waitFor({ state: 'visible', timeout: 15000 });
@@ -128,6 +129,32 @@ export class SendPage extends BasePage {
       .locator('[data-testid="send-nav-button"]')
       .or(this.page.getByRole('button', { name: 'Send', exact: true }))
       .first();
+  }
+
+  /**
+   * Waits for at least one asset card (e.g. AVAX) to appear on the portfolio list.
+   * BalancesProvider populates tokensForAccount asynchronously after testnet toggle;
+   * navigating to Send before this completes leaves SearchableSelect with zero options.
+   */
+  private async waitForPortfolioAssetsLoaded(): Promise<void> {
+    const timeout = process.env.CI ? 90_000 : 30_000;
+    await this.page.waitForFunction(
+      () => {
+        if (document.querySelector('[class*="CircularProgress"]')) {
+          return false;
+        }
+        const buttons = Array.from(
+          document.querySelectorAll('[role="button"]'),
+        );
+        return buttons.some(
+          (btn) =>
+            btn.querySelector('svg') &&
+            btn.textContent &&
+            /avax/i.test(btn.textContent),
+        );
+      },
+      { timeout },
+    );
   }
 
   /**
