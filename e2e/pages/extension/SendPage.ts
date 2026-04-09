@@ -1,4 +1,4 @@
-import { expect, Page, Locator } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
 import type { SendTransactionData } from '../../types/send';
 
@@ -27,77 +27,20 @@ export class SendPage extends BasePage {
     );
   }
 
-  /**
-   * Token menu search field. K2 SearchInput forwards `data-testid` to the MUI
-   * TextField root; the actual `<input>` is nested inside.  Fall back to the
-   * "Search…" placeholder that K2 SearchInput renders by default so the locator
-   * still works if the testid attribute is stripped or renamed by a K2 upgrade.
-   */
   private tokenSelectSearchField(): Locator {
-    return this.page
-      .locator(
-        '[data-testid="send-token-amount-token-select-search-input"] input',
-      )
-      .or(
-        this.page.locator(
-          '[data-testid="send-token-amount-token-select-search-input"]',
-        ),
-      )
-      .or(this.page.getByPlaceholder(/search/i));
+    return this.page.locator(
+      '[data-testid="send-token-amount-token-select-search-input"] input',
+    );
   }
 
-  /**
-   * Opens the token-select popover reliably in CI.
-   *
-   * Two hazards are addressed:
-   *  1. `options.length === 0` guard — the component ignores clicks when the
-   *     balance list has not loaded yet.  Retrying handles this.
-   *  2. Toggle oscillation — MUI Popover renders an invisible backdrop; a
-   *     coordinate-based `force: true` click can hit the backdrop instead of
-   *     the trigger, closing the popover on even-numbered retries.
-   *     Fix: check if the popover is already open before clicking, and press
-   *     Escape to close a stuck popover when the search locator cannot match.
-   */
   private async openTokenSelectPopover(): Promise<void> {
-    const triggerWaitMs = process.env.CI ? 45_000 : 15_000;
-    const perClickMs = process.env.CI ? 5_000 : 3_000;
-    const attempts = process.env.CI ? 20 : 10;
-    const pauseMs = process.env.CI ? 1_500 : 500;
+    const timeout = process.env.CI ? 30_000 : 15_000;
 
-    await this.tokenSelectTrigger.waitFor({
-      state: 'visible',
-      timeout: triggerWaitMs,
-    });
-    await this.tokenSelectTrigger.scrollIntoViewIfNeeded();
+    await this.tokenSelectTrigger.waitFor({ state: 'visible', timeout });
+    await this.tokenSelectTrigger.click();
 
     const search = this.tokenSelectSearchField();
-
-    for (let i = 0; i < attempts; i++) {
-      if (await search.isVisible().catch(() => false)) {
-        return;
-      }
-
-      try {
-        await this.tokenSelectTrigger.click({ timeout: perClickMs });
-      } catch {
-        await this.page.keyboard.press('Escape');
-        await this.page.waitForTimeout(300);
-        continue;
-      }
-
-      try {
-        await search.waitFor({ state: 'visible', timeout: perClickMs });
-        return;
-      } catch {
-        await this.page.keyboard.press('Escape');
-        await this.page.waitForTimeout(300);
-      }
-      await this.page.waitForTimeout(pauseMs);
-    }
-
-    throw new Error(
-      '[e2e] Token select did not open after retries (token list may still be empty).',
-    );
+    await search.waitFor({ state: 'visible', timeout });
   }
 
   // ── Portfolio / navigation ───────────────────────────────────────────
@@ -110,21 +53,14 @@ export class SendPage extends BasePage {
       return;
     }
 
-    // Client-side hash change avoids the full page reload that page.goto
-    // triggers for chrome-extension:// URLs, which would reset React state
-    // (BalancesProvider, AccountsContext, etc.) and lose cached balances.
     await this.page.evaluate(() => {
       window.location.hash = '#/';
     });
     await this.page.waitForTimeout(500);
   }
 
-  /**
-   * Portfolio home → tap Send (toolbar). User must pick token on Send (SND-001 flow).
-   */
   async openSendFromPortfolioHome(): Promise<void> {
     await this.navigateToPortfolioHome();
-    await this.waitForPortfolioAssetsLoaded();
 
     const sendNavButton = this.portfolioSendNavButton();
     await sendNavButton.waitFor({ state: 'visible', timeout: 15000 });
@@ -165,32 +101,6 @@ export class SendPage extends BasePage {
       .locator('[data-testid="send-nav-button"]')
       .or(this.page.getByRole('button', { name: 'Send', exact: true }))
       .first();
-  }
-
-  /**
-   * Waits for at least one asset card (e.g. AVAX) to appear on the portfolio list.
-   * BalancesProvider populates tokensForAccount asynchronously after testnet toggle;
-   * navigating to Send before this completes leaves SearchableSelect with zero options.
-   */
-  private async waitForPortfolioAssetsLoaded(): Promise<void> {
-    const timeout = process.env.CI ? 90_000 : 30_000;
-    await this.page.waitForFunction(
-      () => {
-        if (document.querySelector('[class*="CircularProgress"]')) {
-          return false;
-        }
-        const buttons = Array.from(
-          document.querySelectorAll('[role="button"]'),
-        );
-        return buttons.some(
-          (btn) =>
-            btn.querySelector('svg') &&
-            btn.textContent &&
-            /avax/i.test(btn.textContent),
-        );
-      },
-      { timeout },
-    );
   }
 
   /**
@@ -345,19 +255,14 @@ export class SendPage extends BasePage {
 
     const search = this.tokenSelectSearchField();
     await search.fill(tokenSymbol);
-    await this.page.waitForTimeout(1200);
-
-    // Wait for the dropdown to populate (first run can be slow while balances load).
-    await expect(this.page.locator('[data-option-id]').first()).toBeVisible({
-      timeout: 25000,
-    });
+    await this.page.waitForTimeout(1000);
 
     const tokenOption = this.page
       .locator('[data-option-id]')
       .filter({ has: this.page.getByAltText(chainBadgeAltText) })
       .first();
 
-    await expect(tokenOption).toBeVisible({ timeout: 30000 });
+    await tokenOption.waitFor({ state: 'visible', timeout: 10000 });
     await tokenOption.click();
   }
 

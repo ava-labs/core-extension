@@ -20,11 +20,6 @@ export type WaitForPortfolioShellOptions = {
    * Use after returning to Portfolio when the next step opens Send; skip for empty-wallet flows.
    */
   requireSendNav?: boolean;
-  /**
-   * Wait for at least one asset card to appear in the portfolio list.
-   * Ensures BalancesProvider has populated tokensForAccount before the test navigates away.
-   */
-  requireAssetData?: boolean;
 };
 
 /**
@@ -72,25 +67,6 @@ export async function waitForPortfolioShellReady(
     });
     console.log('[e2e] Portfolio Send control visible');
   }
-
-  if (options.requireAssetData) {
-    console.log('[e2e] Waiting for portfolio asset data…');
-    await page.waitForFunction(
-      () => {
-        const buttons = Array.from(
-          document.querySelectorAll('[role="button"]'),
-        );
-        return buttons.some(
-          (btn) =>
-            btn.querySelector('svg') &&
-            btn.textContent &&
-            /avax/i.test(btn.textContent),
-        );
-      },
-      { timeout: Math.min(timeout, 90_000) },
-    );
-    console.log('[e2e] Portfolio asset data visible');
-  }
 }
 
 /**
@@ -128,7 +104,6 @@ export async function ensureTestnetModeIfNeeded(
     await navigateToRoute(page, extensionId, '/');
     await waitForPortfolioShellReady(page, portfolioShellTimeoutMs, {
       requireSendNav: true,
-      requireAssetData: true,
     });
     return;
   }
@@ -148,7 +123,6 @@ export async function ensureTestnetModeIfNeeded(
   await navigateToRoute(page, extensionId, '/');
   await waitForPortfolioShellReady(page, portfolioShellTimeoutMs, {
     requireSendNav: true,
-    requireAssetData: true,
   });
 }
 
