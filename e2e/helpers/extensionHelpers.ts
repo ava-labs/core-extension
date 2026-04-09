@@ -1,9 +1,61 @@
-import type { BrowserContext, Page } from '@playwright/test';
-import { TEST_CONFIG } from '../constants';
+import type { BrowserContext, Page, TestInfo } from '@playwright/test';
+import { isTestnetWalletSnapshotName, TEST_CONFIG } from '../constants';
 
 /**
  * Gets the extension ID - uses the known ID from config for speed
  */
+export function resolveWalletSnapshotName(testInfo: TestInfo): string {
+  const snapshotAnnotation = testInfo.annotations.find(
+    (a) => a.type === 'snapshot',
+  );
+  return snapshotAnnotation?.description || TEST_CONFIG.wallet.snapshotName;
+}
+
+/**
+ * When using a testnet-named wallet snapshot, ensure Settings → Testnet mode is on.
+ * Fixes CI/local runs where a fresh profile or extension ID would otherwise leave mainnet mode on.
+ */
+export async function ensureTestnetModeIfNeeded(
+  page: Page,
+  extensionId: string,
+  snapshotName: string,
+): Promise<void> {
+  if (!isTestnetWalletSnapshotName(snapshotName)) {
+    return;
+  }
+
+  await navigateToRoute(page, extensionId, '/settings');
+
+  // Testnet row: apps/next/.../Home.tsx `data-testid="settings-testnet-mode-row"`.
+  const testnetSwitch = page.locator(
+    '[data-testid="settings-testnet-mode-row"] input[type="checkbox"]',
+  );
+  await testnetSwitch.waitFor({ state: 'attached', timeout: 20000 });
+
+  const alreadyOn = await testnetSwitch.isChecked();
+  if (alreadyOn) {
+    console.log(
+      '[e2e] Testnet mode already enabled (matches testnet wallet snapshot)',
+    );
+    await navigateToRoute(page, extensionId, '/');
+    return;
+  }
+
+  console.log('[e2e] Enabling Testnet mode for testnet wallet snapshot');
+  await testnetSwitch.click({ force: true });
+  await page.waitForFunction(
+    () => {
+      const el = document.querySelector<HTMLInputElement>(
+        '[data-testid="settings-testnet-mode-row"] input[type="checkbox"]',
+      );
+      return el?.checked === true;
+    },
+    { timeout: 25000 },
+  );
+
+  await navigateToRoute(page, extensionId, '/');
+}
+
 export async function getExtensionId(context: BrowserContext): Promise<string> {
   // Prefer the runtime extension ID from the service worker.
   let serviceWorker = context.serviceWorkers()[0];
@@ -120,6 +172,7 @@ export async function navigateToRoute(
   const url = `chrome-extension://${extensionId}/popup.html#${route}`;
   await page.goto(url);
   await page.waitForLoadState('domcontentloaded');
+  await waitForExtensionLoad(page, 30000);
 }
 
 /**

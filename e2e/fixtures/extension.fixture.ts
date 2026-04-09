@@ -4,8 +4,10 @@ import path from 'node:path';
 import { test as base, chromium, BrowserContext, Page } from '@playwright/test';
 import { TEST_CONFIG } from '../constants';
 import {
+  ensureTestnetModeIfNeeded,
   getExtensionId,
   openExtensionPopup,
+  resolveWalletSnapshotName,
 } from '../helpers/extensionHelpers';
 import { unlockWallet } from '../helpers/walletHelpers';
 import { loadWalletSnapshot } from '../helpers/loadWalletSnapshot';
@@ -102,13 +104,7 @@ export const test = base.extend<ExtensionFixtures>({
       );
     }
 
-    // Get snapshot name from test annotation (if provided)
-    // Default is TEST_CONFIG wallet snapshot for extension tests
-    const snapshotAnnotation = testInfo.annotations.find(
-      (a) => a.type === 'snapshot',
-    );
-    const snapshotName =
-      snapshotAnnotation?.description || TEST_CONFIG.wallet.snapshotName;
+    const snapshotName = resolveWalletSnapshotName(testInfo);
 
     if (snapshotName === 'none') {
       console.log('Starting with fresh extension (no snapshot)');
@@ -177,7 +173,7 @@ export const test = base.extend<ExtensionFixtures>({
    * Opens the extension page and unlocks it
    * Requires a snapshot with wallet data
    */
-  unlockedExtensionPage: async ({ context, extensionId }, use) => {
+  unlockedExtensionPage: async ({ context, extensionId }, use, testInfo) => {
     const page = await getActiveExtensionPage(context, extensionId, {
       preferOnboarding: false,
     });
@@ -194,6 +190,11 @@ export const test = base.extend<ExtensionFixtures>({
       }
     } catch (_error) {
       console.log('Wallet may already be unlocked or no wallet exists');
+    }
+
+    const snapshotName = resolveWalletSnapshotName(testInfo);
+    if (snapshotName !== 'none') {
+      await ensureTestnetModeIfNeeded(page, extensionId, snapshotName);
     }
 
     await use(page);

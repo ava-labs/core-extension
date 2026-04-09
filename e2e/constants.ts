@@ -29,6 +29,14 @@ export const TEST_CONFIG = {
 };
 
 /**
+ * True when the loaded wallet snapshot is a testnet fixture (name contains "testnet", case-insensitive).
+ * E2E enables Settings → Testnet mode when this matches so CI/local extension IDs do not desync from snapshot data.
+ */
+export function isTestnetWalletSnapshotName(snapshotName: string): boolean {
+  return snapshotName !== 'none' && /testnet/i.test(snapshotName);
+}
+
+/**
  * Test tags for filtering
  */
 export const TEST_TAGS = {
