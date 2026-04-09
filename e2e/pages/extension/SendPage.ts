@@ -8,7 +8,6 @@ export class SendPage extends BasePage {
   readonly recipientSearchInput: Locator;
   readonly recipientTrigger: Locator;
   readonly sendButton: Locator;
-  readonly tokenSearchInput: Locator;
   readonly tokenSelectTrigger: Locator;
 
   constructor(page: Page) {
@@ -23,11 +22,55 @@ export class SendPage extends BasePage {
       '[data-testid="recipient-select-trigger"]',
     );
     this.sendButton = page.locator('[data-testid="tx-submit-button"]');
-    this.tokenSearchInput = page.locator(
-      '[data-testid="send-token-amount-token-select-search-input"] input',
-    );
     this.tokenSelectTrigger = page.locator(
       '[data-testid="token-select-trigger"]',
+    );
+  }
+
+  /** Token menu search field (wrapper or inner input, depending on K2 SearchInput). */
+  private tokenSelectSearchField(): Locator {
+    return this.page
+      .locator(
+        '[data-testid="send-token-amount-token-select-search-input"] input',
+      )
+      .or(
+        this.page.locator(
+          '[data-testid="send-token-amount-token-select-search-input"]',
+        ),
+      );
+  }
+
+  /**
+   * SearchableSelect only calls setIsOpen when `options.length > 0`. On slow CI, Send can paint
+   * before balances load, so the first clicks are no-ops. Retry until the search field appears.
+   */
+  private async openTokenSelectPopover(): Promise<void> {
+    const triggerWaitMs = process.env.CI ? 45_000 : 15_000;
+    const perClickWaitMs = process.env.CI ? 3_500 : 2_000;
+    const attempts = process.env.CI ? 24 : 10;
+    const pauseMs = process.env.CI ? 900 : 450;
+
+    await this.tokenSelectTrigger.waitFor({
+      state: 'visible',
+      timeout: triggerWaitMs,
+    });
+    await this.tokenSelectTrigger.scrollIntoViewIfNeeded();
+
+    const search = this.tokenSelectSearchField();
+
+    for (let i = 0; i < attempts; i++) {
+      await this.tokenSelectTrigger.click({ force: true });
+      try {
+        await search.waitFor({ state: 'visible', timeout: perClickWaitMs });
+        return;
+      } catch {
+        // Token list still empty; wait for balances and retry.
+      }
+      await this.page.waitForTimeout(pauseMs);
+    }
+
+    throw new Error(
+      '[e2e] Token select did not open after retries (token list may still be empty).',
     );
   }
 
@@ -200,17 +243,10 @@ export class SendPage extends BasePage {
   }
 
   async selectToken(tokenSymbol: string): Promise<void> {
-    await this.tokenSelectTrigger.waitFor({
-      state: 'visible',
-      timeout: 10000,
-    });
-    await this.tokenSelectTrigger.click();
+    await this.openTokenSelectPopover();
 
-    await this.tokenSearchInput.waitFor({
-      state: 'visible',
-      timeout: 10000,
-    });
-    await this.tokenSearchInput.fill(tokenSymbol);
+    const search = this.tokenSelectSearchField();
+    await search.fill(tokenSymbol);
     await this.page.waitForTimeout(1000);
 
     const tokenOption = this.page.locator('[data-option-id]').first();
@@ -240,20 +276,12 @@ export class SendPage extends BasePage {
     tokenSymbol: string,
     chainBadgeAltText: string | RegExp,
   ): Promise<void> {
-    await this.tokenSelectTrigger.waitFor({
-      state: 'visible',
-      timeout: 10000,
-    });
-    await this.tokenSelectTrigger.click();
-
-    await this.tokenSearchInput.waitFor({
-      state: 'visible',
-      timeout: 10000,
-    });
+    await this.openTokenSelectPopover();
 
     await this.maybeSelectAvalancheChainFilterChip();
 
-    await this.tokenSearchInput.fill(tokenSymbol);
+    const search = this.tokenSelectSearchField();
+    await search.fill(tokenSymbol);
     await this.page.waitForTimeout(1200);
 
     // Wait for the dropdown to populate (first run can be slow while balances load).
