@@ -23,7 +23,10 @@ export type NotificationTypes =
   | NewsNotificationTypes;
 
 export enum NotificationsEvents {
-  CLIENT_REGISTERED = 'CLIENT_REGISTERED',
+  /**
+   * Extension UI port + Web3 `notificationCenterChanged` for Core Web when notification center should refetch.
+   */
+  NOTIFICATION_CENTER_CHANGED_EVENT = 'NOTIFICATION_CENTER_CHANGED_EVENT',
 }
 
 export type NotificationsClientIdStorage = {

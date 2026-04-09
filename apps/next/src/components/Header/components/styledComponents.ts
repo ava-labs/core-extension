@@ -47,7 +47,7 @@ export const promptTextAnimation = keyframes`
   }
 `;
 export const TextAnimation = styled('span')`
-  animation: 6000ms ease 0s infinite normal none running ${promptTextAnimation};
+  animation: 4000ms ease 0s infinite normal none running ${promptTextAnimation};
 `;
 
 const promptBackgroundAnimation = keyframes`
@@ -59,27 +59,38 @@ const promptBackgroundAnimation = keyframes`
 export const AnimatedButton = styled(Button)(({ theme }) => ({
   width: '90px',
   height: '3px',
-  top: '7px',
+  top: '4px',
   left: '50%',
   padding: 0,
   transform: 'translateX(-50%)',
-  transition: `width 500ms linear,
-			top 500ms linear,
-			left 500ms linear,
-      opacity 1000ms ease-in-out,
-      height 500ms ease-in-out,
-      transform 5550ms ease-in-out`,
+  transition: `width 250ms linear,
+			top 250ms linear,
+			left 250ms linear,
+      opacity 250ms ease-in-out,
+      height 250ms ease-in-out,
+      transform 300ms ease-in-out`,
   zIndex: theme.zIndex.appBar + 1,
   span: {
     display: 'none',
     opacity: '0',
-    transition: `opacity 400ms linear, transform 600ms ease-in-out`,
+    transition: `opacity 200ms linear, transform 250ms ease-in-out`,
     transform: 'scale(0)',
     h6: {
-      transition: `opacity 1000ms linear, transform 600ms ease-in-out`,
+      transition: `opacity 250ms linear, transform 250ms ease-in-out`,
       opacity: '0',
       transform: 'scale(0)',
     },
+  },
+
+  // This adds an invisible clickable area above the button such that the button
+  // can be clicked even when the cursor is still in the place where the little bar was rendered.
+  '&::before': {
+    content: "''",
+    height: 16,
+    width: '100%',
+    position: 'absolute',
+    top: '-16px',
+    left: '0',
   },
   [`&.${getClassSelector('BUTTON', 'enter')}`]: {
     span: {
@@ -89,6 +100,7 @@ export const AnimatedButton = styled(Button)(({ theme }) => ({
   [`&.${getClassSelector('BUTTON', 'enter-done')}`]: {
     height: '42px',
     width: '100%',
+    top: '13px',
     span: {
       opacity: '1',
       display: 'inline',
@@ -101,29 +113,38 @@ export const AnimatedButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-export const PromptButtonBackground = styled(Stack)(({ theme }) => ({
-  '--angle': '0deg',
-  background: `conic-gradient(
-      from var(--angle),
-      rgba(255, 255, 255, 0) 0deg,
-      #B0FF18 30deg,
-      #A1FF68 60deg,
-      #26F2FF 120deg,
-      #7748FF 180deg,
-      #FF048C 260deg,
-      rgba(255, 255, 255, 0) 330deg
-    )`,
-  animation: `10s ${promptBackgroundAnimation} linear infinite`,
-  borderRadius: 999,
-  filter: `blur(50px)`,
-  position: 'absolute',
-  top: -100,
-  left: 0,
-  height: '200px',
-  width: '100%',
-  zIndex: theme.zIndex.appBar,
-  pointerEvents: 'none',
-}));
+export const PromptButtonBackground = styled(Stack)`
+  @property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  position: absolute;
+  top: -50px;
+  left: -20px;
+  width: 360px;
+  height: 300px;
+  pointer-events: none;
+  background-image: conic-gradient(
+    from var(--angle) at 50% 50%,
+    rgba(255, 9, 127, 0) 1.75deg,
+    rgba(176, 255, 24, 0) 122.63deg,
+    #a1ff68 131.64deg,
+    #26f2ff 180deg,
+    #7748ff 270deg,
+    rgba(255, 4, 140, 0.75) 344.3deg
+  );
+  background-size: 250px 220px;
+  background-repeat: no-repeat;
+  background-position: center top;
+  filter: blur(75px);
+  animation: ${promptBackgroundAnimation} 10s linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+`;
 
 export const CSS_CLASSES = {
   OVERLAY: 'overlay',

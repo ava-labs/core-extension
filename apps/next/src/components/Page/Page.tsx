@@ -22,6 +22,7 @@ type PageProps = {
   withViewSwitcher?: boolean;
   px?: number;
   descriptionProps?: TypographyProps;
+  showContentTitle?: boolean;
 };
 
 export const Page = ({
@@ -37,6 +38,7 @@ export const Page = ({
   containerProps,
   px,
   descriptionProps,
+  showContentTitle = true,
   ...htmlProps
 }: PageProps) => {
   const { ref, isIntersecting, isObserving } = useIsIntersecting();
@@ -65,6 +67,7 @@ export const Page = ({
           isObserving={isObserving}
           isIntersecting={isIntersecting}
           title={title}
+          alwaysShowTitle={!showContentTitle}
         />
         <Stack
           px={px ?? 1.5}
@@ -74,7 +77,7 @@ export const Page = ({
           flexGrow={1}
           {...containerProps}
         >
-          {title && (
+          {title && showContentTitle && (
             <Stack gap={1} {...headerProps}>
               <Stack
                 direction="row"
