@@ -104,9 +104,19 @@ export class SendPage extends BasePage {
 
   async navigateToPortfolioHome(): Promise<void> {
     const url = this.page.url();
-    const base = url.split('#')[0];
-    await this.page.goto(`${base}#/`);
-    await this.page.waitForLoadState('domcontentloaded');
+    const hash = url.split('#')[1] ?? '';
+
+    if (hash === '/' || hash === '') {
+      return;
+    }
+
+    // Client-side hash change avoids the full page reload that page.goto
+    // triggers for chrome-extension:// URLs, which would reset React state
+    // (BalancesProvider, AccountsContext, etc.) and lose cached balances.
+    await this.page.evaluate(() => {
+      window.location.hash = '#/';
+    });
+    await this.page.waitForTimeout(500);
   }
 
   /**
