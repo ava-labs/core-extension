@@ -49,10 +49,25 @@ export const KeyValueFormField = ({
   const theme = useTheme();
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
+  const [focusedField, setFocusedField] = useState<'key' | 'value' | null>(
+    null,
+  );
   const refKey = useRef<HTMLInputElement>(null);
   const refValue = useRef<HTMLInputElement>(null);
 
   const [isHovered, setIsHovered] = useState(false);
+
+  const clearFocusIfLeavingField = useCallback(
+    (e: React.FocusEvent<HTMLInputElement>) => {
+      const related = e.relatedTarget as Node | null;
+      const rowLabel = e.currentTarget.closest('label');
+      if (rowLabel?.contains(related)) {
+        return;
+      }
+      setFocusedField(null);
+    },
+    [],
+  );
 
   useEffect(() => {
     if (isEditing && refKey.current) {
@@ -70,6 +85,7 @@ export const KeyValueFormField = ({
   const onActionClick = useCallback(() => {
     if (showRemoveIcon) {
       setIsEditing(false);
+      setFocusedField(null);
       onChange({ key: '', value: '' });
     } else {
       setIsEditing(true);
@@ -82,7 +98,7 @@ export const KeyValueFormField = ({
       paddingBlock={theme.spacing(isEditing || value ? 0.25 : 1)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      sx={{ height: isEditing || value ? 80 : 48 }}
+      sx={{ height: isEditing || value ? 85 : 48 }}
     >
       <MultiIconButton
         icon={<MdAddCircle size={20} fill={theme.palette.success.main} />}
@@ -102,7 +118,10 @@ export const KeyValueFormField = ({
             onBlur={(e) => {
               // Only exit editing mode if focus is moving outside this form field
               if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-                delay(() => setIsEditing(false), 100);
+                delay(() => {
+                  setIsEditing(false);
+                  setFocusedField(null);
+                }, 100);
               }
             }}
             rowGap={1}
@@ -114,9 +133,11 @@ export const KeyValueFormField = ({
                 value={key}
                 placeholder={placeholders.key}
                 onChange={(e) => onChange({ ...values, key: e.target.value })}
+                onFocus={() => setFocusedField('key')}
+                onBlur={clearFocusIfLeavingField}
                 readOnly={readonly}
               />
-              <Collapse in={!isEditing} orientation="vertical">
+              <Collapse in={focusedField !== 'key'} orientation="vertical">
                 <Typography
                   variant="caption"
                   color={error ? 'error.light' : 'text.secondary'}
@@ -135,9 +156,11 @@ export const KeyValueFormField = ({
                 value={value}
                 placeholder={placeholders.value}
                 onChange={(e) => onChange({ ...values, value: e.target.value })}
+                onFocus={() => setFocusedField('value')}
+                onBlur={clearFocusIfLeavingField}
                 readOnly={readonly}
               />
-              <Collapse in={!isEditing} orientation="vertical">
+              <Collapse in={focusedField !== 'value'} orientation="vertical">
                 <Typography
                   variant="caption"
                   color={error ? 'error.light' : 'text.secondary'}

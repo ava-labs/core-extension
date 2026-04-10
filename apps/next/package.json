@@ -15,7 +15,7 @@
     "typecheck": "yarn tsc --skipLibCheck --noEmit"
   },
   "dependencies": {
-    "@avalabs/avalanchejs": "5.1.0-alpha.2",
+    "@avalabs/avalanchejs": "5.1.0-alpha.3",
     "@avalabs/bridge-unified": "4.4.2",
     "@avalabs/core-chains-sdk": "3.1.0-alpha.83",
     "@avalabs/core-utils-sdk": "3.1.0-alpha.83",
@@ -23,7 +23,7 @@
     "@avalabs/fusion-sdk": "0.14.4",
     "@avalabs/k2-alpine": "1.266.0",
     "@avalabs/types": "3.1.0-alpha.83",
-    "@avalabs/vm-module-types": "3.6.2",
+    "@avalabs/vm-module-types": "0.0.0-feat-custom-rpc-calls-headers-20260410152426",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/service-worker": "workspace:*",

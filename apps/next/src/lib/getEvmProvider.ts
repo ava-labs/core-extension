@@ -19,6 +19,8 @@ export const getEvmProvider = (network: NetworkWithCaipId) => {
     }
   }
 
+  console.log('fetchConfig', fetchConfig, network);
+
   const provider = new JsonRpcBatchInternal(
     MAX_CALLS,
     fetchConfig,

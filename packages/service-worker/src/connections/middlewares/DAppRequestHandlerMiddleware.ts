@@ -55,6 +55,7 @@ export function DAppRequestHandlerMiddleware(
       if (!context.network) {
         promise = Promise.reject(ethErrors.provider.disconnected());
       } else if (!module) {
+        console.log('enginecall', context.request.params.request);
         promise = engine(context.network).then((e) =>
           e.handle<unknown, unknown>({
             ...context.request.params.request,

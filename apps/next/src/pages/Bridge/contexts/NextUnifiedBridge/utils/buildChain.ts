@@ -8,7 +8,7 @@ export function buildChain(network: NetworkWithCaipId | undefined): Chain {
   return {
     chainId: network.caipId,
     chainName: network.chainName,
-    rpcUrl: network.rpcUrl,
+    rpcUrl: network.rpcUrl + '?asdasdas',
     networkToken: {
       ...network.networkToken,
       type: TokenType.NATIVE,
