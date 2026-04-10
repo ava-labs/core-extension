@@ -75,3 +75,4 @@ export * from './useImportMissingKeysFromKeystone';
 export * from './useIsCorrectDeviceForActiveWallet';
 export * from './useImportMissingKeysFromLedger';
 export * from './useLiveWalletBalance';
+export * from './useIsOptimisticConfirmationEnabled';
