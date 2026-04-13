@@ -46,6 +46,7 @@ export const HardwareApprovalOverlay = ({
         action={action}
         reject={reject}
         approve={approve}
+        network={network}
       />
     );
   }
