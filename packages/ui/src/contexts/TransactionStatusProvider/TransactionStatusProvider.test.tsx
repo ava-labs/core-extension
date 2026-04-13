@@ -11,6 +11,7 @@ import { TransactionStatusProvider } from './TransactionStatusProvider';
 import { useConnectionContext } from '../ConnectionProvider';
 import { useNetworkContext } from '../NetworkProvider';
 import { isSpecificContextContainer } from '../../utils';
+import { useIsOptimisticConfirmationEnabled } from '../../hooks/useIsOptimisticConfirmationEnabled';
 
 jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(() => ({
@@ -36,19 +37,11 @@ jest.mock('../../utils', () => ({
   },
 }));
 
-jest.mock('@core/common', () => ({
-  isAvalanchePrimaryNetwork: jest.fn((network?: NetworkWithCaipId) => {
-    if (!network) return false;
-    return [
-      ChainId.AVALANCHE_MAINNET_ID,
-      ChainId.AVALANCHE_TESTNET_ID,
-      ChainId.AVALANCHE_P,
-      ChainId.AVALANCHE_TEST_P,
-      ChainId.AVALANCHE_X,
-      ChainId.AVALANCHE_TEST_X,
-    ].includes(network.chainId);
-  }),
+jest.mock('../../hooks/useIsOptimisticConfirmationEnabled', () => ({
+  useIsOptimisticConfirmationEnabled: jest.fn(),
 }));
+
+jest.mock('@core/common');
 
 const createMockNetwork = (
   chainId: number,
@@ -107,6 +100,10 @@ describe('TransactionStatusProvider', () => {
     eventSubject = new Subject();
 
     jest
+      .mocked(useIsOptimisticConfirmationEnabled)
+      .mockReturnValue(() => Promise.resolve(false));
+
+    jest
       .mocked<
         () => Partial<ReturnType<typeof useConnectionContext>>
       >(useConnectionContext)
@@ -148,7 +145,7 @@ describe('TransactionStatusProvider', () => {
   };
 
   describe('context restrictions', () => {
-    it('does not subscribe to events in disallowed contexts', () => {
+    it('does not subscribe to events in disallowed contexts', async () => {
       jest.mocked(isSpecificContextContainer).mockReturnValue(false);
 
       renderProvider();
@@ -160,11 +157,13 @@ describe('TransactionStatusProvider', () => {
         makeEvent(TransactionStatusEvents.PENDING, txHash, 'eip155:1'),
       );
 
+      await new Promise(process.nextTick);
+
       expect(mockOnPending).not.toHaveBeenCalled();
       expect(toast.pending).not.toHaveBeenCalled();
     });
 
-    it('subscribes to events in POPUP context', () => {
+    it('subscribes to events in POPUP context', async () => {
       renderProvider();
 
       const txHash = '0x123';
@@ -174,12 +173,14 @@ describe('TransactionStatusProvider', () => {
         makeEvent(TransactionStatusEvents.PENDING, txHash, 'eip155:1'),
       );
 
+      await new Promise(process.nextTick);
+
       expect(mockOnPending).toHaveBeenCalled();
     });
   });
 
   describe('PENDING event', () => {
-    it('calls onPending callback with network and context', () => {
+    it('calls onPending callback with network and context', async () => {
       renderProvider();
 
       const txHash = '0x123';
@@ -190,13 +191,15 @@ describe('TransactionStatusProvider', () => {
         makeEvent(TransactionStatusEvents.PENDING, txHash, 'eip155:1', context),
       );
 
+      await new Promise(process.nextTick);
+
       expect(mockOnPending).toHaveBeenCalledWith({
         network: ethereumNetwork,
         context,
       });
     });
 
-    it('shows pending toast for non-Avalanche networks', () => {
+    it('shows pending toast for non-Avalanche networks', async () => {
       renderProvider();
 
       const txHash = '0x123';
@@ -206,12 +209,18 @@ describe('TransactionStatusProvider', () => {
         makeEvent(TransactionStatusEvents.PENDING, txHash, 'eip155:1'),
       );
 
+      await new Promise(process.nextTick);
+
       expect(toast.pending).toHaveBeenCalledWith('Transaction pending...', {
         id: `transaction-pending-${txHash}`,
       });
     });
 
-    it('shows success toast immediately for Avalanche C-Chain', () => {
+    it('shows success toast immediately for Avalanche networks before Helicon is enabled', async () => {
+      jest
+        .mocked(useIsOptimisticConfirmationEnabled)
+        .mockReturnValue(() => Promise.resolve(true));
+
       renderProvider();
 
       const txHash = '0x123';
@@ -221,6 +230,8 @@ describe('TransactionStatusProvider', () => {
         makeEvent(TransactionStatusEvents.PENDING, txHash, 'eip155:43114'),
       );
 
+      await new Promise(process.nextTick);
+
       expect(toast.success).toHaveBeenCalledWith(
         'Transaction successful',
         expect.objectContaining({
@@ -230,45 +241,27 @@ describe('TransactionStatusProvider', () => {
       expect(toast.pending).not.toHaveBeenCalled();
     });
 
-    it('shows success toast immediately for Avalanche P-Chain', () => {
+    it('does not show success toast for Avalanche networks after Helicon is enabled', async () => {
+      jest
+        .mocked(useIsOptimisticConfirmationEnabled)
+        .mockReturnValue(() => Promise.resolve(false));
+
       renderProvider();
 
       const txHash = '0x123';
-      mockGetNetwork.mockReturnValue(avalanchePChain);
+      mockGetNetwork.mockReturnValue(avalancheCChain);
 
       eventSubject.next(
-        makeEvent(TransactionStatusEvents.PENDING, txHash, 'avax:p-chain'),
+        makeEvent(TransactionStatusEvents.PENDING, txHash, 'eip155:43114'),
       );
 
-      expect(toast.success).toHaveBeenCalledWith(
-        'Transaction successful',
-        expect.objectContaining({
-          id: `transaction-success-${txHash}`,
-        }),
-      );
-      expect(toast.pending).not.toHaveBeenCalled();
+      await new Promise(process.nextTick);
+
+      expect(toast.pending).toHaveBeenCalled();
+      expect(toast.success).not.toHaveBeenCalled();
     });
 
-    it('shows success toast immediately for Avalanche X-Chain', () => {
-      renderProvider();
-
-      const txHash = '0x123';
-      mockGetNetwork.mockReturnValue(avalancheXChain);
-
-      eventSubject.next(
-        makeEvent(TransactionStatusEvents.PENDING, txHash, 'avax:x-chain'),
-      );
-
-      expect(toast.success).toHaveBeenCalledWith(
-        'Transaction successful',
-        expect.objectContaining({
-          id: `transaction-success-${txHash}`,
-        }),
-      );
-      expect(toast.pending).not.toHaveBeenCalled();
-    });
-
-    it('skips for intermediate transactions', () => {
+    it('skips for intermediate transactions', async () => {
       renderProvider();
 
       const txHash = '0x123';
@@ -280,11 +273,13 @@ describe('TransactionStatusProvider', () => {
         }),
       );
 
+      await new Promise(process.nextTick);
+
       expect(mockOnPending).not.toHaveBeenCalled();
       expect(toast.pending).not.toHaveBeenCalled();
     });
 
-    it('skips for bridge transactions', () => {
+    it('skips for bridge transactions', async () => {
       renderProvider();
 
       const txHash = '0x123';
@@ -296,13 +291,15 @@ describe('TransactionStatusProvider', () => {
         }),
       );
 
+      await new Promise(process.nextTick);
+
       expect(mockOnPending).not.toHaveBeenCalled();
       expect(toast.pending).not.toHaveBeenCalled();
     });
   });
 
   describe('CONFIRMED event', () => {
-    it('dismisses pending toast and shows success toast for non-Avalanche networks', () => {
+    it('dismisses pending toast and shows success toast for non-Avalanche networks', async () => {
       renderProvider();
 
       const txHash = '0x123';
@@ -311,6 +308,8 @@ describe('TransactionStatusProvider', () => {
       eventSubject.next(
         makeEvent(TransactionStatusEvents.CONFIRMED, txHash, 'eip155:1'),
       );
+
+      await new Promise(process.nextTick);
 
       expect(toast.dismiss).toHaveBeenCalledWith(
         `transaction-pending-${txHash}`,
@@ -323,7 +322,7 @@ describe('TransactionStatusProvider', () => {
       );
     });
 
-    it('calls onSuccess callback with network and context', () => {
+    it('calls onSuccess callback with network and context', async () => {
       renderProvider();
 
       const txHash = '0x123';
@@ -339,13 +338,19 @@ describe('TransactionStatusProvider', () => {
         ),
       );
 
+      await new Promise(process.nextTick);
+
       expect(mockOnSuccess).toHaveBeenCalledWith({
         network: ethereumNetwork,
         context,
       });
     });
 
-    it('skips for Avalanche C-Chain (already shown on pending)', () => {
+    it('skips for Avalanche networks before Helicon is enabled (already shown on pending)', async () => {
+      jest
+        .mocked(useIsOptimisticConfirmationEnabled)
+        .mockReturnValue(() => Promise.resolve(true));
+
       renderProvider();
 
       const txHash = '0x123';
@@ -355,39 +360,13 @@ describe('TransactionStatusProvider', () => {
         makeEvent(TransactionStatusEvents.CONFIRMED, txHash, 'eip155:43114'),
       );
 
-      expect(mockOnSuccess).not.toHaveBeenCalled();
-      expect(toast.success).not.toHaveBeenCalled();
-    });
-
-    it('skips for Avalanche P-Chain (already shown on pending)', () => {
-      renderProvider();
-
-      const txHash = '0x123';
-      mockGetNetwork.mockReturnValue(avalanchePChain);
-
-      eventSubject.next(
-        makeEvent(TransactionStatusEvents.CONFIRMED, txHash, 'avax:p-chain'),
-      );
+      await new Promise(process.nextTick);
 
       expect(mockOnSuccess).not.toHaveBeenCalled();
       expect(toast.success).not.toHaveBeenCalled();
     });
 
-    it('skips for Avalanche X-Chain (already shown on pending)', () => {
-      renderProvider();
-
-      const txHash = '0x123';
-      mockGetNetwork.mockReturnValue(avalancheXChain);
-
-      eventSubject.next(
-        makeEvent(TransactionStatusEvents.CONFIRMED, txHash, 'avax:x-chain'),
-      );
-
-      expect(mockOnSuccess).not.toHaveBeenCalled();
-      expect(toast.success).not.toHaveBeenCalled();
-    });
-
-    it('skips for intermediate transactions', () => {
+    it('skips for intermediate transactions', async () => {
       renderProvider();
 
       const txHash = '0x123';
@@ -399,11 +378,13 @@ describe('TransactionStatusProvider', () => {
         }),
       );
 
+      await new Promise(process.nextTick);
+
       expect(mockOnSuccess).not.toHaveBeenCalled();
       expect(toast.success).not.toHaveBeenCalled();
     });
 
-    it('skips for bridge transactions', () => {
+    it('skips for bridge transactions', async () => {
       renderProvider();
 
       const txHash = '0x123';
@@ -415,13 +396,15 @@ describe('TransactionStatusProvider', () => {
         }),
       );
 
+      await new Promise(process.nextTick);
+
       expect(mockOnSuccess).not.toHaveBeenCalled();
       expect(toast.success).not.toHaveBeenCalled();
     });
   });
 
   describe('REVERTED event', () => {
-    it('dismisses pending toast and shows error toast', () => {
+    it('dismisses pending toast and shows error toast', async () => {
       renderProvider();
 
       const txHash = '0x123';
@@ -430,6 +413,8 @@ describe('TransactionStatusProvider', () => {
       eventSubject.next(
         makeEvent(TransactionStatusEvents.REVERTED, txHash, 'eip155:1'),
       );
+
+      await new Promise(process.nextTick);
 
       expect(toast.dismiss).toHaveBeenCalledWith(
         `transaction-pending-${txHash}`,
@@ -442,7 +427,7 @@ describe('TransactionStatusProvider', () => {
       });
     });
 
-    it('calls onReverted callback with network and context', () => {
+    it('calls onReverted callback with network and context', async () => {
       renderProvider();
 
       const txHash = '0x123';
@@ -458,6 +443,8 @@ describe('TransactionStatusProvider', () => {
         ),
       );
 
+      await new Promise(process.nextTick);
+
       expect(mockOnReverted).toHaveBeenCalledWith({
         network: ethereumNetwork,
         context,
@@ -466,7 +453,7 @@ describe('TransactionStatusProvider', () => {
   });
 
   describe('explorer link', () => {
-    it('includes explorer link in success toast when renderExplorerLink is provided', () => {
+    it('includes explorer link in success toast when renderExplorerLink is provided', async () => {
       renderProvider();
 
       const txHash = '0x123';
@@ -475,6 +462,8 @@ describe('TransactionStatusProvider', () => {
       eventSubject.next(
         makeEvent(TransactionStatusEvents.CONFIRMED, txHash, 'eip155:1'),
       );
+
+      await new Promise(process.nextTick);
 
       expect(mockRenderExplorerLink).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -504,7 +493,11 @@ describe('TransactionStatusProvider', () => {
         { name: 'X-Chain', network: avalancheXChain, chainId: 'avax:x-chain' },
       ])(
         '$name: shows success toast on PENDING and skips on CONFIRMED',
-        ({ network, chainId }) => {
+        async ({ network, chainId }) => {
+          jest
+            .mocked(useIsOptimisticConfirmationEnabled)
+            .mockReturnValue(() => Promise.resolve(true));
+
           renderProvider();
           const txHash = '0xabc';
           mockGetNetwork.mockReturnValue(network);
@@ -513,6 +506,8 @@ describe('TransactionStatusProvider', () => {
           eventSubject.next(
             makeEvent(TransactionStatusEvents.PENDING, txHash, chainId),
           );
+
+          await new Promise(process.nextTick);
 
           expect(toast.success).toHaveBeenCalledWith(
             'Transaction successful',
@@ -531,6 +526,8 @@ describe('TransactionStatusProvider', () => {
             makeEvent(TransactionStatusEvents.CONFIRMED, txHash, chainId),
           );
 
+          await new Promise(process.nextTick);
+
           // Should NOT show another success toast (already shown on pending)
           expect(toast.success).not.toHaveBeenCalled();
           expect(mockOnSuccess).not.toHaveBeenCalled();
@@ -539,7 +536,11 @@ describe('TransactionStatusProvider', () => {
     });
 
     describe('non-Avalanche networks (Ethereum, etc.)', () => {
-      it('shows pending toast on PENDING and success toast on CONFIRMED', () => {
+      it('shows pending toast on PENDING and success toast on CONFIRMED', async () => {
+        jest
+          .mocked(useIsOptimisticConfirmationEnabled)
+          .mockReturnValue(() => Promise.resolve(false));
+
         renderProvider();
         const txHash = '0xdef';
         mockGetNetwork.mockReturnValue(ethereumNetwork);
@@ -548,6 +549,8 @@ describe('TransactionStatusProvider', () => {
         eventSubject.next(
           makeEvent(TransactionStatusEvents.PENDING, txHash, 'eip155:1'),
         );
+
+        await new Promise(process.nextTick);
 
         expect(toast.pending).toHaveBeenCalledWith('Transaction pending...', {
           id: `transaction-pending-${txHash}`,
@@ -565,6 +568,7 @@ describe('TransactionStatusProvider', () => {
           makeEvent(TransactionStatusEvents.CONFIRMED, txHash, 'eip155:1'),
         );
 
+        await new Promise(process.nextTick);
         expect(toast.dismiss).toHaveBeenCalledWith(
           `transaction-pending-${txHash}`,
         );
