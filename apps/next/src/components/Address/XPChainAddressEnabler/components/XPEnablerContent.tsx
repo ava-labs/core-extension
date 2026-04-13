@@ -1,8 +1,11 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Collapse, Stack } from '@avalabs/k2-alpine';
 
+import { useAnalyticsContext } from '@core/ui';
+
 import { ImportMissingKeysStatus } from '../types';
+import { getEventByStatus } from '../lib/getEventNameByStatus';
 
 import {
   ConnectYourKeystone,
@@ -28,6 +31,7 @@ export const XPEnablerContent: FC<{
   onRetry: () => void;
 }> = ({ status, onRetry }) => {
   const { t } = useTranslation();
+  const { captureEncrypted } = useAnalyticsContext();
 
   const Content = ContentByState[status];
 
@@ -35,6 +39,15 @@ export const XPEnablerContent: FC<{
     status === 'request-rejected' ||
     status === 'incorrect-device-error' ||
     status === 'import-error';
+
+  useEffect(() => {
+    const event = getEventByStatus(status);
+
+    if (event) {
+      const { name, error } = event;
+      captureEncrypted(name, { chain: 'xp', device: 'keystone_usb', error });
+    }
+  }, [status, captureEncrypted]);
 
   return (
     <Stack width="100%" flexGrow={1} justifyContent="space-between">

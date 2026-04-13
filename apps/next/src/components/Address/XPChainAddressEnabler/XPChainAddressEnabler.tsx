@@ -2,7 +2,11 @@ import { FC, useState } from 'react';
 import { Button } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 
-import { useAccountsContext, useIsUsingKeystone3Wallet } from '@core/ui';
+import {
+  useAccountsContext,
+  useAnalyticsContext,
+  useIsUsingKeystone3Wallet,
+} from '@core/ui';
 
 import { ChainListItem } from '../ChainListItem';
 import { HoverableListItemButton } from '../HoverableListItemButton';
@@ -20,6 +24,7 @@ export const XPChainAddressEnabler: FC<AddressEnablerProps> = ({
   const isKeystoneUsbWallet = useIsUsingKeystone3Wallet();
   const { t } = useTranslation();
   const { getAccountByIndex } = useAccountsContext();
+  const { captureEncrypted } = useAnalyticsContext();
 
   const firstAccount = getAccountByIndex(0);
 
@@ -43,7 +48,13 @@ export const XPChainAddressEnabler: FC<AddressEnablerProps> = ({
             variant="contained"
             color="secondary"
             size="xsmall"
-            onClick={() => setIsPromptVisible(true)}
+            onClick={() => {
+              captureEncrypted('EnableAddress_Clicked', {
+                chain: 'xp',
+                device: 'keystone_usb',
+              });
+              setIsPromptVisible(true);
+            }}
           >
             {t('Enable')}
           </ActionButton>

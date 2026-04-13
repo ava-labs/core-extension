@@ -12,7 +12,11 @@ import {
 
 import { PendingKeystoneCircles } from '@/components/PendingCircles';
 import { ContextContainer } from '@core/types';
-import { isSpecificContextContainer, useKeystoneUsbContext } from '@core/ui';
+import {
+  isSpecificContextContainer,
+  useAnalyticsContext,
+  useKeystoneUsbContext,
+} from '@core/ui';
 import { tabs } from 'webextension-polyfill';
 
 const NormalMessage: FC<{ message: string; icon: React.ReactNode }> = ({
@@ -32,6 +36,7 @@ const WAITING_FOR_TOO_LONG_TIMEOUT = 20_000;
 export const ConnectYourKeystone = () => {
   const { t } = useTranslation();
   const { popDeviceSelection, initKeystoneTransport } = useKeystoneUsbContext();
+  const { captureEncrypted } = useAnalyticsContext();
 
   const [isWaitingForTooLong, setIsWaitingForTooLong] = useState(false);
 
@@ -44,6 +49,11 @@ export const ConnectYourKeystone = () => {
   }, [setIsWaitingForTooLong]);
 
   const onReconnect = useCallback(async () => {
+    captureEncrypted('EnableAddress_Reconnect_Clicked', {
+      chain: 'xp',
+      device: 'keystone_usb',
+    });
+
     if (isSpecificContextContainer(ContextContainer.CONFIRM)) {
       await popDeviceSelection();
     } else {
@@ -62,7 +72,7 @@ export const ConnectYourKeystone = () => {
 
       tabs.onRemoved.addListener(initTransport);
     }
-  }, [popDeviceSelection, initKeystoneTransport]);
+  }, [popDeviceSelection, initKeystoneTransport, captureEncrypted]);
 
   return (
     <>
@@ -76,17 +86,6 @@ export const ConnectYourKeystone = () => {
         </Button>
       </Collapse>
     </>
-  );
-};
-
-export const KeystoneConnected = () => {
-  const { t } = useTranslation();
-
-  return (
-    <NormalMessage
-      message={t('Click the button below to import your addresses.')}
-      icon={<CircularProgress size={50} />}
-    />
   );
 };
 
