@@ -13,8 +13,8 @@
     "typecheck": "yarn tsc --skipLibCheck --noEmit"
   },
   "dependencies": {
-    "@avalabs/evm-module": "0.0.0-feat-custom-rpc-calls-headers-20260410152426",
-    "@avalabs/svm-module": "0.0.0-feat-custom-rpc-calls-headers-20260410152426",
+    "@avalabs/evm-module": "3.7.0",
+    "@avalabs/svm-module": "3.7.0",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/types": "workspace:*",
