@@ -284,6 +284,390 @@ test.describe('Send Tests', () => {
     );
   }
 
+  const evmNativeSendCases: Array<{
+    description: string;
+    testrailId: string;
+    sendData: typeof TEST_SEND.ETH;
+    explorerNetwork: ExplorerNetwork;
+  }> = [
+    {
+      description: 'ETH',
+      testrailId: 'SND-007',
+      sendData: TEST_SEND.ETH,
+      explorerNetwork: 'Ethereum',
+    },
+    {
+      description: 'a token on an L1',
+      testrailId: 'SND-011',
+      sendData: TEST_SEND.BEAM,
+      explorerNetwork: 'Beam L1',
+    },
+  ];
+
+  for (const row of evmNativeSendCases) {
+    test(
+      `As a CORE ext user with an extension wallet, I can send ${row.description}`,
+      {
+        tag: ['@smoke', '@regression'],
+        annotation: [
+          {
+            type: 'snapshot',
+            description: 'testnetPrimaryExtWallet',
+          },
+          {
+            type: 'testrail_case_field',
+            description: `custom_automation_id:${row.testrailId}`,
+          },
+        ],
+      },
+      async ({ unlockedExtensionPage }, testInfo) => {
+        testInfo.setTimeout(SEND_TEST_TIMEOUT_MS);
+        const sendPage = new SendPage(unlockedExtensionPage);
+        const sendData = row.sendData;
+
+        await sendPage.openSendFromPortfolioHome();
+        await sendPage.selectTokenBySymbolAndChainBadge(
+          sendData.tokenSearchTerm,
+          sendData.chainBadgeAltText,
+          sendData.chainFilterChip,
+        );
+
+        await sendPage.enterAmount(sendData.amount);
+        await sendPage.selectRecipientAccount(sendData.recipientAccount);
+
+        await expect
+          .poll(() => sendPage.isSendButtonEnabled(), { timeout: 15000 })
+          .toBe(true);
+
+        await sendPage.clickSend();
+        await sendPage.waitForApprovalScreen();
+
+        const fromRow = sendPage.getApprovalDetailRow('From');
+        await expect(fromRow).toBeVisible();
+        await expect(fromRow).toContainText('Account 1');
+
+        const networkRow = sendPage.getApprovalDetailRow('Network');
+        await expect(networkRow).toBeVisible();
+        await expect(networkRow).toContainText(sendData.networkLabel);
+
+        const toRow = sendPage.getApprovalDetailRow('To');
+        await expect(toRow).toBeVisible();
+        await expect(toRow).toContainText('Account 2');
+        await expect(toRow).toContainText(/0x\w{4}…\w{4}/);
+
+        await expect(sendPage.getFeePresetSelector()).toBeVisible();
+        await expect(sendPage.getApprovalTotalFee()).toBeVisible();
+        await expect(sendPage.getApprovalTotalFee()).toContainText(
+          sendData.tokenSymbol,
+        );
+
+        await expect(sendPage.getApproveButton()).toBeVisible();
+        await expect(sendPage.getApproveButton()).toBeEnabled();
+        await expect(sendPage.getRejectButton()).toBeVisible();
+
+        const pendingToastPromise = sendPage.waitForPendingToast();
+        const successToastPromise = sendPage.waitForSuccessToast();
+
+        await sendPage.approveTransaction();
+
+        const pendingToast = await pendingToastPromise;
+        await expect(pendingToast).toContainText('Transaction pending');
+
+        const successToast = await successToastPromise;
+        await expect(successToast).toContainText('Transaction successful');
+
+        const txHash = await sendPage.getTxHashFromToast();
+        expect(txHash).toMatch(/^0x[a-fA-F0-9]{64}$/);
+
+        await verifyTransactionOnExplorer(
+          txHash,
+          row.explorerNetwork,
+          'Testnet',
+        );
+      },
+    );
+  }
+
+  test(
+    'As a CORE ext user with an extension wallet, I can send BTC',
+    {
+      tag: ['@smoke', '@regression'],
+      annotation: [
+        {
+          type: 'snapshot',
+          description: 'testnetPrimaryExtWallet',
+        },
+        {
+          type: 'testrail_case_field',
+          description: 'custom_automation_id:SND-008',
+        },
+      ],
+    },
+    async ({ unlockedExtensionPage }, testInfo) => {
+      testInfo.setTimeout(SEND_TEST_TIMEOUT_MS);
+      const sendPage = new SendPage(unlockedExtensionPage);
+      const sendData = TEST_SEND.BTC;
+
+      await sendPage.openSendFromPortfolioHome();
+      await sendPage.selectTokenBySymbolAndChainBadge(
+        sendData.tokenSymbol,
+        sendData.chainBadgeAltText,
+        /^Bitcoin Testnet$/i,
+      );
+
+      await sendPage.enterAmount(sendData.amount);
+      await sendPage.selectRecipientAccount(sendData.recipientAccount);
+
+      await expect
+        .poll(() => sendPage.isSendButtonEnabled(), { timeout: 15000 })
+        .toBe(true);
+
+      await sendPage.clickSend();
+      await sendPage.waitForApprovalScreen();
+
+      const approval = sendPage.getApprovalDialog();
+      await expect(approval).toContainText('Bitcoin', { timeout: 15000 });
+      await expect(approval).toContainText('Account 2');
+      await expect(approval).toContainText(`${sendData.amount} BTC`);
+
+      await expect(sendPage.getFeePresetSelector()).not.toBeVisible();
+      await expect(sendPage.getApproveButton()).toBeVisible();
+      await expect(sendPage.getApproveButton()).toBeEnabled();
+      await expect(sendPage.getRejectButton()).toBeVisible();
+
+      const pendingToastPromise = sendPage.waitForPendingToast();
+      const successToastPromise = sendPage.waitForSuccessToast();
+
+      await sendPage.approveTransaction();
+
+      const pendingToast = await pendingToastPromise;
+      await expect(pendingToast).toContainText('Transaction pending');
+
+      const successToast = await successToastPromise;
+      await expect(successToast).toContainText('Transaction successful');
+
+      const txHash = await sendPage.getTxHashFromToast();
+      expect(txHash.length).toBeGreaterThan(10);
+
+      await verifyTransactionOnExplorer(txHash, 'Bitcoin', 'Testnet');
+    },
+  );
+
+  const erc20SendCases: Array<{
+    description: string;
+    testrailId: string;
+    gasless: 'on' | 'off';
+  }> = [
+    {
+      description: 'gasless toggled off',
+      testrailId: 'SND-005',
+      gasless: 'off',
+    },
+    {
+      description: 'gasless toggled on',
+      testrailId: 'SND-006',
+      gasless: 'on',
+    },
+  ];
+
+  for (const row of erc20SendCases) {
+    test(
+      `As a CORE ext user with an extension wallet, I can send an ERC-20 token on C-Chain with ${row.description}`,
+      {
+        tag: ['@smoke', '@regression'],
+        annotation: [
+          {
+            type: 'snapshot',
+            description: 'testnetPrimaryExtWallet',
+          },
+          {
+            type: 'testrail_case_field',
+            description: `custom_automation_id:${row.testrailId}`,
+          },
+        ],
+      },
+      async ({ unlockedExtensionPage }, testInfo) => {
+        testInfo.setTimeout(SEND_TEST_TIMEOUT_MS);
+        const sendPage = new SendPage(unlockedExtensionPage);
+        const sendData = TEST_SEND.CCHAIN_LINK;
+
+        await sendPage.openSendFromPortfolioHome();
+        await sendPage.selectToken(sendData.tokenSymbol);
+
+        await sendPage.enterAmount(sendData.amount);
+        await sendPage.selectRecipientAccount(sendData.recipientAccount);
+
+        await expect
+          .poll(() => sendPage.isSendButtonEnabled(), { timeout: 15000 })
+          .toBe(true);
+
+        await sendPage.clickSend();
+        await sendPage.waitForApprovalScreen();
+
+        await expect(sendPage.getApprovalBalanceChange()).toBeVisible();
+        await expect(sendPage.getApprovalTokenSymbol()).toContainText('LINK');
+        await expect(sendPage.getApprovalBalanceChange()).toContainText('0.01');
+
+        const fromRow = sendPage.getApprovalDetailRow('From');
+        await expect(fromRow).toBeVisible();
+        await expect(fromRow).toContainText('Account 1');
+
+        const networkRow = sendPage.getApprovalDetailRow('Network');
+        await expect(networkRow).toBeVisible();
+        await expect(networkRow).toContainText('Avalanche');
+
+        // ERC-20 sends show the token contract address, not the recipient
+        const contractRow = sendPage.getApprovalDetailRow('Contract');
+        await expect(contractRow).toBeVisible();
+        await expect(contractRow).toContainText(/0x\w{4}…\w{4}/);
+
+        await expect(sendPage.getApprovalTotalFee()).toBeVisible();
+        await expect(sendPage.getApprovalTotalFee()).toContainText('AVAX');
+
+        const gaslessVisible = await sendPage.isGaslessToggleVisible();
+
+        if (gaslessVisible) {
+          if (row.gasless === 'on') {
+            await sendPage.toggleGaslessOn();
+            await expect(sendPage.getGaslessCheckbox()).toBeChecked();
+            await expect(sendPage.getFeePresetSelector()).not.toBeVisible();
+          } else {
+            await sendPage.toggleGaslessOff();
+            await expect(sendPage.getGaslessCheckbox()).not.toBeChecked();
+            await expect(sendPage.getFeePresetSelector()).toBeVisible();
+          }
+        } else {
+          await expect(sendPage.getFeePresetSelector()).toBeVisible();
+          testInfo.annotations.push({
+            type: 'note',
+            description: `${row.testrailId}: gasless toggle not shown; asserted paid-fee path.`,
+          });
+        }
+
+        await expect(sendPage.getApproveButton()).toBeVisible();
+        await expect(sendPage.getApproveButton()).toBeEnabled();
+        await expect(sendPage.getRejectButton()).toBeVisible();
+
+        const successToastPromise = sendPage.waitForSuccessToast();
+
+        await sendPage.approveTransaction();
+
+        const successToast = await successToastPromise;
+        await expect(successToast).toContainText('Transaction successful');
+
+        const txHash = await sendPage.getTxHashFromToast();
+        expect(txHash).toMatch(/^0x[a-fA-F0-9]{64}$/);
+
+        await verifyTransactionOnExplorer(
+          txHash,
+          'Avalanche C-Chain',
+          'Testnet',
+        );
+      },
+    );
+  }
+
+  const solanaSendCases: Array<{
+    description: string;
+    testrailId: string;
+    sendData: typeof TEST_SEND.SOL_CONTACT;
+  }> = [
+    {
+      description: 'Solana',
+      testrailId: 'SND-009',
+      sendData: TEST_SEND.SOL_CONTACT,
+    },
+    {
+      description: 'Solana SPL tokens',
+      testrailId: 'SND-010',
+      sendData: TEST_SEND.SOL_PYUSD_CONTACT,
+    },
+  ];
+
+  for (const row of solanaSendCases) {
+    test(
+      `As a CORE ext user with an extension wallet, I can send ${row.description}`,
+      {
+        tag: ['@smoke', '@regression'],
+        annotation: [
+          {
+            type: 'snapshot',
+            description: 'testnetContactExtWallet',
+          },
+          {
+            type: 'testrail_case_field',
+            description: `custom_automation_id:${row.testrailId}`,
+          },
+        ],
+      },
+      async ({ unlockedExtensionPage }, testInfo) => {
+        testInfo.setTimeout(SEND_TEST_TIMEOUT_MS);
+        const sendPage = new SendPage(unlockedExtensionPage);
+        const sendData = row.sendData;
+
+        await sendPage.openSendFromPortfolioHome();
+        await sendPage.selectTokenBySymbolAndChainBadge(
+          sendData.tokenSearchTerm,
+          sendData.chainBadgeAltText,
+          /^Solana \(Devnet\)$/i,
+        );
+
+        await sendPage.enterAmount(sendData.amount);
+
+        await sendPage.typeRecipientSearchQuery(
+          sendData.recipientContactSolAddress,
+        );
+        await sendPage.selectRecipientFromOpenDropdownByContactName(
+          sendData.recipientContactName,
+        );
+
+        await expect
+          .poll(() => sendPage.isSendButtonEnabled(), { timeout: 15000 })
+          .toBe(true);
+
+        await sendPage.clickSend();
+        await sendPage.waitForApprovalScreen();
+
+        const balanceChangeRow = sendPage
+          .getApprovalBalanceChange()
+          .filter({ hasText: sendData.tokenSymbol })
+          .first();
+        await expect(balanceChangeRow).toBeVisible();
+        await expect(balanceChangeRow).toContainText(sendData.amount);
+
+        const fromRow = sendPage.getApprovalDetailRow('From');
+        await expect(fromRow).toBeVisible();
+        await expect(fromRow).toContainText('Account 1');
+
+        const toRow = sendPage.getApprovalDetailRow('To');
+        await expect(toRow).toBeVisible();
+        const solAddr = sendData.recipientContactSolAddress;
+        await expect(toRow).toContainText(solAddr.slice(0, 6));
+        await expect(toRow).toContainText(solAddr.slice(-4));
+
+        await expect(sendPage.getApproveButton()).toBeVisible();
+        await expect(sendPage.getApproveButton()).toBeEnabled();
+        await expect(sendPage.getRejectButton()).toBeVisible();
+
+        const pendingToastPromise = sendPage.waitForPendingToast();
+        const successToastPromise = sendPage.waitForSuccessToast();
+
+        await sendPage.approveTransaction();
+
+        const pendingToast = await pendingToastPromise;
+        await expect(pendingToast).toContainText('Transaction pending');
+
+        const successToast = await successToastPromise;
+        await expect(successToast).toContainText('Transaction successful');
+
+        const txSignature = await sendPage.getTxHashFromToast();
+        expect(txSignature.length).toBeGreaterThan(10);
+
+        await verifyTransactionOnExplorer(txSignature, 'Solana', 'Testnet');
+      },
+    );
+  }
+
   test(
     'As a CORE ext user with an extension wallet, I can send C-Chain AVAX with gasless toggled on',
     {
@@ -375,4 +759,339 @@ test.describe('Send Tests', () => {
       await verifyTransactionOnExplorer(txHash, 'Avalanche C-Chain', 'Testnet');
     },
   );
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Send Form UI Validation Tests
+  // ────────────────────────────────────────────────────────────────────────
+
+  // ── Token Select dropdown ──────────────────────────────────────────────
+
+  test(
+    'As a CORE ext user, I can search for a token in the token select dropdown',
+    {
+      tag: ['@smoke', '@regression'],
+      annotation: [
+        {
+          type: 'snapshot',
+          description: 'testnetPrimaryExtWallet',
+        },
+        {
+          type: 'testrail_case_field',
+          description: 'custom_automation_id:SND-012',
+        },
+      ],
+    },
+    async ({ unlockedExtensionPage }) => {
+      const sendPage = new SendPage(unlockedExtensionPage);
+      await sendPage.openSendFromPortfolioHome();
+
+      await sendPage.searchTokenInPopover('AVAX');
+
+      const options = sendPage.getTokenSelectOptions();
+      await expect(options.first()).toBeVisible({ timeout: 10000 });
+      const count = await options.count();
+      expect(count).toBeGreaterThan(0);
+    },
+  );
+
+  test(
+    'As a CORE ext user, when I search for a token in the token select dropdown I get an error or empty state',
+    {
+      tag: ['@smoke', '@regression'],
+      annotation: [
+        {
+          type: 'snapshot',
+          description: 'testnetPrimaryExtWallet',
+        },
+        {
+          type: 'testrail_case_field',
+          description: 'custom_automation_id:SND-013',
+        },
+      ],
+    },
+    async ({ unlockedExtensionPage }) => {
+      const sendPage = new SendPage(unlockedExtensionPage);
+      await sendPage.openSendFromPortfolioHome();
+
+      await sendPage.searchTokenInPopover('ZZZZNONEXISTENT');
+
+      await expect(sendPage.getDropdownNoResults()).toBeVisible({
+        timeout: 5000,
+      });
+      await expect(sendPage.getTokenSelectOptions()).toHaveCount(0);
+    },
+  );
+
+  // ── Send To dropdown ───────────────────────────────────────────────────
+
+  test(
+    'As a CORE ext user, when I open the Send To dropdown it shows the most recently transacted addresses',
+    {
+      tag: ['@smoke', '@regression'],
+      annotation: [
+        {
+          type: 'snapshot',
+          description: 'testnetContactExtWallet',
+        },
+        {
+          type: 'testrail_case_field',
+          description: 'custom_automation_id:SND-014',
+        },
+      ],
+    },
+    async ({ unlockedExtensionPage }) => {
+      const sendPage = new SendPage(unlockedExtensionPage);
+      await sendPage.openSendFromPortfolioHome();
+      await sendPage.selectToken('AVAX');
+
+      await sendPage.openRecipientDropdown();
+
+      const options = sendPage.getRecipientOptions();
+      await expect(options.first()).toBeVisible({ timeout: 15000 });
+      const count = await options.count();
+      expect(count).toBeGreaterThan(0);
+
+      const groupHeader = sendPage
+        .getRecipientGroupHeader('Contacts')
+        .or(sendPage.getRecipientGroupHeader('My Accounts'));
+      await expect(groupHeader.first()).toBeVisible({ timeout: 5000 });
+    },
+  );
+
+  test(
+    'As a CORE ext user, when I open the Send To dropdown I can search for a contact name or address',
+    {
+      tag: ['@smoke', '@regression'],
+      annotation: [
+        {
+          type: 'snapshot',
+          description: 'testnetContactExtWallet',
+        },
+        {
+          type: 'testrail_case_field',
+          description: 'custom_automation_id:SND-015',
+        },
+      ],
+    },
+    async ({ unlockedExtensionPage }) => {
+      const sendPage = new SendPage(unlockedExtensionPage);
+      await sendPage.openSendFromPortfolioHome();
+      await sendPage.selectToken('AVAX');
+
+      await sendPage.searchRecipientInDropdown('QA Wallet 2');
+
+      const options = sendPage.getRecipientOptions();
+      await expect(options.first()).toBeVisible({ timeout: 10000 });
+      await expect(options.first()).toContainText('QA Wallet 2');
+    },
+  );
+
+  test(
+    'As a CORE ext user, when I search for an invalid address in the Send To dropdown I get an error or empty state',
+    {
+      tag: ['@smoke', '@regression'],
+      annotation: [
+        {
+          type: 'snapshot',
+          description: 'testnetPrimaryExtWallet',
+        },
+        {
+          type: 'testrail_case_field',
+          description: 'custom_automation_id:SND-016',
+        },
+      ],
+    },
+    async ({ unlockedExtensionPage }) => {
+      const sendPage = new SendPage(unlockedExtensionPage);
+      await sendPage.openSendFromPortfolioHome();
+      await sendPage.selectToken('AVAX');
+
+      await sendPage.searchRecipientInDropdown('invalidaddress12345xyz');
+
+      await expect(sendPage.getDropdownNoResults()).toBeVisible({
+        timeout: 5000,
+      });
+    },
+  );
+
+  // ── Accounts dropdown ──────────────────────────────────────────────────
+
+  test(
+    'As a CORE ext user, when I open the Accounts dropdown I can search for an account name or address',
+    {
+      tag: ['@smoke', '@regression'],
+      annotation: [
+        {
+          type: 'snapshot',
+          description: 'testnetPrimaryExtWallet',
+        },
+        {
+          type: 'testrail_case_field',
+          description: 'custom_automation_id:SND-017',
+        },
+      ],
+    },
+    async ({ unlockedExtensionPage }) => {
+      const sendPage = new SendPage(unlockedExtensionPage);
+      await sendPage.openSendFromPortfolioHome();
+
+      await sendPage.searchAccountInDropdown('Account 1');
+
+      const options = sendPage.getAccountSelectOptions();
+      await expect(options.first()).toBeVisible({ timeout: 10000 });
+      await expect(options.first()).toContainText('Account 1');
+    },
+  );
+
+  test(
+    'As a CORE ext user, when I search for an invalid address in the Accounts dropdown I get an error or empty state',
+    {
+      tag: ['@smoke', '@regression'],
+      annotation: [
+        {
+          type: 'snapshot',
+          description: 'testnetPrimaryExtWallet',
+        },
+        {
+          type: 'testrail_case_field',
+          description: 'custom_automation_id:SND-018',
+        },
+      ],
+    },
+    async ({ unlockedExtensionPage }) => {
+      const sendPage = new SendPage(unlockedExtensionPage);
+      await sendPage.openSendFromPortfolioHome();
+
+      await sendPage.searchAccountInDropdown('NonExistentAccount999');
+
+      await expect(sendPage.getDropdownNoResults()).toBeVisible({
+        timeout: 5000,
+      });
+    },
+  );
+
+  // ── Amount validation ──────────────────────────────────────────────────
+
+  test(
+    'As a CORE ext user, when I enter an amount larger than the selected token balance I get an error',
+    {
+      tag: ['@smoke', '@regression'],
+      annotation: [
+        {
+          type: 'snapshot',
+          description: 'testnetPrimaryExtWallet',
+        },
+        {
+          type: 'testrail_case_field',
+          description: 'custom_automation_id:SND-019',
+        },
+      ],
+    },
+    async ({ unlockedExtensionPage }) => {
+      const sendPage = new SendPage(unlockedExtensionPage);
+      await sendPage.openSendFromPortfolioHome();
+
+      await sendPage.selectToken('AVAX');
+      await sendPage.enterAmount('999999999');
+      await sendPage.selectRecipientAccount('Account 2');
+
+      const errorMessage = sendPage.getErrorMessage(
+        /Maximum available amount after fees/i,
+      );
+      await expect(errorMessage).toBeVisible({ timeout: 15000 });
+      await expect(errorMessage).toContainText('AVAX');
+    },
+  );
+
+  const amountPresetCases: Array<{
+    description: string;
+    testrailId: string;
+    presetLabel: string;
+  }> = [
+    { description: '25%', testrailId: 'SND-020', presetLabel: '25%' },
+    { description: '50%', testrailId: 'SND-021', presetLabel: '50%' },
+    { description: 'Max', testrailId: 'SND-022', presetLabel: 'Max' },
+  ];
+
+  for (const row of amountPresetCases) {
+    test(
+      `As a CORE ext user, when selecting ${row.description} the amount input is auto populated with the correct amount`,
+      {
+        tag: ['@smoke', '@regression'],
+        annotation: [
+          {
+            type: 'snapshot',
+            description: 'testnetPrimaryExtWallet',
+          },
+          {
+            type: 'testrail_case_field',
+            description: `custom_automation_id:${row.testrailId}`,
+          },
+        ],
+      },
+      async ({ unlockedExtensionPage }) => {
+        const sendPage = new SendPage(unlockedExtensionPage);
+
+        await sendPage.openSendWithTokenFromPortfolio('AVAX');
+        await expect(sendPage.tokenSelectTrigger).toContainText('AVAX');
+
+        await sendPage.amountInput.waitFor({
+          state: 'visible',
+          timeout: 10000,
+        });
+
+        await sendPage.clickAmountPreset(row.presetLabel);
+
+        await expect
+          .poll(() => sendPage.getAmountInputValue(), { timeout: 10000 })
+          .not.toBe('');
+
+        const value = await sendPage.getAmountInputValue();
+        const numValue = parseFloat(value);
+        expect(numValue).toBeGreaterThan(0);
+      },
+    );
+  }
+
+  const invalidAmountCases: Array<{
+    description: string;
+    testrailId: string;
+    amount: string;
+  }> = [
+    { description: '0 amount', testrailId: 'SND-023', amount: '0' },
+    {
+      description: 'a negative amount',
+      testrailId: 'SND-024',
+      amount: '-1',
+    },
+  ];
+
+  for (const row of invalidAmountCases) {
+    test(
+      `As a CORE ext user, when entering ${row.description} I get an error`,
+      {
+        tag: ['@smoke', '@regression'],
+        annotation: [
+          {
+            type: 'snapshot',
+            description: 'testnetPrimaryExtWallet',
+          },
+          {
+            type: 'testrail_case_field',
+            description: `custom_automation_id:${row.testrailId}`,
+          },
+        ],
+      },
+      async ({ unlockedExtensionPage }) => {
+        const sendPage = new SendPage(unlockedExtensionPage);
+        await sendPage.openSendFromPortfolioHome();
+
+        await sendPage.selectToken('AVAX');
+        await sendPage.enterAmount(row.amount);
+        await sendPage.selectRecipientAccount('Account 2');
+
+        await expect(sendPage.sendButton).toBeDisabled({ timeout: 5000 });
+      },
+    );
+  }
 });

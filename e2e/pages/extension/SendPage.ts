@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
 import type { SendTransactionData } from '../../types/send';
 
@@ -123,6 +123,105 @@ export class SendPage extends BasePage {
       .waitFor({ state: 'visible', timeout: 25000 });
   }
 
+  // ── Token select ────────────────────────────────────────────────────
+
+  getTokenSelectOptions(): Locator {
+    return this.page.locator('[data-option-id]');
+  }
+
+  async searchTokenInPopover(query: string): Promise<void> {
+    await this.openTokenSelectPopover();
+    const search = this.tokenSelectSearchField();
+    await search.fill(query);
+    await this.page.waitForTimeout(1000);
+  }
+
+  // ── Account select ─────────────────────────────────────────────────
+
+  private accountSelectTrigger(): Locator {
+    return this.page.locator('[data-testid="account-select-trigger"]');
+  }
+
+  private accountSelectSearchInput(): Locator {
+    return this.page.locator(
+      '[data-testid="account-select-search-input"] input',
+    );
+  }
+
+  async openAccountSelectDropdown(): Promise<void> {
+    const trigger = this.accountSelectTrigger();
+    await trigger.waitFor({ state: 'visible', timeout: 10000 });
+    await trigger.click();
+    await this.accountSelectSearchInput().waitFor({
+      state: 'visible',
+      timeout: 5000,
+    });
+  }
+
+  async searchAccountInDropdown(query: string): Promise<void> {
+    await this.openAccountSelectDropdown();
+    await this.accountSelectSearchInput().fill(query);
+    await this.page.waitForTimeout(1000);
+  }
+
+  getAccountSelectOptions(): Locator {
+    return this.page.locator('[data-option-id]');
+  }
+
+  getDropdownNoResults(): Locator {
+    return this.page.getByText('No matching results');
+  }
+
+  // ── Recipient / Send To ────────────────────────────────────────────
+
+  async openRecipientDropdown(): Promise<void> {
+    await this.recipientTrigger.waitFor({ state: 'visible', timeout: 10000 });
+    await this.recipientTrigger.click();
+    await this.recipientSearchInput.waitFor({
+      state: 'visible',
+      timeout: 5000,
+    });
+  }
+
+  async searchRecipientInDropdown(query: string): Promise<void> {
+    await this.openRecipientDropdown();
+    await this.recipientSearchInput.fill(query);
+    await this.page.waitForTimeout(1000);
+  }
+
+  getRecipientOptions(): Locator {
+    return this.page.locator('[data-option-id]');
+  }
+
+  getRecipientGroupHeader(groupName: string): Locator {
+    return this.page.locator('[data-group-id]').filter({ hasText: groupName });
+  }
+
+  // ── Amount presets ─────────────────────────────────────────────────
+
+  getAmountPresetButton(label: string): Locator {
+    return this.page.getByRole('button', { name: label, exact: true });
+  }
+
+  async getAmountInputValue(): Promise<string> {
+    return (await this.amountInput.inputValue()) ?? '';
+  }
+
+  getErrorMessage(pattern: string | RegExp): Locator {
+    return this.page.getByText(pattern);
+  }
+
+  async clickAmountPreset(label: string): Promise<void> {
+    const btn = this.getAmountPresetButton(label);
+    await expect(btn).toBeEnabled({ timeout: 15000 });
+
+    // Dismiss any tooltip overlaying the preset buttons by clicking the page heading
+    await this.page.getByRole('heading', { name: 'Send', level: 1 }).click();
+    await this.page.waitForTimeout(300);
+
+    await btn.click();
+  }
+
   // ── Send form ─────────────────────────────────────────────────────────
 
   async clickSend(): Promise<void> {
@@ -243,23 +342,25 @@ export class SendPage extends BasePage {
    * When the token list includes non-Avalanche chains, chain filter chips appear.
    * Narrowing to "Avalanche" keeps C / P / X AVAX rows in view for disambiguation.
    */
-  private async maybeSelectAvalancheChainFilterChip(): Promise<void> {
-    const avalancheOnly = this.page.getByRole('button', {
-      name: /^Avalanche$/i,
-    });
-    if (await avalancheOnly.isVisible({ timeout: 1500 }).catch(() => false)) {
-      await avalancheOnly.click();
-      await this.page.waitForTimeout(400);
+  private async maybeSelectChainFilterChip(
+    chipName?: string | RegExp,
+  ): Promise<void> {
+    const name = chipName ?? /^Avalanche$/i;
+    const chip = this.page.getByRole('button', { name }).first();
+    if (await chip.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await chip.click();
+      await this.page.waitForTimeout(500);
     }
   }
 
   async selectTokenBySymbolAndChainBadge(
     tokenSymbol: string,
     chainBadgeAltText: string | RegExp,
+    chainFilterChip?: string | RegExp,
   ): Promise<void> {
     await this.openTokenSelectPopover();
 
-    await this.maybeSelectAvalancheChainFilterChip();
+    await this.maybeSelectChainFilterChip(chainFilterChip);
 
     const search = this.tokenSelectSearchField();
     await search.fill(tokenSymbol);
@@ -344,11 +445,16 @@ export class SendPage extends BasePage {
     return this.approvalDialog.locator('[data-testid="reject-action-button"]');
   }
 
-  async isGaslessToggleVisible(): Promise<boolean> {
+  async isGaslessToggleVisible(
+    timeout = process.env.CI ? 30_000 : 10_000,
+  ): Promise<boolean> {
     const gaslessToggle = this.approvalDialog.locator(
       '[data-testid="gasless-toggle"]',
     );
-    return gaslessToggle.isVisible({ timeout: 5000 }).catch(() => false);
+    return gaslessToggle
+      .waitFor({ state: 'visible', timeout })
+      .then(() => true)
+      .catch(() => false);
   }
 
   async rejectTransaction(): Promise<void> {

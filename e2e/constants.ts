@@ -118,6 +118,75 @@ export const TEST_SEND = {
     recipientAccount: 'Account 2',
   },
   /**
+   * Ethereum Sepolia native ETH send.
+   * Uses `testnetPrimaryExtWallet` snapshot (testnet).
+   */
+  ETH: {
+    tokenSymbol: 'ETH',
+    tokenSearchTerm: 'Ethereum',
+    chainBadgeAltText: 'Ethereum Sepolia',
+    chainFilterChip: /^Ethereum Sepolia$/i,
+    networkLabel: 'Ethereum Sepolia',
+    amount: '0.001',
+    recipientAccount: 'Account 2',
+  },
+  /**
+   * Beam L1 native BEAM send.
+   * Uses `testnetPrimaryExtWallet` snapshot (testnet).
+   */
+  BEAM: {
+    tokenSymbol: 'BEAM',
+    tokenSearchTerm: 'Beam',
+    chainBadgeAltText: 'Beam L1',
+    chainFilterChip: /^Beam L1$/i,
+    networkLabel: 'Beam L1',
+    amount: '0.01',
+    recipientAccount: 'Account 2',
+  },
+  /**
+   * C-Chain ERC-20 (LINK) send — same approval shape as AVAX but token contract interaction.
+   * Uses `testnetPrimaryExtWallet` snapshot (testnet).
+   */
+  CCHAIN_LINK: {
+    tokenSymbol: 'LINK',
+    amount: '0.01',
+    recipientAccount: 'Account 2',
+  },
+  /**
+   * Bitcoin testnet native BTC send.
+   * Uses `testnetPrimaryExtWallet` snapshot (testnet).
+   */
+  BTC: {
+    tokenSymbol: 'BTC',
+    chainBadgeAltText: 'Bitcoin Testnet',
+    amount: '0.0001',
+    recipientAccount: 'Account 2',
+  },
+  /**
+   * Solana Devnet native SOL send to a saved contact.
+   * Uses `testnetContactExtWallet` snapshot (testnet, has "QA Wallet 2" contact with SOL address).
+   */
+  SOL_CONTACT: {
+    tokenSymbol: 'SOL',
+    tokenSearchTerm: 'Solana',
+    chainBadgeAltText: 'Solana (Devnet)',
+    amount: '0.001',
+    recipientContactName: 'QA Wallet 2',
+    recipientContactSolAddress: 'GAwrFRQH9uuYGmag2zo7cY3DeneCZJSJiNpesRfg1dFA',
+  },
+  /**
+   * Solana Devnet SPL token (PYUSD) send to a saved contact.
+   * Uses `testnetContactExtWallet` snapshot.
+   */
+  SOL_PYUSD_CONTACT: {
+    tokenSymbol: 'PYUSD',
+    tokenSearchTerm: 'PayPal',
+    chainBadgeAltText: 'Solana (Devnet)',
+    amount: '0.1',
+    recipientContactName: 'QA Wallet 2',
+    recipientContactSolAddress: 'GAwrFRQH9uuYGmag2zo7cY3DeneCZJSJiNpesRfg1dFA',
+  },
+  /**
    * C-Chain send to an existing Saved address contact + gasless.
    * Requires testnetContactExtWallet snapshot (includes contact "QA Wallet 2").
    */
