@@ -115,20 +115,29 @@ export class BalancesService {
           const tokenKey = tokenAddr.toLowerCase();
           if (PROTO_POLLUTION_KEYS.has(tokenKey)) continue;
 
-          (rawBalances[address] as Record<string, TokenWithBalance>)[tokenKey] =
-            {
-              type: TokenType.ERC20,
-              address: tokenAddr,
-              name,
-              symbol,
-              decimals,
-              balance,
-              balanceDisplayValue: ethers.formatUnits(balance, decimals),
-              balanceInCurrency: undefined,
-              balanceCurrencyDisplayValue: '',
-              priceInCurrency: undefined,
-              reputation: null,
-            } as unknown as TokenWithBalance;
+          const accountBalances = rawBalances[address] as Record<
+            string,
+            TokenWithBalance
+          >;
+          const safeAccountBalances =
+            Object.getPrototypeOf(accountBalances) === null
+              ? accountBalances
+              : Object.assign(Object.create(null), accountBalances);
+          rawBalances[address] = safeAccountBalances as unknown as GetBalancesResponse[string];
+
+          safeAccountBalances[tokenKey] = {
+            type: TokenType.ERC20,
+            address: tokenAddr,
+            name,
+            symbol,
+            decimals,
+            balance,
+            balanceDisplayValue: ethers.formatUnits(balance, decimals),
+            balanceInCurrency: undefined,
+            balanceCurrencyDisplayValue: '',
+            priceInCurrency: undefined,
+            reputation: null,
+          } as unknown as TokenWithBalance;
         }
       } catch (err) {
         console.warn(
