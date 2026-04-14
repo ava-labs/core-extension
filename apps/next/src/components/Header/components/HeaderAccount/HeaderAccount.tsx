@@ -46,7 +46,11 @@ export const HeaderAccount = () => {
     >
       {hasAccountData && (
         <Box position="relative" minWidth={0} overflow="visible">
-          <Box className={AVATAR_ONLY_CLASS} sx={{ cursor: 'pointer' }}>
+          <Box
+            className={AVATAR_ONLY_CLASS}
+            py={0.75}
+            sx={{ cursor: 'pointer' }}
+          >
             <PersonalAvatar
               size="xsmall"
               mr={1}

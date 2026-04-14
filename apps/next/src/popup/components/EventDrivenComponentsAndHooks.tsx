@@ -23,9 +23,6 @@ import { useImportMissingKeysFromLedger } from '@core/ui';
  */
 export const EventDrivenComponentsAndHooks: FC = () => {
   useSeedlessMissingKeysDerivation();
-  // TODO: enable after Keystone releases new SDK version
-  // https://ava-labs.atlassian.net/browse/CP-12875
-  // useImportMissingKeysFromKeystone();
   useNavigationRequests();
   useImportMissingKeysFromLedger();
   useConciergeHotkey();

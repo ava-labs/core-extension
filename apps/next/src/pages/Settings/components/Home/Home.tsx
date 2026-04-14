@@ -425,6 +425,16 @@ export const SettingsHomePage = () => {
         )}
       </SettingsCard>
 
+      <SettingsCard title={t('Notifications')}>
+        <SettingsNavItem
+          label={t('Notification preferences')}
+          href={`${path}/notification-preferences`}
+          sx={{
+            py: 0,
+          }}
+        />
+      </SettingsCard>
+
       <SettingsCard title={t('Contacts')}>
         <SettingsNavItem
           label={t('Saved addresses')}
