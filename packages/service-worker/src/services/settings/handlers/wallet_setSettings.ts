@@ -5,10 +5,13 @@ import {
   DAppRequestHandler,
   JsonRpcRequestParams,
   Languages,
+  NewsNotificationTypes,
 } from '@core/types';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { z } from 'zod';
+import { BalanceNotificationService } from '../../notifications/BalanceNotificationService';
+import { NewsNotificationService } from '../../notifications/NewsNotificationService';
 import { SettingsService } from '../SettingsService';
 
 const SettingsSchema = z.object({
@@ -26,6 +29,7 @@ const SettingsSchema = z.object({
   collectiblesVisibility: z
     .record(z.string(), z.record(z.string(), z.boolean()))
     .optional(),
+  notificationSubscriptions: z.record(z.string(), z.boolean()).optional(),
 });
 
 type PartialSettings = z.infer<typeof SettingsSchema>;
@@ -71,7 +75,11 @@ export class WalletSetSettingsHandler extends DAppRequestHandler<
 > {
   methods = [DAppProviderRequest.WALLET_SET_SETTINGS];
 
-  constructor(private settingsService: SettingsService) {
+  constructor(
+    private settingsService: SettingsService,
+    private balanceNotificationService: BalanceNotificationService,
+    private newsNotificationService: NewsNotificationService,
+  ) {
     super();
   }
 
@@ -150,6 +158,32 @@ export class WalletSetSettingsHandler extends DAppRequestHandler<
         await this.settingsService.setShowHighlightBanners(
           validatedSettings.showHighlightBanners,
         );
+      }
+
+      if (validatedSettings.notificationSubscriptions !== undefined) {
+        const { notificationSubscriptions } = validatedSettings;
+
+        const balanceChangesValue =
+          notificationSubscriptions['BALANCE_CHANGES'];
+        if (balanceChangesValue === true) {
+          await this.balanceNotificationService.subscribe();
+        } else if (balanceChangesValue === false) {
+          await this.balanceNotificationService.unsubscribe();
+        }
+
+        const newsTypesToSubscribe = Object.values(
+          NewsNotificationTypes,
+        ).filter((type) => notificationSubscriptions[type] === true);
+        const newsTypesToUnsubscribe = Object.values(
+          NewsNotificationTypes,
+        ).filter((type) => notificationSubscriptions[type] === false);
+
+        if (newsTypesToSubscribe.length > 0) {
+          await this.newsNotificationService.subscribe(newsTypesToSubscribe);
+        }
+        for (const type of newsTypesToUnsubscribe) {
+          await this.newsNotificationService.unsubscribe(type);
+        }
       }
 
       // Get the final updated settings

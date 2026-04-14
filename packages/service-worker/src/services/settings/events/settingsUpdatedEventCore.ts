@@ -3,12 +3,15 @@ import {
   DAppEventEmitter,
   ExtensionConnectionEvent,
   SettingsEvents,
+  SubscriptionEvents,
   Web3Event,
 } from '@core/types';
 import { isSyncDomain } from '@core/common';
 import { EventEmitter } from 'events';
 import { SettingsService } from '../SettingsService';
 import { injectable } from 'tsyringe';
+import { BalanceNotificationService } from '../../notifications/BalanceNotificationService';
+import { NewsNotificationService } from '../../notifications/NewsNotificationService';
 
 @injectable()
 export class SettingsUpdatedEventsCore implements DAppEventEmitter {
@@ -19,7 +22,11 @@ export class SettingsUpdatedEventsCore implements DAppEventEmitter {
     this._connectionInfo = connectionInfo;
   }
 
-  constructor(private settingsService: SettingsService) {
+  constructor(
+    private settingsService: SettingsService,
+    private balanceNotificationService: BalanceNotificationService,
+    private newsNotificationService: NewsNotificationService,
+  ) {
     this.settingsService.addListener(
       SettingsEvents.SETTINGS_UPDATED,
       (settings) => {
@@ -34,6 +41,28 @@ export class SettingsUpdatedEventsCore implements DAppEventEmitter {
           });
         }
       },
+    );
+
+    const emitSettingsChanged = (subscriptions: unknown) => {
+      if (
+        this._connectionInfo?.domain &&
+        isSyncDomain(this._connectionInfo.domain)
+      ) {
+        this.eventEmitter.emit('update', {
+          method: Web3Event.SETTINGS_CHANGED,
+          params: { notificationSubscriptions: subscriptions },
+        });
+      }
+    };
+
+    this.balanceNotificationService.addListener(
+      SubscriptionEvents.SUBSCRIPTIONS_CHANGED_EVENT,
+      emitSettingsChanged,
+    );
+
+    this.newsNotificationService.addListener(
+      SubscriptionEvents.SUBSCRIPTIONS_CHANGED_EVENT,
+      emitSettingsChanged,
     );
   }
 
