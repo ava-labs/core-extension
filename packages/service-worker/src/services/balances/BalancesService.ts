@@ -6,6 +6,7 @@ import {
   TokenType,
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
+import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import {
   getPriceChangeValues,
   getProviderForNetwork,
@@ -28,6 +29,20 @@ const ERC20_BALANCE_OF_ABI = [
 const cacheStorage = new LRUCache({ max: 100, ttl: 60 * 1000 });
 
 const PROTO_POLLUTION_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
+function isValidErc20TokenEntry(
+  t: unknown,
+): t is { address: string; name: string; symbol: string; decimals: number } {
+  if (typeof t !== 'object' || t === null) return false;
+  const obj = t as Record<string, unknown>;
+  return (
+    typeof obj.address === 'string' &&
+    typeof obj.name === 'string' &&
+    typeof obj.symbol === 'string' &&
+    typeof obj.decimals === 'number' &&
+    Number.isFinite(obj.decimals)
+  );
+}
 
 @singleton()
 export class BalancesService {
@@ -66,7 +81,7 @@ export class BalancesService {
     const provider = await getProviderForNetwork(
       network as unknown as Parameters<typeof getProviderForNetwork>[0],
     ).catch(() => null);
-    if (!provider) return;
+    if (!(provider instanceof JsonRpcBatchInternal)) return;
 
     for (const address of addresses) {
       if (PROTO_POLLUTION_KEYS.has(address)) continue;
@@ -79,7 +94,7 @@ export class BalancesService {
             const contract = new ethers.Contract(
               token.address,
               ERC20_BALANCE_OF_ABI,
-              provider as ethers.Provider,
+              provider,
             );
             const balance: bigint = await contract.balanceOf!(address);
             return { ...token, balance };
@@ -132,26 +147,15 @@ export class BalancesService {
   > {
     try {
       const allTokens = await module.getTokens(network as Network);
-      return allTokens.filter(
-        (
-          t,
-        ): t is typeof t & {
-          address: string;
-          name: string;
-          symbol: string;
-          decimals: number;
-        } =>
-          'address' in t &&
-          typeof (t as unknown as Record<string, unknown>).address ===
-            'string' &&
-          'decimals' in t,
-      );
+      return (allTokens as unknown[]).filter(isValidErc20TokenEntry);
     } catch {
       try {
         const res = await fetch(
           `${process.env.PROXY_URL}/tokens?evmChainId=${network.chainId}`,
         );
-        return res.ok ? await res.json() : [];
+        if (!res.ok) return [];
+        const data: unknown = await res.json();
+        return Array.isArray(data) ? data.filter(isValidErc20TokenEntry) : [];
       } catch {
         return [];
       }
@@ -296,7 +300,11 @@ export class BalancesService {
             }
 
             const tokenBalance = rawAccountTokenList[tokenKey];
-            if (!tokenBalance || tokenBalance?.error) {
+            if (
+              !tokenBalance ||
+              tokenBalance instanceof Error ||
+              tokenBalance?.error
+            ) {
               if (tokenBalance?.error) {
                 console.warn(
                   `BalancesService: Skipping token ${tokenKey} on ${network.caipId}:`,
