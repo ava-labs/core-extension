@@ -1,31 +1,42 @@
 import { FC, PropsWithChildren } from 'react';
-import { Button, getHexAlpha, Slide, Stack, styled } from '@avalabs/k2-alpine';
+import {
+  Button,
+  ClickAwayListener,
+  getHexAlpha,
+  Slide,
+  Stack,
+  styled,
+} from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 
 type HardwareApprovalDrawerProps = PropsWithChildren<{
   reject: () => void;
+  open?: boolean;
 }>;
 
 export const HardwareApprovalDrawer: FC<HardwareApprovalDrawerProps> = ({
   children,
   reject,
+  open = true,
 }) => {
   const { t } = useTranslation();
 
   return (
-    <Slide in direction="up">
+    <Slide in={open} direction="up" mountOnEnter unmountOnExit>
       <Drawer>
-        <DrawerContent>
-          <Stack flexGrow={1}>{children}</Stack>
-          <Button
-            variant="contained"
-            color="secondary"
-            size="extension"
-            onClick={reject}
-          >
-            {t('Cancel')}
-          </Button>
-        </DrawerContent>
+        <ClickAwayListener onClickAway={reject}>
+          <DrawerContent>
+            <Stack flexGrow={1}>{children}</Stack>
+            <Button
+              variant="contained"
+              color="secondary"
+              size="extension"
+              onClick={reject}
+            >
+              {t('Cancel')}
+            </Button>
+          </DrawerContent>
+        </ClickAwayListener>
       </Drawer>
     </Slide>
   );
