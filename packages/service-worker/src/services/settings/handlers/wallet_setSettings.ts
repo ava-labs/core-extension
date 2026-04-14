@@ -1,5 +1,6 @@
 import {
   AnalyticsConsent,
+  BalanceNotificationTypes,
   CURRENCIES,
   DAppProviderRequest,
   DAppRequestHandler,
@@ -29,7 +30,15 @@ const SettingsSchema = z.object({
   collectiblesVisibility: z
     .record(z.string(), z.record(z.string(), z.boolean()))
     .optional(),
-  notificationSubscriptions: z.record(z.string(), z.boolean()).optional(),
+  notificationSubscriptions: z
+    .record(
+      z.union([
+        z.nativeEnum(BalanceNotificationTypes),
+        z.nativeEnum(NewsNotificationTypes),
+      ]),
+      z.boolean(),
+    )
+    .optional(),
 });
 
 type PartialSettings = z.infer<typeof SettingsSchema>;
@@ -163,26 +172,30 @@ export class WalletSetSettingsHandler extends DAppRequestHandler<
       if (validatedSettings.notificationSubscriptions !== undefined) {
         const { notificationSubscriptions } = validatedSettings;
 
-        const balanceChangesValue =
-          notificationSubscriptions['BALANCE_CHANGES'];
-        if (balanceChangesValue === true) {
-          await this.balanceNotificationService.subscribe();
-        } else if (balanceChangesValue === false) {
-          await this.balanceNotificationService.unsubscribe();
-        }
+        try {
+          const balanceChangesValue =
+            notificationSubscriptions[BalanceNotificationTypes.BALANCE_CHANGES];
+          if (balanceChangesValue === true) {
+            await this.balanceNotificationService.subscribe();
+          } else if (balanceChangesValue === false) {
+            await this.balanceNotificationService.unsubscribe();
+          }
 
-        const newsTypesToSubscribe = Object.values(
-          NewsNotificationTypes,
-        ).filter((type) => notificationSubscriptions[type] === true);
-        const newsTypesToUnsubscribe = Object.values(
-          NewsNotificationTypes,
-        ).filter((type) => notificationSubscriptions[type] === false);
+          const newsTypesToSubscribe = Object.values(
+            NewsNotificationTypes,
+          ).filter((type) => notificationSubscriptions[type] === true);
+          const newsTypesToUnsubscribe = Object.values(
+            NewsNotificationTypes,
+          ).filter((type) => notificationSubscriptions[type] === false);
 
-        if (newsTypesToSubscribe.length > 0) {
-          await this.newsNotificationService.subscribe(newsTypesToSubscribe);
-        }
-        for (const type of newsTypesToUnsubscribe) {
-          await this.newsNotificationService.unsubscribe(type);
+          if (newsTypesToSubscribe.length > 0) {
+            await this.newsNotificationService.subscribe(newsTypesToSubscribe);
+          }
+          for (const type of newsTypesToUnsubscribe) {
+            await this.newsNotificationService.unsubscribe(type);
+          }
+        } catch (e) {
+          console.error('Failed to update notification subscriptions:', e);
         }
       }
 

@@ -66,12 +66,21 @@ export class WalletGetSettingsHandler extends DAppRequestHandler<
 
   handleAuthenticated = async ({ request }) => {
     try {
-      const [settings, balanceSubscriptions, newsSubscriptions] =
-        await Promise.all([
-          this.settingsService.getSettings(),
+      const settings = await this.settingsService.getSettings();
+      const [balanceSubscriptionsResult, newsSubscriptionsResult] =
+        await Promise.allSettled([
           this.balanceNotificationService.getSubscriptions(),
           this.newsNotificationService.getSubscriptions(),
         ]);
+
+      const balanceSubscriptions =
+        balanceSubscriptionsResult.status === 'fulfilled'
+          ? balanceSubscriptionsResult.value
+          : {};
+      const newsSubscriptions =
+        newsSubscriptionsResult.status === 'fulfilled'
+          ? newsSubscriptionsResult.value
+          : {};
 
       const response: WalletGetSettingsHandlerResult = {
         customTokens: settings.customTokens,

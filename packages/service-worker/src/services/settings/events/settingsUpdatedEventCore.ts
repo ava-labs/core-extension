@@ -43,14 +43,24 @@ export class SettingsUpdatedEventsCore implements DAppEventEmitter {
       },
     );
 
-    const emitSettingsChanged = (subscriptions: unknown) => {
+    const emitSettingsChanged = async () => {
       if (
         this._connectionInfo?.domain &&
         isSyncDomain(this._connectionInfo.domain)
       ) {
+        const [balanceSubscriptions, newsSubscriptions] = await Promise.all([
+          this.balanceNotificationService.getSubscriptions(),
+          this.newsNotificationService.getSubscriptions(),
+        ]);
+
         this.eventEmitter.emit('update', {
           method: Web3Event.SETTINGS_CHANGED,
-          params: { notificationSubscriptions: subscriptions },
+          params: {
+            notificationSubscriptions: {
+              ...balanceSubscriptions,
+              ...newsSubscriptions,
+            },
+          },
         });
       }
     };
