@@ -74,26 +74,24 @@ export const NotificationPreferences = () => {
 
       const handler = isChecked ? subscribe : unsubscribe;
 
-      handler(notificationType)
-        .then(() => {
-          capture('NotificationSettingsUpdated', {
-            type: notificationType,
-            enabled: isChecked,
-          });
-        })
-        .catch(() => {
-          toast.error(t('Failed to update notification settings'));
-          capture('NotificationSettingsUpdateFailed', {
-            type: notificationType,
-            attemptedTo: isChecked ? 'enable' : 'disable',
-          });
-        })
-        .finally(() => {
-          setIsUpdatingByType((prev) => ({
-            ...prev,
-            [notificationType]: false,
-          }));
+      try {
+        await handler(notificationType);
+        capture('NotificationSettingsUpdated', {
+          type: notificationType,
+          enabled: isChecked,
         });
+      } catch {
+        toast.error(t('Failed to update notification settings'));
+        capture('NotificationSettingsUpdateFailed', {
+          type: notificationType,
+          attemptedTo: isChecked ? 'enable' : 'disable',
+        });
+      } finally {
+        setIsUpdatingByType((prev) => ({
+          ...prev,
+          [notificationType]: false,
+        }));
+      }
     },
     [capture, subscribe, unsubscribe, t],
   );
