@@ -138,12 +138,16 @@
     "@avalabs/svm-module": "3.7.0",
     "@solana/kit": "5.4.0",
     "cipher-base": "1.0.5",
+    "diff": "4.0.4",
     "elliptic": "6.6.1",
     "form-data@npm:^4.0.0": "4.0.5",
     "form-data@npm:^4.0.4": "4.0.5",
     "form-data@npm:~2.3.2": "2.5.4",
+    "jws": "3.2.3",
     "ledger-bitcoin/@ledgerhq/hw-transport": "6.31.10",
-    "pbkdf2": "3.1.3",
+    "lodash": "4.17.23",
+    "pbkdf2": "3.1.5",
+    "rollup": "4.59.0",
     "sha.js": "2.4.12",
     "tiny-secp256k1": "1.1.7"
   }
