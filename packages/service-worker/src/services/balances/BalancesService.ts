@@ -119,11 +119,17 @@ export class BalancesService {
             string,
             TokenWithBalance
           >;
-          const safeAccountBalances =
-            Object.getPrototypeOf(accountBalances) === null
-              ? accountBalances
-              : Object.assign(Object.create(null), accountBalances);
-          rawBalances[address] = safeAccountBalances as unknown as GetBalancesResponse[string];
+
+          const safeAccountBalances: Record<string, TokenWithBalance> =
+            Object.create(null);
+          for (const [existingTokenKey, existingTokenBalance] of Object.entries(
+            accountBalances,
+          )) {
+            safeAccountBalances[existingTokenKey] = existingTokenBalance;
+          }
+
+          rawBalances[address] =
+            safeAccountBalances as unknown as GetBalancesResponse[string];
 
           safeAccountBalances[tokenKey] = {
             type: TokenType.ERC20,
