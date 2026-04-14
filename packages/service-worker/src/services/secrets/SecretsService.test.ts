@@ -5,7 +5,11 @@ import {
   getPubKeyFromTransport,
 } from '@avalabs/core-wallets-sdk';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { getEvmExtendedKeyPath, mapVMAddresses } from '@core/common';
+import {
+  getAvalancheExtendedKeyPath,
+  getEvmExtendedKeyPath,
+  mapVMAddresses,
+} from '@core/common';
 import {
   Account,
   AccountType,
@@ -201,6 +205,32 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       wallets: [
         {
           secretType: SecretType.Keystone,
+          masterFingerprint: 'masterFingerprint',
+          extendedPublicKeys: [
+            {
+              key: 'xpub',
+              derivationPath: EVM_BASE_DERIVATION_PATH,
+              curve: 'secp256k1',
+              type: 'extended-pubkey',
+            },
+          ],
+          publicKeys: [],
+          derivationPathSpec: DerivationPath.BIP44,
+          id: ACTIVE_WALLET_ID,
+          ...additionalData,
+        },
+      ],
+    };
+    jest.spyOn(storageService, 'load').mockResolvedValue(data);
+
+    return data;
+  };
+
+  const mockKeystone3ProWallet = (additionalData = {}) => {
+    const data = {
+      wallets: [
+        {
+          secretType: SecretType.Keystone3Pro,
           masterFingerprint: 'masterFingerprint',
           extendedPublicKeys: [
             {
@@ -1439,6 +1469,212 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
 
           expect(SeedlessWallet).not.toHaveBeenCalled();
           expect(secretsService.updateSecrets).not.toHaveBeenCalled();
+        });
+      });
+    });
+
+    describe('keystone', () => {
+      it('derives EVM public key when missing', async () => {
+        mockKeystoneWallet({
+          publicKeys: [],
+        });
+        jest.spyOn(utils, 'hasPublicKeyFor').mockReturnValue(false);
+
+        const fakeEvmPubKey = {
+          type: 'address-pubkey',
+          curve: 'secp256k1',
+          key: 'evm-derived',
+          derivationPath: `m/44'/60'/0'/0/1`,
+        };
+        jest
+          .spyOn(AddressPublicKey, 'fromExtendedPublicKeys')
+          .mockReturnValue({ toJSON: () => fakeEvmPubKey } as never);
+
+        secretsService.updateSecrets = jest.fn();
+
+        await secretsService.addAddress({
+          index: 1,
+          walletId: ACTIVE_WALLET_ID,
+          ledgerService,
+          addressResolver,
+        });
+
+        expect(AddressPublicKey.fromExtendedPublicKeys).toHaveBeenCalledWith(
+          expect.arrayContaining([expect.objectContaining({ key: 'xpub' })]),
+          'secp256k1',
+          `m/44'/60'/0'/0/1`,
+        );
+        expect(secretsService.updateSecrets).toHaveBeenCalledWith(
+          expect.objectContaining({
+            publicKeys: expect.arrayContaining([fakeEvmPubKey]),
+          }),
+          ACTIVE_WALLET_ID,
+        );
+      });
+
+      it('does not derive EVM public key when already present', async () => {
+        mockKeystoneWallet({
+          publicKeys: [
+            {
+              type: 'address-pubkey',
+              curve: 'secp256k1',
+              key: 'existing-evm',
+              derivationPath: `m/44'/60'/0'/0/1`,
+            },
+          ],
+        });
+        jest.spyOn(utils, 'hasPublicKeyFor').mockReturnValue(true);
+
+        secretsService.updateSecrets = jest.fn();
+
+        await secretsService.addAddress({
+          index: 1,
+          walletId: ACTIVE_WALLET_ID,
+          ledgerService,
+          addressResolver,
+        });
+
+        expect(secretsService.updateSecrets).not.toHaveBeenCalled();
+      });
+
+      it('does not attempt AVM key derivation for non-3Pro Keystone', async () => {
+        mockKeystoneWallet({
+          publicKeys: [],
+        });
+        jest.spyOn(utils, 'hasPublicKeyFor').mockReturnValue(false);
+
+        const fakeEvmPubKey = {
+          type: 'address-pubkey',
+          curve: 'secp256k1',
+          key: 'evm-derived',
+          derivationPath: `m/44'/60'/0'/0/1`,
+        };
+        jest
+          .spyOn(AddressPublicKey, 'fromExtendedPublicKeys')
+          .mockReturnValue({ toJSON: () => fakeEvmPubKey } as never);
+
+        secretsService.updateSecrets = jest.fn();
+
+        await secretsService.addAddress({
+          index: 1,
+          walletId: ACTIVE_WALLET_ID,
+          ledgerService,
+          addressResolver,
+        });
+
+        expect(AddressPublicKey.fromExtendedPublicKeys).toHaveBeenCalledTimes(
+          1,
+        );
+        expect(secretsService.updateSecrets).toHaveBeenCalledWith(
+          expect.objectContaining({
+            publicKeys: [fakeEvmPubKey],
+          }),
+          ACTIVE_WALLET_ID,
+        );
+      });
+
+      describe('Keystone3Pro AVM key derivation', () => {
+        const avalancheXpubPath = getAvalancheExtendedKeyPath(1);
+        const existingXPXpub = {
+          type: 'extended-pubkey' as const,
+          curve: 'secp256k1' as const,
+          derivationPath: avalancheXpubPath,
+          key: 'xp-xpub-key',
+        };
+
+        it('derives AVM public key when XP xpub exists', async () => {
+          mockKeystone3ProWallet({
+            extendedPublicKeys: [
+              {
+                key: 'xpub',
+                derivationPath: EVM_BASE_DERIVATION_PATH,
+                curve: 'secp256k1',
+                type: 'extended-pubkey',
+              },
+              existingXPXpub,
+            ],
+            publicKeys: [],
+          });
+
+          jest.spyOn(utils, 'hasPublicKeyFor').mockReturnValue(false);
+
+          const fakeEvmPubKey = {
+            type: 'address-pubkey',
+            curve: 'secp256k1',
+            key: 'evm-derived',
+            derivationPath: `m/44'/60'/0'/0/1`,
+          };
+          const fakeAvmPubKey = {
+            type: 'address-pubkey',
+            curve: 'secp256k1',
+            key: 'avm-derived',
+            derivationPath: `m/44'/9000'/1'/0/0`,
+          };
+          jest
+            .spyOn(AddressPublicKey, 'fromExtendedPublicKeys')
+            .mockReturnValueOnce({ toJSON: () => fakeEvmPubKey } as never)
+            .mockReturnValueOnce({ toJSON: () => fakeAvmPubKey } as never);
+
+          secretsService.updateSecrets = jest.fn();
+
+          await secretsService.addAddress({
+            index: 1,
+            walletId: ACTIVE_WALLET_ID,
+            ledgerService,
+            addressResolver,
+          });
+
+          expect(AddressPublicKey.fromExtendedPublicKeys).toHaveBeenCalledTimes(
+            2,
+          );
+
+          expect(secretsService.updateSecrets).toHaveBeenCalledWith(
+            expect.objectContaining({
+              publicKeys: expect.arrayContaining([
+                fakeEvmPubKey,
+                fakeAvmPubKey,
+              ]),
+            }),
+            ACTIVE_WALLET_ID,
+          );
+        });
+
+        it('does not derive AVM key when XP xpub is missing', async () => {
+          mockKeystone3ProWallet({
+            publicKeys: [],
+          });
+
+          jest.spyOn(utils, 'hasPublicKeyFor').mockReturnValue(false);
+
+          const fakeEvmPubKey = {
+            type: 'address-pubkey',
+            curve: 'secp256k1',
+            key: 'evm-derived',
+            derivationPath: `m/44'/60'/0'/0/1`,
+          };
+          jest
+            .spyOn(AddressPublicKey, 'fromExtendedPublicKeys')
+            .mockReturnValue({ toJSON: () => fakeEvmPubKey } as never);
+
+          secretsService.updateSecrets = jest.fn();
+
+          await secretsService.addAddress({
+            index: 1,
+            walletId: ACTIVE_WALLET_ID,
+            ledgerService,
+            addressResolver,
+          });
+
+          expect(AddressPublicKey.fromExtendedPublicKeys).toHaveBeenCalledTimes(
+            1,
+          );
+
+          expect(secretsService.updateSecrets).toHaveBeenCalledWith(
+            expect.objectContaining({
+              publicKeys: [fakeEvmPubKey],
+            }),
+            ACTIVE_WALLET_ID,
+          );
         });
       });
     });
