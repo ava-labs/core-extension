@@ -36,7 +36,10 @@ const SettingsSchema = z.object({
         z.nativeEnum(BalanceNotificationTypes),
         z.nativeEnum(NewsNotificationTypes),
       ]),
-      z.boolean(),
+      // z.record with enum keys requires ALL keys to be present, but callers
+      // send partial updates (only the changed key). .optional() permits absent
+      // keys; we skip undefined values during processing below.
+      z.boolean().optional(),
     )
     .optional(),
 });
@@ -172,30 +175,39 @@ export class WalletSetSettingsHandler extends DAppRequestHandler<
       if (validatedSettings.notificationSubscriptions !== undefined) {
         const { notificationSubscriptions } = validatedSettings;
 
-        try {
-          const balanceChangesValue =
-            notificationSubscriptions[BalanceNotificationTypes.BALANCE_CHANGES];
-          if (balanceChangesValue === true) {
-            await this.balanceNotificationService.subscribe();
-          } else if (balanceChangesValue === false) {
-            await this.balanceNotificationService.unsubscribe();
-          }
+        const ops: Promise<void>[] = [];
+        const entries = Object.entries(notificationSubscriptions) as [
+          BalanceNotificationTypes | NewsNotificationTypes,
+          boolean | undefined,
+        ][];
 
-          const newsTypesToSubscribe = Object.values(
-            NewsNotificationTypes,
-          ).filter((type) => notificationSubscriptions[type] === true);
-          const newsTypesToUnsubscribe = Object.values(
-            NewsNotificationTypes,
-          ).filter((type) => notificationSubscriptions[type] === false);
+        for (const [key, enabled] of entries) {
+          if (enabled === undefined) continue;
 
-          if (newsTypesToSubscribe.length > 0) {
-            await this.newsNotificationService.subscribe(newsTypesToSubscribe);
+          if (key === BalanceNotificationTypes.BALANCE_CHANGES) {
+            ops.push(
+              enabled
+                ? this.balanceNotificationService.subscribe()
+                : this.balanceNotificationService.unsubscribe(),
+            );
+          } else {
+            ops.push(
+              enabled
+                ? this.newsNotificationService.subscribe([key])
+                : this.newsNotificationService.unsubscribe(key),
+            );
           }
-          for (const type of newsTypesToUnsubscribe) {
-            await this.newsNotificationService.unsubscribe(type);
-          }
-        } catch (e) {
-          console.error('Failed to update notification subscriptions:', e);
+        }
+
+        const results = await Promise.allSettled(ops);
+        const failures = results.filter((r) => r.status === 'rejected');
+
+        if (failures.length > 0) {
+          throw new Error(
+            failures
+              .map((r) => (r as PromiseRejectedResult).reason?.message ?? r)
+              .join(', '),
+          );
         }
       }
 
