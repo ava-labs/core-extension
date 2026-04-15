@@ -308,9 +308,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/fusion-sdk@npm:0.14.4":
-  version: 0.14.4
-  resolution: "@avalabs/fusion-sdk@npm:0.14.4"
+"@avalabs/fusion-sdk@npm:0.0.0-fix-fusion-price-impact-20260415104810":
+  version: 0.0.0-fix-fusion-price-impact-20260415104810
+  resolution: "@avalabs/fusion-sdk@npm:0.0.0-fix-fusion-price-impact-20260415104810"
   dependencies:
     "@bitcoinerlab/secp256k1": "npm:^1.2.0"
     "@layerzerolabs/lz-v2-utilities": "npm:^3.0.17"
@@ -322,10 +322,10 @@ __metadata:
     coinselect: "npm:^3.1.13"
     es-toolkit: "npm:^1.42.0"
   peerDependencies:
-    "@solana/kit": ^5.0.0
+    "@solana/kit": ^5.0.0 || ^6.0.0
     viem: ^2.38.0
     zod: ^4.1.0
-  checksum: 10c0/2062490060c66fadb808dd54251d032f60c422ff578e5094deab47e809ca833ec72696ab6b359abbe588b37b55ecc0da3d4bae5871a0089e9018160a882cb5dd
+  checksum: 10c0/56b85fea50faedc7539f81c89454fe4f1bd4f3572bb5b4cf76927dbe25165df60fe562f3ee1f363f1e4457194f183305defbbd491648be3dff704f891d8f564c
   languageName: node
   linkType: hard
 
@@ -2681,7 +2681,7 @@ __metadata:
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.85"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.85"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.85"
-    "@avalabs/fusion-sdk": "npm:0.14.4"
+    "@avalabs/fusion-sdk": "npm:0.0.0-fix-fusion-price-impact-20260415104810"
     "@avalabs/k2-alpine": "npm:1.266.0"
     "@avalabs/types": "npm:3.1.0-alpha.85"
     "@avalabs/vm-module-types": "npm:3.7.0"
@@ -2800,7 +2800,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core/common@workspace:packages/common"
   dependencies:
-    "@avalabs/fusion-sdk": "npm:0.14.4"
+    "@avalabs/fusion-sdk": "npm:0.0.0-fix-fusion-price-impact-20260415104810"
     "@eslint/compat": "npm:1.2.4"
     "@eslint/eslintrc": "npm:3.2.0"
     "@eslint/js": "npm:9.16.0"
@@ -2951,7 +2951,7 @@ __metadata:
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.85"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.85"
     "@avalabs/evm-module": "npm:3.7.0"
-    "@avalabs/fusion-sdk": "npm:0.14.4"
+    "@avalabs/fusion-sdk": "npm:0.0.0-fix-fusion-price-impact-20260415104810"
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.85"
     "@avalabs/hvm-module": "npm:3.7.0"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
@@ -3098,7 +3098,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core/types@workspace:packages/types"
   dependencies:
-    "@avalabs/fusion-sdk": "npm:0.14.4"
+    "@avalabs/fusion-sdk": "npm:0.0.0-fix-fusion-price-impact-20260415104810"
     fireblocks-sdk: "npm:5.20.0"
     joi: "npm:17.7.0"
     jose: "npm:4.15.5"
@@ -3121,7 +3121,7 @@ __metadata:
     "@avalabs/core-token-prices-sdk": "npm:3.1.0-alpha.85"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.85"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.85"
-    "@avalabs/fusion-sdk": "npm:0.14.4"
+    "@avalabs/fusion-sdk": "npm:0.0.0-fix-fusion-price-impact-20260415104810"
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.85"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
     "@avalabs/types": "npm:3.1.0-alpha.85"
