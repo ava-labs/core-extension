@@ -1,14 +1,18 @@
 import {
   AnalyticsConsent,
+  BalanceNotificationTypes,
   CURRENCIES,
   DAppProviderRequest,
   DAppRequestHandler,
   JsonRpcRequestParams,
   Languages,
+  NewsNotificationTypes,
 } from '@core/types';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { z } from 'zod';
+import { BalanceNotificationService } from '../../notifications/BalanceNotificationService';
+import { NewsNotificationService } from '../../notifications/NewsNotificationService';
 import { SettingsService } from '../SettingsService';
 
 const SettingsSchema = z.object({
@@ -25,6 +29,18 @@ const SettingsSchema = z.object({
     .optional(),
   collectiblesVisibility: z
     .record(z.string(), z.record(z.string(), z.boolean()))
+    .optional(),
+  notificationSubscriptions: z
+    .record(
+      z.union([
+        z.nativeEnum(BalanceNotificationTypes),
+        z.nativeEnum(NewsNotificationTypes),
+      ]),
+      // z.record with enum keys requires ALL keys to be present, but callers
+      // send partial updates (only the changed key). .optional() permits absent
+      // keys; we skip undefined values during processing below.
+      z.boolean().optional(),
+    )
     .optional(),
 });
 
@@ -71,7 +87,11 @@ export class WalletSetSettingsHandler extends DAppRequestHandler<
 > {
   methods = [DAppProviderRequest.WALLET_SET_SETTINGS];
 
-  constructor(private settingsService: SettingsService) {
+  constructor(
+    private settingsService: SettingsService,
+    private balanceNotificationService: BalanceNotificationService,
+    private newsNotificationService: NewsNotificationService,
+  ) {
     super();
   }
 
@@ -150,6 +170,45 @@ export class WalletSetSettingsHandler extends DAppRequestHandler<
         await this.settingsService.setShowHighlightBanners(
           validatedSettings.showHighlightBanners,
         );
+      }
+
+      if (validatedSettings.notificationSubscriptions !== undefined) {
+        const { notificationSubscriptions } = validatedSettings;
+
+        const ops: Promise<void>[] = [];
+        const entries = Object.entries(notificationSubscriptions) as [
+          BalanceNotificationTypes | NewsNotificationTypes,
+          boolean | undefined,
+        ][];
+
+        for (const [key, enabled] of entries) {
+          if (enabled === undefined) continue;
+
+          if (key === BalanceNotificationTypes.BALANCE_CHANGES) {
+            ops.push(
+              enabled
+                ? this.balanceNotificationService.subscribe()
+                : this.balanceNotificationService.unsubscribe(),
+            );
+          } else {
+            ops.push(
+              enabled
+                ? this.newsNotificationService.subscribe([key])
+                : this.newsNotificationService.unsubscribe(key),
+            );
+          }
+        }
+
+        const results = await Promise.allSettled(ops);
+        const failures = results.filter((r) => r.status === 'rejected');
+
+        if (failures.length > 0) {
+          throw new Error(
+            failures
+              .map((r) => (r as PromiseRejectedResult).reason?.message ?? r)
+              .join(', '),
+          );
+        }
       }
 
       // Get the final updated settings
