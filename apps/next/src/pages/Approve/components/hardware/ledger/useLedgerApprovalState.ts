@@ -1,6 +1,7 @@
 import { DisplayData, TokenDiff, TokenType } from '@avalabs/vm-module-types';
 
 import {
+  isAvalanchePrimaryNetwork,
   isBitcoinNetwork,
   isEthereumNetwork,
   isLedgerVersionCompatible,
@@ -152,6 +153,10 @@ const getRequiredApp = (network: NetworkWithCaipId) => {
 
   if (isSolanaNetwork(network)) {
     return LedgerAppType.SOLANA;
+  }
+
+  if (isAvalanchePrimaryNetwork(network)) {
+    return LedgerAppType.AVALANCHE;
   }
 
   if (isEthereumNetwork(network)) {

@@ -95,6 +95,55 @@ jest.mock('@metamask/eth-sig-util', () => {
   };
 });
 
+/** Built at load time — some tests replace global `Buffer` in beforeEach. */
+const LEDGER_GET_APP_AND_VERSION_AVALANCHE_OK = Buffer.concat([
+  Buffer.from([0x01]),
+  Buffer.from([9]),
+  Buffer.from('Avalanche', 'ascii'),
+  Buffer.from([5]),
+  Buffer.from('1.0.0', 'ascii'),
+  Buffer.from([0x90, 0x00]),
+]);
+
+const LEDGER_GET_APP_AND_VERSION_ETHEREUM_OK = Buffer.concat([
+  Buffer.from([0x01]),
+  Buffer.from([8]),
+  Buffer.from('Ethereum', 'ascii'),
+  Buffer.from([5]),
+  Buffer.from('1.0.0', 'ascii'),
+  Buffer.from([0x90, 0x00]),
+]);
+
+const LEDGER_GET_APP_AND_VERSION_BITCOIN_OK = Buffer.concat([
+  Buffer.from([0x01]),
+  Buffer.from([7]),
+  Buffer.from('Bitcoin', 'ascii'),
+  Buffer.from([5]),
+  Buffer.from('2.0.0', 'ascii'),
+  Buffer.from([0x90, 0x00]),
+]);
+
+/** Transport `send` shape so `ensureLedgerAppOpen` is a no-op (already on Avalanche). */
+function createLedgerTransportMockWithAvalancheAppOpen(): LedgerTransport {
+  return {
+    send: jest.fn().mockResolvedValue(LEDGER_GET_APP_AND_VERSION_AVALANCHE_OK),
+  } as unknown as LedgerTransport;
+}
+
+/** Transport `send` shape so `ensureLedgerAppOpen` is a no-op (already on Ethereum). */
+function createLedgerTransportMockWithEthereumAppOpen(): LedgerTransport {
+  return {
+    send: jest.fn().mockResolvedValue(LEDGER_GET_APP_AND_VERSION_ETHEREUM_OK),
+  } as unknown as LedgerTransport;
+}
+
+/** Transport `send` shape so `ensureLedgerAppOpen` is a no-op (already on Bitcoin). */
+function createLedgerTransportMockWithBitcoinAppOpen(): LedgerTransport {
+  return {
+    send: jest.fn().mockResolvedValue(LEDGER_GET_APP_AND_VERSION_BITCOIN_OK),
+  } as unknown as LedgerTransport;
+}
+
 describe('background/services/wallet/WalletService.ts', () => {
   let walletService: WalletService;
   let networkService: NetworkService;
@@ -629,6 +678,8 @@ describe('background/services/wallet/WalletService.ts', () => {
     });
 
     it('signs btc tx correctly using BitcoinLedgerWallet', async () => {
+      (ledgerService as any).recentTransport =
+        createLedgerTransportMockWithBitcoinAppOpen();
       const bitcoinProviderMock = new BitcoinProvider(false);
       const buffer = Buffer.from('0x1');
       const tx = new Transaction();
@@ -843,7 +894,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       });
 
       it('signs transaction correctly using LedgerSimpleSigner', async () => {
-        const transportMock = {} as LedgerTransport;
+        const transportMock = createLedgerTransportMockWithAvalancheAppOpen();
         (ledgerService as any).recentTransport = transportMock;
         ledgerSimpleSignerMock.signTx = jest
           .fn()
@@ -867,7 +918,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       });
 
       it('signs transaction correctly using LedgerSigner', async () => {
-        const transportMock = {} as LedgerTransport;
+        const transportMock = createLedgerTransportMockWithAvalancheAppOpen();
         (ledgerService as any).recentTransport = transportMock;
         ledgerSignerMock.signTx = jest.fn().mockReturnValueOnce(unsignedTxMock);
         spyOnGetWallet().mockResolvedValueOnce(ledgerSignerMock);
@@ -889,7 +940,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       });
 
       it('signs transaction correctly using LedgerLiveSigner', async () => {
-        const transportMock = {} as LedgerTransport;
+        const transportMock = createLedgerTransportMockWithAvalancheAppOpen();
         (ledgerService as any).recentTransport = transportMock;
         ledgerLiveSignerMock.signTx = jest
           .fn()
@@ -1094,6 +1145,8 @@ describe('background/services/wallet/WalletService.ts', () => {
     });
 
     it('signs messages with Ledger', async () => {
+      (ledgerService as any).recentTransport =
+        createLedgerTransportMockWithEthereumAppOpen();
       evmLedgerSignerMock.signMessage = jest
         .fn()
         .mockResolvedValueOnce('0x00001')
@@ -1120,6 +1173,8 @@ describe('background/services/wallet/WalletService.ts', () => {
     });
 
     it('signs typed data with Ledger', async () => {
+      (ledgerService as any).recentTransport =
+        createLedgerTransportMockWithEthereumAppOpen();
       evmLedgerSignerMock.signTypedData = jest
         .fn()
         .mockResolvedValue('0x00001');

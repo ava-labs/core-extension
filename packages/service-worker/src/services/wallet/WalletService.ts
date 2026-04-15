@@ -19,10 +19,12 @@ import {
 import { NetworkVMType, PartialBy, RpcMethod } from '@avalabs/vm-module-types';
 import {
   assertPresent,
+  ensureLedgerAppOpen,
   getAvalancheExtendedKeyPath,
   getLegacyXPDerivationPath,
   getProviderForNetwork,
   hasAtLeastOneElement,
+  isEthereumNetwork,
   isNotNullish,
   isPchainNetwork,
   isPrimaryAccount,
@@ -653,6 +655,26 @@ export class WalletService implements OnUnlock {
     );
   }
 
+  #requireLedgerTransport() {
+    const transport = this.ledgerService.recentTransport;
+    if (!transport) {
+      throw new Error('Ledger transport not available');
+    }
+    return transport;
+  }
+
+  /**
+   * Match approval UI `getRequiredApp`: Ethereum (homestead + listed testnets) →
+   * Ethereum app; Avalanche C/X/P and all other EVM chains → Avalanche app.
+   */
+  async #ensureEvmLedgerAppOpenForSigning(network: Network): Promise<void> {
+    const transport = this.#requireLedgerTransport();
+    await ensureLedgerAppOpen(
+      transport,
+      isEthereumNetwork(network) ? 'Ethereum' : 'Avalanche',
+    );
+  }
+
   async sign(
     tx: SignTransactionRequest,
     network: Network,
@@ -712,6 +734,10 @@ export class WalletService implements OnUnlock {
         };
       }
 
+      if (wallet instanceof SolanaLedgerSigner) {
+        await ensureLedgerAppOpen(this.#requireLedgerTransport(), 'Solana');
+      }
+
       return {
         signedTx: await wallet.signTx(tx.data, provider),
       };
@@ -727,6 +753,10 @@ export class WalletService implements OnUnlock {
         !(wallet instanceof SeedlessWallet)
       ) {
         throw new Error('Signing error, wrong network');
+      }
+
+      if (wallet instanceof BitcoinLedgerWallet) {
+        await ensureLedgerAppOpen(this.#requireLedgerTransport(), 'Bitcoin');
       }
 
       // prepare transaction for ledger signing
@@ -786,6 +816,10 @@ export class WalletService implements OnUnlock {
         );
       }
 
+      if (isLedgerSigner) {
+        await ensureLedgerAppOpen(this.#requireLedgerTransport(), 'Avalanche');
+      }
+
       const signRequest = {
         tx: unsignedTx,
         ...(isLedgerSigner && {
@@ -841,6 +875,10 @@ export class WalletService implements OnUnlock {
         throw new Error('Signing error, wrong network');
       }
 
+      if (isLedgerSigner) {
+        await ensureLedgerAppOpen(this.#requireLedgerTransport(), 'Avalanche');
+      }
+
       const txToSign = {
         tx: tx.tx,
         ...(isLedgerSigner && {
@@ -875,6 +913,10 @@ export class WalletService implements OnUnlock {
       !(wallet instanceof SeedlessWallet)
     ) {
       throw new Error('Signing error, wrong network');
+    }
+
+    if (wallet instanceof LedgerSigner) {
+      await this.#ensureEvmLedgerAppOpenForSigning(network);
     }
 
     return this.#normalizeSigningResult(await wallet.signTransaction(tx));
@@ -1029,6 +1071,8 @@ export class WalletService implements OnUnlock {
     }
 
     if (wallet instanceof LedgerSigner) {
+      await this.#ensureEvmLedgerAppOpenForSigning(network);
+
       if (isTypedData(data.data)) {
         return wallet.signTypedData(
           data.data.domain,
@@ -1117,14 +1161,13 @@ export class WalletService implements OnUnlock {
       wallet instanceof Avalanche.SimpleLedgerSigner ||
       wallet instanceof Avalanche.LedgerSigner
     ) {
-      if (!this.ledgerService.recentTransport) {
-        throw new Error('Ledger transport not available');
-      }
+      const transport = this.#requireLedgerTransport();
+      await ensureLedgerAppOpen(transport, 'Avalanche');
 
       return await wallet.signMessage({
         message,
         chain: 'X',
-        transport: this.ledgerService.recentTransport,
+        transport,
       });
     }
 
@@ -1165,6 +1208,8 @@ export class WalletService implements OnUnlock {
     }
 
     if (wallet instanceof LedgerSigner) {
+      await this.#ensureEvmLedgerAppOpenForSigning(network);
+
       if (
         [
           MessageType.SIGN_TYPED_DATA,

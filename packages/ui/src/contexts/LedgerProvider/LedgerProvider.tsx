@@ -1,6 +1,11 @@
 import AppAvalanche from '@avalabs/hw-app-avalanche';
 import { ExtensionRequest } from '@core/types';
-import { isLockStateChangedEvent, resolve, withTimeout } from '@core/common';
+import {
+  ensureLedgerAppOpen,
+  isLockStateChangedEvent,
+  resolve,
+  withTimeout,
+} from '@core/common';
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
 import {
   AppClient as Btc,
@@ -22,8 +27,8 @@ import AppSolana from '@ledgerhq/hw-app-solana';
 import { VM } from '@avalabs/avalanchejs';
 import {
   DerivationPath,
+  ETH_ACCOUNT_PATH,
   getLedgerAppInfo,
-  getLedgerExtendedPublicKey,
   getPubKeyFromTransport,
   quitLedgerApp,
   getSolanaPublicKeyFromLedger,
@@ -48,6 +53,7 @@ import { getLedgerTransport } from '../utils/getLedgerTransport';
 import TransportWebHID from '@ledgerhq/hw-transport-webhid';
 import { shouldUseWebHID } from '../utils/shouldUseWebHID';
 import { wait } from '@avalabs/core-utils-sdk';
+import { getAvalancheLedgerExtendedPublicKey } from './getAvalancheLedgerExtendedPublicKey';
 
 export enum LedgerAppType {
   AVALANCHE = 'Avalanche',
@@ -76,6 +82,10 @@ type AppConfig = {
 const LedgerContext = createContext<{
   popDeviceSelection(): Promise<boolean>;
   getExtendedPublicKey(path?: string): Promise<string>;
+  /**
+   * BOLOS quit/open-app to the given app (if needed) and refresh `appType` / `appVersion` from the device.
+   */
+  prepareTransportForOnboarding(appName: LedgerAppType): Promise<void>;
   initLedgerTransport(): Promise<void>;
   hasLedgerTransport: boolean;
   appType: LedgerAppType;
@@ -422,21 +432,38 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     return cleanup;
   }, [refreshActiveApp, subscribers]);
   /**
-   * Get the extended public key for the given path (m/44'/60'/0' by default)
-   * @returns Promise<extended public key>
+   * Extended public key via the Avalanche (Zondax) Ledger app — not the standalone Ethereum app.
+   * @param path Defaults to `m/44'/60'/0'` (EVM account root) when omitted.
    */
   const getExtendedPublicKey = useCallback(async (path?: string) => {
     if (!transportRef.current) {
       throw new Error('no device detected');
     }
+    const transport = transportRef.current;
+    await ensureLedgerAppOpen(transport, LedgerAppType.AVALANCHE);
+    const derivationPath = path ?? ETH_ACCOUNT_PATH;
     const [pubKey, pubKeyError] = await resolve(
-      getLedgerExtendedPublicKey(transportRef.current, false, path),
+      getAvalancheLedgerExtendedPublicKey(transport, derivationPath, false),
     );
     if (pubKeyError) {
-      throw new Error(pubKeyError);
+      throw pubKeyError instanceof Error
+        ? pubKeyError
+        : new Error(String(pubKeyError));
     }
     return pubKey;
   }, []);
+
+  const prepareTransportForOnboarding = useCallback(
+    async (appName: LedgerAppType) => {
+      if (!transportRef.current) {
+        throw new Error('no device detected');
+      }
+      const transport = transportRef.current;
+      await ensureLedgerAppOpen(transport, appName);
+      await initLedgerApp(transport);
+    },
+    [initLedgerApp],
+  );
 
   const getPublicKey = useCallback(
     async (accountIndex: number, pathType: DerivationPath, vm: VM | 'SVM') => {
@@ -444,16 +471,14 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         throw new Error('no device detected');
       }
 
+      const transport = transportRef.current;
+
       if (vm === 'SVM') {
-        return getSolanaPublicKeyFromLedger(accountIndex, transportRef.current);
+        await ensureLedgerAppOpen(transport, LedgerAppType.SOLANA);
+        return getSolanaPublicKeyFromLedger(accountIndex, transport);
       }
 
-      return getPubKeyFromTransport(
-        transportRef.current,
-        accountIndex,
-        pathType,
-        vm,
-      );
+      return getPubKeyFromTransport(transport, accountIndex, pathType, vm);
     },
     [],
   );
@@ -610,6 +635,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       value={{
         popDeviceSelection,
         getExtendedPublicKey,
+        prepareTransportForOnboarding,
         initLedgerTransport,
         hasLedgerTransport: !!transportRef.current,
         wasTransportAttempted,
