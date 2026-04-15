@@ -23,6 +23,11 @@ const QUIT_APP_INS = 0xa7;
 const LEDGER_DASHBOARD_APP_NAMES = new Set<string>(['BOLOS', 'OLOS\u0000']);
 
 const POST_QUIT_SETTLE_MS = 400;
+/**
+ * Some devices (e.g. Ledger Flex) briefly reset their USB connection when
+ * launching an app. Give them time to re-enumerate before polling again.
+ */
+const POST_OPEN_APP_SETTLE_MS = 1_500;
 const MAX_ENSURE_APP_ROUNDS = 6;
 
 /**
@@ -44,6 +49,17 @@ export function getLedgerAppNotInstalledMessage(appName: string): string {
 
 export function isLedgerDashboardApplication(name: string): boolean {
   return LEDGER_DASHBOARD_APP_NAMES.has(name);
+}
+
+/**
+ * WebUSB throws a DOMException containing "transfer error" when the device
+ * resets its USB connection mid-transfer (e.g. during an app switch on Flex).
+ * These are transient — the device re-enumerates shortly after.
+ */
+function isUsbTransferError(err: unknown): boolean {
+  return (
+    err instanceof Error && err.message.toLowerCase().includes('transfer error')
+  );
 }
 
 /** Strip SW when present (`transport.send` returns payload + `0x9000` on success). */
@@ -221,7 +237,18 @@ export async function ensureLedgerAppOpen(
   const autoOpenFailedMessage = getLedgerAutoOpenAppFailedMessage(appName);
 
   for (let round = 0; round < MAX_ENSURE_APP_ROUNDS; round += 1) {
-    const { name } = await getLedgerActiveApplication(transport);
+    let name: string;
+    try {
+      ({ name } = await getLedgerActiveApplication(transport));
+    } catch (err) {
+      if (isUsbTransferError(err)) {
+        // Device is still re-enumerating after an app switch; retry shortly.
+        await wait(OPEN_APP_RETRY_DELAY_MS);
+        continue;
+      }
+      throw err;
+    }
+
     if (name === appName) {
       return;
     }
@@ -232,6 +259,8 @@ export async function ensureLedgerAppOpen(
         notInstalledMessage,
         autoOpenFailedMessage,
       );
+      // Wait for the device to finish its USB reset before polling again.
+      await wait(POST_OPEN_APP_SETTLE_MS);
       continue;
     }
     await quitLedgerApplication(transport);
