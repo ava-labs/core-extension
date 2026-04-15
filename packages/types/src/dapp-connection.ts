@@ -53,6 +53,8 @@ export enum DAppProviderRequest {
   WALLET_GET_SETTINGS = 'wallet_getSettings',
   WALLET_SET_SETTINGS = 'wallet_setSettings',
   WALLET_GET_CAPABILITIES = 'wallet_getCapabilities',
+  WALLET_NOTIFY_NOTIFICATION_CENTER_CHANGED = 'wallet_notifyNotificationCenterChanged',
+  WALLET_GET_NOTIFICATION_DEVICE_ARN = 'wallet_getNotificationDeviceArn',
 }
 
 export enum Web3Event {
@@ -74,6 +76,7 @@ export enum Web3Event {
   ACCOUNTS_DELETED = 'accountsDeleted',
   ACCOUNT_NAME_CHANGED = 'accountNameChanged',
   WALLET_NAME_CHANGED = 'walletNameChanged',
+  NOTIFICATION_CENTER_CHANGED_EVENT = 'notificationCenterChanged',
 }
 
 export interface JsonRpcRequestParams<Method extends string, Params = unknown> {

@@ -5,7 +5,8 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
-import { FC, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
@@ -35,17 +36,18 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
   const { t } = useTranslation();
 
   const [isHoverAreaHidden, setIsHoverAreaHidden] = useState(false);
+  const [isButtonExpanded, setIsButtonExpanded] = useState(false);
   const { coreAssistant } = useSettingsContext();
   const { featureFlags } = useFeatureFlagContext();
   const timer = useRef<NodeJS.Timeout | null>(null);
   const hasBackdropEntered = useRef(false);
+  const isMac = navigator.platform.toUpperCase().includes('MAC');
 
   const buttonLabels = [
-    t('Ask Core Concierge to send crypto'),
-    t('Ask Core Concierge to swap tokens'),
-    t('Ask Core Concierge to bridge tokens'),
-    t('Ask Core Concierge to transfer for you'),
-    t('Ask Core Concierge to manage accounts'),
+    t('Ask Core to send crypto'),
+    t('Ask Core to swap tokens'),
+    t('Ask Core to transfer for you'),
+    t('Ask Core to manage accounts'),
   ];
 
   const getRandomButtonLabel = () => {
@@ -56,6 +58,21 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
   const conciergeBackgroundRef = useRef(null);
   const conciergeBackdropRef = useRef(null);
 
+  useEffect(() => {
+    const abortController = new AbortController();
+    document.body.addEventListener(
+      'mouseleave',
+      () => {
+        setIsAIBackdropOpen(false);
+      },
+      { signal: abortController.signal },
+    );
+
+    return () => {
+      abortController.abort();
+    };
+  }, [setIsAIBackdropOpen]);
+
   if (!coreAssistant || !featureFlags[FeatureGates.CORE_ASSISTANT]) {
     return null;
   }
@@ -65,16 +82,18 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
       {/* THE BOX AREA WHERE WE WANT TO CATCH THE CURSOR */}
       <Stack
         sx={{
-          width: '100%',
+          width: '50%',
           height: '24px',
           position: 'absolute',
+          alignSelf: 'center',
           top: `${HEADER_HEIGHT}px`,
+          cursor: 'pointer',
           zIndex: isHoverAreaHidden ? 0 : theme.zIndex.tooltip - 1,
         }}
         onMouseEnter={() => {
           timer.current = setTimeout(() => {
             setIsAIBackdropOpen(true);
-          }, 400);
+          }, 100);
         }}
         onMouseLeave={() => {
           if (!isAIBackdropOpen && timer.current) {
@@ -106,7 +125,7 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
           {/* BACKDROP */}
           <CSSTransition
             key={2}
-            timeout={1000}
+            timeout={300}
             classNames={CSS_CLASSES.BACKDROP}
             appear
             exit
@@ -123,78 +142,121 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
               setIsHoverAreaHidden={setIsHoverAreaHidden}
             />
           </CSSTransition>
-          {/* THE BUTTON */}
-          <CSSTransition
-            key={3}
-            timeout={1000}
-            classNames={CSS_CLASSES.BUTTON}
-            appear
-            exit
-            in={isAIBackdropOpen}
-            nodeRef={conciergeButtonRef}
-            onEntered={() => {
-              // it needs to be delayed (waiting for the button animation getting done) to avoid the glitch
-              setTimeout(() => {
-                setIsHoverAreaHidden(true);
-                hasBackdropEntered.current = true;
-              }, 500);
+        </Stack>
+      </TransitionGroup>
+      {/* THE BUTTON - rendered via portal to escape stacking context */}
+      {createPortal(
+        <CSSTransition
+          timeout={300}
+          classNames={CSS_CLASSES.BUTTON}
+          appear
+          exit
+          in={isAIBackdropOpen}
+          nodeRef={conciergeButtonRef}
+          onEntered={() => {
+            setTimeout(() => {
+              setIsHoverAreaHidden(true);
+              hasBackdropEntered.current = true;
+              setIsButtonExpanded(true);
+            }, 150);
+          }}
+          onExiting={() => {
+            setIsButtonExpanded(false);
+          }}
+        >
+          <Stack
+            sx={{
+              position: 'fixed',
+              top: `${HEADER_HEIGHT}px`,
+              left: 0,
+              right: 0,
+              px: 1.5,
+              zIndex: theme.zIndex.appBar + 7,
+              cursor: 'pointer',
+            }}
+            role="button"
+            onClick={() => {
+              history.push('/concierge');
             }}
           >
-            <Stack
+            <AnimatedButton
+              variant="contained"
               sx={{
-                position: 'absolute',
-                top: `${HEADER_HEIGHT}px`,
-                width: '100%',
-                px: 1.5,
-                zIndex: theme.zIndex.appBar + 3,
+                borderColor: 'common.white_10',
+                maxWidth: '100%',
+                justifyContent: 'space-between',
+                pl: 1.5,
+                pr: 1.5,
+                backgroundColor: getHexAlpha(theme.palette.text.primary, 30),
+                color: 'common.white',
               }}
+              onClick={() => {
+                history.push('/concierge');
+              }}
+              size="large"
+              fullWidth
+              ref={conciergeButtonRef}
             >
-              <AnimatedButton
-                variant="contained"
-                sx={{
-                  borderColor: 'common.white_10',
-                  maxWidth: '100%',
-                  justifyContent: 'flex-start',
-                  px: 1.5,
-                  backgroundColor: getHexAlpha(theme.palette.text.primary, 30),
-                  color: 'common.white',
-                }}
-                onClick={() => {
-                  history.push('/concierge');
-                }}
-                size="large"
-                fullWidth
-                ref={conciergeButtonRef}
-              >
+              <Stack direction="row" alignItems="center">
                 <Box component="span" sx={{ mr: 1, fontSize: 24 }}>
                   ✨
                 </Box>
                 <TextAnimation>
-                  <Typography variant="subtitle3">
+                  <Typography variant="subtitle3" fontWeight={400}>
                     {isAIBackdropOpen && getRandomButtonLabel()}
                   </Typography>
                 </TextAnimation>
-              </AnimatedButton>
-            </Stack>
-          </CSSTransition>
-        </Stack>
-      </TransitionGroup>
-      {/* CANCEL ZONE - 24px below header */}
-      {isAIBackdropOpen && (
-        <Stack
-          sx={{
-            position: 'fixed',
-            top: `${HEADER_HEIGHT + 24}px`, // header height + 24px hover area
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: theme.zIndex.appBar + 2,
-          }}
-          onMouseEnter={() => {
-            setIsAIBackdropOpen(false);
-            setIsHoverAreaHidden(false);
-          }}
-        />
+              </Stack>
+              {isButtonExpanded && (
+                <Stack direction="row" alignItems="center" gap="3px">
+                  {isMac ? (
+                    <Box
+                      sx={{
+                        backgroundColor: getHexAlpha('#FFFFFF', 10),
+                        borderRadius: '50px',
+                        height: 24,
+                        px: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Typography variant="body2">⌘K</Typography>
+                    </Box>
+                  ) : (
+                    <>
+                      <Box
+                        sx={{
+                          backgroundColor: getHexAlpha('#FFFFFF', 10),
+                          borderRadius: '20px 3px 3px 20px',
+                          height: 24,
+                          px: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Typography variant="body2">Ctrl</Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          backgroundColor: getHexAlpha('#FFFFFF', 10),
+                          borderRadius: '3px 20px 20px 3px',
+                          height: 24,
+                          width: 24,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Typography variant="body2">K</Typography>
+                      </Box>
+                    </>
+                  )}
+                </Stack>
+              )}
+            </AnimatedButton>
+          </Stack>
+        </CSSTransition>,
+        document.body,
       )}
     </>
   );

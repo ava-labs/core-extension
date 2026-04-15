@@ -1,4 +1,5 @@
 import { NotificationCenterService } from '../NotificationCenterService';
+import { NotificationsService } from '../NotificationsService';
 import { MarkAllNotificationsAsRead } from './markAllNotificationsAsRead';
 
 describe('MarkAllNotificationsAsRead', () => {
@@ -6,8 +7,12 @@ describe('MarkAllNotificationsAsRead', () => {
   const notificationCenterServiceMock = {
     markAllAsRead: jest.fn(),
   };
+  const notificationsServiceMock = {
+    notifyNotificationCenterChanged: jest.fn(),
+  };
   const handler = new MarkAllNotificationsAsRead(
     notificationCenterServiceMock as unknown as NotificationCenterService,
+    notificationsServiceMock as unknown as NotificationsService,
   );
 
   beforeEach(() => {

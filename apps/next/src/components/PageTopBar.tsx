@@ -36,6 +36,7 @@ type Props = {
   isObserving?: boolean;
   isIntersecting?: boolean;
   showViewSwitcher?: boolean;
+  alwaysShowTitle?: boolean;
 };
 
 export const PageTopBar: FC<Props> = ({
@@ -45,6 +46,7 @@ export const PageTopBar: FC<Props> = ({
   isIntersecting,
   title,
   showViewSwitcher = true,
+  alwaysShowTitle = false,
 }) => {
   const theme = useTheme();
   const goBack = useGoBack();
@@ -87,7 +89,10 @@ export const PageTopBar: FC<Props> = ({
             </Box>
           )}
           <Fade
-            in={Boolean(title) && isObserving && !isIntersecting}
+            in={
+              Boolean(title) &&
+              (alwaysShowTitle || (isObserving && !isIntersecting))
+            }
             mountOnEnter
             unmountOnExit
             appear={false}

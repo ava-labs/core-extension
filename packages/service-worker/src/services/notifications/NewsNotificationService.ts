@@ -24,6 +24,7 @@ import { sendRequest } from './utils/sendRequest';
 export class NewsNotificationService implements OnUnlock {
   #clientId?: string;
   #eventEmitter = new EventEmitter();
+  #onMessageReceived?: () => void;
 
   constructor(
     private storageService: StorageService,
@@ -31,11 +32,12 @@ export class NewsNotificationService implements OnUnlock {
     private lockService: LockService,
   ) {}
 
-  async init(clientId: string) {
+  async init(clientId: string, onMessageReceived?: () => void) {
     this.#clientId = clientId;
+    this.#onMessageReceived = onMessageReceived;
     this.firebaseService.addFcmMessageListener(
       NotificationCategories.NEWS,
-      this.#handleMessage,
+      (payload) => this.#handleMessage(payload),
     );
 
     // attempt to refresh the existing subscriptions
@@ -70,11 +72,12 @@ export class NewsNotificationService implements OnUnlock {
   }
 
   #handleMessage(payload: MessagePayload) {
-    return sendNotification({
+    sendNotification({
       payload,
       allowedType: NotificationCategories.NEWS,
       allowedEvents: NOTIFICATION_CATEGORIES.NEWS,
     });
+    this.#onMessageReceived?.();
   }
 
   async getSubscriptions() {

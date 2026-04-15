@@ -1,5 +1,20 @@
 import { NoScrollStack } from '@/components/NoScrollStack';
-import { Skeleton } from '@avalabs/k2-alpine';
+import { Box, CircularProgress, Skeleton } from '@avalabs/k2-alpine';
+
+/** Centered spinner while activity history is loading (network switch or initial load). */
+export const ActivityHistoryLoadingIndicator = () => (
+  <Box
+    sx={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%',
+      mt: 5,
+    }}
+  >
+    <CircularProgress size={24} />
+  </Box>
+);
 
 export const TransactionListSkeleton = () => {
   return (

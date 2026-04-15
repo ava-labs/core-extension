@@ -52,11 +52,15 @@ export function FirebaseContextProvider({ children }: PropsWithChildren) {
   const [prompts, setPrompts] = useState<ChatDialogHistory[]>([
     {
       role: 'model',
-      content: `Hey there! I'm Core Concierge — here to help you through your crypto experience. What can I do for you today?`,
+      content: `Oh hi there, I'm your Core AI assistant! 👋`,
     },
     {
       role: 'model',
-      content: `Core Concierge does not provide financial advice or any other recommendations. Core Concierge can make mistakes. **Please review all transactions before signing.**`,
+      content: `Here to help you manage your assets safely and smoothly.`,
+    },
+    {
+      role: 'model',
+      content: `What can I do for you today?`,
     },
   ]);
 

@@ -7,7 +7,7 @@ import { List, ListItem, Typography } from '@avalabs/k2-alpine';
 import { EmptyState } from '../../EmptyState';
 import * as Styled from './Styled';
 import { TransactionItem } from './TransactionItem';
-import { TransactionListSkeleton } from '../Skeleton';
+import { ActivityHistoryLoadingIndicator } from '../Skeleton';
 
 type Props = {
   filter: ActivityFilter;
@@ -20,7 +20,7 @@ export const HistoryList: FC<Props> = ({ filter, transactionHistory }) => {
     filter,
   );
   if (transactionHistory === null) {
-    return <TransactionListSkeleton />;
+    return <ActivityHistoryLoadingIndicator />;
   }
 
   if (transactionHistory.length === 0) {

@@ -4,6 +4,7 @@ import { LedgerRegisterBtcWalletPolicy } from '@/components/ledger';
 import { useSeedlessMissingKeysDerivation } from '@/hooks/seedless';
 import { SeedlessAuthPrompt } from '@/components/Seedless/SeedlessAuthPrompt';
 import { useNavigationRequests } from '@/hooks/useNavigationRequests';
+import { useConciergeHotkey } from '@/hooks/useConciergeHotkey';
 import { useImportMissingKeysFromLedger } from '@core/ui';
 
 /**
@@ -22,11 +23,9 @@ import { useImportMissingKeysFromLedger } from '@core/ui';
  */
 export const EventDrivenComponentsAndHooks: FC = () => {
   useSeedlessMissingKeysDerivation();
-  // TODO: enable after Keystone releases new SDK version
-  // https://ava-labs.atlassian.net/browse/CP-12875
-  // useImportMissingKeysFromKeystone();
   useNavigationRequests();
   useImportMissingKeysFromLedger();
+  useConciergeHotkey();
 
   return (
     <>

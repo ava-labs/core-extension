@@ -16,6 +16,7 @@ import { getAvalancheExtendedKeyPath, resolve } from '@core/common';
 import { fromPublicKey } from 'bip32';
 import Avalanche, { ChainIDAlias } from '@keystonehq/hw-app-avalanche';
 import { Curve, DerivationAlgorithm } from '@keystonehq/bc-ur-registry';
+import { parseKeystoneFirmwareVersion } from './utils/parseKeystoneFirmwareVersion';
 
 const isWebUsbUserCancelError = (err: unknown): boolean =>
   err instanceof DOMException && err.name === 'NotFoundError';
@@ -32,6 +33,7 @@ interface KeystoneContextType {
   userCancelledDeviceSelection: boolean;
   getMasterFingerprint: () => Promise<string>;
   hasKeystoneTransport: boolean;
+  version: string | null;
 }
 
 const KeystoneContext = createContext<KeystoneContextType>({} as any);
@@ -41,6 +43,7 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
   const { request } = useConnectionContext();
   const avalancheAppRef = useRef<Avalanche | null>(null);
   const transportRef = useRef<TransportWebUSB | null>(null);
+  const [version, setVersion] = useState<string | null>(null);
   const [wasTransportAttempted, setWasTransportAttempted] = useState(false);
   const [hasKeystoneTransport, setHasKeystoneTransport] = useState(false);
   const [userCancelledDeviceSelection, setUserCancelledDeviceSelection] =
@@ -77,7 +80,8 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
           // Verify the device is accessible (not just locked).
           // If this fails, the device might be locked but transport still exists.
           try {
-            await app.getAppConfig();
+            const appConfig = await app.getAppConfig();
+            setVersion(parseKeystoneFirmwareVersion(appConfig.version));
           } catch (_error) {
             throw new Error('Keystone device locked or unavailable');
           }
@@ -211,6 +215,7 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
         userCancelledDeviceSelection,
         getMasterFingerprint,
         hasKeystoneTransport,
+        version,
       }}
     >
       {children}

@@ -5,8 +5,8 @@ import { FC, Suspense, useState } from 'react';
 import { ActivityFilterSelector } from './components/ActivityFilterSelector';
 import { NetworkFilterSelector } from './components/NetworkFilterSelector';
 import {
+  ActivityHistoryLoadingIndicator,
   TransactionList,
-  TransactionListSkeleton,
 } from './components/TransactionList';
 import { useUrlState } from './hooks/useUrlState';
 import { ActivityFilter } from './types';
@@ -42,8 +42,12 @@ export const ActivityTab: FC = () => {
           }}
         />
       </Stack>
-      <Suspense fallback={<TransactionListSkeleton />}>
-        <TransactionList filter={filter} networkChainId={networkChainId} />
+      <Suspense fallback={<ActivityHistoryLoadingIndicator />}>
+        <TransactionList
+          key={networkChainId}
+          filter={filter}
+          networkChainId={networkChainId}
+        />
       </Suspense>
     </Stack>
   );

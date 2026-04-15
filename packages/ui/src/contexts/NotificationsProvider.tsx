@@ -12,6 +12,7 @@ import {
 } from '@core/types';
 import {
   createContext,
+  PropsWithChildren,
   useCallback,
   useContext,
   useEffect,
@@ -19,7 +20,7 @@ import {
 } from 'react';
 import { filter } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
-import { isSubscriptionsChangedEvent } from './isSubscriptionsChangedEvent';
+import { isNotificationsSyncEvent } from './isNotificationsSyncEvent';
 
 const NotificationsContext = createContext<{
   subscriptions: Record<NotificationTypes, boolean>;
@@ -39,7 +40,7 @@ const NotificationsContext = createContext<{
   async unsubscribe() {},
 });
 
-export function NotificationsContextProvider({ children }: { children: any }) {
+export function NotificationsContextProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
   const [subscriptions, setSubscriptions] = useState<
     Record<NotificationTypes, boolean>
@@ -78,6 +79,7 @@ export function NotificationsContextProvider({ children }: { children: any }) {
             err,
             Monitoring.SentryExceptionTypes.NOTIFICATIONS,
           );
+          throw err; // Re-throw error so it can be handled by the caller
         })
         .finally(() => syncSubscriptions());
     },
@@ -95,6 +97,8 @@ export function NotificationsContextProvider({ children }: { children: any }) {
             err,
             Monitoring.SentryExceptionTypes.NOTIFICATIONS,
           );
+
+          throw err; // Re-throw error so it can be handled by the caller
         })
         .finally(() => syncSubscriptions());
     },
@@ -107,7 +111,7 @@ export function NotificationsContextProvider({ children }: { children: any }) {
 
   useEffect(() => {
     const notificationChangesSubscription = events()
-      .pipe(filter(isSubscriptionsChangedEvent))
+      .pipe(filter(isNotificationsSyncEvent))
       .subscribe(() => {
         syncSubscriptions();
       });
