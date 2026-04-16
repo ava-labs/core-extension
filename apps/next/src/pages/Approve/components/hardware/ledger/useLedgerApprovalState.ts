@@ -148,7 +148,7 @@ const isCompatibleApp = (
 
 const getRequiredApp = (network: NetworkWithCaipId) => {
   if (isBitcoinNetwork(network)) {
-    return LedgerAppType.BITCOIN;
+    return LedgerAppType.BITCOIN_RECOVERY;
   }
 
   if (isSolanaNetwork(network)) {

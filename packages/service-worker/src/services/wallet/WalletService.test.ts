@@ -116,8 +116,8 @@ const LEDGER_GET_APP_AND_VERSION_ETHEREUM_OK = Buffer.concat([
 
 const LEDGER_GET_APP_AND_VERSION_BITCOIN_OK = Buffer.concat([
   Buffer.from([0x01]),
-  Buffer.from([7]),
-  Buffer.from('Bitcoin', 'ascii'),
+  Buffer.from([16]),
+  Buffer.from('Bitcoin Recovery', 'ascii'),
   Buffer.from([5]),
   Buffer.from('2.0.0', 'ascii'),
   Buffer.from([0x90, 0x00]),
@@ -137,7 +137,7 @@ function createLedgerTransportMockWithEthereumAppOpen(): LedgerTransport {
   } as unknown as LedgerTransport;
 }
 
-/** Transport `send` shape so `ensureLedgerAppOpen` is a no-op (already on Bitcoin). */
+/** Transport `send` shape so `ensureLedgerAppOpen` is a no-op (already on Bitcoin Recovery). */
 function createLedgerTransportMockWithBitcoinAppOpen(): LedgerTransport {
   return {
     send: jest.fn().mockResolvedValue(LEDGER_GET_APP_AND_VERSION_BITCOIN_OK),
