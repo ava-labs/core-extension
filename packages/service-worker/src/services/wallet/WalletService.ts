@@ -756,7 +756,10 @@ export class WalletService implements OnUnlock {
       }
 
       if (wallet instanceof BitcoinLedgerWallet) {
-        await ensureLedgerAppOpen(this.#requireLedgerTransport(), 'Bitcoin');
+        await ensureLedgerAppOpen(
+          this.#requireLedgerTransport(),
+          'Bitcoin Recovery',
+        );
       }
 
       // prepare transaction for ledger signing
