@@ -125,7 +125,7 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
           {/* BACKDROP */}
           <CSSTransition
             key={2}
-            timeout={300}
+            timeout={100}
             classNames={CSS_CLASSES.BACKDROP}
             appear
             exit
@@ -182,6 +182,7 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
             <AnimatedButton
               variant="contained"
               sx={{
+                border: 1,
                 borderColor: 'common.white_10',
                 maxWidth: '100%',
                 justifyContent: 'space-between',
@@ -207,7 +208,7 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
                   </Typography>
                 </TextAnimation>
               </Stack>
-              {isButtonExpanded && (
+              {isButtonExpanded && isAIBackdropOpen && (
                 <Stack direction="row" alignItems="center" gap="3px">
                   {isMac ? (
                     <Box

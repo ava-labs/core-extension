@@ -33,9 +33,10 @@ const AddressListContainer = styled(Stack, {
   border: `1px solid ${getHexAlpha(theme.palette.primary.main, 10)}`,
   borderRadius: '10px',
   isolation: 'isolate',
+  zIndex: theme.zIndex.tooltip + 1,
   opacity: 0,
   transition: `opacity 150ms ease-out`,
-  transitionDelay: '500ms',
+  transitionDelay: '200ms',
   visibility: 'hidden',
   color: theme.palette.text.primary,
 }));
