@@ -2,7 +2,7 @@ import { Box, CircularProgress, Stack } from '@avalabs/k2-alpine';
 import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 import { useAccountsContext, useNetworkContext, useNfts } from '@core/ui';
 import { isEmpty } from 'lodash';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CollectibleCard } from './components/CollectibleCard';
 import { CollectibleListEmpty } from './components/CollectibleListEmpty';
@@ -68,6 +68,10 @@ export function CollectiblesTab() {
     });
   }, [collectibles, active, getNetwork, isDeveloperMode]);
 
+  const [failedCollectibleIds, setFailedCollectibleIds] = useState<Set<string>>(
+    new Set(),
+  );
+
   const {
     processedCollectibles,
     mediaFilters,
@@ -75,6 +79,8 @@ export function CollectiblesTab() {
     openManageDialog,
     hideUnreachable,
     hiddenCollectibles,
+    hideBrokenImages,
+    setHideBrokenImages,
     toggleMediaFilter,
     toggleHideUnreachable,
     toggleCollectible,
@@ -83,7 +89,26 @@ export function CollectiblesTab() {
     networkFilters,
     toggleNetworkFilter,
     clearNetworkFilter,
-  } = useCollectiblesToolbar({ collectibles: formattedCollectibles });
+  } = useCollectiblesToolbar({
+    collectibles: formattedCollectibles,
+    failedCollectibleIds,
+  });
+
+  const handleMediaError = useCallback((id: string) => {
+    setFailedCollectibleIds((prev) => {
+      if (prev.has(id)) return prev;
+      return new Set([...prev, id]);
+    });
+  }, []);
+
+  const handleMediaLoad = useCallback((id: string) => {
+    setFailedCollectibleIds((prev) => {
+      if (!prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  }, []);
 
   const handleItemClick = useCallback((nft: FormattedCollectible) => {
     if (nft.coreCollectibleUrl) {
@@ -145,6 +170,8 @@ export function CollectiblesTab() {
                   if (el) virtualizer.measureElement(el);
                 }}
                 minHeight={columnWidth}
+                onMediaError={() => handleMediaError(item.uniqueCollectibleId)}
+                onMediaLoad={() => handleMediaLoad(item.uniqueCollectibleId)}
               />
             )}
           />
@@ -158,6 +185,8 @@ export function CollectiblesTab() {
         toggleCollectible={toggleCollectible}
         hideUnreachable={hideUnreachable}
         toggleHideUnreachable={toggleHideUnreachable}
+        hideBrokenImages={hideBrokenImages}
+        setHideBrokenImages={setHideBrokenImages}
       />
     </Stack>
   );

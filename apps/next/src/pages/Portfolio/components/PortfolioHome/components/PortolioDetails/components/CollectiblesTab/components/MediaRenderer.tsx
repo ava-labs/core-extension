@@ -1,6 +1,6 @@
 import { Box, Button, RefreshIcon, Skeleton } from '@avalabs/k2-alpine';
 import type { CSSProperties, LegacyRef, PropsWithChildren } from 'react';
-import { forwardRef, memo, useRef, useState } from 'react';
+import { forwardRef, memo, useEffect, useRef, useState } from 'react';
 import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 import { BASE64_IMAGE_REGEX, getMediaRenderType } from '../utils';
 import { useResolvedMediaType } from '../hooks/useResolvedMediaType';
@@ -231,6 +231,20 @@ export const MediaRenderer = memo(
         (!isLoading &&
           (showError || mimeTypeIsError) &&
           (!srcRaw || useFallback));
+
+      // Keep a ref so the effect always uses the latest callback without re-triggering on every render
+      const onErrorRef = useRef(onErrorProp);
+      onErrorRef.current = onErrorProp;
+
+      // When the error state is active and not just a refresh animation, the <img> may never
+      // render (hasNoSource, showError, mimeTypeIsError), so browser onerror never fires.
+      // Notify the parent here instead.
+      const isRealError = !isRefreshingLocally && !isLoading && isError;
+      useEffect(() => {
+        if (isRealError && !sourceIsBase64Image) {
+          onErrorRef.current?.();
+        }
+      }, [isRealError, sourceIsBase64Image]);
 
       // Error state UI
       const renderErrorState = () => (

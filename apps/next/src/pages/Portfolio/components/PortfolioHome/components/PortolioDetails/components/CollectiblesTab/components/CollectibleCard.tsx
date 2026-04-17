@@ -10,12 +10,16 @@ export const CollectibleCard = memo(function CollectibleCard({
   onImageDimensions,
   showTokenId = true,
   minHeight,
+  onMediaError,
+  onMediaLoad,
 }: {
   collectible: FormattedCollectible;
   onClick: () => void;
   onImageDimensions: () => void;
   showTokenId?: boolean;
   minHeight?: number;
+  onMediaError?: () => void;
+  onMediaLoad?: () => void;
 }) {
   const { enhancedCollectible, showError, refetch, isLoading } =
     useCollectibleDisplay(collectible);
@@ -65,7 +69,11 @@ export const CollectibleCard = memo(function CollectibleCard({
         collectible={enhancedCollectible}
         showError={showError}
         isLoading={isLoading}
-        onLoad={onImageDimensions}
+        onLoad={() => {
+          onImageDimensions();
+          onMediaLoad?.();
+        }}
+        onError={onMediaError}
         refetch={refetch}
         staticMimeType={collectible.staticMimeType}
         maintainAspectRatio={false}
