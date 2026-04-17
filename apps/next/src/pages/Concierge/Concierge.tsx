@@ -48,6 +48,7 @@ export const Concierge = () => {
           px={0}
           containerProps={{
             mt: 0,
+            pb: 0,
           }}
         >
           <Stack
@@ -99,9 +100,10 @@ export const Concierge = () => {
             <Stack
               sx={{
                 pt: 1.5,
+                pb: 1.5,
                 px: 1.5,
                 position: 'sticky',
-                bottom: 12,
+                bottom: 0,
                 zIndex: 10,
                 backdropFilter: 'blur(20px)',
                 WebkitBackdropFilter: 'blur(30px)',
