@@ -170,8 +170,8 @@ export function CollectiblesTab() {
                   if (el) virtualizer.measureElement(el);
                 }}
                 minHeight={columnWidth}
-                onMediaError={() => handleMediaError(item.uniqueCollectibleId)}
-                onMediaLoad={() => handleMediaLoad(item.uniqueCollectibleId)}
+                onMediaError={handleMediaError}
+                onMediaLoad={handleMediaLoad}
               />
             )}
           />

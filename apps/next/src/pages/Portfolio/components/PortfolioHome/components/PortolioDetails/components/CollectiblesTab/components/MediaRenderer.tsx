@@ -205,10 +205,24 @@ export const MediaRenderer = memo(
         setIsRefreshingLocally(false);
       };
 
+      // Keep a ref so the effect always uses the latest callback without re-triggering on every render
+      const onErrorRef = useRef(onErrorProp);
+      onErrorRef.current = onErrorProp;
+
+      // Tracks whether onError has already been fired for the current source, so we never
+      // double-notify (once via browser onerror in handleError, once via the effect below).
+      const hasNotifiedErrorRef = useRef(false);
+      const prevSourceRef = useRef(currentSource);
+      if (prevSourceRef.current !== currentSource) {
+        prevSourceRef.current = currentSource;
+        hasNotifiedErrorRef.current = false;
+      }
+
       const handleError = () => {
         if (useFallback) {
           // Already tried fallback, now it's an error
           setHasMediaFailed(true);
+          hasNotifiedErrorRef.current = true;
           onErrorProp?.();
         } else {
           // Try fallback source
@@ -232,16 +246,18 @@ export const MediaRenderer = memo(
           (showError || mimeTypeIsError) &&
           (!srcRaw || useFallback));
 
-      // Keep a ref so the effect always uses the latest callback without re-triggering on every render
-      const onErrorRef = useRef(onErrorProp);
-      onErrorRef.current = onErrorProp;
-
       // When the error state is active and not just a refresh animation, the <img> may never
       // render (hasNoSource, showError, mimeTypeIsError), so browser onerror never fires.
       // Notify the parent here instead.
+      // The hasNotifiedErrorRef guard prevents double-firing when handleError already notified.
       const isRealError = !isRefreshingLocally && !isLoading && isError;
       useEffect(() => {
-        if (isRealError && !sourceIsBase64Image) {
+        if (
+          isRealError &&
+          !sourceIsBase64Image &&
+          !hasNotifiedErrorRef.current
+        ) {
+          hasNotifiedErrorRef.current = true;
           onErrorRef.current?.();
         }
       }, [isRealError, sourceIsBase64Image]);
