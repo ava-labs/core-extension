@@ -16,7 +16,7 @@
     "@sentry/browser": "7.66.0"
   },
   "devDependencies": {
-    "@avalabs/fusion-sdk": "0.14.4",
+    "@avalabs/fusion-sdk": "0.15.1",
     "@eslint/compat": "1.2.4",
     "@eslint/eslintrc": "3.2.0",
     "@eslint/js": "9.16.0",

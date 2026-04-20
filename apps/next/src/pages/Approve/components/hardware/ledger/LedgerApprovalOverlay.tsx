@@ -4,6 +4,7 @@ import { DisplayData } from '@avalabs/vm-module-types';
 import { Action, ActionStatus, NetworkWithCaipId } from '@core/types';
 
 import { HardwareApprovalDrawer } from '@/components/HardwareApprovalDrawer';
+import { useLedgerApprovalAutoAppSwitch } from './useLedgerApprovalAutoAppSwitch';
 import { useLedgerApprovalState } from './useLedgerApprovalState';
 import {
   Disconnected,
@@ -45,6 +46,7 @@ export const LedgerApprovalOverlay: FC<LedgerApprovalOverlayProps> = ({
   reject,
 }) => {
   const state = useLedgerApprovalState(network, action);
+  useLedgerApprovalAutoAppSwitch(state, action);
 
   const Component = ComponentPerState[state.state];
 
