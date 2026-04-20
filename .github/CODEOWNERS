@@ -2,4 +2,4 @@
 # the repo. Unless a later match takes precedence,
 # @ava-labs/core-web-ext team will be requested for
 # review when someone opens a pull request.
-@ava-labs/core-web-ext
+* @ava-labs/core-web-ext
