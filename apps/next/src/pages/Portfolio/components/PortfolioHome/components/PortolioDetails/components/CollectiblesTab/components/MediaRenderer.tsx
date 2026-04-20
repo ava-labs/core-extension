@@ -157,8 +157,9 @@ export const MediaRenderer = memo(
 
       const sourceFirstPass = collectible?.logoUri;
       const srcRaw = collectible?.logoSmall || collectible?.tokenUri;
-      const currentSource =
-        useFallback && !sourceFirstPass ? srcRaw : sourceFirstPass;
+      // If logoUri is absent, use srcRaw immediately so we attempt a real load
+      // rather than landing in hasNoSource → error state before trying anything.
+      const currentSource = useFallback ? srcRaw : (sourceFirstPass ?? srcRaw);
 
       const {
         data: fetchedMimeType,
@@ -219,13 +220,13 @@ export const MediaRenderer = memo(
       }
 
       const handleError = () => {
-        if (useFallback) {
-          // Already tried fallback, now it's an error
+        if (useFallback || !sourceFirstPass) {
+          // Already tried fallback, or logoUri was absent so srcRaw was the only source — truly failed
           setHasMediaFailed(true);
           hasNotifiedErrorRef.current = true;
           onErrorProp?.();
         } else {
-          // Try fallback source
+          // Primary source failed, try srcRaw as fallback
           setUseFallback(true);
           setIsLoaded(false);
         }

@@ -97,7 +97,9 @@ export function CollectiblesTab() {
   const handleMediaError = useCallback((id: string) => {
     setFailedCollectibleIds((prev) => {
       if (prev.has(id)) return prev;
-      return new Set([...prev, id]);
+      const next = new Set(prev);
+      next.add(id);
+      return next;
     });
   }, []);
 
