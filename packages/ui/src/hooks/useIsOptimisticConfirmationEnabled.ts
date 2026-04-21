@@ -2,13 +2,14 @@ import { utils } from '@avalabs/avalanchejs';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { useCallback, useMemo } from 'react';
 
-import { NetworkWithCaipId } from '@core/types';
+import { FeatureGates, NetworkWithCaipId } from '@core/types';
 import { isAvalanchePrimaryNetwork } from '@core/common';
 
-import { useNetworkContext } from '../contexts';
+import { useFeatureFlagContext, useNetworkContext } from '../contexts';
 
 export const useIsOptimisticConfirmationEnabled = () => {
   const { isDeveloperMode } = useNetworkContext();
+  const { featureFlags } = useFeatureFlagContext();
 
   const provider = useMemo(
     () =>
@@ -18,8 +19,14 @@ export const useIsOptimisticConfirmationEnabled = () => {
     [isDeveloperMode],
   );
 
+  const isForceSaeEnabled = featureFlags[FeatureGates.FORCE_SAE];
+
   return useCallback(
     async (network?: NetworkWithCaipId) => {
+      if (isForceSaeEnabled) {
+        return false;
+      }
+
       const isAvalanche = network && isAvalanchePrimaryNetwork(network);
 
       if (!isAvalanche) {
@@ -34,6 +41,6 @@ export const useIsOptimisticConfirmationEnabled = () => {
       // TODO: Remove all of these checks once Helicon is enabled.
       return !utils.isHeliconEnabled(upgradesInfo);
     },
-    [provider],
+    [provider, isForceSaeEnabled],
   );
 };
