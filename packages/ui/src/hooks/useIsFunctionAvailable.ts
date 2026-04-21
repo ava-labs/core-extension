@@ -5,7 +5,6 @@ import { ChainId } from '@avalabs/core-chains-sdk';
 import { Account, FeatureGates, NetworkWithCaipId } from '@core/types';
 import {
   isAvalancheNetwork,
-  isBitcoinNetwork,
   isEthereumNetwork,
   isFireblocksAccount,
   isFireblocksApiSupported,
@@ -19,7 +18,6 @@ import {
 import { useIsUsingSeedlessAccount } from './useIsUsingSeedlessAccount';
 
 export enum FunctionNames {
-  BRIDGE = 'Bridge',
   BUY = 'Buy',
   COLLECTIBLES = 'COLLECTIBLES',
   DEFI = 'DeFi',
@@ -35,7 +33,6 @@ export enum FunctionNames {
 }
 
 const FeatureFlagMap: Record<string, FeatureGates> = {
-  [FunctionNames.BRIDGE]: FeatureGates.BRIDGE,
   [FunctionNames.BUY]: FeatureGates.BUY,
   [FunctionNames.DEFI]: FeatureGates.DEFI,
   [FunctionNames.KEYSTONE]: FeatureGates.KEYSTONE,
@@ -44,7 +41,6 @@ const FeatureFlagMap: Record<string, FeatureGates> = {
 };
 
 const functionRequireSigning = [
-  FunctionNames.BRIDGE,
   FunctionNames.SEND,
   FunctionNames.SWAP,
   FunctionNames.SIGN,
@@ -241,21 +237,6 @@ export const useIsFunctionAvailable = ({
           : isSolanaNetwork(networkToCheck)
             ? isFlagEnabled(FeatureGates.SWAP_SOLANA)
             : false;
-    }
-
-    if (functionToCheck === FunctionNames.BRIDGE) {
-      if (!networkToCheck || !isFlagEnabled(FeatureGates.BRIDGE)) {
-        return false;
-      }
-
-      if (isBitcoinNetwork(networkToCheck)) {
-        // Bridge is available on Bitcoin if either Lombard or AB BTC->AVA is enabled
-        return (
-          isFlagEnabled(FeatureGates.UNIFIED_BRIDGE_LOMBARD_BTC_TO_AVA) ||
-          isFlagEnabled(FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA)
-        );
-      }
-      return true;
     }
 
     const featureFlagToCheck = FeatureFlagMap[functionToCheck];

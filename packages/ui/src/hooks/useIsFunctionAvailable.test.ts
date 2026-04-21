@@ -61,9 +61,6 @@ describe('hooks/useIsFunctionAvailable', () => {
     [FeatureGates.SWAP_ETHEREUM]: true,
     [FeatureGates.SWAP_C_CHAIN]: true,
     [FeatureGates.SWAP_SOLANA]: true,
-    [FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]: true,
-    [FeatureGates.UNIFIED_BRIDGE_LOMBARD_BTC_TO_AVA]: true,
-    [FeatureGates.UNIFIED_BRIDGE_LOMBARD_AVA_TO_BTC]: true,
   } as any;
 
   const mockIsFlagEnabled = jest.fn();
@@ -178,25 +175,6 @@ describe('hooks/useIsFunctionAvailable', () => {
   });
 
   describe('checkIsFunctionAvailable - Feature Flag Checks', () => {
-    it('returns true when feature flag is enabled for BRIDGE', () => {
-      const { result } = renderHook(() =>
-        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
-      );
-
-      expect(result.current.isFunctionAvailable).toBe(true);
-      expect(mockIsFlagEnabled).toHaveBeenCalledWith(FeatureGates.BRIDGE);
-    });
-
-    it('returns false when feature flag is disabled for BRIDGE', () => {
-      mockIsFlagEnabled.mockReturnValueOnce(false);
-
-      const { result } = renderHook(() =>
-        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
-      );
-
-      expect(result.current.isFunctionAvailable).toBe(false);
-    });
-
     it('returns true when feature flag is enabled for BUY', () => {
       const { result } = renderHook(() =>
         useIsFunctionAvailable({ functionName: FunctionNames.BUY }),
@@ -241,11 +219,6 @@ describe('hooks/useIsFunctionAvailable', () => {
         return mockFeatureFlags[flag] ?? false;
       });
 
-      const { result: bridgeResult } = renderHook(() =>
-        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
-      );
-      expect(bridgeResult.current.isFunctionAvailable).toBe(false);
-
       const { result: sendResult } = renderHook(() =>
         useIsFunctionAvailable({ functionName: FunctionNames.SEND }),
       );
@@ -269,7 +242,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
+        useIsFunctionAvailable({ functionName: FunctionNames.SEND }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(true);
@@ -456,112 +429,6 @@ describe('hooks/useIsFunctionAvailable', () => {
     });
   });
 
-  describe('checkIsFunctionAvailable - BRIDGE function', () => {
-    it('returns false when network is not available', () => {
-      (useNetworkContext as jest.Mock).mockReturnValue({
-        network: undefined,
-      });
-
-      const { result } = renderHook(() =>
-        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
-      );
-
-      expect(result.current.isFunctionAvailable).toBe(false);
-    });
-
-    it('returns false when BRIDGE feature flag is disabled', () => {
-      mockIsFlagEnabled.mockImplementation((flag) => {
-        if (flag === FeatureGates.BRIDGE) return false;
-        return mockFeatureFlags[flag] ?? false;
-      });
-
-      const { result } = renderHook(() =>
-        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
-      );
-
-      expect(result.current.isFunctionAvailable).toBe(false);
-    });
-
-    it('returns true for Bitcoin network when UNIFIED_BRIDGE_AB_BTC_TO_AVA is enabled', () => {
-      (useNetworkContext as jest.Mock).mockReturnValue({
-        network: { chainId: ChainId.BITCOIN },
-      });
-      (useFeatureFlagContext as jest.Mock).mockReturnValue({
-        isFlagEnabled: mockIsFlagEnabled,
-        featureFlags: {
-          ...mockFeatureFlags,
-          [FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]: true,
-        },
-      });
-
-      const { result } = renderHook(() =>
-        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
-      );
-
-      expect(result.current.isFunctionAvailable).toBe(true);
-    });
-
-    it('returns false for Bitcoin network when both BTC bridge flags are disabled', () => {
-      const testFeatureFlags = {
-        ...mockFeatureFlags,
-        [FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]: false,
-        [FeatureGates.UNIFIED_BRIDGE_LOMBARD_BTC_TO_AVA]: false,
-      };
-
-      (useNetworkContext as jest.Mock).mockReturnValue({
-        network: { chainId: ChainId.BITCOIN },
-      });
-      (useFeatureFlagContext as jest.Mock).mockReturnValue({
-        isFlagEnabled: (flag: FeatureGates) => testFeatureFlags[flag] ?? false,
-        featureFlags: testFeatureFlags,
-      });
-
-      const { result } = renderHook(() =>
-        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
-      );
-
-      expect(result.current.isFunctionAvailable).toBe(false);
-    });
-
-    it('returns true for Bitcoin network when only LOMBARD_BTC_TO_AVA is enabled', () => {
-      const testFeatureFlags = {
-        ...mockFeatureFlags,
-        [FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]: false,
-        [FeatureGates.UNIFIED_BRIDGE_LOMBARD_BTC_TO_AVA]: true,
-      };
-
-      (useNetworkContext as jest.Mock).mockReturnValue({
-        network: { chainId: ChainId.BITCOIN },
-      });
-      (useFeatureFlagContext as jest.Mock).mockReturnValue({
-        isFlagEnabled: (flag: FeatureGates) => testFeatureFlags[flag] ?? false,
-        featureFlags: testFeatureFlags,
-      });
-
-      const { result } = renderHook(() =>
-        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
-      );
-
-      expect(result.current.isFunctionAvailable).toBe(true);
-    });
-
-    it('returns true for non-Bitcoin networks', () => {
-      (useNetworkContext as jest.Mock).mockReturnValue({
-        network: { chainId: ChainId.AVALANCHE_MAINNET_ID },
-      });
-      (useFeatureFlagContext as jest.Mock).mockReturnValue({
-        isFlagEnabled: mockIsFlagEnabled,
-        featureFlags: mockFeatureFlags,
-      });
-
-      const { result } = renderHook(() =>
-        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
-      );
-
-      expect(result.current.isFunctionAvailable).toBe(true);
-    });
-  });
-
   describe('checkIsFunctionSupported - Network Whitelist', () => {
     it('returns true for COLLECTIBLES on whitelisted networks', () => {
       (useNetworkContext as jest.Mock).mockReturnValue({
@@ -662,30 +529,6 @@ describe('hooks/useIsFunctionAvailable', () => {
 
       expect(result.current.isFunctionSupported).toBe(false);
     });
-
-    it('returns false for Bridge on blacklisted networks', () => {
-      (useNetworkContext as jest.Mock).mockReturnValue({
-        network: { chainId: ChainId.AVALANCHE_P },
-      });
-
-      const { result } = renderHook(() =>
-        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
-      );
-
-      expect(result.current.isFunctionSupported).toBe(false);
-    });
-
-    it('returns true for Bridge on non-blacklisted networks', () => {
-      (useNetworkContext as jest.Mock).mockReturnValue({
-        network: { chainId: ChainId.AVALANCHE_MAINNET_ID },
-      });
-
-      const { result } = renderHook(() =>
-        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
-      );
-
-      expect(result.current.isFunctionSupported).toBe(true);
-    });
   });
 
   describe('checkIsFunctionSupported - SEND on P/X chain', () => {
@@ -780,30 +623,30 @@ describe('hooks/useIsFunctionAvailable', () => {
     it('checkIsFunctionAvailable can be called directly', () => {
       const { result } = renderHook(() => useIsFunctionAvailable({}));
 
-      expect(
-        result.current.checkIsFunctionAvailable(FunctionNames.BRIDGE),
-      ).toBe(true);
+      expect(result.current.checkIsFunctionAvailable(FunctionNames.SEND)).toBe(
+        true,
+      );
     });
 
     it('checkIsFunctionSupported can be called directly', () => {
       const { result } = renderHook(() => useIsFunctionAvailable({}));
 
-      expect(
-        result.current.checkIsFunctionSupported(FunctionNames.BRIDGE),
-      ).toBe(true);
+      expect(result.current.checkIsFunctionSupported(FunctionNames.SEND)).toBe(
+        true,
+      );
     });
 
     it('checkIsFunctionAvailable respects feature flags when called directly', () => {
       mockIsFlagEnabled.mockImplementation((flag) => {
-        if (flag === FeatureGates.BRIDGE) return false;
+        if (flag === FeatureGates.SEND) return false;
         return mockFeatureFlags[flag] ?? false;
       });
 
       const { result } = renderHook(() => useIsFunctionAvailable({}));
 
-      expect(
-        result.current.checkIsFunctionAvailable(FunctionNames.BRIDGE),
-      ).toBe(false);
+      expect(result.current.checkIsFunctionAvailable(FunctionNames.SEND)).toBe(
+        false,
+      );
     });
 
     it('checkIsFunctionSupported respects network whitelist when called directly', () => {

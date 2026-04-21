@@ -6,7 +6,6 @@ import { AvalancheAddAccountHandler } from '../../services/accounts/handlers/ava
 import { AvalancheSelectAccountHandler } from '../../services/accounts/handlers/avalanche_selectAccount';
 import { EthAccountsHandler } from '../../services/accounts/handlers/eth_accounts';
 import { ActionEvents } from '../../services/actions/events/actionEvents';
-import { AvalancheGetBridgeTransactionHandler } from '../../services/bridge/handlers/avalanche_getBridgeState';
 import { AvalancheGetContactsHandler } from '../../services/contacts/handlers/avalanche_getContacts';
 import { AvalancheCreateContactHandler } from '../../services/contacts/handlers/avalanche_createContact';
 import { AvalancheUpdateContactHandler } from '../../services/contacts/handlers/avalanche_updateContact';
@@ -55,10 +54,6 @@ const SHARED_HANDLERS = [
   { token: 'DAppRequestHandler', useToken: AvalancheGetAccountsHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheAddAccountHandler },
   { token: 'DAppRequestHandler', useToken: EthAccountsHandler },
-  {
-    token: 'DAppRequestHandler',
-    useToken: AvalancheGetBridgeTransactionHandler,
-  },
   { token: 'DAppRequestHandler', useToken: AvalancheGetContactsHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheCreateContactHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheUpdateContactHandler },

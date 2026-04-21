@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "@avalabs/avalanchejs": "5.1.0-alpha.2",
-    "@avalabs/bridge-unified": "4.4.2",
     "@avalabs/core-chains-sdk": "3.1.0-alpha.83",
     "@avalabs/core-utils-sdk": "3.1.0-alpha.83",
     "@avalabs/core-wallets-sdk": "3.1.0-alpha.83",

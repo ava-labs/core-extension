@@ -132,29 +132,24 @@ export const functionDeclarations: FunctionDeclaration[] = [
   },
   {
     name: 'bridge',
-    description: `Send a token from one network to another.`,
+    description: `Bridge a token from the active network to another network using the Fusion bridge. The source network is always the active network.`,
     parameters: {
       type: SchemaType.OBJECT,
       properties: {
         amount: {
           type: SchemaType.STRING,
-          description: `The amount of tokens to bridge. It has to be less than the balance of the user from that given token. Do not let the user to initiate a bridge transaction if the balance is less than the user wants to bridge. E.g. if the user has 1 USDC do not let start a bridge with 10 USDC. The user cannot provide an amount of anything else just the amount of the token.`,
+          description: `The amount of tokens to bridge. Must not exceed the user's balance.`,
         },
         token: {
           type: SchemaType.STRING,
-          description:
-            'The address of the token to be bridged. The allowed tokens list is in the given data in the prompt template.',
-        },
-        sourceNetwork: {
-          type: SchemaType.STRING,
-          description: `The network's chainId to send the tokens from. It is always the actual active network. The user cannot change it.`,
+          description: 'The symbol of the token to bridge.',
         },
         destinationNetwork: {
           type: SchemaType.STRING,
-          description: `The destination network's chainId. You can find the chainId in the network list so the user has to be able to ask that by the name of the network.`,
+          description: `The CAIP-2 chain ID of the destination network (e.g. "eip155:1" for Ethereum). Found in the available networks list as the "id" property.`,
         },
       },
-      required: ['amount', 'token', 'sourceNetwork', 'destinationNetwork'],
+      required: ['amount', 'token', 'destinationNetwork'],
     },
   },
   {
@@ -181,7 +176,6 @@ The user has the following tokens on the active account:
 __TOKENS__
 The tokens can be identified by their "symbol" property, as well as their "address" property. Both identifiers are case-insensitive.
 All known and available tokens for the current network are listed in the following array: __AVAILABLE_TOKENS__
-Bridge must be only available the following tokens: __BRIDGE_DATA__ and the source network is always the actual "active" network.
 The user can open a dApp by name or by a given URL or if the user wants to buy a token you can open a new window where it can be done.
 The important words should be emphasised with bold formatting e.g. token and network names and / or ids, command names and similar things. 
 The user can use the 'swap' and 'send' functions ONLY on EVM networks which means the 'vmName' (that is the short form of Virtual Machine) property of the active network MUST BE 'EVM'. There is a 'vmName' property in the data of each network in the available networks list. If that value is 'EVM' the user able to call those functions. When the user wants to start a 'send' or 'swap' transaction notify them with an emphasised message.
