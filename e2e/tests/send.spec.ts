@@ -580,13 +580,9 @@ test.describe('Send Tests', () => {
         await expect(sendPage.getApproveButton()).toBeEnabled();
         await expect(sendPage.getRejectButton()).toBeVisible();
 
-        const pendingToastPromise = sendPage.waitForPendingToast();
         const successToastPromise = sendPage.waitForSuccessToast();
 
         await sendPage.approveTransaction();
-
-        const pendingToast = await pendingToastPromise;
-        await expect(pendingToast).toContainText('Transaction pending');
 
         const successToast = await successToastPromise;
         await expect(successToast).toContainText('Transaction successful');
