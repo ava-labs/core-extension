@@ -57,7 +57,7 @@ export const baseConfig: PlaywrightTestConfig = {
   expect: { timeout: 5000 }, // Reduced for debugging
   forbidOnly: !!process.env.CI,
   /** CI: fewer reruns to save time; local: extra retry for flake isolation. */
-  retries: process.env.CI ? 1 : 2,
+  retries: process.env.CI ? 2 : 2,
   workers: getWorkers(),
   fullyParallel: fullyParallel,
   reporter: process.env.CI

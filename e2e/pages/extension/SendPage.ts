@@ -56,7 +56,7 @@ export class SendPage extends BasePage {
     await this.page.evaluate(() => {
       window.location.hash = '#/';
     });
-    await this.page.waitForTimeout(500);
+    await this.page.waitForURL(/#\/$/, { timeout: 5000 });
   }
 
   async openSendFromPortfolioHome(): Promise<void> {
@@ -123,6 +123,23 @@ export class SendPage extends BasePage {
       .waitFor({ state: 'visible', timeout: 25000 });
   }
 
+  /**
+   * Waits for the dropdown loading spinner to appear and disappear after a
+   * search/fill. Falls back to a short network-idle wait when no spinner is
+   * rendered (simple lists that filter client-side).
+   */
+  private async waitForSearchDebounce(): Promise<void> {
+    const spinner = this.page.locator('[data-testid="dropdown-loading"]');
+    const hasSpinner = await spinner
+      .waitFor({ state: 'visible', timeout: 1500 })
+      .then(() => true)
+      .catch(() => false);
+
+    if (hasSpinner) {
+      await spinner.waitFor({ state: 'hidden', timeout: 10000 });
+    }
+  }
+
   // ── Token select ────────────────────────────────────────────────────
 
   getTokenSelectOptions(): Locator {
@@ -133,7 +150,7 @@ export class SendPage extends BasePage {
     await this.openTokenSelectPopover();
     const search = this.tokenSelectSearchField();
     await search.fill(query);
-    await this.page.waitForTimeout(1000);
+    await this.waitForSearchDebounce();
   }
 
   // ── Account select ─────────────────────────────────────────────────
@@ -161,7 +178,7 @@ export class SendPage extends BasePage {
   async searchAccountInDropdown(query: string): Promise<void> {
     await this.openAccountSelectDropdown();
     await this.accountSelectSearchInput().fill(query);
-    await this.page.waitForTimeout(1000);
+    await this.waitForSearchDebounce();
   }
 
   getAccountSelectOptions(): Locator {
@@ -186,7 +203,7 @@ export class SendPage extends BasePage {
   async searchRecipientInDropdown(query: string): Promise<void> {
     await this.openRecipientDropdown();
     await this.recipientSearchInput.fill(query);
-    await this.page.waitForTimeout(1000);
+    await this.waitForSearchDebounce();
   }
 
   getRecipientOptions(): Locator {
@@ -217,7 +234,7 @@ export class SendPage extends BasePage {
 
     // Dismiss any tooltip overlaying the preset buttons by clicking the page heading
     await this.page.getByRole('heading', { name: 'Send', level: 1 }).click();
-    await this.page.waitForTimeout(300);
+    await expect(btn).toBeVisible();
 
     await btn.click();
   }
@@ -247,7 +264,7 @@ export class SendPage extends BasePage {
       timeout: 5000,
     });
     await this.recipientSearchInput.fill(address);
-    await this.page.waitForTimeout(1000);
+    await this.waitForSearchDebounce();
 
     const addressOption = this.page.locator('[data-option-id]').first();
     const hasOption = await addressOption
@@ -265,8 +282,6 @@ export class SendPage extends BasePage {
 
     if (data.recipientAccount) {
       await this.selectRecipientAccount(data.recipientAccount);
-    } else if (data.recipientAddress) {
-      await this.enterRecipientAddress(data.recipientAddress);
     }
   }
 
@@ -295,7 +310,6 @@ export class SendPage extends BasePage {
       timeout: 5000,
     });
     await this.recipientSearchInput.fill(accountName);
-    await this.page.waitForTimeout(1000);
 
     const accountOption = this.page
       .locator('[data-option-id]')
@@ -312,7 +326,6 @@ export class SendPage extends BasePage {
     contactName: string,
   ): Promise<void> {
     await this.recipientSearchInput.fill(contactName);
-    await this.page.waitForTimeout(1000);
 
     const option = this.page
       .locator('[data-option-id]')
@@ -327,7 +340,6 @@ export class SendPage extends BasePage {
 
     const search = this.tokenSelectSearchField();
     await search.fill(tokenSymbol);
-    await this.page.waitForTimeout(1000);
 
     const tokenOption = this.page.locator('[data-option-id]').first();
     await tokenOption.waitFor({ state: 'visible', timeout: 10000 });
@@ -349,7 +361,11 @@ export class SendPage extends BasePage {
     const chip = this.page.getByRole('button', { name }).first();
     if (await chip.isVisible({ timeout: 3000 }).catch(() => false)) {
       await chip.click();
-      await this.page.waitForTimeout(500);
+      await expect(chip)
+        .toHaveAttribute('aria-pressed', 'true', {
+          timeout: 3000,
+        })
+        .catch(() => {});
     }
   }
 
@@ -364,7 +380,6 @@ export class SendPage extends BasePage {
 
     const search = this.tokenSelectSearchField();
     await search.fill(tokenSymbol);
-    await this.page.waitForTimeout(1000);
 
     const tokenOption = this.page
       .locator('[data-option-id]')
@@ -390,7 +405,7 @@ export class SendPage extends BasePage {
       timeout: 5000,
     });
     await this.recipientSearchInput.fill(query);
-    await this.page.waitForTimeout(1000);
+    await this.waitForSearchDebounce();
   }
 
   // ── Approval dialog ───────────────────────────────────────────────────
@@ -481,7 +496,7 @@ export class SendPage extends BasePage {
     const isChecked = await toggleInput.isChecked();
     if (isChecked) {
       await gaslessToggle.click();
-      await this.page.waitForTimeout(500);
+      await expect(toggleInput).not.toBeChecked({ timeout: 5000 });
     }
   }
 
@@ -502,7 +517,7 @@ export class SendPage extends BasePage {
     const isChecked = await toggleInput.isChecked();
     if (!isChecked) {
       await gaslessToggle.click();
-      await this.page.waitForTimeout(500);
+      await expect(toggleInput).toBeChecked({ timeout: 5000 });
     }
   }
 
@@ -571,7 +586,7 @@ export class SendPage extends BasePage {
   async fillCustomFeeInput(locator: Locator, value: string): Promise<void> {
     await locator.click({ clickCount: 3 });
     await locator.fill(value);
-    await this.page.waitForTimeout(300);
+    await expect(locator).toHaveValue(value, { timeout: 3000 });
   }
 
   getCustomFeeCancelButton() {

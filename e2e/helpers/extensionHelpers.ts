@@ -36,8 +36,8 @@ export async function waitForPortfolioShellReady(
   );
   await page.waitForFunction(
     () => {
-      const spinner = document.querySelector('[class*="CircularProgress"]');
-      if (spinner) return false;
+      const loading = document.querySelector('[data-testid="loading-screen"]');
+      if (loading) return false;
 
       const settingsBtn = document.querySelector(
         '[data-testid="settings-button"]',
@@ -110,11 +110,11 @@ export async function waitForExtensionLoad(
   try {
     await page.waitForFunction(
       () => {
-        // Check for loading spinner - if visible, not ready yet
-        const spinner = document.querySelector('[class*="CircularProgress"]');
-        if (spinner) return false;
+        const loading = document.querySelector(
+          '[data-testid="loading-screen"]',
+        );
+        if (loading) return false;
 
-        // Check for lock screen
         const passwordInput = document.querySelector(
           'input[type="password"], input[placeholder*="password" i]',
         );

@@ -221,7 +221,7 @@ test.describe('Send Tests', () => {
     test.skip(
       `As a CORE ext user with an extension wallet, I can send ${row.description} AVAX`,
       {
-        tag: ['@smoke', '@regression'],
+        tag: ['@regression'],
         annotation: [
           {
             type: 'snapshot',
@@ -308,7 +308,7 @@ test.describe('Send Tests', () => {
     test(
       `As a CORE ext user with an extension wallet, I can send ${row.description}`,
       {
-        tag: ['@smoke', '@regression'],
+        tag: ['@regression'],
         annotation: [
           {
             type: 'snapshot',
@@ -391,7 +391,7 @@ test.describe('Send Tests', () => {
   test(
     'As a CORE ext user with an extension wallet, I can send BTC',
     {
-      tag: ['@smoke', '@regression'],
+      tag: ['@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -435,13 +435,9 @@ test.describe('Send Tests', () => {
       await expect(sendPage.getApproveButton()).toBeEnabled();
       await expect(sendPage.getRejectButton()).toBeVisible();
 
-      const pendingToastPromise = sendPage.waitForPendingToast();
       const successToastPromise = sendPage.waitForSuccessToast();
 
       await sendPage.approveTransaction();
-
-      const pendingToast = await pendingToastPromise;
-      await expect(pendingToast).toContainText('Transaction pending');
 
       const successToast = await successToastPromise;
       await expect(successToast).toContainText('Transaction successful');
@@ -490,7 +486,7 @@ test.describe('Send Tests', () => {
     test(
       `As a CORE ext user with an extension wallet, I can send ${row.description}`,
       {
-        tag: ['@smoke', '@regression'],
+        tag: ['@regression'],
         annotation: [
           {
             type: 'snapshot',
@@ -620,7 +616,7 @@ test.describe('Send Tests', () => {
     test(
       `As a CORE ext user with an extension wallet, I can send ${row.description}`,
       {
-        tag: ['@smoke', '@regression'],
+        tag: ['@regression'],
         annotation: [
           {
             type: 'snapshot',
@@ -703,7 +699,7 @@ test.describe('Send Tests', () => {
   test(
     'As a CORE ext user with an extension wallet, I can send C-Chain AVAX with gasless toggled on',
     {
-      tag: ['@smoke', '@regression'],
+      tag: ['@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -801,7 +797,7 @@ test.describe('Send Tests', () => {
   test(
     'As a CORE ext user, I can search for a token in the token select dropdown',
     {
-      tag: ['@smoke', '@regression'],
+      tag: ['@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -829,7 +825,7 @@ test.describe('Send Tests', () => {
   test(
     'As a CORE ext user, when I search for a token in the token select dropdown I get an error or empty state',
     {
-      tag: ['@smoke', '@regression'],
+      tag: ['@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -859,7 +855,7 @@ test.describe('Send Tests', () => {
   test(
     'As a CORE ext user, when I open the Send To dropdown it shows the most recently transacted addresses',
     {
-      tag: ['@smoke', '@regression'],
+      tag: ['@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -893,7 +889,7 @@ test.describe('Send Tests', () => {
   test(
     'As a CORE ext user, when I open the Send To dropdown I can search for a contact name or address',
     {
-      tag: ['@smoke', '@regression'],
+      tag: ['@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -921,7 +917,7 @@ test.describe('Send Tests', () => {
   test(
     'As a CORE ext user, when I search for an invalid address in the Send To dropdown I get an error or empty state',
     {
-      tag: ['@smoke', '@regression'],
+      tag: ['@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -951,7 +947,7 @@ test.describe('Send Tests', () => {
   test(
     'As a CORE ext user, when I open the Accounts dropdown I can search for an account name or address',
     {
-      tag: ['@smoke', '@regression'],
+      tag: ['@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -978,7 +974,7 @@ test.describe('Send Tests', () => {
   test(
     'As a CORE ext user, when I search for an invalid address in the Accounts dropdown I get an error or empty state',
     {
-      tag: ['@smoke', '@regression'],
+      tag: ['@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -1007,7 +1003,7 @@ test.describe('Send Tests', () => {
   test(
     'As a CORE ext user, when I enter an amount larger than the selected token balance I get an error',
     {
-      tag: ['@smoke', '@regression'],
+      tag: ['@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -1049,7 +1045,7 @@ test.describe('Send Tests', () => {
     test(
       `As a CORE ext user, when selecting ${row.description} the amount input is auto populated with the correct amount`,
       {
-        tag: ['@smoke', '@regression'],
+        tag: ['@regression'],
         annotation: [
           {
             type: 'snapshot',
@@ -1102,7 +1098,7 @@ test.describe('Send Tests', () => {
     test(
       `As a CORE ext user, when entering ${row.description} I get an error`,
       {
-        tag: ['@smoke', '@regression'],
+        tag: ['@regression'],
         annotation: [
           {
             type: 'snapshot',

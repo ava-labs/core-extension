@@ -1,3 +1,5 @@
+import type { SendTransactionData } from './types/send';
+
 /**
  * Test configuration constants
  */
@@ -79,9 +81,22 @@ export const MONAD_NETWORK = {
 };
 
 /**
- * Send transaction data for testing
+ * Send transaction data for testing.
+ *
+ * ⚠️  Hardcoded addresses and contact names below are tied to specific wallet
+ *     snapshots stored in S3 (`core-qa-automation-snapshots/ext/`).
+ *     If snapshots are regenerated these values **must** be updated to match
+ *     the new snapshot state, otherwise tests will silently fail.
+ *
+ * Snapshot → address mapping:
+ *   • `testnetPrimaryExtWallet`  – "Account 2" internal account used by most
+ *      send tests (no contacts required).
+ *   • `testnetContactExtWallet`  – includes saved contact "QA Wallet 2" with:
+ *       - EVM address : 0xdfEF57229201BD241E1bE24159DBdaec7a1fA38A
+ *       - SOL address : GAwrFRQH9uuYGmag2zo7cY3DeneCZJSJiNpesRfg1dFA
  */
 export const TEST_SEND = {
+  /** C-Chain native AVAX send. Snapshot: `testnetPrimaryExtWallet`. */
   CCHAIN_AVAX: {
     tokenSymbol: 'AVAX',
     amount: '0.001',
@@ -174,7 +189,9 @@ export const TEST_SEND = {
   },
   /**
    * Solana Devnet native SOL send to a saved contact.
-   * Uses `testnetContactExtWallet` snapshot (testnet, has "QA Wallet 2" contact with SOL address).
+   * Snapshot: `testnetContactExtWallet` (has "QA Wallet 2" contact).
+   * ⚠️  `recipientContactSolAddress` must match the SOL address stored for
+   *     "QA Wallet 2" in the snapshot — update if the snapshot is regenerated.
    */
   SOL_CONTACT: {
     tokenSymbol: 'SOL',
@@ -186,7 +203,8 @@ export const TEST_SEND = {
   },
   /**
    * Solana Devnet SPL token (PYUSD) send to a saved contact.
-   * Uses `testnetContactExtWallet` snapshot.
+   * Snapshot: `testnetContactExtWallet`.
+   * ⚠️  Same SOL address caveat as SOL_CONTACT above.
    */
   SOL_PYUSD_CONTACT: {
     tokenSymbol: 'PYUSD',
@@ -197,19 +215,21 @@ export const TEST_SEND = {
     recipientContactSolAddress: 'GAwrFRQH9uuYGmag2zo7cY3DeneCZJSJiNpesRfg1dFA',
   },
   /**
-   * C-Chain send to an existing Saved address contact + gasless.
-   * Requires testnetContactExtWallet snapshot (includes contact "QA Wallet 2").
+   * C-Chain send to an existing saved-address contact + gasless.
+   * Snapshot: `testnetContactExtWallet` (includes contact "QA Wallet 2").
+   * ⚠️  `recipientContactEvmAddress` must match the EVM address stored for
+   *     "QA Wallet 2" in the snapshot — update if the snapshot is regenerated.
+   * ⚠️  `randomUnsavedEvmAddress` is intentionally NOT in the address book;
+   *     used to verify the "Unknown" recipient label in the dropdown.
    */
   CCHAIN_AVAX_CONTACT_GASLESS: {
     tokenSymbol: 'AVAX',
     amount: '0.001',
     recipientContactName: 'QA Wallet 2',
-    /** C-Chain address for that contact in `testnetContactExtWallet` (matches approval Contract row). */
     recipientContactEvmAddress: '0xdfEF57229201BD241E1bE24159DBdaec7a1fA38A',
-    /** Not in address book — recipient dropdown shows translated "Unknown" label. */
     randomUnsavedEvmAddress: '0x1234567890123456789012345678901234567890',
   },
-};
+} satisfies Record<string, SendTransactionData>;
 
 /**
  * Contact data for testing
