@@ -1,48 +1,23 @@
 import {
-  GetBalancesResponse,
-  Module,
   Network,
   NetworkVMType,
   TokenType,
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
-import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import {
   getPriceChangeValues,
-  getProviderForNetwork,
   isNotNullish,
   isPrimaryAccount,
 } from '@core/common';
 import { Account, NetworkWithCaipId, TokensPriceShortData } from '@core/types';
 import * as Sentry from '@sentry/browser';
-import { ethers } from 'ethers';
 import LRUCache from 'lru-cache';
 import { singleton } from 'tsyringe';
 import { ModuleManager } from '../../vmModules/ModuleManager';
 import { AddressResolver } from '../secrets/AddressResolver';
 import { SettingsService } from '../settings/SettingsService';
 
-const ERC20_BALANCE_OF_ABI = [
-  'function balanceOf(address owner) view returns (uint256)',
-];
-
 const cacheStorage = new LRUCache({ max: 100, ttl: 60 * 1000 });
-
-const PROTO_POLLUTION_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
-
-function isValidErc20TokenEntry(
-  t: unknown,
-): t is { address: string; name: string; symbol: string; decimals: number } {
-  if (typeof t !== 'object' || t === null) return false;
-  const obj = t as Record<string, unknown>;
-  return (
-    typeof obj.address === 'string' &&
-    typeof obj.name === 'string' &&
-    typeof obj.symbol === 'string' &&
-    typeof obj.decimals === 'number' &&
-    Number.isFinite(obj.decimals)
-  );
-}
 
 @singleton()
 export class BalancesService {
@@ -51,131 +26,6 @@ export class BalancesService {
     private moduleManager: ModuleManager,
     private addressResolver: AddressResolver,
   ) {}
-
-  /**
-   * Workaround for testnets where the VM module's balance provider
-   * (Glacier/Debank) claims to support the chain but returns no ERC20 data.
-   * Fetches balances directly via individual RPC balanceOf calls.
-   *
-   * Mutates rawBalances in-place.
-   * TODO: Remove once the evm-module properly falls through to the RPC provider.
-   */
-  async #fillMissingErc20Balances(
-    rawBalances: GetBalancesResponse,
-    network: NetworkWithCaipId,
-    module: Module,
-    addresses: string[],
-  ): Promise<void> {
-    const hasAnyErc20 = addresses.some((addr) => {
-      const acct = rawBalances[addr];
-      if (!acct || acct instanceof Error) return false;
-      return Object.values(acct).some(
-        (t) => !(t instanceof Error) && t.type === TokenType.ERC20,
-      );
-    });
-    if (hasAnyErc20) return;
-
-    const erc20Tokens = await this.#fetchErc20TokenList(network, module);
-    if (!erc20Tokens.length) return;
-
-    const provider = await getProviderForNetwork(
-      network as unknown as Parameters<typeof getProviderForNetwork>[0],
-    ).catch(() => null);
-    if (!(provider instanceof JsonRpcBatchInternal)) return;
-
-    for (const address of addresses) {
-      if (PROTO_POLLUTION_KEYS.has(address)) continue;
-      const acct = rawBalances[address];
-      if (!acct || acct instanceof Error) continue;
-
-      try {
-        const results = await Promise.allSettled(
-          erc20Tokens.map(async (token) => {
-            const contract = new ethers.Contract(
-              token.address,
-              ERC20_BALANCE_OF_ABI,
-              provider,
-            );
-            const balance: bigint = await contract.balanceOf!(address);
-            return { ...token, balance };
-          }),
-        );
-
-        for (const result of results) {
-          if (result.status !== 'fulfilled') continue;
-
-          const {
-            address: tokenAddr,
-            name,
-            symbol,
-            decimals,
-            balance,
-          } = result.value;
-
-          const tokenKey = tokenAddr.toLowerCase();
-          if (PROTO_POLLUTION_KEYS.has(tokenKey)) continue;
-
-          const accountBalances = rawBalances[address] as Record<
-            string,
-            TokenWithBalance
-          >;
-
-          const safeAccountBalances: Record<string, TokenWithBalance> =
-            Object.create(null);
-          for (const [existingTokenKey, existingTokenBalance] of Object.entries(
-            accountBalances,
-          )) {
-            safeAccountBalances[existingTokenKey] = existingTokenBalance;
-          }
-
-          rawBalances[address] =
-            safeAccountBalances as unknown as GetBalancesResponse[string];
-
-          safeAccountBalances[tokenKey] = {
-            type: TokenType.ERC20,
-            address: tokenAddr,
-            name,
-            symbol,
-            decimals,
-            balance,
-            balanceDisplayValue: ethers.formatUnits(balance, decimals),
-            balanceInCurrency: undefined,
-            balanceCurrencyDisplayValue: '',
-            priceInCurrency: undefined,
-            reputation: null,
-          } as unknown as TokenWithBalance;
-        }
-      } catch (err) {
-        console.warn(
-          `BalancesService: ERC20 RPC fallback failed for ${address} on ${network.caipId}:`,
-          err,
-        );
-      }
-    }
-  }
-
-  async #fetchErc20TokenList(
-    network: NetworkWithCaipId,
-    module: Module,
-  ): Promise<
-    { address: string; name: string; symbol: string; decimals: number }[]
-  > {
-    try {
-      const allTokens = await module.getTokens(network as Network);
-      return (allTokens as unknown[]).filter(isValidErc20TokenEntry);
-    } catch {
-      try {
-        const res = await fetch(
-          `${process.env.PROXY_URL}/tokens?evmChainId=${network.chainId}`,
-        );
-        if (!res.ok) return [];
-        const data: unknown = await res.json();
-        return Array.isArray(data) ? data.filter(isValidErc20TokenEntry) : [];
-      } catch {
-        return [];
-      }
-    }
-  }
 
   async getBalancesForNetwork(
     network: NetworkWithCaipId,
@@ -270,87 +120,40 @@ export class BalancesService {
       storage: cacheStorage,
     });
 
-    // Workaround: Glacier/Debank may claim to support testnets like Sepolia
-    // but return empty ERC20 results. When ERC20 was requested but no ERC20
-    // tokens were returned, fetch them directly via RPC balanceOf calls.
-    if (
-      network.isTestnet &&
-      network.vmName === NetworkVMType.EVM &&
-      tokenTypes.includes(TokenType.ERC20)
-    ) {
-      await this.#fillMissingErc20Balances(
-        rawBalances,
-        network,
-        module,
-        Array.from(addressesToFetch),
-      );
-    }
-
-    // Apply price changes data, VM Modules don't do this yet.
-    // Note: rawBalances may contain an account-level `error` property
-    // (e.g. when listErc20Balances fails but getNativeBalance succeeds).
-    // We must NOT skip the entire account in that case — instead we
-    // process individual tokens and only skip entries that are errors.
+    // Apply price changes data, VM Modules don't do this yet
     const balances = Object.keys(rawBalances).reduce(
       (
         accountBalances,
         accountKey,
       ): Record<string, Record<string, TokenWithBalance>> => {
         const rawAccountTokenList = rawBalances[accountKey];
-        if (!rawAccountTokenList) {
-          return accountBalances;
-        }
-
-        if (rawAccountTokenList.error) {
-          console.warn(
-            `BalancesService: Partial failure for ${accountKey} on ${network.caipId}:`,
-            rawAccountTokenList.error,
-          );
-        }
-
-        const accountTokens = Object.keys(rawAccountTokenList).reduce(
-          (tokens, tokenKey): Record<string, TokenWithBalance> => {
-            if (tokenKey === 'error') {
-              return tokens;
-            }
-
-            const tokenBalance = rawAccountTokenList[tokenKey];
-            if (
-              !tokenBalance ||
-              tokenBalance instanceof Error ||
-              tokenBalance?.error
-            ) {
-              if (tokenBalance?.error) {
-                console.warn(
-                  `BalancesService: Skipping token ${tokenKey} on ${network.caipId}:`,
-                  tokenBalance.error,
-                );
-              }
-              return tokens;
-            }
-
-            return {
-              ...tokens,
-              [tokenKey]: {
-                ...tokenBalance,
-                priceChanges: getPriceChangeValues(
-                  tokenBalance.symbol,
-                  tokenBalance.balanceInCurrency,
-                  priceChanges,
-                ),
-              },
-            };
-          },
-          {},
-        );
-
-        if (Object.keys(accountTokens).length === 0) {
+        if (!rawAccountTokenList || rawAccountTokenList?.error) {
           return accountBalances;
         }
 
         return {
           ...accountBalances,
-          [accountKey]: accountTokens,
+          [accountKey]: Object.keys(rawAccountTokenList).reduce(
+            (tokens, tokenKey): Record<string, TokenWithBalance> => {
+              const tokenBalance = rawAccountTokenList[tokenKey];
+              if (tokenBalance?.error) {
+                return tokens;
+              }
+
+              return {
+                ...tokens,
+                [tokenKey]: {
+                  ...tokenBalance,
+                  priceChanges: getPriceChangeValues(
+                    tokenBalance.symbol,
+                    tokenBalance.balanceInCurrency,
+                    priceChanges,
+                  ),
+                },
+              };
+            },
+            {},
+          ),
         };
       },
       {},
