@@ -399,7 +399,6 @@ export class SendPage extends BasePage {
     return this.page.locator('[data-testid="approval-dialog"]');
   }
 
-  /** Use for assertions that must apply to the whole approval surface (e.g. P-Chain rows may omit `tx-detail-*` testids when layout is vertical). */
   getApprovalDialog(): Locator {
     return this.approvalDialog;
   }

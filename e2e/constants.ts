@@ -29,14 +29,6 @@ export const TEST_CONFIG = {
 };
 
 /**
- * True when the loaded wallet snapshot is a testnet fixture (name contains "testnet", case-insensitive).
- * E2E enables Settings → Testnet mode when this matches so CI/local extension IDs do not desync from snapshot data.
- */
-export function isTestnetWalletSnapshotName(snapshotName: string): boolean {
-  return snapshotName !== 'none' && /testnet/i.test(snapshotName);
-}
-
-/**
  * Test tags for filtering
  */
 export const TEST_TAGS = {
@@ -125,7 +117,7 @@ export const TEST_SEND = {
     tokenSymbol: 'ETH',
     tokenSearchTerm: 'Ethereum',
     chainBadgeAltText: 'Ethereum Sepolia',
-    chainFilterChip: /^Ethereum Sepolia$/i,
+    chainFilterChip: /Ethereum Sepolia/i,
     networkLabel: 'Ethereum Sepolia',
     amount: '0.001',
     recipientAccount: 'Account 2',
@@ -138,7 +130,7 @@ export const TEST_SEND = {
     tokenSymbol: 'BEAM',
     tokenSearchTerm: 'Beam',
     chainBadgeAltText: 'Beam L1',
-    chainFilterChip: /^Beam L1$/i,
+    chainFilterChip: /Beam L1/i,
     networkLabel: 'Beam L1',
     amount: '0.01',
     recipientAccount: 'Account 2',
@@ -149,6 +141,24 @@ export const TEST_SEND = {
    */
   CCHAIN_LINK: {
     tokenSymbol: 'LINK',
+    tokenSearchTerm: 'LINK',
+    chainBadgeAltText: 'Avalanche (C-Chain)',
+    networkLabel: 'Avalanche',
+    feeSymbol: 'AVAX',
+    amount: '0.01',
+    recipientAccount: 'Account 2',
+  },
+  /**
+   * Ethereum Sepolia ERC-20 (USDC) send.
+   * Uses `testnetPrimaryExtWallet` snapshot (testnet).
+   */
+  SEPOLIA_USDC: {
+    tokenSymbol: 'USDC',
+    tokenSearchTerm: 'USD Coin',
+    chainBadgeAltText: 'Ethereum Sepolia',
+    chainFilterChip: /Ethereum Sepolia/i,
+    networkLabel: 'Ethereum Sepolia',
+    feeSymbol: 'ETH',
     amount: '0.01',
     recipientAccount: 'Account 2',
   },

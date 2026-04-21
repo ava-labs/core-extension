@@ -4,10 +4,10 @@ import path from 'node:path';
 import { test as base, chromium, BrowserContext, Page } from '@playwright/test';
 import { TEST_CONFIG } from '../constants';
 import {
-  ensureTestnetModeIfNeeded,
   getExtensionId,
   openExtensionPopup,
   resolveWalletSnapshotName,
+  waitForPortfolioShellReady,
 } from '../helpers/extensionHelpers';
 import { unlockWallet } from '../helpers/walletHelpers';
 import { loadWalletSnapshot } from '../helpers/loadWalletSnapshot';
@@ -173,7 +173,7 @@ export const test = base.extend<ExtensionFixtures>({
    * Opens the extension page and unlocks it
    * Requires a snapshot with wallet data
    */
-  unlockedExtensionPage: async ({ context, extensionId }, use, testInfo) => {
+  unlockedExtensionPage: async ({ context, extensionId }, use) => {
     const page = await getActiveExtensionPage(context, extensionId, {
       preferOnboarding: false,
     });
@@ -192,10 +192,7 @@ export const test = base.extend<ExtensionFixtures>({
       console.log('Wallet may already be unlocked or no wallet exists');
     }
 
-    const snapshotName = resolveWalletSnapshotName(testInfo);
-    if (snapshotName !== 'none') {
-      await ensureTestnetModeIfNeeded(page, extensionId, snapshotName);
-    }
+    await waitForPortfolioShellReady(page);
 
     await use(page);
   },

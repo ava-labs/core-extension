@@ -1,5 +1,5 @@
 import type { BrowserContext, Page, TestInfo } from '@playwright/test';
-import { isTestnetWalletSnapshotName, TEST_CONFIG } from '../constants';
+import { TEST_CONFIG } from '../constants';
 
 /**
  * Gets the extension ID - uses the known ID from config for speed
@@ -67,63 +67,6 @@ export async function waitForPortfolioShellReady(
     });
     console.log('[e2e] Portfolio Send control visible');
   }
-}
-
-/**
- * When using a testnet-named wallet snapshot, ensure Settings → Testnet mode is on.
- * Fixes CI/local runs where a fresh profile or extension ID would otherwise leave mainnet mode on.
- */
-export async function ensureTestnetModeIfNeeded(
-  page: Page,
-  extensionId: string,
-  snapshotName: string,
-): Promise<void> {
-  if (!isTestnetWalletSnapshotName(snapshotName)) {
-    return;
-  }
-
-  const switchTimeout = process.env.CI ? 45_000 : 25_000;
-
-  // Load portfolio first so app state/network context are ready before Settings (CI timing).
-  await navigateToRoute(page, extensionId, '/');
-  await waitForPortfolioShellReady(page, portfolioShellTimeoutMs);
-
-  await navigateToRoute(page, extensionId, '/settings');
-
-  // Testnet row: apps/next/.../Home.tsx `data-testid="settings-testnet-mode-row"`.
-  const testnetSwitch = page.locator(
-    '[data-testid="settings-testnet-mode-row"] input[type="checkbox"]',
-  );
-  await testnetSwitch.waitFor({ state: 'attached', timeout: switchTimeout });
-
-  const alreadyOn = await testnetSwitch.isChecked();
-  if (alreadyOn) {
-    console.log(
-      '[e2e] Testnet mode already enabled (matches testnet wallet snapshot)',
-    );
-    await navigateToRoute(page, extensionId, '/');
-    await waitForPortfolioShellReady(page, portfolioShellTimeoutMs, {
-      requireSendNav: true,
-    });
-    return;
-  }
-
-  console.log('[e2e] Enabling Testnet mode for testnet wallet snapshot');
-  await testnetSwitch.click({ force: true });
-  await page.waitForFunction(
-    () => {
-      const el = document.querySelector<HTMLInputElement>(
-        '[data-testid="settings-testnet-mode-row"] input[type="checkbox"]',
-      );
-      return el?.checked === true;
-    },
-    { timeout: switchTimeout },
-  );
-
-  await navigateToRoute(page, extensionId, '/');
-  await waitForPortfolioShellReady(page, portfolioShellTimeoutMs, {
-    requireSendNav: true,
-  });
 }
 
 export async function getExtensionId(context: BrowserContext): Promise<string> {
