@@ -1,6 +1,8 @@
 import { NetworkContractToken } from '@avalabs/core-chains-sdk';
 import { DAppProviderRequest, DAppRequestHandler } from '@core/types';
 import { injectable } from 'tsyringe';
+import { BalanceNotificationService } from '../../notifications/BalanceNotificationService';
+import { NewsNotificationService } from '../../notifications/NewsNotificationService';
 import { SettingsService } from '../SettingsService';
 
 type Currency = 'USD' | 'EUR' | 'GBP' | 'AUD' | 'CAD' | 'CHF' | 'HKD';
@@ -45,6 +47,7 @@ interface WalletGetSettingsHandlerResult {
   maxBuy: '1000' | '5000' | '10000' | '50000' | 'unlimited';
   privacyMode: boolean;
   filterSmallUtxos: boolean;
+  notificationSubscriptions: Record<string, boolean>;
 }
 @injectable()
 export class WalletGetSettingsHandler extends DAppRequestHandler<
@@ -53,13 +56,32 @@ export class WalletGetSettingsHandler extends DAppRequestHandler<
 > {
   methods = [DAppProviderRequest.WALLET_GET_SETTINGS];
 
-  constructor(private settingsService: SettingsService) {
+  constructor(
+    private settingsService: SettingsService,
+    private balanceNotificationService: BalanceNotificationService,
+    private newsNotificationService: NewsNotificationService,
+  ) {
     super();
   }
 
   handleAuthenticated = async ({ request }) => {
     try {
       const settings = await this.settingsService.getSettings();
+      const [balanceSubscriptionsResult, newsSubscriptionsResult] =
+        await Promise.allSettled([
+          this.balanceNotificationService.getSubscriptions(),
+          this.newsNotificationService.getSubscriptions(),
+        ]);
+
+      const balanceSubscriptions =
+        balanceSubscriptionsResult.status === 'fulfilled'
+          ? balanceSubscriptionsResult.value
+          : {};
+      const newsSubscriptions =
+        newsSubscriptionsResult.status === 'fulfilled'
+          ? newsSubscriptionsResult.value
+          : {};
+
       const response: WalletGetSettingsHandlerResult = {
         customTokens: settings.customTokens,
         currency: settings.currency as Currency,
@@ -77,6 +99,10 @@ export class WalletGetSettingsHandler extends DAppRequestHandler<
         maxBuy: settings.maxBuy,
         privacyMode: settings.privacyMode,
         filterSmallUtxos: settings.filterSmallUtxos,
+        notificationSubscriptions: {
+          ...balanceSubscriptions,
+          ...newsSubscriptions,
+        },
       };
       return {
         ...request,

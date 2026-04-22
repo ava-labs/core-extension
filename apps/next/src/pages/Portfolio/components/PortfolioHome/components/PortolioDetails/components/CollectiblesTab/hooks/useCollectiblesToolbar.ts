@@ -43,8 +43,10 @@ const filterCollectibles = (
 
 export const useCollectiblesToolbar = ({
   collectibles,
+  failedCollectibleIds,
 }: {
   collectibles: FormattedCollectible[];
+  failedCollectibleIds?: Set<string>;
 }) => {
   const [mediaFilters, setMediaFilters] = useStorage<string, MediaTypeFilters>(
     'collectibles-media-filters',
@@ -72,6 +74,10 @@ export const useCollectiblesToolbar = ({
     string,
     string[]
   >('hidden-collectibles-ids', []);
+  const [hideBrokenImages, setHideBrokenImages] = useStorage<string, boolean>(
+    'collectibles-hide-broken-images',
+    true,
+  );
 
   const clearNetworkFilter = useCallback(() => {
     setNetworkFilters(new Set());
@@ -169,10 +175,25 @@ export const useCollectiblesToolbar = ({
       sortOption,
     );
 
-    // Filter out hidden collectibles
-    return sortedCollectibles.filter(
-      (collectible) => !hiddenCollectibles.has(collectible.uniqueCollectibleId),
-    );
+    return sortedCollectibles
+      .filter(
+        (collectible) =>
+          !hiddenCollectibles.has(collectible.uniqueCollectibleId),
+      )
+      .filter((collectible) => {
+        if (!hideBrokenImages) return true;
+        // Pre-load: hide NFTs that have no media sources at all
+        if (
+          !collectible.logoUri &&
+          !collectible.logoSmall &&
+          !collectible.tokenUri
+        )
+          return false;
+        // Post-load: hide NFTs whose media failed to load in the browser
+        if (failedCollectibleIds?.has(collectible.uniqueCollectibleId))
+          return false;
+        return true;
+      });
   }, [
     collectibles,
     mediaFilters,
@@ -180,6 +201,8 @@ export const useCollectiblesToolbar = ({
     hideUnreachable,
     sortOption,
     hiddenCollectibles,
+    hideBrokenImages,
+    failedCollectibleIds,
   ]);
 
   return {
@@ -189,6 +212,8 @@ export const useCollectiblesToolbar = ({
     openManageDialog,
     hideUnreachable,
     hiddenCollectibles,
+    hideBrokenImages,
+    setHideBrokenImages,
     toggleMediaFilter,
     setSortOption,
     setOpenManageDialog,
