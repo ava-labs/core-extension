@@ -137,6 +137,7 @@ export const PortfolioActionButtons = ({
       <Fade in timeout={getDelay()} easing="ease-out">
         <OfflineTooltip placement="top">
           <SquareButton
+            data-testid="send-nav-button"
             variant="extension"
             icon={<SendIcon size={ICON_SIZE} />}
             label={t('Send')}

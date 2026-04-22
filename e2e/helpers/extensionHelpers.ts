@@ -1,9 +1,74 @@
-import type { BrowserContext, Page } from '@playwright/test';
+import type { BrowserContext, Page, TestInfo } from '@playwright/test';
 import { TEST_CONFIG } from '../constants';
 
 /**
  * Gets the extension ID - uses the known ID from config for speed
  */
+export function resolveWalletSnapshotName(testInfo: TestInfo): string {
+  const snapshotAnnotation = testInfo.annotations.find(
+    (a) => a.type === 'snapshot',
+  );
+  return snapshotAnnotation?.description || TEST_CONFIG.wallet.snapshotName;
+}
+
+/** Time to wait for portfolio UI after unlock (balances + header); CI is slower. */
+const portfolioShellTimeoutMs = process.env.CI ? 90_000 : 45_000;
+
+export type WaitForPortfolioShellOptions = {
+  /**
+   * Also wait for the assets toolbar Send control (matches SendPage portfolio entry).
+   * Use after returning to Portfolio when the next step opens Send; skip for empty-wallet flows.
+   */
+  requireSendNav?: boolean;
+};
+
+/**
+ * Waits until the extension shows the main Portfolio chrome: loading spinner gone and
+ * header settings control visible. Call after unlock before relying on routing or toggles.
+ */
+export async function waitForPortfolioShellReady(
+  page: Page,
+  timeout = portfolioShellTimeoutMs,
+  options: WaitForPortfolioShellOptions = {},
+): Promise<void> {
+  console.log(
+    '[e2e] Waiting for Portfolio shell (spinner cleared, header ready)…',
+  );
+  await page.waitForFunction(
+    () => {
+      const loading = document.querySelector('[data-testid="loading-screen"]');
+      if (loading) return false;
+
+      const settingsBtn = document.querySelector(
+        '[data-testid="settings-button"]',
+      );
+      if (!settingsBtn) return false;
+
+      const el = settingsBtn as HTMLElement;
+      const rect = el.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return false;
+
+      const style = window.getComputedStyle(el);
+      return style.visibility !== 'hidden' && style.display !== 'none';
+    },
+    { timeout },
+  );
+  console.log('[e2e] Portfolio shell ready');
+
+  if (options.requireSendNav) {
+    console.log('[e2e] Waiting for Portfolio Send control…');
+    const sendNav = page
+      .locator('[data-testid="send-nav-button"]')
+      .or(page.getByRole('button', { name: 'Send', exact: true }))
+      .first();
+    await sendNav.waitFor({
+      state: 'visible',
+      timeout: Math.min(timeout, 60_000),
+    });
+    console.log('[e2e] Portfolio Send control visible');
+  }
+}
+
 export async function getExtensionId(context: BrowserContext): Promise<string> {
   // Prefer the runtime extension ID from the service worker.
   let serviceWorker = context.serviceWorkers()[0];
@@ -45,11 +110,11 @@ export async function waitForExtensionLoad(
   try {
     await page.waitForFunction(
       () => {
-        // Check for loading spinner - if visible, not ready yet
-        const spinner = document.querySelector('[class*="CircularProgress"]');
-        if (spinner) return false;
+        const loading = document.querySelector(
+          '[data-testid="loading-screen"]',
+        );
+        if (loading) return false;
 
-        // Check for lock screen
         const passwordInput = document.querySelector(
           'input[type="password"], input[placeholder*="password" i]',
         );
@@ -90,9 +155,9 @@ export async function waitForExtensionLoad(
   }
 }
 
-/**
- * Opens the extension popup in a new page
- */
+// Matches the extension popup dimensions from useAppDimensions (miniMode)
+const POPUP_VIEWPORT = { width: 375, height: 600 };
+
 export async function openExtensionPopup(
   context: BrowserContext,
   extensionId: string,
@@ -103,6 +168,7 @@ export async function openExtensionPopup(
   const popupUrl = `chrome-extension://${extensionId}/${pagePath}`;
   console.log(`Opening extension ${pageType}: ${popupUrl}`);
   const page = await context.newPage();
+  await page.setViewportSize(POPUP_VIEWPORT);
   await page.goto(popupUrl, { waitUntil: 'domcontentloaded' });
   await waitForExtensionLoad(page, 45000); // Increased timeout for CI
   return page;
@@ -119,6 +185,7 @@ export async function navigateToRoute(
   const url = `chrome-extension://${extensionId}/popup.html#${route}`;
   await page.goto(url);
   await page.waitForLoadState('domcontentloaded');
+  await waitForExtensionLoad(page, 30000);
 }
 
 /**

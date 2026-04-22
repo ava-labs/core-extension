@@ -12,6 +12,11 @@ type TxDetailsRowProps = StackProps & {
   tooltip?: string;
 };
 
+const labelToTestId = (label: React.ReactNode | string): string | undefined => {
+  if (typeof label !== 'string') return undefined;
+  return `tx-detail-${label.toLowerCase().replace(/\s+/g, '-')}`;
+};
+
 export const TxDetailsRow = ({
   label,
   tooltip,
@@ -19,6 +24,7 @@ export const TxDetailsRow = ({
   ...rest
 }: TxDetailsRowProps) => (
   <Stack
+    data-testid={labelToTestId(label)}
     direction="row"
     gap={1}
     px={2}

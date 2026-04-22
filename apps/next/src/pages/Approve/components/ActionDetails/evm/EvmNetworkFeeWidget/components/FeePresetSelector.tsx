@@ -38,6 +38,7 @@ export const FeePresetSelector: FC<FeePresetSelectorProps> = ({
 
   return (
     <Stack
+      data-testid="fee-preset-selector"
       direction="row"
       alignItems="center"
       justifyContent="space-between"
@@ -46,24 +47,28 @@ export const FeePresetSelector: FC<FeePresetSelectorProps> = ({
       px={2}
     >
       <FeePresetButton
+        data-testid="fee-preset-slow"
         color={feePreset === 'low' ? 'primary' : 'secondary'}
         onClick={() => choosePreset('low')}
       >
         {t('Slow')}
       </FeePresetButton>
       <FeePresetButton
+        data-testid="fee-preset-normal"
         color={feePreset === 'medium' ? 'primary' : 'secondary'}
         onClick={() => choosePreset('medium')}
       >
         {t('Normal')}
       </FeePresetButton>
       <FeePresetButton
+        data-testid="fee-preset-fast"
         color={feePreset === 'high' ? 'primary' : 'secondary'}
         onClick={() => choosePreset('high')}
       >
         {t('Fast')}
       </FeePresetButton>
       <FeePresetButton
+        data-testid="fee-preset-custom"
         color={feePreset === 'custom' ? 'primary' : 'secondary'}
         onClick={(ev) => setDialogAnchor(ev.currentTarget)}
       >

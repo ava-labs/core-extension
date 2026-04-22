@@ -29,10 +29,12 @@ export const SingleTokenBalanceChange: FC<SingleTokenBalanceChangeProps> = ({
   }
 
   return (
-    <Styled.TokenBalanceChangeWrapper>
+    <Styled.TokenBalanceChangeWrapper data-testid="tx-balance-change">
       <Stack direction="row" gap={1} alignItems="center" flexShrink={0}>
         <TokenLogo logoUri={token.logoUri} size={36} />
-        <Styled.TokenSymbol>{token.symbol}</Styled.TokenSymbol>
+        <Styled.TokenSymbol data-testid="tx-token-symbol">
+          {token.symbol}
+        </Styled.TokenSymbol>
       </Stack>
       <Stack
         textAlign="end"

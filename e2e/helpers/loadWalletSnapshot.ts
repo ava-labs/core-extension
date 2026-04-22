@@ -194,9 +194,10 @@ export const loadWalletSnapshot = async (
     try {
       await extensionPage.waitForFunction(
         () => {
-          // Check for loading spinner
-          const spinner = document.querySelector('[class*="CircularProgress"]');
-          if (spinner) return false;
+          const loading = document.querySelector(
+            '[data-testid="loading-screen"]',
+          );
+          if (loading) return false;
 
           // Check for lock screen (password input)
           const passwordInput = document.querySelector(
