@@ -218,7 +218,7 @@ test.describe('Send Tests', () => {
 
   // `test.each` is not available on the extended fixture's `test` — use a data table + loop.
   for (const row of utxoAvaxSendCases) {
-    test.skip(
+    test(
       `As a CORE ext user with an extension wallet, I can send ${row.description} AVAX`,
       {
         tag: ['@regression'],
