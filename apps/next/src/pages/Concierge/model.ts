@@ -35,17 +35,17 @@ export const functionDeclarations: FunctionDeclaration[] = [
           type: SchemaType.NUMBER,
           description: `The amount of tokens to swap. The amount must not be greater than the user balance in that given token. E.g. if the user has .1 avax do not let swap a value which is greater than that.`,
         },
-        fromTokenAddress: {
+        fromToken: {
           type: SchemaType.STRING,
           description:
-            'The token address to swap from. The user has to hold balance of the token.',
+            'The symbol of the token to swap from (e.g. "AVAX", "ETH"). The user has to hold a balance of this token. A contract address is also accepted.',
         },
-        toTokenAddress: {
+        toToken: {
           type: SchemaType.STRING,
-          description: `The token's address to swap to`,
+          description: `The symbol of the token to swap to (e.g. "USDC", "WETH"). A contract address is also accepted.`,
         },
       },
-      required: ['amount', 'fromTokenAddress', 'toTokenAddress'],
+      required: ['amount', 'fromToken', 'toToken'],
     },
   },
   {
@@ -132,7 +132,7 @@ export const functionDeclarations: FunctionDeclaration[] = [
   },
   {
     name: 'bridge',
-    description: `Bridge a token from the active network to another network using the Fusion bridge. The source network is always the active network.`,
+    description: `Bridge a token from one network to another using the Fusion bridge. The user can optionally specify the source network; if omitted, the active network is used.`,
     parameters: {
       type: SchemaType.OBJECT,
       properties: {
@@ -143,6 +143,10 @@ export const functionDeclarations: FunctionDeclaration[] = [
         token: {
           type: SchemaType.STRING,
           description: 'The symbol of the token to bridge.',
+        },
+        sourceNetwork: {
+          type: SchemaType.STRING,
+          description: `The CAIP-2 chain ID of the source network (e.g. "eip155:43114" for Avalanche C-Chain). Found in the available networks list as the "id" property. Defaults to the currently active network if not specified.`,
         },
         destinationNetwork: {
           type: SchemaType.STRING,

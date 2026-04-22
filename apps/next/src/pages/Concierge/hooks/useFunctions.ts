@@ -40,6 +40,7 @@ import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { useTransferManager } from '@/pages/Fusion/contexts/hooks/useTransferManager';
 import { useSupportedChainsMap } from '@/pages/Fusion/contexts/hooks/useSupportedChainIds';
 import { useSwapSourceTokenList } from '@/pages/Fusion/contexts/hooks/useSwapSourceTokenList';
+import { useSwapTargetTokenList } from '@/pages/Fusion/contexts/hooks/useSwapTargetTokenList';
 import { buildAsset } from '@/pages/Fusion/contexts/hooks/useAssetAndChain/lib/buildAsset';
 import { buildChain } from '@/pages/Fusion/contexts/hooks/useAssetAndChain/lib/buildChain';
 
@@ -71,6 +72,7 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
   const { manager } = useTransferManager();
   const supportedChainsMap = useSupportedChainsMap(manager);
   const swapTokenList = useSwapSourceTokenList(supportedChainsMap);
+  const swapTargetTokenList = useSwapTargetTokenList(supportedChainsMap);
 
   const userMessages = useMemo(
     () =>
@@ -135,17 +137,36 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
       });
 
       const quote = await new Promise<Quote>((resolve, reject) => {
-        const unsubscribe = quoter.subscribe((event, _data) => {
+        let settled = false;
+
+        const unsubscribe = quoter.subscribe((event, data) => {
+          if (settled) return;
           if (event === 'error') {
+            settled = true;
             unsubscribe();
             reject(new Error('Failed to get quote'));
+          } else if (event === 'quote') {
+            if (data.bestQuote) {
+              settled = true;
+              unsubscribe();
+              resolve(data.bestQuote);
+            }
           } else if (event === 'done') {
+            settled = true;
             unsubscribe();
             const [best] = quoter.getQuotes();
             if (best) resolve(best);
             else reject(new Error('No quote available'));
           }
         });
+
+        // Handle quotes already available before subscribe registered
+        const [existingBest] = quoter.getQuotes();
+        if (!settled && existingBest) {
+          settled = true;
+          unsubscribe();
+          resolve(existingBest);
+        }
       });
 
       let networkFee: Awaited<ReturnType<typeof getNetworkFee>> | undefined;
@@ -346,25 +367,23 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
       },
       swap: async ({
         amount,
-        fromTokenAddress,
-        toTokenAddress,
+        fromToken,
+        toToken,
       }: {
         amount: number;
-        fromTokenAddress: string;
-        toTokenAddress: string;
+        fromToken: string;
+        toToken: string;
       }) => {
         const bySymbolOrAddress = (id: string) => (tok: FungibleTokenBalance) =>
           tok.symbol.toLowerCase() === id.toLowerCase() ||
           ('address' in tok &&
             (tok as any).address?.toLowerCase() === id.toLowerCase());
 
-        const srcToken = swapTokenList.find(
-          bySymbolOrAddress(fromTokenAddress),
-        );
-        const dstToken = swapTokenList.find(bySymbolOrAddress(toTokenAddress));
+        const srcToken = swapTokenList.find(bySymbolOrAddress(fromToken));
+        const dstToken = swapTargetTokenList.find(bySymbolOrAddress(toToken));
 
-        if (!srcToken) throw new Error(`Token not found: ${fromTokenAddress}`);
-        if (!dstToken) throw new Error(`Token not found: ${toTokenAddress}`);
+        if (!srcToken) throw new Error(`Token not found: ${fromToken}`);
+        if (!dstToken) throw new Error(`Token not found: ${toToken}`);
 
         const { quote, dstToken: dst } = await executeTransfer(
           srcToken,
@@ -379,18 +398,24 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
       bridge: async ({
         amount,
         token,
+        sourceNetwork,
         destinationNetwork,
       }: {
         amount: string;
         token: string;
+        sourceNetwork?: string;
         destinationNetwork: string;
       }) => {
+        const effectiveSourceNetwork = sourceNetwork ?? network?.caipId;
         const srcToken = swapTokenList.find(
-          (tok) => tok.symbol.toLowerCase() === token.toLowerCase(),
+          (tok) =>
+            tok.symbol.toLowerCase() === token.toLowerCase() &&
+            (!effectiveSourceNetwork ||
+              tok.chainCaipId === effectiveSourceNetwork),
         );
         if (!srcToken) throw new Error(`Token not found: ${token}`);
 
-        const dstToken = swapTokenList.find(
+        const dstToken = swapTargetTokenList.find(
           (tok) =>
             tok.chainCaipId === destinationNetwork &&
             tok.symbol.toLowerCase() === token.toLowerCase(),
@@ -434,6 +459,7 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
       disableNetwork,
       executeTransfer,
       swapTokenList,
+      swapTargetTokenList,
     ],
   );
 
