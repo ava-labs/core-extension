@@ -57,6 +57,7 @@ export * from './jsonRpcEngine';
 export * from './keystore';
 export * from './logging';
 export * from './lowerCaseKeys';
+export * from './ledger/ensureLedgerAppOpen';
 export * from './makeBNLike';
 export * from './measureDuration';
 export * from './network/addGlacierAPIKeyIfNeeded';

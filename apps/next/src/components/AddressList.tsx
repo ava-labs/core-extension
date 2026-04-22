@@ -14,13 +14,12 @@ import {
   XPChainIcon,
 } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
+import { XPChainAddressEnablerInverted } from './Address';
 
 interface AddressListContainerProps {
   top?: number | string;
   left?: number | string;
 }
-
-const easeOutQuart = 'cubic-bezier(0.25, 1, 0.5, 1)';
 
 const AddressListContainer = styled(Stack, {
   shouldForwardProp: (prop) => prop !== 'listBackground' && prop !== 'top',
@@ -35,9 +34,7 @@ const AddressListContainer = styled(Stack, {
   borderRadius: '10px',
   isolation: 'isolate',
   opacity: 0,
-  transform: 'scale(0.95)',
-  transformOrigin: 'top left',
-  transition: `transform 200ms ${easeOutQuart}, opacity 150ms ease-out`,
+  transition: `opacity 150ms ease-out`,
   transitionDelay: '500ms',
   visibility: 'hidden',
   color: theme.palette.text.primary,
@@ -71,6 +68,7 @@ export const AddressList = withThemeInvert<Props>(
           label="Avalanche X/P-Chain"
           Icon={<UniqueIdIcon icon={<XPChainIcon />} />}
           address={activeAccount?.addressAVM}
+          AddressEnabler={XPChainAddressEnablerInverted}
         />
         <StyledDivider variant="inset" />
         <AddressItem

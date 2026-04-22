@@ -7,38 +7,40 @@ import {
   TransactionStatusProvider,
   TransactionStatusCallbackParams,
 } from '@core/ui';
-import {
-  openNewTab,
-  getExplorerAddressByNetwork,
-  isAvalanchePrimaryNetwork,
-} from '@core/common';
+import { openNewTab, getExplorerAddressByNetwork } from '@core/common';
 import { NetworkWithCaipId } from '@core/types';
+import { useIsOptimisticConfirmationEnabled } from '@core/ui';
 
 export const TransactionStatusProviderWithConfetti = ({
   children,
 }: PropsWithChildren) => {
   const { triggerConfetti, stopConfetti } = useConfettiContext();
   const history = useHistory();
+  const shouldUseOptimisticConfirmations = useIsOptimisticConfirmationEnabled();
 
   const handlePending = useCallback(
-    ({ network }: TransactionStatusCallbackParams) => {
+    async ({ network }: TransactionStatusCallbackParams) => {
       history.replace('/');
-      // Trigger confetti on pending for Avalanche C/P/X chains
-      if (isAvalanchePrimaryNetwork(network)) {
+      const showSuccessOnPending =
+        await shouldUseOptimisticConfirmations(network);
+
+      if (showSuccessOnPending) {
         triggerConfetti();
       }
     },
-    [history, triggerConfetti],
+    [history, triggerConfetti, shouldUseOptimisticConfirmations],
   );
 
   const handleSuccess = useCallback(
-    ({ network }: TransactionStatusCallbackParams) => {
-      // Trigger confetti on success for non-Avalanche chains
-      if (!isAvalanchePrimaryNetwork(network)) {
+    async ({ network }: TransactionStatusCallbackParams) => {
+      const showSuccessOnPending =
+        await shouldUseOptimisticConfirmations(network);
+
+      if (!showSuccessOnPending) {
         triggerConfetti();
       }
     },
-    [triggerConfetti],
+    [triggerConfetti, shouldUseOptimisticConfirmations],
   );
 
   return (

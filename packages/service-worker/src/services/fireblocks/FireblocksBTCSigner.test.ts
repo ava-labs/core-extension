@@ -17,8 +17,6 @@ jest.mock('ethers', () => ({
   sha256: jest.fn().mockReturnValue('0x1234'),
 }));
 
-// jest.mock('@core/common');
-
 jest.mock('jose', () => {
   const jose = jest.requireActual('jose');
 

@@ -9,6 +9,8 @@ import {
 import { WalletGetSettingsHandler } from './wallet_getSettings';
 import { buildRpcCall } from '@shared/tests/test-utils';
 import { SettingsService } from '../SettingsService';
+import { BalanceNotificationService } from '../../notifications/BalanceNotificationService';
+import { NewsNotificationService } from '../../notifications/NewsNotificationService';
 
 describe('packages/service-worker/src/services/settings/handlers/avalanche_getSettings', () => {
   const getSettingsMock = jest.fn();
@@ -16,7 +18,21 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
     getSettings: getSettingsMock,
   } as unknown as SettingsService;
 
-  const handler = new WalletGetSettingsHandler(settingsServiceMock);
+  const getBalanceSubscriptionsMock = jest.fn().mockResolvedValue({});
+  const balanceNotificationServiceMock = {
+    getSubscriptions: getBalanceSubscriptionsMock,
+  } as unknown as BalanceNotificationService;
+
+  const getNewsSubscriptionsMock = jest.fn().mockResolvedValue({});
+  const newsNotificationServiceMock = {
+    getSubscriptions: getNewsSubscriptionsMock,
+  } as unknown as NewsNotificationService;
+
+  const handler = new WalletGetSettingsHandler(
+    settingsServiceMock,
+    balanceNotificationServiceMock,
+    newsNotificationServiceMock,
+  );
 
   const createRequest = () => ({
     id: '123',
@@ -44,7 +60,10 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
   };
 
   // Maps settings to the expected handler response format
-  const getExpectedResponse = (settings: SettingsState) => ({
+  const getExpectedResponse = (
+    settings: SettingsState,
+    notificationSubscriptions: Record<string, boolean> = {},
+  ) => ({
     currency: settings.currency,
     customTokens: settings.customTokens,
     showTokensWithoutBalances: settings.showTokensWithoutBalances,
@@ -62,10 +81,13 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
     privacyMode: settings.privacyMode,
     filterSmallUtxos: settings.filterSmallUtxos,
     isBridgeDevEnv: settings.isBridgeDevEnv,
+    notificationSubscriptions,
   });
 
   beforeEach(() => {
     jest.resetAllMocks();
+    getBalanceSubscriptionsMock.mockResolvedValue({});
+    getNewsSubscriptionsMock.mockResolvedValue({});
   });
 
   describe('handleAuthenticated', () => {
@@ -228,12 +250,19 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
     });
 
     it('should return settings with isBridgeDevEnv true', async () => {
-      createRequest();
+      const request = createRequest();
       const settingsWithBridgeDevEnv = {
         ...mockSettingsState,
         isBridgeDevEnv: true,
       };
       getSettingsMock.mockResolvedValueOnce(settingsWithBridgeDevEnv);
+
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
+
+      expect(result).toEqual({
+        ...request,
+        result: getExpectedResponse(settingsWithBridgeDevEnv),
+      });
     });
 
     it('should return settings with custom tokens', async () => {

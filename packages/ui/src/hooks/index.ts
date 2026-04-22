@@ -67,7 +67,7 @@ export * from './useSolanaPublicKeys';
 export * from './useSeedlessActions';
 export * from './useDuplicatedWalletChecker';
 export * from './useDeriveMissingKeysForSeedless';
-export * from './useImportMissingKeysFromKeystone';
 export * from './useIsCorrectDeviceForActiveWallet';
 export * from './useImportMissingKeysFromLedger';
 export * from './useLiveWalletBalance';
+export * from './useIsOptimisticConfirmationEnabled';

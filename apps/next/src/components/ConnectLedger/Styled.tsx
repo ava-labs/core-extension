@@ -110,6 +110,9 @@ export const LedgerConnectionError = ({
         {errorType === 'device-locked' && (
           <DeviceLockedMessage requiredApp={requiredApp} />
         )}
+        {errorType === 'app-not-installed' && (
+          <AppNotInstalledMessage requiredApp={requiredApp} />
+        )}
       </Stack>
       <Stack direction="row" justifyContent="center">
         <NavButton size="medium" color="primary" onClick={onRetry}>
@@ -184,6 +187,19 @@ const DeviceLockedMessage = ({ requiredApp }: IncorrectAppMessageProps) => {
     <Typography variant="body2">
       {t(
         'Please unlock your Ledger and open the {{requiredApp}} app to continue.',
+        { requiredApp },
+      )}
+    </Typography>
+  );
+};
+
+const AppNotInstalledMessage = ({ requiredApp }: IncorrectAppMessageProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <Typography variant="body2">
+      {t(
+        'The {{requiredApp}} app does not appear to be installed on your Ledger. Install it from Ledger Live, then try again.',
         { requiredApp },
       )}
     </Typography>

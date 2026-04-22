@@ -1,5 +1,5 @@
 import { ThemeProvider } from '@avalabs/k2-alpine';
-import { toast } from '@core/ui';
+import { NotificationsContextProvider, toast } from '@core/ui';
 import {
   AccountsContextProvider,
   ApprovalsContextProvider,
@@ -115,6 +115,7 @@ export function App() {
           <ApprovalsContextProvider />,
           <DefiContextProvider />,
           <FirebaseContextProvider />,
+          <NotificationsContextProvider />,
           <TransferTrackingContextProvider />,
           <LedgerPolicyRegistrationStateProvider />,
           <TransactionStatusProviderWithConfetti />,

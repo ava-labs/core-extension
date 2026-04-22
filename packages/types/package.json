@@ -4,7 +4,7 @@
   "private": true,
   "main": "src/index.ts",
   "devDependencies": {
-    "@avalabs/fusion-sdk": "0.14.4",
+    "@avalabs/fusion-sdk": "0.15.1",
     "fireblocks-sdk": "5.20.0",
     "joi": "17.7.0",
     "jose": "4.15.5"
