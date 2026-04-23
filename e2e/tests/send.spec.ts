@@ -218,7 +218,7 @@ test.describe('Send Tests', () => {
 
   // `test.each` is not available on the extended fixture's `test` — use a data table + loop.
   for (const row of utxoAvaxSendCases) {
-    test.skip(
+    test(
       `As a CORE ext user with an extension wallet, I can send ${row.description} AVAX`,
       {
         tag: ['@regression'],
@@ -457,7 +457,6 @@ test.describe('Send Tests', () => {
     };
     gasless?: 'on' | 'off';
     explorerNetwork: ExplorerNetwork;
-    skip?: string;
   }> = [
     {
       description: 'an ERC-20 token on C-Chain with gasless toggled off',
@@ -478,7 +477,6 @@ test.describe('Send Tests', () => {
       testrailId: 'SND-025',
       sendData: TEST_SEND.SEPOLIA_USDC,
       explorerNetwork: 'Ethereum',
-      skip: 'Sepolia ERC-20 display issue — re-enable after fix',
     },
   ];
 
@@ -499,9 +497,6 @@ test.describe('Send Tests', () => {
         ],
       },
       async ({ unlockedExtensionPage }, testInfo) => {
-        if (row.skip) {
-          test.skip(true, row.skip);
-        }
         testInfo.setTimeout(SEND_TEST_TIMEOUT_MS);
         const sendPage = new SendPage(unlockedExtensionPage);
         const sendData = row.sendData;
