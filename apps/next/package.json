@@ -7,6 +7,7 @@
     "dev": "rsbuild build -w --config rsbuild.next.dev.ts",
     "build": "rsbuild build --config rsbuild.next.prod.ts",
     "build:alpha": "rsbuild build --config rsbuild.next.alpha.ts",
+    "build:dev": "rsbuild build --config rsbuild.next.dev.ts",
     "lint": "eslint --fix \"src/**/*.ts*\"",
     "prettify": "prettier --write \"src/**/*.ts*\"",
     "scanner": "i18next-scanner --config i18next-scanner.config.js",
