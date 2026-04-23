@@ -3,6 +3,7 @@ import {
   useAnalyticsContext,
   useConnectionContext,
   useContactsContext,
+  useFeatureFlagContext,
   useFirebaseContext,
   useLiveBalance,
   useNetworkContext,
@@ -13,6 +14,7 @@ import {
   isEvmNativeToken,
   isErc20Token,
   FungibleTokenBalance,
+  FeatureVars,
 } from '@core/types';
 import { useCallback, useMemo, useRef } from 'react';
 import { functionDeclarations, systemPromptTemplate } from '../model';
@@ -59,6 +61,7 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
   } = useNetworkContext();
   const { contacts, createContact } = useContactsContext();
   const { accounts, selectAccount } = useAccountsContext();
+  const { selectFeatureFlag } = useFeatureFlagContext();
   const { request } = useConnectionContext();
   const { setModel, sendMessage, prompts, setPrompts } = useFirebaseContext();
   const isModelReady = useRef(false);
@@ -73,6 +76,11 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
   const supportedChainsMap = useSupportedChainsMap(manager);
   const swapTokenList = useSwapSourceTokenList(supportedChainsMap);
   const swapTargetTokenList = useSwapTargetTokenList(supportedChainsMap);
+
+  const transferGasMarginBps = useMemo(
+    () => Number(selectFeatureFlag(FeatureVars.FUSION_TRANSFER_GAS_MARGIN_BPS)),
+    [selectFeatureFlag],
+  );
 
   const userMessages = useMemo(
     () =>
@@ -187,12 +195,15 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
 
       await manager.transferAsset({
         quote,
-        gasSettings: { estimateGasMarginBps: 0, ...gasSettings },
+        gasSettings: {
+          estimateGasMarginBps: transferGasMarginBps,
+          ...gasSettings,
+        },
       });
 
       return { quote, srcToken, dstToken };
     },
-    [manager, getNetwork, accounts.active, getNetworkFee],
+    [manager, getNetwork, accounts.active, getNetworkFee, transferGasMarginBps],
   );
 
   const functions = useMemo(
