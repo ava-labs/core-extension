@@ -67,7 +67,7 @@ export const SettingsHomePage = () => {
   const { contacts } = useContactsContext();
   const { path } = useRouteMatch();
   const { push } = useHistory();
-  const { capture } = useAnalyticsContext();
+  const { capture, initAnalyticsIds, isInitialized } = useAnalyticsContext();
   const { featureFlags, isFlagEnabled } = useFeatureFlagContext();
 
   const {
@@ -337,6 +337,9 @@ export const SettingsHomePage = () => {
                 capture('AnalyticsConsentSettingChanged', {
                   analyticsConsent: newValue,
                 });
+                if (newValue && !isInitialized) {
+                  initAnalyticsIds(true);
+                }
                 setAnalyticsConsent(newValue);
               }}
             />
