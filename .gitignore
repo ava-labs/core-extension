@@ -57,3 +57,7 @@ todo.*
 
 # CLI
 .sentryclirc
+
+# yalc
+.yalc/
+yalc.lock

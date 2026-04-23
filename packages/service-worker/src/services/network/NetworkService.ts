@@ -396,7 +396,9 @@ export class NetworkService implements OnLock, OnStorageReady {
       isTestnet,
       vmName: NetworkVMType.PVM,
       chainId: isTestnet ? ChainId.AVALANCHE_TEST_P : ChainId.AVALANCHE_P,
-      chainName: 'Avalanche (P-Chain)',
+      isDevnet: isTestnet,
+      rpcUrl: isTestnet ? 'http:/localhost:9650' : network.rpcUrl,
+      chainName: isTestnet ? 'Avalanche (DEV P-Chain)' : 'Avalanche (P-Chain)',
       logoUri:
         'https://images.ctfassets.net/gcj8jwzm6086/42aMwoCLblHOklt6Msi6tm/1e64aa637a8cead39b2db96fe3225c18/pchain-square.svg', // from contentful
       networkToken: {
@@ -420,7 +422,9 @@ export class NetworkService implements OnLock, OnStorageReady {
       chainId: isTestnet ? ChainId.AVALANCHE_TEST_X : ChainId.AVALANCHE_X,
       isTestnet,
       vmName: NetworkVMType.AVM,
-      chainName: 'Avalanche (X-Chain)',
+      rpcUrl: isTestnet ? 'http:/localhost:9650' : network.rpcUrl,
+      isDevnet: isTestnet,
+      chainName: isTestnet ? 'Avalanche (DEV P-Chain)' : 'Avalanche (P-Chain)',
       logoUri:
         'https://images.ctfassets.net/gcj8jwzm6086/5xiGm7IBR6G44eeVlaWrxi/1b253c4744a3ad21a278091e3119feba/xchain-square.svg', // from contentful
       networkToken: {

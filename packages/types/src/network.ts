@@ -68,6 +68,7 @@ export interface AddEthereumChainParameter {
 
 export type Network = _Network &
   AdvancedNetworkConfig & {
+    isDevnet?: boolean;
     caipId?: string;
   };
 
