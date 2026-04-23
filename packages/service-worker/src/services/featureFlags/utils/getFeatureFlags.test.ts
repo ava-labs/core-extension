@@ -25,7 +25,7 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
       json: jest.fn().mockResolvedValue({
         featureFlags: {
           [FeatureGates.EVERYTHING]: true,
-          [FeatureGates.BRIDGE]: false,
+          [FeatureGates.BUY]: false,
         },
         featureFlagPayloads: { [FeatureGates.DEFI]: '>=1.60.0' },
       }),
@@ -47,7 +47,7 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
       expect(flags).toEqual({
         ...DISABLED_FLAG_VALUES,
         [FeatureGates.EVERYTHING]: true,
-        [FeatureGates.BRIDGE]: false,
+        [FeatureGates.BUY]: false,
       });
     });
 
@@ -108,7 +108,7 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
           json: jest.fn().mockResolvedValue({
             featureFlags: {
               [FeatureGates.EVERYTHING]: true,
-              [FeatureGates.BRIDGE]: false,
+              [FeatureGates.BUY]: false,
             },
             featureFlagPayloads: { [FeatureGates.DEFI]: '>=1.60.0' },
           }),
@@ -217,7 +217,7 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
         ok: true,
         status: 200,
         json: jest.fn().mockResolvedValue({
-          featureFlags: { [FeatureGates.BRIDGE]: 'invalid' }, // Should be boolean, not string
+          featureFlags: { [FeatureGates.BUY]: 'invalid' }, // Should be boolean, not string
           featureFlagPayloads: { [FeatureGates.DEFI]: '>=1.60.0' },
         }),
       });
@@ -234,7 +234,7 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
         json: jest.fn().mockResolvedValue({
           featureFlags: {
             [FeatureGates.EVERYTHING]: true,
-            [FeatureGates.BRIDGE]: false,
+            [FeatureGates.BUY]: false,
           },
           featureFlagPayloads: { [FeatureGates.DEFI]: 123 }, // Should be string, not number
         }),
@@ -259,7 +259,7 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
           json: jest.fn().mockResolvedValue({
             featureFlags: {
               [FeatureGates.EVERYTHING]: true,
-              [FeatureGates.BRIDGE]: false,
+              [FeatureGates.BUY]: false,
             },
             featureFlagPayloads: { [FeatureGates.DEFI]: '>=1.60.0' },
           }),
@@ -274,7 +274,7 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
       expect(result.flags).toEqual({
         ...DISABLED_FLAG_VALUES,
         [FeatureGates.EVERYTHING]: true,
-        [FeatureGates.BRIDGE]: false,
+        [FeatureGates.BUY]: false,
       });
       expect(fetch).toHaveBeenCalledTimes(2);
     });

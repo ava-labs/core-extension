@@ -4,13 +4,10 @@ import { useNetworkContext } from '../contexts';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { Account, FeatureGates, NetworkWithCaipId } from '@core/types';
 import {
-  isAvalancheNetwork,
-  isEthereumNetwork,
   isFireblocksAccount,
   isFireblocksApiSupported,
   isPchainNetwork,
   isPchainNetworkId,
-  isSolanaNetwork,
   isWalletConnectAccount,
   isXchainNetwork,
   isXchainNetworkId,
@@ -37,7 +34,6 @@ const FeatureFlagMap: Record<string, FeatureGates> = {
   [FunctionNames.DEFI]: FeatureGates.DEFI,
   [FunctionNames.KEYSTONE]: FeatureGates.KEYSTONE,
   [FunctionNames.SEND]: FeatureGates.SEND,
-  [FunctionNames.SWAP]: FeatureGates.SWAP,
 };
 
 const functionRequireSigning = [
@@ -223,20 +219,6 @@ export const useIsFunctionAvailable = ({
             isFlagEnabled(FeatureGates.SEND_X_CHAIN),
         );
       }
-    }
-
-    if (functionToCheck === FunctionNames.SWAP) {
-      if (!networkToCheck || !isFlagEnabled(FeatureGates.SWAP)) {
-        return false;
-      }
-
-      return isEthereumNetwork(networkToCheck)
-        ? isFlagEnabled(FeatureGates.SWAP_ETHEREUM)
-        : isAvalancheNetwork(networkToCheck)
-          ? isFlagEnabled(FeatureGates.SWAP_C_CHAIN)
-          : isSolanaNetwork(networkToCheck)
-            ? isFlagEnabled(FeatureGates.SWAP_SOLANA)
-            : false;
     }
 
     const featureFlagToCheck = FeatureFlagMap[functionToCheck];

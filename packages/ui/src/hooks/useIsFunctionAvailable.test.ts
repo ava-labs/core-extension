@@ -49,18 +49,13 @@ describe('hooks/useIsFunctionAvailable', () => {
   };
 
   const mockFeatureFlags = {
-    [FeatureGates.BRIDGE]: true,
     [FeatureGates.SEND]: true,
-    [FeatureGates.SWAP]: true,
     [FeatureGates.BUY]: true,
     [FeatureGates.DEFI]: true,
     [FeatureGates.KEYSTONE]: true,
     [FeatureGates.SEEDLESS_SIGNING]: true,
     [FeatureGates.SEND_P_CHAIN]: true,
     [FeatureGates.SEND_X_CHAIN]: true,
-    [FeatureGates.SWAP_ETHEREUM]: true,
-    [FeatureGates.SWAP_C_CHAIN]: true,
-    [FeatureGates.SWAP_SOLANA]: true,
   } as any;
 
   const mockIsFlagEnabled = jest.fn();
@@ -340,89 +335,6 @@ describe('hooks/useIsFunctionAvailable', () => {
 
       const { result } = renderHook(() =>
         useIsFunctionAvailable({ functionName: FunctionNames.SEND }),
-      );
-
-      expect(result.current.isFunctionAvailable).toBe(false);
-    });
-  });
-
-  describe('checkIsFunctionAvailable - SWAP function', () => {
-    it('returns false when network is not available', () => {
-      (useNetworkContext as jest.Mock).mockReturnValue({
-        network: undefined,
-      });
-
-      const { result } = renderHook(() =>
-        useIsFunctionAvailable({ functionName: FunctionNames.SWAP }),
-      );
-
-      expect(result.current.isFunctionAvailable).toBe(false);
-    });
-
-    it('returns false when SWAP feature flag is disabled', () => {
-      mockIsFlagEnabled.mockImplementation((flag) => {
-        if (flag === FeatureGates.SWAP) return false;
-        return mockFeatureFlags[flag] ?? false;
-      });
-
-      const { result } = renderHook(() =>
-        useIsFunctionAvailable({ functionName: FunctionNames.SWAP }),
-      );
-
-      expect(result.current.isFunctionAvailable).toBe(false);
-    });
-
-    it('returns true for Ethereum network when SWAP_ETHEREUM flag is enabled', () => {
-      (useNetworkContext as jest.Mock).mockReturnValue({
-        network: { chainId: ChainId.ETHEREUM_HOMESTEAD },
-      });
-
-      const { result } = renderHook(() =>
-        useIsFunctionAvailable({ functionName: FunctionNames.SWAP }),
-      );
-
-      expect(result.current.isFunctionAvailable).toBe(true);
-      expect(mockIsFlagEnabled).toHaveBeenCalledWith(FeatureGates.SWAP);
-      expect(mockIsFlagEnabled).toHaveBeenCalledWith(
-        FeatureGates.SWAP_ETHEREUM,
-      );
-    });
-
-    it('returns true for Avalanche network when SWAP_C_CHAIN flag is enabled', () => {
-      (useNetworkContext as jest.Mock).mockReturnValue({
-        network: { chainId: ChainId.AVALANCHE_MAINNET_ID },
-      });
-
-      const { result } = renderHook(() =>
-        useIsFunctionAvailable({ functionName: FunctionNames.SWAP }),
-      );
-
-      expect(result.current.isFunctionAvailable).toBe(true);
-      expect(mockIsFlagEnabled).toHaveBeenCalledWith(FeatureGates.SWAP);
-      expect(mockIsFlagEnabled).toHaveBeenCalledWith(FeatureGates.SWAP_C_CHAIN);
-    });
-
-    it('returns true for Solana network when SWAP_SOLANA flag is enabled', () => {
-      (useNetworkContext as jest.Mock).mockReturnValue({
-        network: { chainId: ChainId.SOLANA_MAINNET_ID },
-      });
-
-      const { result } = renderHook(() =>
-        useIsFunctionAvailable({ functionName: FunctionNames.SWAP }),
-      );
-
-      expect(result.current.isFunctionAvailable).toBe(true);
-      expect(mockIsFlagEnabled).toHaveBeenCalledWith(FeatureGates.SWAP);
-      expect(mockIsFlagEnabled).toHaveBeenCalledWith(FeatureGates.SWAP_SOLANA);
-    });
-
-    it('returns false for unsupported network', () => {
-      (useNetworkContext as jest.Mock).mockReturnValue({
-        network: { chainId: ChainId.BITCOIN },
-      });
-
-      const { result } = renderHook(() =>
-        useIsFunctionAvailable({ functionName: FunctionNames.SWAP }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(false);
