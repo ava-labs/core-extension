@@ -26,6 +26,8 @@ const prodEvmProviderConfig = {
   EVM_PROVIDER_INFO_RDNS: '"app.core.extension"',
 };
 
+const skipSourceMap = process.env.NO_SOURCE_MAPS === 'true';
+
 export default defineConfig(({ envMode }) => {
   const distSubdirectory = 'dist';
 
@@ -44,9 +46,11 @@ export default defineConfig(({ envMode }) => {
     output: {
       cleanDistPath: true,
       target: 'web-worker',
-      sourceMap: {
-        js: isDevBuild ? 'inline-source-map' : 'hidden-source-map',
-      },
+      sourceMap: skipSourceMap
+        ? false
+        : {
+            js: isDevBuild ? 'inline-source-map' : 'hidden-source-map',
+          },
       filename: {
         js: '[name].js',
       },
