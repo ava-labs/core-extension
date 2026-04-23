@@ -13,8 +13,8 @@
     "typecheck": "yarn tsc --skipLibCheck --noEmit"
   },
   "dependencies": {
-    "@avalabs/evm-module": "3.7.1",
-    "@avalabs/svm-module": "3.7.1",
+    "@avalabs/evm-module": "3.7.2",
+    "@avalabs/svm-module": "3.7.2",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/types": "workspace:*",
