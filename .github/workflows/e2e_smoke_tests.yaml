@@ -98,7 +98,7 @@ jobs:
           yarn allow-scripts
 
       - name: Build extension
-        run: yarn build:dev
+        run: yarn build:dev:no-source-maps
 
       - name: Upload built extension
         uses: actions/upload-artifact@v4

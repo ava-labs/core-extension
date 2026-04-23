@@ -10,6 +10,7 @@
     "build": "yarn build:packages && yarn workspace @core-ext/next run build",
     "build:alpha": "yarn build:packages && yarn workspace @core-ext/next run build:alpha",
     "build:dev": "yarn build:packages && yarn workspace @core-ext/next run build:dev",
+    "build:dev:no-source-maps": "NO_SOURCE_MAPS=true yarn build:dev",
     "build:alpha:no-source-maps": "NO_SOURCE_MAPS=true yarn build:alpha",
     "lint": "yarn workspaces foreach -Ap run lint",
     "generate-clients": "openapi-ts && yarn workspace @core/service-worker api-client:prepend && yarn workspace @core/service-worker prettify",
