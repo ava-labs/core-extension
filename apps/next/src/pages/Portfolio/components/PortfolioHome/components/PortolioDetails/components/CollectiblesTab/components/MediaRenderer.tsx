@@ -1,6 +1,6 @@
 import { Box, Button, RefreshIcon, Skeleton } from '@avalabs/k2-alpine';
 import type { CSSProperties, LegacyRef, PropsWithChildren } from 'react';
-import { forwardRef, memo, useRef, useState } from 'react';
+import { forwardRef, memo, useEffect, useRef, useState } from 'react';
 import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 import { BASE64_IMAGE_REGEX, getMediaRenderType } from '../utils';
 import { useResolvedMediaType } from '../hooks/useResolvedMediaType';
@@ -157,8 +157,9 @@ export const MediaRenderer = memo(
 
       const sourceFirstPass = collectible?.logoUri;
       const srcRaw = collectible?.logoSmall || collectible?.tokenUri;
-      const currentSource =
-        useFallback && !sourceFirstPass ? srcRaw : sourceFirstPass;
+      // If logoUri is absent, use srcRaw immediately so we attempt a real load
+      // rather than landing in hasNoSource → error state before trying anything.
+      const currentSource = useFallback ? srcRaw : (sourceFirstPass ?? srcRaw);
 
       const {
         data: fetchedMimeType,
@@ -205,13 +206,27 @@ export const MediaRenderer = memo(
         setIsRefreshingLocally(false);
       };
 
+      // Keep a ref so the effect always uses the latest callback without re-triggering on every render
+      const onErrorRef = useRef(onErrorProp);
+      onErrorRef.current = onErrorProp;
+
+      // Tracks whether onError has already been fired for the current source, so we never
+      // double-notify (once via browser onerror in handleError, once via the effect below).
+      const hasNotifiedErrorRef = useRef(false);
+      const prevSourceRef = useRef(currentSource);
+      if (prevSourceRef.current !== currentSource) {
+        prevSourceRef.current = currentSource;
+        hasNotifiedErrorRef.current = false;
+      }
+
       const handleError = () => {
-        if (useFallback) {
-          // Already tried fallback, now it's an error
+        if (useFallback || !sourceFirstPass) {
+          // Already tried fallback, or logoUri was absent so srcRaw was the only source — truly failed
           setHasMediaFailed(true);
+          hasNotifiedErrorRef.current = true;
           onErrorProp?.();
         } else {
-          // Try fallback source
+          // Primary source failed, try srcRaw as fallback
           setUseFallback(true);
           setIsLoaded(false);
         }
@@ -231,6 +246,22 @@ export const MediaRenderer = memo(
         (!isLoading &&
           (showError || mimeTypeIsError) &&
           (!srcRaw || useFallback));
+
+      // When the error state is active and not just a refresh animation, the <img> may never
+      // render (hasNoSource, showError, mimeTypeIsError), so browser onerror never fires.
+      // Notify the parent here instead.
+      // The hasNotifiedErrorRef guard prevents double-firing when handleError already notified.
+      const isRealError = !isRefreshingLocally && !isLoading && isError;
+      useEffect(() => {
+        if (
+          isRealError &&
+          !sourceIsBase64Image &&
+          !hasNotifiedErrorRef.current
+        ) {
+          hasNotifiedErrorRef.current = true;
+          onErrorRef.current?.();
+        }
+      }, [isRealError, sourceIsBase64Image]);
 
       // Error state UI
       const renderErrorState = () => (
