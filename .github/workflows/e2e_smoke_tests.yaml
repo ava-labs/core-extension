@@ -85,6 +85,8 @@ jobs:
           echo 'ID_SERVICE_URL="${{ secrets.DEV_ID_SERVICE_URL }}"' >> .env.dev
           echo 'GASLESS_SERVICE_URL="${{ secrets.DEV_GASLESS_SERVICE_URL }}"' >> .env.dev
           echo 'NOTIFICATION_SENDER_SERVICE_URL="${{ secrets.DEV_NOTIFICATION_SENDER_SERVICE_URL }}"' >> .env.dev
+          echo 'ID_SERVICE_API_KEY="${{ secrets.DEV_ID_SERVICE_API_KEY }}"' >> .env.dev
+          echo 'GLACIER_API_KEY="${{ secrets.DEV_GLACIER_API_KEY }}"' >> .env.dev
           echo 'EXTENSION_PUBLIC_KEY="${{ secrets.DEV_EXTENSION_PUBLIC_KEY }}"' >> .env.dev
           echo 'BALANCE_SERVICE_URL="${{ secrets.DEV_BALANCE_SERVICE_URL }}"' >> .env.dev
           echo 'PROFILE_SERVICE_URL="${{ secrets.DEV_PROFILE_SERVICE_URL }}"' >> .env.dev
