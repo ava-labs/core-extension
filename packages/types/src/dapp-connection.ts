@@ -33,7 +33,6 @@ export enum DAppProviderRequest {
   AVALANCHE_GET_ACCOUNTS = 'avalanche_getAccounts',
   AVALANCHE_ADD_ACCOUNT = 'avalanche_addAccount',
   AVALANCHE_GET_ADDRESSES_IN_RANGE = 'avalanche_getAddressesInRange',
-  AVALANCHE_GET_BRIDGE_STATE = 'avalanche_getBridgeState',
   AVALANCHE_SELECT_WALLET = 'avalanche_selectWallet',
   AVALANCHE_SET_DEVELOPER_MODE = 'avalanche_setDeveloperMode',
   ACCOUNT_SELECT = 'avalanche_selectAccount',

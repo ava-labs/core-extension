@@ -15,7 +15,6 @@ import {
   OnboardingContextProvider,
   PermissionContextProvider,
   SeedlessMfaManagementProvider,
-  SwapContextProvider,
   TransferTrackingContextProvider,
   useNetworkContext,
   usePageHistory,
@@ -35,7 +34,6 @@ import { useHistory } from 'react-router-dom';
 
 import { InAppApprovalOverlay } from '@/components/InAppApprovalOverlay';
 import { LoadingScreen } from '@/components/LoadingScreen';
-import { NextUnifiedBridgeProvider } from '@/pages/Bridge/contexts';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
@@ -115,10 +113,8 @@ export function App() {
           <CurrenciesContextProvider />,
           <NetworkFeeContextProvider />,
           <ApprovalsContextProvider />,
-          <SwapContextProvider />,
           <DefiContextProvider />,
           <FirebaseContextProvider />,
-          <NextUnifiedBridgeProvider />,
           <NotificationsContextProvider />,
           <TransferTrackingContextProvider />,
           <LedgerPolicyRegistrationStateProvider />,

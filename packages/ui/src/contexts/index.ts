@@ -19,7 +19,6 @@ export * from './OnboardingProvider';
 export * from './PermissionsProvider';
 export * from './SeedlessMfaManagementProvider';
 export * from './SettingsProvider';
-export * from './SwapProvider';
 export * from './utils/getCurrencyFormatter';
 export * from './WalletConnectContextProvider';
 export * from './WalletProvider';

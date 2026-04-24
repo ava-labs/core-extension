@@ -36,6 +36,7 @@ export const NETWORKS_ENABLED_BY_DEFAULT = [
   42161, //Arbitrum One Mainnet
   10, //Optimism Mainnet
   8453, //Base Mainnet
+  137, //Polygon Mainnet
 ];
 
 export interface NetworkAvailability {

@@ -14,7 +14,6 @@ import { NotificationListSkeleton } from './components/NotificationListSkeleton'
 import { ClearButton } from './components/ClearButton';
 import { combineActivityItems } from './lib/combineActivityItems';
 import { useTransferTrackingContext } from '@core/ui';
-import { useNextUnifiedBridgeContext } from '../Bridge/contexts';
 
 const contentProps: StackProps = {
   justifyContent: 'flex-start',
@@ -41,9 +40,6 @@ export const Notifications = () => {
     useNotifications(selectedTab);
   const { transfers, isLoading: isTransfersLoading } =
     useTransferTrackingContext();
-  const {
-    state: { pendingTransfers },
-  } = useNextUnifiedBridgeContext();
   const { clearAll, isClearing } = useClearAll();
 
   const isLoading = isNotificationsLoading || isTransfersLoading;
@@ -61,15 +57,8 @@ export const Notifications = () => {
             isAllOrTransactionsTab
               ? transfers.map(({ transfer }) => transfer)
               : [],
-            isAllOrTransactionsTab ? Object.values(pendingTransfers) : [],
           ),
-    [
-      notifications,
-      transfers,
-      pendingTransfers,
-      isAllOrTransactionsTab,
-      isLoading,
-    ],
+    [notifications, transfers, isAllOrTransactionsTab, isLoading],
   );
 
   const isCurrentTabEmpty =

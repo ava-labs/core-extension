@@ -14,7 +14,7 @@ import {
 import { UnifiedBridgeService } from '../unifiedBridge/UnifiedBridgeService';
 import { resolve } from '@core/common';
 import { Monitoring } from '@core/common';
-import { AnalyzeTxParams } from '@avalabs/bridge-unified';
+import { type AnalyzeTxParams } from '@avalabs/bridge-unified';
 import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
 import { TokenPricesService } from '../balances/TokenPricesService';
 import {

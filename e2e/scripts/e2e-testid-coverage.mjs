@@ -27,7 +27,8 @@ const require = createRequire(import.meta.url);
 const ts = require('typescript');
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = path.resolve(__dirname, '..');
+// Script lives at e2e/scripts/*.mjs — monorepo root is two levels up
+const REPO_ROOT = path.resolve(__dirname, '../..');
 
 /** Feature folder names that are too generic to match from spec text (false positives). */
 const AMBIGUOUS_FEATURE_DIRS = new Set([
@@ -147,11 +148,31 @@ function parseArgs(argv) {
 }
 
 /**
+ * Prefer e2e/<file> when present; otherwise e2e/scripts/<file> (configs often live with tooling).
+ * @param {string} e2eDir
+ * @param {string} fileName
+ */
+function resolveE2eConfigPath(e2eDir, fileName) {
+  const direct = path.join(e2eDir, fileName);
+  if (fs.existsSync(direct)) {
+    return direct;
+  }
+  const underScripts = path.join(e2eDir, 'scripts', fileName);
+  if (fs.existsSync(underScripts)) {
+    return underScripts;
+  }
+  return direct;
+}
+
+/**
  * @param {string} e2eDir
  * @returns {{ ignoredOrphanTestIds: string[], ledgerSpecAdditionalModules: string[] }}
  */
 function loadCoverageConfig(e2eDir) {
-  const configPath = path.join(e2eDir, 'testid-coverage.config.json');
+  const configPath = resolveE2eConfigPath(
+    e2eDir,
+    'testid-coverage.config.json',
+  );
   const defaults = {
     ignoredOrphanTestIds: [],
     ledgerSpecAdditionalModules: [],
@@ -181,7 +202,10 @@ function loadCoverageConfig(e2eDir) {
  * @returns {{ flows: string[], walletModes: string[], definition?: string }}
  */
 function loadRequiredScenariosConfig(e2eDir) {
-  const configPath = path.join(e2eDir, 'required-scenarios.config.json');
+  const configPath = resolveE2eConfigPath(
+    e2eDir,
+    'required-scenarios.config.json',
+  );
   const defaults = {
     flows: ['send', 'swap'],
     walletModes: ['mnemonic', 'seedless', 'ledger'],
@@ -213,7 +237,7 @@ function loadRequiredScenariosConfig(e2eDir) {
  * @param {string} e2eDir
  */
 function loadCoverageModelConfig(e2eDir) {
-  const configPath = path.join(e2eDir, 'coverage-model.config.json');
+  const configPath = resolveE2eConfigPath(e2eDir, 'coverage-model.config.json');
   const defaults = {
     weights: {
       e2eFeatureCoveragePercent: 0.08,
@@ -641,7 +665,7 @@ async function fetchTestRailRunExecution(host, authHeader, runId) {
  * @param {string} e2eDir
  */
 function loadTestRailRunReference(e2eDir) {
-  const p = path.join(e2eDir, 'testrail-run-reference.json');
+  const p = resolveE2eConfigPath(e2eDir, 'testrail-run-reference.json');
   if (!fs.existsSync(p)) {
     return null;
   }
@@ -1829,7 +1853,7 @@ async function main() {
     config: {
       path: path.relative(
         REPO_ROOT,
-        path.join(opts.e2eDir, 'testid-coverage.config.json'),
+        resolveE2eConfigPath(opts.e2eDir, 'testid-coverage.config.json'),
       ),
       ignoredOrphanTestIds: coverageConfig.ignoredOrphanTestIds,
       ledgerSpecAdditionalModules: coverageConfig.ledgerSpecAdditionalModules,
@@ -1840,7 +1864,7 @@ async function main() {
         'Supplemental: each configured product flow should have e2e under mnemonic (extension.fixture), seedless (seedless path/fixture/tags), and ledger (tests/ledger) where applicable. Orthogonal to e2eFeatureCoverage (all top-level pages/* folders).',
       configPath: path.relative(
         REPO_ROOT,
-        path.join(opts.e2eDir, 'required-scenarios.config.json'),
+        resolveE2eConfigPath(opts.e2eDir, 'required-scenarios.config.json'),
       ),
       flows: requiredScenariosCfg.flows,
       walletModes: requiredScenariosCfg.walletModes,
@@ -1856,7 +1880,7 @@ async function main() {
         'Codebase-only headline: weighted blend of feature-folder breadth, flow×wallet matrix completeness, and aggressive wallet×folder slots. Interpret as ± impliedUncertaintyPercentagePoints percentage points (model uncertainty, not external QA data).',
       configPath: path.relative(
         REPO_ROOT,
-        path.join(opts.e2eDir, 'coverage-model.config.json'),
+        resolveE2eConfigPath(opts.e2eDir, 'coverage-model.config.json'),
       ),
       formula: 'weightedSum',
       weights: coverageModelCfg.weights,
