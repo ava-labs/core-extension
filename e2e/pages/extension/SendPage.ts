@@ -652,7 +652,7 @@ export class SendPage extends BasePage {
 
   getToastExplorerLink() {
     return this.getSuccessToast().locator(
-      '[data-testid="tx-toast-explorer-link"]',
+      '[data-testid="show-in-explorer-button"]',
     );
   }
 

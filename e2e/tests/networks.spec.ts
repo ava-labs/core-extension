@@ -135,11 +135,10 @@ test.describe('Networks Tests', () => {
 
       // Narrow the list so Arbitrum is in view and stable (long lists + virtualisation).
       await networksPage.searchForNetwork('Arbitrum');
-      await unlockedExtensionPage.waitForTimeout(600);
 
-      const toggleVisible =
-        await networksPage.isNetworkToggleVisible(arbitrumChainId);
-      expect(toggleVisible).toBe(true);
+      await expect(networksPage.getNetworkToggle(arbitrumChainId)).toBeVisible({
+        timeout: 10000,
+      });
 
       const initialState = await networksPage.isNetworkEnabled(arbitrumChainId);
 
@@ -151,9 +150,6 @@ test.describe('Networks Tests', () => {
           intervals: [400, 800, 1500, 2500],
         })
         .toBe(!initialState);
-
-      // Allow background persistence to finish before toggling back (avoids racing the second click).
-      await unlockedExtensionPage.waitForTimeout(3000);
 
       await networksPage.toggleNetwork(arbitrumChainId);
 
@@ -190,7 +186,6 @@ test.describe('Networks Tests', () => {
 
       await networksPage.addCustomNetwork(MONAD_NETWORK);
 
-      await unlockedExtensionPage.waitForTimeout(2000);
       await networksPage.navigateToNetworksFromAnyPage();
 
       await expect
@@ -555,7 +550,6 @@ test.describe('Networks Tests', () => {
       ).not.toBeVisible();
 
       await networksPage.switchToCustomTab();
-      await unlockedExtensionPage.waitForTimeout(500);
 
       await expect(
         networksPage.getNetworkItem(MONAD_CHAIN_ID),
@@ -591,13 +585,15 @@ test.describe('Networks Tests', () => {
         '[data-testid="manage-tokens-page"]',
       );
       await manageTokensPage.waitFor({ state: 'visible', timeout: 10000 });
-      await unlockedExtensionPage.waitForTimeout(2000);
 
       const monToken = unlockedExtensionPage.getByText('MON', { exact: true });
       await expect(monToken.first()).toBeVisible({ timeout: 30000 });
 
       await networksPage.backButton.click();
-      await unlockedExtensionPage.waitForTimeout(1000);
+      await networksPage.networksList.waitFor({
+        state: 'visible',
+        timeout: 10000,
+      });
 
       await networksPage.navigateToNetworks();
 
@@ -614,9 +610,7 @@ test.describe('Networks Tests', () => {
         .toBe(false);
 
       await networksPage.backButton.click();
-      await unlockedExtensionPage.waitForTimeout(500);
       await networksPage.backButton.click();
-      await unlockedExtensionPage.waitForTimeout(1000);
 
       await manageButton.waitFor({ state: 'visible', timeout: 15000 });
       await manageButton.click();

@@ -58,5 +58,8 @@ todo.*
 # snyk
 .dccache
 
+# E2E wallet snapshots (downloaded from S3 at CI runtime)
+e2e/helpers/storage-snapshots/
+
 # CLI
 .sentryclirc

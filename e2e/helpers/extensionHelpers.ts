@@ -34,25 +34,13 @@ export async function waitForPortfolioShellReady(
   console.log(
     '[e2e] Waiting for Portfolio shell (spinner cleared, header ready)…',
   );
-  await page.waitForFunction(
-    () => {
-      const loading = document.querySelector('[data-testid="loading-screen"]');
-      if (loading) return false;
-
-      const settingsBtn = document.querySelector(
-        '[data-testid="settings-button"]',
-      );
-      if (!settingsBtn) return false;
-
-      const el = settingsBtn as HTMLElement;
-      const rect = el.getBoundingClientRect();
-      if (rect.width <= 0 || rect.height <= 0) return false;
-
-      const style = window.getComputedStyle(el);
-      return style.visibility !== 'hidden' && style.display !== 'none';
-    },
-    { timeout },
-  );
+  await page
+    .locator('[data-testid="loading-screen"]')
+    .waitFor({ state: 'hidden', timeout })
+    .catch(() => {});
+  await page
+    .locator('[data-testid="settings-button"]')
+    .waitFor({ state: 'visible', timeout });
   console.log('[e2e] Portfolio shell ready');
 
   if (options.requireSendNav) {
@@ -108,41 +96,17 @@ export async function waitForExtensionLoad(
   // 2. Main UI (navigation visible)
   // 3. Onboarding screen (create wallet button visible)
   try {
-    await page.waitForFunction(
-      () => {
-        const loading = document.querySelector(
-          '[data-testid="loading-screen"]',
-        );
-        if (loading) return false;
+    await page
+      .locator('[data-testid="loading-screen"]')
+      .waitFor({ state: 'hidden', timeout })
+      .catch(() => {});
 
-        const passwordInput = document.querySelector(
-          'input[type="password"], input[placeholder*="password" i]',
-        );
-        if (passwordInput) return true;
-
-        // Check for main UI elements
-        const navButtons = document.querySelectorAll(
-          '[data-testid*="nav"], [data-testid*="settings"]',
-        );
-        if (navButtons.length > 0) return true;
-
-        // Check for onboarding
-        const onboardingButtons = document.querySelectorAll(
-          'button[class*="google" i], button[class*="apple" i]',
-        );
-        if (onboardingButtons.length > 0) return true;
-
-        // Check for any button with meaningful text
-        const buttons = Array.from(document.querySelectorAll('button'));
-        const hasVisibleButton = buttons.some(
-          (btn) => btn.textContent && btn.textContent.trim().length > 2,
-        );
-        if (hasVisibleButton) return true;
-
-        return false;
-      },
-      { timeout },
-    );
+    const readyIndicator = page
+      .locator('input[type="password"]')
+      .or(page.locator('[data-testid*="settings"]'))
+      .or(page.locator('[data-testid*="nav"]'))
+      .first();
+    await readyIndicator.waitFor({ state: 'visible', timeout });
     console.log('Extension UI loaded successfully');
   } catch {
     console.log('Timeout waiting for extension UI, continuing anyway...');
