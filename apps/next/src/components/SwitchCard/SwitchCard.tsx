@@ -6,6 +6,7 @@ import {
   TypographyProps,
   TypographyVariant,
 } from '@avalabs/k2-alpine';
+import { PropsWithChildren } from 'react';
 
 import { Card } from '../Card';
 
@@ -40,30 +41,34 @@ export const SwitchCard = ({
   onChange,
   descriptionColor = 'text.secondary',
   titleSize = 'small',
-}: SwitchCardProps) => {
+  children,
+}: PropsWithChildren<SwitchCardProps>) => {
   return (
-    <StyledSwitchCard orientation={orientation}>
-      <Stack>
-        <Typography {...titleStyles[titleSize]}>{title}</Typography>
-        <Typography variant="caption" color={descriptionColor}>
-          {description}
-        </Typography>
-      </Stack>
+    <Card>
+      <SwitchContainer orientation={orientation}>
+        <Stack>
+          <Typography {...titleStyles[titleSize]}>{title}</Typography>
+          <Typography variant="caption" color={descriptionColor}>
+            {description}
+          </Typography>
+        </Stack>
 
-      <Switch
-        checked={checked}
-        disabled={disabled}
-        onChange={onChange}
-        aria-label={description}
-        size="small"
-      />
-    </StyledSwitchCard>
+        <Switch
+          checked={checked}
+          disabled={disabled}
+          onChange={onChange}
+          aria-label={description}
+          size="small"
+        />
+      </SwitchContainer>
+      {children}
+    </Card>
   );
 };
 
 type SwitchCardStyleProps = Pick<SwitchCardProps, 'orientation'>;
 
-const StyledSwitchCard = styled(Card, {
+const SwitchContainer = styled(Card, {
   shouldForwardProp: (prop) => prop !== 'orientation',
 })<SwitchCardStyleProps>(({ orientation, theme }) => ({
   padding: theme.spacing(1.5),

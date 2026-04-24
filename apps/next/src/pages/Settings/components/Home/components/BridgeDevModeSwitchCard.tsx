@@ -1,6 +1,6 @@
 import { SwitchCard } from '@/components/SwitchCard';
 import { useNextUnifiedBridgeContext } from '@/pages/Bridge/contexts';
-import { Stack } from '@avalabs/k2-alpine';
+import { Collapse, Stack } from '@avalabs/k2-alpine';
 import { isProductionBuild } from '@core/common';
 import { toast, useNetworkContext } from '@core/ui';
 import { FC } from 'react';
@@ -48,11 +48,17 @@ const BridgeDevModeSwitchCard = () => {
 };
 
 const BridgeDevModeSwitchCardGate: FC = () => {
+  const { isDeveloperMode } = useNetworkContext();
+
   if (isProductionBuild()) {
     return null;
   }
 
-  return <BridgeDevModeSwitchCard />;
+  return (
+    <Collapse in={isDeveloperMode} sx={{ width: '100%' }}>
+      <BridgeDevModeSwitchCard />
+    </Collapse>
+  );
 };
 
 export { BridgeDevModeSwitchCardGate as BridgeDevModeSwitchCard };

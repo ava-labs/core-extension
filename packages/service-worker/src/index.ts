@@ -72,6 +72,7 @@ export type { DisableNetworkHandler as RemoveEnabledNetworkHandler } from './ser
 export type { SaveCustomNetworkHandler } from './services/network/handlers/saveCustomNetwork';
 export type { SetActiveNetworkHandler } from './services/network/handlers/setActiveNetwork';
 export type { SetDevelopermodeNetworkHandler } from './services/network/handlers/setDeveloperMode';
+export type { UpdateAvalancheDevnetModeHandler } from './services/network/handlers/updateAvalancheDevnetMode';
 export type { UpdateDefaultNetworkHandler } from './services/network/handlers/updateDefaultNetwork';
 export type { GetNetworkFeeHandler } from './services/networkFee/handlers/getNetworkFee';
 export type { GetNotificationCenterList } from './services/notifications/handlers/getNotificationCenterList';

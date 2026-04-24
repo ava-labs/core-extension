@@ -82,6 +82,7 @@ import { RemoveCustomNetworkHandler } from '../../services/network/handlers/remo
 import { SaveCustomNetworkHandler } from '../../services/network/handlers/saveCustomNetwork';
 import { SetActiveNetworkHandler } from '../../services/network/handlers/setActiveNetwork';
 import { SetDevelopermodeNetworkHandler } from '../../services/network/handlers/setDeveloperMode';
+import { UpdateAvalancheDevnetModeHandler } from '../../services/network/handlers/updateAvalancheDevnetMode';
 import { UpdateDefaultNetworkHandler } from '../../services/network/handlers/updateDefaultNetwork';
 import { GetNetworkFeeHandler } from '../../services/networkFee/handlers/getNetworkFee';
 import { OnboardingUpdatedEvents } from '../../services/onboarding/events/onboardingUpdatedEvent';
@@ -242,6 +243,10 @@ import {
   {
     token: 'ExtensionRequestHandler',
     useToken: SetDevelopermodeNetworkHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: UpdateAvalancheDevnetModeHandler,
   },
   {
     token: 'ExtensionRequestHandler',
