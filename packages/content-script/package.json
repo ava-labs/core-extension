@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "rsbuild build -w --config rsbuild.content-script.dev.ts",
     "build": "rsbuild build --config rsbuild.content-script.prod.ts",
+    "build:dev": "rsbuild build --config rsbuild.content-script.dev.ts",
     "lint": "eslint --fix \"src/**/*.ts*\"",
     "prettify": "prettier --write \"src/**/*.ts*\"",
     "typecheck": "yarn tsc --skipLibCheck --noEmit"

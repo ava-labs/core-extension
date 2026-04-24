@@ -16,8 +16,8 @@ dist/
 
 # Wallet snapshots (downloaded from AWS S3 in CI)
 # These contain sensitive wallet data and should NOT be committed
-helpers/storage-snapshots/*.ts
-helpers/storage-snapshots/*.json
+helpers/storage-snapshots/**/*.ts
+helpers/storage-snapshots/**/*.json
 !helpers/storage-snapshots/README.md
 
 # IDE
