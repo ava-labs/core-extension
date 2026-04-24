@@ -49,6 +49,7 @@ export interface NetworkStorage {
   customNetworks: Record<number, Network>;
   dappScopes: Record<string, string>;
   networkAvailability: NetworkAvailability;
+  avalancheDevnetMode: AvalancheDevnetMode;
 }
 
 export interface AddEthereumChainParameter {
@@ -97,6 +98,19 @@ export type AddEthereumChainDisplayData = {
   };
 };
 
+export type AvalancheNetworkType = 'mainnet' | 'testnet' | 'devnet';
+export type AvalancheDevnetMode = {
+  enabled: boolean;
+  rpcUrl: string;
+  explorerUrl: string;
+};
+
+export const DEFAULT_AVALANCHE_DEVNET_MODE: AvalancheDevnetMode = {
+  enabled: false,
+  rpcUrl: 'http://localhost:9650',
+  explorerUrl: 'https://explorer-xp.avax-dev.network/',
+};
+
 export const PLACEHOLDER_RPC_HEADERS = { '': '' };
 
 export type EvmNetwork = NetworkWithCaipId & { vmName: NetworkVMType.EVM };
@@ -129,7 +143,7 @@ export const isCoreEthNetwork = (
 ): network is CoreEthNetwork => network.vmName === NetworkVMType.CoreEth;
 
 export const isAvalancheNetwork = (
-  network: NetworkWithCaipId,
+  network: Network,
 ): network is AvalancheNetwork =>
   network.vmName === NetworkVMType.AVM ||
   network.vmName === NetworkVMType.PVM ||

@@ -50,6 +50,7 @@ import {
 } from './components';
 import { BridgeDevModeSwitchCard } from './components/BridgeDevModeSwitchCard';
 import { useMediaQuery } from '@avalabs/k2-alpine';
+import { AvalancheDevnetModeCard } from './components/AvalancheDevnetModeCard';
 
 const navItemActionCommonSx: SxProps = {
   px: 1,
@@ -424,6 +425,8 @@ export const SettingsHomePage = () => {
           </>
         )}
       </SettingsCard>
+
+      <AvalancheDevnetModeCard />
 
       <SettingsCard title={t('Notifications')}>
         <SettingsNavItem

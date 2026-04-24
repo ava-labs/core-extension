@@ -978,9 +978,7 @@ describe('background/services/network/NetworkService', () => {
       glacierServiceMock,
     );
 
-    jest
-      .spyOn(networkService, 'uiActiveNetwork', 'get')
-      .mockReturnValue({ isTestnet: false } as any);
+    jest.spyOn(networkService, 'isMainnet').mockReturnValue(true);
 
     const allNetworks = {
       '1': {
@@ -1011,9 +1009,7 @@ describe('background/services/network/NetworkService', () => {
       },
     });
 
-    jest
-      .spyOn(networkService, 'uiActiveNetwork', 'get')
-      .mockReturnValue({ isTestnet: true } as any);
+    jest.spyOn(networkService, 'isMainnet').mockReturnValue(false);
     // eslint-disable-next-line
     // @ts-expect-error
     networkService._allNetworks.dispatch(allNetworks);
@@ -1027,60 +1023,6 @@ describe('background/services/network/NetworkService', () => {
         caipId: 'eip155:1337',
         chainId: 1337,
         isTestnet: true,
-      },
-    });
-  });
-
-  it('filters pchain network by feature flag when dispatching allNetowrks signal', async () => {
-    const allNetworks = {
-      '1': {
-        vmName: NetworkVMType.EVM,
-        chainId: 1,
-        caipId: 'eip155:1',
-        isTestnet: false,
-      },
-      [ChainId.AVALANCHE_P]: {
-        chainId: ChainId.AVALANCHE_P,
-        vmName: NetworkVMType.PVM,
-        caipId: 'avax:11111111111111111111111111111111LpoYY',
-        isTestnet: false,
-      },
-    } as any;
-    const networkService = new NetworkService(
-      storageServiceMock,
-      featureFlagsServiceMock,
-      glacierServiceMock,
-    );
-
-    jest
-      .spyOn(networkService, 'uiActiveNetwork', 'get')
-      .mockReturnValue({ isTestnet: false } as any);
-
-    // Feature flag turned on. Should include Pchain
-
-    // eslint-disable-next-line
-    // @ts-expect-error
-    networkService._allNetworks.dispatch(allNetworks);
-
-    const result1 = await networkService.activeNetworks.promisify();
-    expect(await result1).toEqual(allNetworks);
-
-    featureFlagsServiceMock.featureFlags[FeatureGates.IN_APP_SUPPORT_P_CHAIN] =
-      false;
-
-    // Feature flag turned off. Should not include Pchain
-
-    // eslint-disable-next-line
-    // @ts-expect-error
-    networkService._allNetworks.dispatch(allNetworks);
-
-    const result2 = await networkService.activeNetworks.promisify();
-    expect(await result2).toEqual({
-      '1': {
-        caipId: 'eip155:1',
-        vmName: 'EVM',
-        chainId: 1,
-        isTestnet: false,
       },
     });
   });

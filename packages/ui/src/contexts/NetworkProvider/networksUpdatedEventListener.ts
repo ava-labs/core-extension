@@ -1,4 +1,5 @@
 import {
+  AvalancheDevnetMode,
   ExtensionConnectionEvent,
   NetworkEvents,
   NetworkWithCaipId,
@@ -11,6 +12,7 @@ export function networksUpdatedEventListener(
   activeNetwork?: NetworkWithCaipId;
   enabledNetworks: number[];
   customNetworks: Record<number, NetworkWithCaipId>;
+  avalancheDevnetMode: AvalancheDevnetMode;
 }> {
   return evt.name === NetworkEvents.NETWORKS_UPDATED_EVENT;
 }
