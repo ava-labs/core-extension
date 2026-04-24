@@ -41,11 +41,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG=$(gh release list --limit 20 --json tagName,isPrerelease \
-            --jq '[.[] | select(.isPrerelease)] | .[0].tagName')
+          TAG=$(gh release list --limit 20 --json tagName,isPrerelease,isDraft \
+            --jq '[.[] | select(.isPrerelease and (.isDraft | not) and (.tagName | contains("-alpha.")))] | .[0].tagName')
 
           if [ -z "$TAG" ]; then
-            echo "::error::No pre-release found on GitHub Releases"
+            echo "::error::No alpha pre-release found on GitHub Releases"
             exit 1
           fi
 
