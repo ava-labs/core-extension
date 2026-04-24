@@ -9,8 +9,6 @@
   "main": "src/index.ts",
   "dependencies": {
     "@avalabs/avalanchejs": "5.1.0-alpha.3",
-    "@avalabs/bridge-unified": "4.4.2",
-    "@avalabs/core-bridge-sdk": "3.1.0-alpha.85",
     "@avalabs/core-chains-sdk": "3.1.0-alpha.85",
     "@avalabs/core-coingecko-sdk": "3.1.0-alpha.85",
     "@avalabs/core-covalent-sdk": "3.1.0-alpha.85",
@@ -24,7 +22,7 @@
     "@avalabs/glacier-sdk": "3.1.0-alpha.85",
     "@avalabs/hw-app-avalanche": "1.1.1",
     "@avalabs/types": "3.1.0-alpha.85",
-    "@avalabs/vm-module-types": "3.7.0",
+    "@avalabs/vm-module-types": "3.7.2",
     "@blockaid/client": "0.10.0",
     "@cubist-labs/cubesigner-sdk": "0.3.28",
     "@ethereumjs/common": "2.6.5",

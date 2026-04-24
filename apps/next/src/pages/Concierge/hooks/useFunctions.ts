@@ -1,29 +1,28 @@
 import {
-  isAPIError,
   useAccountsContext,
   useAnalyticsContext,
   useConnectionContext,
   useContactsContext,
+  useFeatureFlagContext,
   useFirebaseContext,
   useLiveBalance,
   useNetworkContext,
   useNetworkFeeContext,
-  useSwapContext,
   useTokensWithBalances,
 } from '@core/ui';
-import { isEvmNativeToken, isErc20Token } from '@core/types';
+import {
+  isEvmNativeToken,
+  isErc20Token,
+  FungibleTokenBalance,
+  FeatureVars,
+} from '@core/types';
 import { useCallback, useMemo, useRef } from 'react';
 import { functionDeclarations, systemPromptTemplate } from '../model';
-import {
-  NetworkVMType,
-  RpcMethod,
-  TokenType,
-  TokenWithBalanceERC20,
-} from '@avalabs/vm-module-types';
+import { NetworkVMType, RpcMethod, TokenType } from '@avalabs/vm-module-types';
 import {
   caipToChainId,
   chainIdToCaip,
-  findMatchingBridgeAsset,
+  getAddressForChain,
   getExplorerAddressByNetwork,
   getProviderForNetwork,
   isUserRejectionError,
@@ -38,7 +37,14 @@ import { useTokensForAccount } from '@/hooks/useTokensForAccount';
 import { asHex } from '@/pages/Send/components/SendBody/lib/asHex';
 import { buildErc20SendTx } from '@/pages/Send/components/SendBody/lib/buildErc20SendTx';
 import { getEvmProvider } from '@/lib/getEvmProvider';
-import { useNextUnifiedBridgeContext } from '@/pages/Bridge/contexts';
+import { Quote } from '@avalabs/fusion-sdk';
+import { bigIntToString } from '@avalabs/core-utils-sdk';
+import { useTransferManager } from '@/pages/Fusion/contexts/hooks/useTransferManager';
+import { useSupportedChainsMap } from '@/pages/Fusion/contexts/hooks/useSupportedChainIds';
+import { useSwapSourceTokenList } from '@/pages/Fusion/contexts/hooks/useSwapSourceTokenList';
+import { useSwapTargetTokenList } from '@/pages/Fusion/contexts/hooks/useSwapTargetTokenList';
+import { buildAsset } from '@/pages/Fusion/contexts/hooks/useAssetAndChain/lib/buildAsset';
+import { buildChain } from '@/pages/Fusion/contexts/hooks/useAssetAndChain/lib/buildChain';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 
@@ -55,12 +61,10 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
   } = useNetworkContext();
   const { contacts, createContact } = useContactsContext();
   const { accounts, selectAccount } = useAccountsContext();
+  const { selectFeatureFlag } = useFeatureFlagContext();
   const { request } = useConnectionContext();
-  const { swap, getRate } = useSwapContext();
   const { setModel, sendMessage, prompts, setPrompts } = useFirebaseContext();
   const isModelReady = useRef(false);
-  const { getTransferableAssets, transferAsset } =
-    useNextUnifiedBridgeContext();
   const { captureEncrypted } = useAnalyticsContext();
   const tokens = useTokensWithBalances();
   const allAvailableTokens = useTokensWithBalances({
@@ -68,6 +72,15 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
   });
   const tokensForAccount = useTokensForAccount(accounts.active);
   const { getNetworkFee } = useNetworkFeeContext();
+  const { manager } = useTransferManager();
+  const supportedChainsMap = useSupportedChainsMap(manager);
+  const swapTokenList = useSwapSourceTokenList(supportedChainsMap);
+  const swapTargetTokenList = useSwapTargetTokenList(supportedChainsMap);
+
+  const transferGasMarginBps = useMemo(
+    () => Number(selectFeatureFlag(FeatureVars.FUSION_TRANSFER_GAS_MARGIN_BPS)),
+    [selectFeatureFlag],
+  );
 
   const userMessages = useMemo(
     () =>
@@ -75,6 +88,122 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
         .filter((content) => content.role === 'user')
         .map((contents) => contents.content),
     [prompts],
+  );
+
+  const executeTransfer = useCallback(
+    async (
+      srcToken: FungibleTokenBalance,
+      dstToken: FungibleTokenBalance,
+      amount: string,
+    ) => {
+      if (!manager) throw new Error('Swap service not initialized');
+
+      const srcAsset = buildAsset(
+        srcToken.assetType,
+        srcToken.name,
+        srcToken.symbol,
+        srcToken.decimals,
+        'address' in srcToken ? (srcToken as any).address : undefined,
+      );
+      const dstAsset = buildAsset(
+        dstToken.assetType,
+        dstToken.name,
+        dstToken.symbol,
+        dstToken.decimals,
+        'address' in dstToken ? (dstToken as any).address : undefined,
+      );
+      const srcChain = buildChain(srcToken.coreChainId, getNetwork);
+      const dstChain = buildChain(dstToken.coreChainId, getNetwork);
+
+      if (!srcChain)
+        throw new Error(`Network not found for ${srcToken.symbol}`);
+      if (!dstChain)
+        throw new Error(`Network not found for ${dstToken.symbol}`);
+
+      const fromAddress = getAddressForChain(
+        getNetwork(srcToken.coreChainId),
+        accounts.active ?? undefined,
+      );
+      const toAddress = getAddressForChain(
+        getNetwork(dstToken.coreChainId),
+        accounts.active ?? undefined,
+      );
+
+      if (!fromAddress) throw new Error('No address for source chain');
+      if (!toAddress) throw new Error('No address for destination chain');
+
+      const amountBigInt = stringToBigint(amount, srcToken.decimals);
+
+      const quoter = manager.getQuoter({
+        fromAddress,
+        toAddress,
+        sourceAsset: srcAsset,
+        sourceChain: srcChain,
+        targetAsset: dstAsset,
+        targetChain: dstChain,
+        amount: amountBigInt,
+      });
+
+      const quote = await new Promise<Quote>((resolve, reject) => {
+        let settled = false;
+
+        const unsubscribe = quoter.subscribe((event, data) => {
+          if (settled) return;
+          if (event === 'error') {
+            settled = true;
+            unsubscribe();
+            reject(new Error('Failed to get quote'));
+          } else if (event === 'quote') {
+            if (data.bestQuote) {
+              settled = true;
+              unsubscribe();
+              resolve(data.bestQuote);
+            }
+          } else if (event === 'done') {
+            settled = true;
+            unsubscribe();
+            const [best] = quoter.getQuotes();
+            if (best) resolve(best);
+            else reject(new Error('No quote available'));
+          }
+        });
+
+        // Handle quotes already available before subscribe registered
+        const [existingBest] = quoter.getQuotes();
+        if (!settled && existingBest) {
+          settled = true;
+          unsubscribe();
+          resolve(existingBest);
+        }
+      });
+
+      let networkFee: Awaited<ReturnType<typeof getNetworkFee>> | undefined;
+      try {
+        networkFee = await getNetworkFee(
+          caipToChainId(quote.sourceChain.chainId),
+        );
+      } catch {
+        // proceed without custom gas settings
+      }
+
+      const gasSettings = networkFee
+        ? {
+            maxFeePerGas: networkFee.high.maxFeePerGas,
+            maxPriorityFeePerGas: networkFee.high.maxPriorityFeePerGas,
+          }
+        : undefined;
+
+      await manager.transferAsset({
+        quote,
+        gasSettings: {
+          estimateGasMarginBps: transferGasMarginBps,
+          ...gasSettings,
+        },
+      });
+
+      return { quote, srcToken, dstToken };
+    },
+    [manager, getNetwork, accounts.active, getNetworkFee, transferGasMarginBps],
   );
 
   const functions = useMemo(
@@ -249,93 +378,32 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
       },
       swap: async ({
         amount,
-        fromTokenAddress,
-        toTokenAddress,
+        fromToken,
+        toToken,
       }: {
         amount: number;
-        fromTokenAddress: string;
-        toTokenAddress: string;
+        fromToken: string;
+        toToken: string;
       }) => {
-        if (network && network.vmName !== NetworkVMType.EVM) {
-          throw new Error('Only EVM networks supported at the moment');
-        }
-        const srcToken = tokens.find(
-          (item) =>
-            item.symbol === fromTokenAddress ||
-            ('address' in item && item.address === fromTokenAddress),
-        );
-        const toToken = allAvailableTokens.find(
-          (item) =>
-            item.symbol === toTokenAddress ||
-            ('address' in item && item.address === toTokenAddress),
-        );
-        if (
-          !srcToken ||
-          (srcToken.type !== TokenType.ERC20 &&
-            srcToken.type !== TokenType.NATIVE)
-        ) {
-          throw new Error(`Cannot find the source token`);
-        }
-        if (
-          !toToken ||
-          (toToken.type !== TokenType.ERC20 &&
-            toToken.type !== TokenType.NATIVE)
-        ) {
-          throw new Error(`Cannot find the destination token`);
-        }
+        const bySymbolOrAddress = (id: string) => (tok: FungibleTokenBalance) =>
+          tok.symbol.toLowerCase() === id.toLowerCase() ||
+          ('address' in tok &&
+            (tok as any).address?.toLowerCase() === id.toLowerCase());
 
-        const amountBigInt = stringToBigint(
+        const srcToken = swapTokenList.find(bySymbolOrAddress(fromToken));
+        const dstToken = swapTargetTokenList.find(bySymbolOrAddress(toToken));
+
+        if (!srcToken) throw new Error(`Token not found: ${fromToken}`);
+        if (!dstToken) throw new Error(`Token not found: ${toToken}`);
+
+        const { quote, dstToken: dst } = await executeTransfer(
+          srcToken,
+          dstToken,
           amount.toString(),
-          srcToken.decimals,
         );
-
-        const result = await getRate({
-          srcDecimals: srcToken.decimals,
-          srcToken:
-            srcToken.type === TokenType.ERC20
-              ? srcToken.address
-              : srcToken.symbol,
-          destToken:
-            toToken.type === TokenType.ERC20 ? toToken.address : toToken.symbol,
-          destDecimals: toToken.decimals,
-          srcAmount: amountBigInt.toString(),
-          slippageTolerance: '0.15',
-          onUpdate: () => {},
-        });
-        if (
-          isAPIError(result) ||
-          !result ||
-          !result.quotes ||
-          !result.selected ||
-          !result.selected.quote
-        ) {
-          throw new Error(`An unknown error occurred`);
-        }
-        const selected = result.selected;
-        const amountOut = selected.metadata.amountOut;
-
-        if (!amountOut) {
-          throw new Error('No rate found');
-        }
-
-        await swap({
-          srcToken:
-            srcToken.type === TokenType.ERC20
-              ? srcToken.address
-              : srcToken.symbol,
-          destToken:
-            toToken.type === TokenType.ERC20 ? toToken.address : toToken.symbol,
-          srcDecimals: srcToken.decimals,
-          destDecimals: toToken.decimals,
-          quote: selected.quote,
-          swapProvider: result.provider,
-          amountIn: amount.toString(),
-          amountOut,
-          slippage: 0.15,
-        });
-
+        const amountOut = bigIntToString(quote.amountOut, dst.decimals);
         return {
-          content: `Swap initiated ${amount}${srcToken.symbol} to ${amountOut}${toToken.symbol}.`,
+          content: `Swap initiated: ${amount} ${srcToken.symbol} for ~${amountOut} ${dst.symbol}.`,
         };
       },
       bridge: async ({
@@ -346,71 +414,33 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
       }: {
         amount: string;
         token: string;
-        sourceNetwork: string;
+        sourceNetwork?: string;
         destinationNetwork: string;
       }) => {
-        if (!amount) {
-          throw new Error('You have to grant the amount you want to bridge.');
-        }
-        if (!token) {
-          throw new Error('You have to grant the token you want to bridge.');
-        }
-        const tokenData = tokens.find(
-          (item) => item.symbol === token,
-        ) as TokenWithBalanceERC20;
-
-        if (!tokenData) {
-          throw new Error('You have to grant the token you want to bridge.');
-        }
-        const newAmount = stringToBigint(amount, tokenData?.decimals);
-
-        const foundAsset = findMatchingBridgeAsset(
-          getTransferableAssets(sourceNetwork),
-          tokenData,
+        const effectiveSourceNetwork = sourceNetwork ?? network?.caipId;
+        const srcToken = swapTokenList.find(
+          (tok) =>
+            tok.symbol.toLowerCase() === token.toLowerCase() &&
+            (!effectiveSourceNetwork ||
+              tok.chainCaipId === effectiveSourceNetwork),
         );
-        if (!foundAsset) {
-          throw new Error(`You cannot bridge the token ${token}.`);
-        }
+        if (!srcToken) throw new Error(`Token not found: ${token}`);
 
-        if (!sourceNetwork) {
-          throw new Error(
-            'You have to grant the source network you want to bridge.',
-          );
-        }
-        if (!destinationNetwork) {
-          throw new Error(
-            'You have to grant the destination network you want to bridge.',
-          );
-        }
-
-        // Check if destination is available for this asset
-        const destinationCaipId = destinationNetwork;
-        const bridgeTypes = foundAsset?.destinations[destinationCaipId] ?? [];
-        if (bridgeTypes.length === 0) {
-          const availableDestinations = Object.keys(
-            foundAsset?.destinations ?? {},
-          )
-            .map((caipId) => {
-              const net = getNetwork(caipToChainId(caipId));
-              return net?.chainName || caipId;
-            })
-            .join(', ');
-          throw new Error(
-            `Cannot bridge ${foundAsset.symbol} to ${destinationNetwork}. Available destinations: ${availableDestinations || 'none'}.`,
-          );
-        }
-
-        await transferAsset(
-          foundAsset.symbol,
-          newAmount,
-          sourceNetwork,
-          destinationNetwork,
+        const dstToken = swapTargetTokenList.find(
+          (tok) =>
+            tok.chainCaipId === destinationNetwork &&
+            tok.symbol.toLowerCase() === token.toLowerCase(),
         );
+        if (!dstToken)
+          throw new Error(
+            `${token} is not bridgeable to ${destinationNetwork}`,
+          );
+
+        await executeTransfer(srcToken, dstToken, amount);
 
         const destNet = getNetwork(caipToChainId(destinationNetwork));
-
         return {
-          content: `Bridge initiated ${amount} ${foundAsset.symbol} to ${destNet?.chainName || destinationNetwork}`,
+          content: `Bridge initiated: ${amount} ${srcToken.symbol} to ${destNet?.chainName || destinationNetwork}.`,
         };
       },
       enableNetwork: async ({ chainId }: { chainId: number }) => {
@@ -436,14 +466,11 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
       t,
       selectAccount,
       createContact,
-      tokens,
-      allAvailableTokens,
-      getRate,
-      swap,
       enableNetwork,
       disableNetwork,
-      transferAsset,
-      getTransferableAssets,
+      executeTransfer,
+      swapTokenList,
+      swapTargetTokenList,
     ],
   );
 
@@ -510,20 +537,6 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
         ),
       )
       .replace(
-        '__BRIDGE_DATA__',
-        JSON.stringify(
-          network
-            ? getTransferableAssets(network.caipId).map((asset) => {
-                return {
-                  symbol: asset.symbol,
-                  name: asset.name,
-                };
-              })
-            : [],
-          (_, v) => (typeof v === 'bigint' ? v.toString() : v),
-        ),
-      )
-      .replace(
         '__ENABLED_NETWORKS__',
         JSON.stringify(
           enabledNetworks.map((id) => ({
@@ -539,7 +552,6 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
     networks,
     contacts,
     enabledNetworks,
-    getTransferableAssets,
   ]);
 
   const prompt = useCallback(

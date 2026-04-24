@@ -1,4 +1,4 @@
-import { Monitoring } from '@core/common';
+import { Monitoring, noop } from '@core/common';
 import { StorageService } from '../storage/StorageService';
 import { NotificationCenterService } from './NotificationCenterService';
 import { sendRequest } from './utils/sendRequest';
@@ -63,6 +63,7 @@ describe('NotificationCenterService', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
+    jest.spyOn(console, 'error').mockImplementation(noop);
     storageServiceMock.loadUnencrypted.mockResolvedValue({
       clientId: DEVICE_ARN,
     });
