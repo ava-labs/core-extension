@@ -3,38 +3,50 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { TEST_CONFIG } from '../constants';
 
+const SNAPSHOTS_ROOT = path.resolve(__dirname, 'storage-snapshots');
+
+/**
+ * Returns the ordered list of directories to search for a snapshot.
+ * Primary: storage-snapshots/<SNAPSHOT_SET>/ (defaults to 'alpha' when unset).
+ * Fallback: storage-snapshots/ (legacy flat layout).
+ */
+function getSnapshotSearchPaths(): string[] {
+  const set = process.env.SNAPSHOT_SET ?? 'alpha';
+  return [path.join(SNAPSHOTS_ROOT, set), SNAPSHOTS_ROOT];
+}
+
 /**
  * Dynamically loads snapshot data from files in the storage-snapshots directory.
  * Snapshots are downloaded from AWS S3 in CI, not committed to git.
  */
 function loadSnapshotFromFile(snapshotName: string): object | null {
-  const snapshotsDir = path.resolve(__dirname, 'storage-snapshots');
-  const tsFilePath = path.join(snapshotsDir, `${snapshotName}.ts`);
-  const jsonFilePath = path.join(snapshotsDir, `${snapshotName}.json`);
+  for (const dir of getSnapshotSearchPaths()) {
+    const tsFilePath = path.join(dir, `${snapshotName}.ts`);
+    const jsonFilePath = path.join(dir, `${snapshotName}.json`);
 
-  // Try to load TypeScript file first (for backward compatibility)
-  if (fs.existsSync(tsFilePath)) {
-    try {
-      // Dynamic require for TypeScript files
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const module = require(tsFilePath);
-      // The snapshot might be the default export or a named export matching the filename
-      return module.default || module[snapshotName] || module;
-    } catch (error) {
-      console.error(
-        `Error loading TypeScript snapshot ${snapshotName}:`,
-        error,
-      );
+    if (fs.existsSync(tsFilePath)) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const module = require(tsFilePath);
+        return module.default || module[snapshotName] || module;
+      } catch (error) {
+        console.error(
+          `Error loading TypeScript snapshot ${snapshotName} from ${dir}:`,
+          error,
+        );
+      }
     }
-  }
 
-  // Try to load JSON file
-  if (fs.existsSync(jsonFilePath)) {
-    try {
-      const content = fs.readFileSync(jsonFilePath, 'utf-8');
-      return JSON.parse(content);
-    } catch (error) {
-      console.error(`Error loading JSON snapshot ${snapshotName}:`, error);
+    if (fs.existsSync(jsonFilePath)) {
+      try {
+        const content = fs.readFileSync(jsonFilePath, 'utf-8');
+        return JSON.parse(content);
+      } catch (error) {
+        console.error(
+          `Error loading JSON snapshot ${snapshotName} from ${dir}:`,
+          error,
+        );
+      }
     }
   }
 
@@ -42,20 +54,22 @@ function loadSnapshotFromFile(snapshotName: string): object | null {
 }
 
 /**
- * Gets available snapshot names from the storage-snapshots directory
+ * Gets available snapshot names, searching the active snapshot set first and
+ * falling back to the legacy flat layout.
  */
 function getAvailableSnapshots(): string[] {
-  const snapshotsDir = path.resolve(__dirname, 'storage-snapshots');
+  const names = new Set<string>();
 
-  if (!fs.existsSync(snapshotsDir)) {
-    return [];
+  for (const dir of getSnapshotSearchPaths()) {
+    if (!fs.existsSync(dir)) continue;
+    for (const f of fs.readdirSync(dir)) {
+      if ((f.endsWith('.ts') || f.endsWith('.json')) && f !== 'README.md') {
+        names.add(f.replace(/\.(ts|json)$/, ''));
+      }
+    }
   }
 
-  const files = fs.readdirSync(snapshotsDir);
-  return files
-    .filter((f) => f.endsWith('.ts') || f.endsWith('.json'))
-    .filter((f) => f !== 'README.md')
-    .map((f) => f.replace(/\.(ts|json)$/, ''));
+  return Array.from(names);
 }
 
 export const loadWalletSnapshot = async (

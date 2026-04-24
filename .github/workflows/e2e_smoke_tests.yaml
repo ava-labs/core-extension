@@ -144,6 +144,7 @@ jobs:
     env:
       CI: true
       AWS_REGION: us-east-1
+      SNAPSHOT_SET: dev
       TEST_RUN_ID: ${{ needs.build.outputs.test_run_id }}
       TESTRAIL_EMAIL: ${{ secrets.TESTRAIL_EMAIL }}
       TESTRAIL_API_KEY: ${{ secrets.TESTRAIL_API_KEY }}
@@ -216,13 +217,13 @@ jobs:
         shell: bash
         working-directory: e2e/helpers
         run: |
-          mkdir -p storage-snapshots
-          cd storage-snapshots
+          mkdir -p storage-snapshots/dev
+          cd storage-snapshots/dev
           source ~/py_env/bin/activate
           echo "=== Listing S3 bucket contents ==="
-          aws s3 ls s3://core-qa-automation-snapshots/ext/ || echo "Failed to list S3 bucket"
+          aws s3 ls s3://core-qa-automation-snapshots/ext/dev/ || echo "Failed to list S3 bucket"
           echo "=== Downloading snapshots ==="
-          aws s3 sync s3://core-qa-automation-snapshots/ext/ .
+          aws s3 sync s3://core-qa-automation-snapshots/ext/dev/ .
           echo "=== Downloaded files ==="
           ls -la
 
