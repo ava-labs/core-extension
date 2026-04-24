@@ -274,7 +274,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
           flags: {
             [FeatureGates.DEFI]: true,
             [FeatureGates.SEND]: true,
-            [FeatureGates.SWAP]: false,
+            [FeatureGates.BUY]: false,
           } as any,
           flagPayloads: {
             [FeatureGates.DEFI]: JSON.stringify('a.b.c'), // Gotta stringify it, that's how it will come from Posthog
@@ -302,7 +302,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
         expect(featureFlagsService.featureFlags).toEqual(
           expect.objectContaining({
             [FeatureGates.SEND]: true,
-            [FeatureGates.SWAP]: false,
+            [FeatureGates.BUY]: false,
           }),
         );
       });
@@ -382,7 +382,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
               [FeatureGates.BUY]: false,
               [FeatureGates.DEFI]: true,
               [FeatureGates.SEND]: true,
-              [FeatureGates.SWAP]: false,
+              [FeatureGates.EVERYTHING]: false,
             } as any,
             flagPayloads: {
               [FeatureGates.BUY]: JSON.stringify(flagVersionRange),
@@ -402,7 +402,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
             [FeatureGates.BUY]: false, // Comes disabled, should stay disabled even though it has a version attached.
             [FeatureGates.DEFI]: isEnabled, // Comes enabled with a payload, gotta be matched against the current version
             [FeatureGates.SEND]: true, // Comes without a payload, should stay in-tact
-            [FeatureGates.SWAP]: false, // Comes without a payload, should stay in-tact
+            [FeatureGates.EVERYTHING]: false, // Comes without a payload, should stay in-tact
           });
         },
       );
@@ -416,12 +416,12 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     const productionFlags = {
       ...DEFAULT_FLAGS,
       [FeatureGates.BUY]: false,
-      [FeatureGates.BRIDGE]: true,
+      [FeatureGates.EVERYTHING]: true,
     };
 
     const flagOverrides = {
       [FeatureGates.BUY]: true,
-      [FeatureGates.BRIDGE]: false,
+      [FeatureGates.EVERYTHING]: false,
     };
 
     beforeEach(async () => {
@@ -488,8 +488,8 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     beforeEach(async () => {
       const flags = {
         [FeatureGates.EVERYTHING]: true,
-        [FeatureGates.SWAP]: true,
-        [FeatureGates.BRIDGE]: false,
+        [FeatureGates.BUY]: true,
+        [FeatureGates.SEND]: false,
       } as any;
 
       jest
@@ -504,12 +504,12 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     });
 
     it('does not throw errors if given feature is enabled', () => {
-      expect(() => service.ensureFlagEnabled(FeatureGates.SWAP)).not.toThrow();
+      expect(() => service.ensureFlagEnabled(FeatureGates.BUY)).not.toThrow();
     });
 
     it('throws an error if given feature is disabled', () => {
-      expect(() => service.ensureFlagEnabled(FeatureGates.BRIDGE)).toThrow(
-        `Feature (${FeatureGates.BRIDGE}) is currently unavailable`,
+      expect(() => service.ensureFlagEnabled(FeatureGates.SEND)).toThrow(
+        `Feature (${FeatureGates.SEND}) is currently unavailable`,
       );
     });
   });

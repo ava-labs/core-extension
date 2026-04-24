@@ -1,24 +1,12 @@
 import { useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
 
 import { isTransferInProgress } from '@core/types';
 import { useTransferTrackingContext } from '@core/ui';
 
-import { useNextUnifiedBridgeContext } from '@/pages/Bridge/contexts';
 import { useUnreadNotificationsCount } from '@/hooks/useUnreadNotificationsCount';
 
 export const useNotificationsButtonState = () => {
-  const {
-    state: { pendingTransfers },
-  } = useNextUnifiedBridgeContext();
-  const location = useLocation();
   const { transfers } = useTransferTrackingContext();
-  const isWalletView = location.pathname.startsWith('/wallet');
-
-  const hasPendingLegacyBridgeTransfers = useMemo(
-    () => (isWalletView ? false : Object.values(pendingTransfers).length > 0),
-    [pendingTransfers, isWalletView],
-  );
 
   const hasPendingTransfers = useMemo(
     () =>
@@ -33,12 +21,12 @@ export const useNotificationsButtonState = () => {
   );
 
   const unreadCount = useUnreadNotificationsCount();
-  const showActiveIcon = hasPendingTransfers || hasPendingLegacyBridgeTransfers;
+  const showActiveIcon = hasPendingTransfers;
   const showNotificationsBadge =
     !showActiveIcon && (unreadCount > 0 || hasUnreadTransfers);
 
   return {
-    showActiveIcon: hasPendingTransfers || hasPendingLegacyBridgeTransfers,
+    showActiveIcon: hasPendingTransfers,
     showUnreadBadge: showNotificationsBadge,
   };
 };
