@@ -44,7 +44,7 @@ jobs:
 
     steps:
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 20.18.3
           check-latest: true
@@ -53,7 +53,7 @@ jobs:
         run: corepack enable
 
       - name: Checkout extension
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
@@ -102,7 +102,7 @@ jobs:
         run: yarn build:alpha
 
       - name: Upload built extension
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: extension
           path: ./dist
@@ -157,7 +157,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 0
 
@@ -172,7 +172,7 @@ jobs:
           apt-get install -y google-chrome-stable
 
       - name: Download built extension
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: extension
           path: ./dist
@@ -181,7 +181,7 @@ jobs:
         run: curl ifconfig.io
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 20.18.3
 
@@ -194,12 +194,12 @@ jobs:
           yarn install
 
       - name: Set Python for AWS CLI
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.13'
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1.7.0
+        uses: aws-actions/configure-aws-credentials@67fbcbb121271f7775d2e7715933280b06314838 # v1.7.0
         with:
           role-to-assume: arn:aws:iam::975050371175:role/github-flow-sa-role
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
@@ -255,7 +255,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: test-results-${{ matrix.shardIndex }}
           path: |
@@ -274,7 +274,7 @@ jobs:
     steps:
       - name: Notify Slack on success
         if: ${{ (github.event.inputs.send-slack || 'true') == 'true' && needs.e2e.result == 'success' }}
-        uses: slackapi/slack-github-action@v2.1.1
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         with:
           webhook: ${{ secrets.QA_EXT_SLACK_WEBHOOK_URL }}
           webhook-type: webhook-trigger
@@ -290,7 +290,7 @@ jobs:
 
       - name: Notify Slack on failure
         if: ${{ (github.event.inputs.send-slack || 'true') == 'true' && needs.e2e.result == 'failure' }}
-        uses: slackapi/slack-github-action@v2.1.1
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         with:
           webhook: ${{ secrets.QA_EXT_SLACK_WEBHOOK_URL }}
           webhook-type: webhook-trigger
