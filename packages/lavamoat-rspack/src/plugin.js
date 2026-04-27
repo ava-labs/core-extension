@@ -406,6 +406,8 @@ class LavaMoatRspackPlugin {
                 location: STORE.options.policyLocation,
                 canonicalNameMap: STORE.canonicalNameMap,
                 isBuiltin: STORE.options.isBuiltin,
+                knownIncompatiblePackages:
+                  STORE.options.knownIncompatiblePackages,
                 modulesToInspect: moduleData.inspectable.map((module) => ({
                   module,
                   connections:

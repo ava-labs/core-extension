@@ -1,211 +1,186 @@
-# LavaMoat Webpack Plugin
+# LavaMoat Rspack Plugin
 
-> Putting lava in your pack. For security. We need to work on our metaphors.
+A supply-chain security plugin for Rspack that sandboxes every npm dependency at build time. Each package in the bundle runs inside a [SES Compartment](https://github.com/endojs/endo/tree/master/packages/ses#compartment) and can only access the globals and packages explicitly allowed by a security policy.
 
-LavaMoat Webpack Plugin wraps each module in the bundle in a [Compartment](https://github.com/endojs/endo/tree/master/packages/ses#compartment) and enforces LavaMoat Policies independently per package.
+This is a port of the upstream [@lavamoat/webpack](https://github.com/LavaMoat/LavaMoat/tree/main/packages/webpack) plugin, adapted for Rspack's Rust-based codegen pipeline.
 
-## Usage
+## How it works
 
-> Policy generation is now built into the plugin. While it might get confused about aliases and custom resolvers, it should generally work even when they're in use.
+The plugin runs across three phases of the Rspack build lifecycle: **pre-compilation**, **compilation**, and **asset emission**. At page load, a fourth phase — **runtime execution** — takes over in the browser.
 
-1. Create a webpack bundle with the LavaMoat plugin enabled and the `generatePolicy` flag set to true
-2. Make sure you add a `<script src="./lockdown"></script>` before all other scripts or enable the `HtmlWebpackPluginInterop` option if you're using `html-webpack-plugin`. (Note there's no `.js` there because it's the only way to prevent webpack from minifying the file thus undermining its security guarantees)
-3. Tweak the policy if needed with policy-override.json
+### Phase 1: Pre-compilation (canonical name map)
 
-> The plugin is emitting lockdown without the `.js` extension because that's the only way to prevent it from getting minified, which is likely to break it.
+**Hook:** `compiler.hooks.beforeRun`
 
-The LavaMoat plugin takes an options object with the following properties (all optional):
+Before any compilation starts, the plugin builds a **canonical name map** — a lookup table that maps every `node_modules` directory on disk to a canonical package identity (e.g. `@sentry/browser>@sentry/core`).
 
-| Property                   | Description                                                                                                                                                                                                                                                                                                           | Default                  |
-| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
-| `scuttleGlobalThis`        | Configure scuttling of global object properties using `{ enabled: true, exceptions: ['globalName'] }` where exceptions specify which globals should not be scuttled. Removes access to potentially dangerous globals while preserving access to essential APIs.                                                       | `undefined`              |
-| `policyLocation`           | Directory to store policy files in.                                                                                                                                                                                                                                                                                   | `./lavamoat/webpack`     |
-| `generatePolicy`           | Whether to generate the `policy.json` file. Generated policy is used in the build immediately. `policy-override.json` is applied before bundling, if present.                                                                                                                                                         | `false`                  |
-| `generatePolicyOnly`       | Enables `generatePolicy` and skips finishing the build (useful if you only need to regenerate policy files)                                                                                                                                                                                                           | `false`                  |
-| `emitPolicySnapshot`       | If enabled, emits the result of merging policy with overrides into the output directory of Webpack build for inspection. The file is not used by the bundle.                                                                                                                                                          | `false`                  |
-| `readableResourceIds`      | Boolean to decide whether to keep resource IDs human readable (possibly regardless of production/development mode). If `false`, they are replaced with a sequence of numbers. Keeping them readable may be useful for debugging when a policy violation error is thrown. By default, follows the Webpack config mode. | `(mode==='development')` |
-| `lockdown`                 | Configuration for [SES lockdown][]. Setting the option replaces defaults from LavaMoat.                                                                                                                                                                                                                               | reasonable defaults      |
-| `HtmlWebpackPluginInterop` | Boolean to add a script tag to the HTML output for `./lockdown` file if `HtmlWebpackPlugin` is in use.                                                                                                                                                                                                                | `false`                  |
-| `inlineLockdown`           | A RegExp for matching files to be prepended with lockdown (instead of adding it as a file to the output directory).                                                                                                                                                                                                   |
-| `runChecks`                | Boolean property to indicate whether to check resulting code with wrapping for correctness.                                                                                                                                                                                                                           | `false`                  |
-| `diagnosticsVerbosity`     | Number property to represent diagnostics output verbosity. A larger number means more overwhelming diagnostics output.                                                                                                                                                                                                | `0`                      |
-| `debugRuntime`             | Only for local debugging use - Enables debugging tools that help detect gaps in generated policy and add missing entries to overrides                                                                                                                                                                                 | `false`                  |
-| `policy`                   | The LavaMoat policy object (if not loading from file; see `policyLocation`)                                                                                                                                                                                                                                           | `undefined`              |
-| `staticShims_experimental` | Standalone JS files to be added to the runtime chunk before lavamoat runtime starts and executes lockdown.                                                                                                                                                                                                            | `undefined`              |
+This is done by [`@lavamoat/aa`](https://github.com/LavaMoat/LavaMoat/tree/main/packages/aa), which walks the dependency tree from the project root using `browser-resolve`. The map includes devDependencies because they often end up in bundles.
 
-```js
-const LavaMoatPlugin = require('@lavamoat/webpack');
+The canonical name map is the single source of truth for "which file belongs to which package" throughout the rest of the build.
 
-module.exports = {
-  // ... other webpack configuration properties
-  plugins: [
-    new LavaMoatPlugin({
-      generatePolicy: true,
-      // ... settings from above, optionally
-    }),
-  ],
-  // ... other webpack configuration properties
-};
-```
+### Phase 2: Compilation (analysis → policy → wrapping → runtime injection)
 
-One important thing to note when using the LavaMoat plugin is that it disables the `concatenateModules` optimization in webpack. This is because concatenation won't work with wrapped modules.
+**Hook:** `compiler.hooks.thisCompilation`
 
-### Using static shims
+This is the main phase, with four sub-steps that run in sequence.
 
-Static shims are a way to include additional code in the runtime chunk before LavaMoat starts.
+#### Step 2a: Forced configuration
 
-> [!WARNING]
-> Shims cannot use import or require, they must be standalone scripts.
+The plugin forces `optimization.concatenateModules = false`. Module concatenation merges modules from different packages into one scope, which would defeat per-package sandboxing.
 
-```js
-const LavaMoatPlugin = require('@lavamoat/webpack');
-const path = require('path');
+#### Step 2b: Module analysis and policy generation
 
-module.exports = {
-  plugins: [
-    new LavaMoatPlugin({
-      staticShims_experimental: [
-        'package-name', // a package whose main export is a built standalone script
-        path.join(__dirname, './local/file.js'),
-      ],
-    }),
-  ],
-};
-```
+**Hook:** `RsdoctorPlugin.getCompilationHooks(compilation).moduleIds`
 
-The static shims are executed between the repair and harden phases of SES lockdown.
-It's the only way to polyfill functionality on intrinsics or run any privileged code outside of LavaMoat protections.
+After Rspack assigns module IDs (in Rust), the Rsdoctor builtin emits a `moduleIds` event. The plugin uses this as its entry point because module IDs are now stable and codegen hasn't been finalized yet.
+
+The plugin then:
+
+1. **Classifies every module** in the compilation (`modulesData.js`):
+
+   - _Inspectable_ — normal JS modules with a file path (will be policy-checked and wrapped)
+   - _Unenforceable_ — webpack-ignored builtins (e.g. `require('crypto')` → `?0b7d`), context modules, or external modules that can't be mapped to a package
+   - _Excluded_ — modules explicitly marked with the `LavaMoatPlugin.exclude` loader
+
+2. **Maps file paths to package names** using the canonical name map from Phase 1. For monorepo setups where the same package is installed in multiple `node_modules` directories, a walk-up fallback resolves nested copies to their canonical identity (`canonicalPackageName.js`).
+
+3. **Generates (or loads) the security policy** (`policyGenerator.js`):
+
+   - When `generatePolicy: true`, the plugin feeds each module's source code and its import connections into `lavamoat-core`'s `createModuleInspector`. The inspector performs static analysis to detect which globals each package reads/writes and which other packages it imports. The result is written to `policy.json`.
+   - When `generatePolicy: false`, the plugin loads an existing `policy.json` from `policyLocation`.
+   - In both cases, `policy-override.json` (if present) is merged on top to allow manual tweaks.
+
+4. **Checks for SES-incompatible code.** During inspection, `lavamoat-core` detects patterns like primordial mutations (`Object.keys = ...`), strict mode violations, and dynamic `require()`. Packages listed in `knownIncompatiblePackages` are silently suppressed; any unlisted package with violations causes a build error.
+
+5. **Builds an identifier lookup** (`aa.js`) that maps each numeric/string module ID to a human-readable or numeric resource ID. This lookup is embedded in the runtime so it can resolve "module 42 belongs to package X" at execution time.
+
+#### Step 2c: Module source wrapping
+
+**Hook:** `RsdoctorPlugin.getCompilationHooks(compilation).moduleSources`
+
+This is the critical step that Rspack requires a workaround for. In webpack, the plugin hooks into `NormalModuleFactory` generator hooks to wrap module source during codegen. Rspack runs JS codegen in Rust, so those hooks never fire.
+
+Instead, the plugin intercepts the **Rsdoctor `moduleSources`** hook, which fires after Rspack's Rust codegen has produced the JS source for each module. For every JS module that isn't excluded or unenforceable:
+
+1. The module's resource ID is looked up from its file path.
+2. The module's runtime requirements are inferred (which webpack globals it needs: `__webpack_require__`, `module`, `exports`, etc.).
+3. The source is transformed for SES compatibility using `lavamoat-core`'s `applySourceTransforms`.
+4. The source is wrapped in a **triple-`with` closure** (`wrapper.js`):
 
 ```js
-// resolvers-shim.js
-  Promise.withResolvers = ...
+(function () {
+  if (!this.scopeTerminator) return () => {};
+  with (this.scopeTerminator) {
+    with (this.runtimeHandler) {
+      with (this.globalThis) {
+        return function () {
+          'use strict';
+          // ← original module source goes here
+        };
+      }
+    }
+  }
+}).call(evalKit('package-name', { __webpack_require__, module, exports }))();
 ```
 
-### Excluding modules
+This closure creates a layered scope chain:
 
-> [!WARNING]
-> This is an experimental feature and excluding may be configured differently in the future if this approach is proven insecure.
+- **`scopeTerminator`** — a Proxy whose `has` trap returns `true` for everything, preventing the module from reaching into the outer bundler scope
+- **`runtimeHandler`** — provides the module's `__webpack_require__` (wrapped with policy enforcement), `module`, and `exports`
+- **`globalThis`** — the Compartment's isolated global object, populated only with the globals the policy allows
 
-The default way to define specific behaviors for webpack is creating module rules. To ensure exclude rules are applied on the same exact files that match certain rules (the same RegExp may be matched against different things at different times) we're providing the exclude functionality as a loader you can add to the list of existing loaders or use individually.  
-The loader is available as `LavaMoatPlugin.exclude` from the default export of the plugin. It doesn't do anything to the code, but its presence is detected and treated as a mark on the file. Any file that's been processed by `LavaMoatPlugin.exclude` will not be wrapped in a Compartment.
+The `evalKit` function (assigned to `__webpack_require__._LM_` at runtime) creates or reuses a Compartment for the package, installs its allowed globals, and returns the frozen scope chain objects.
 
-> [!NOTE]
-> Exclude loader will only work when used in webpack config. Specifying it inline `require('path/to/excludeLoader.js!./module.js')` will not result in module.js being excluded. (This is a security feature to prevent your dependencies from declaring they want to be excluded.)
+#### Step 2d: Runtime injection
 
-Example: avoid wrapping CSS modules:
+**Hook:** `compilation.hooks.additionalTreeRuntimeRequirements`
 
-```js
-  module: {
-    rules: [
-      {
-        test: /\.css$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          'css-loader',
-          LavaMoatPlugin.exclude,
-        ],
-        // ...
-      },
-    ],
-  },
-```
+For each chunk that has a runtime (entry chunks), the plugin injects **VirtualRuntimeModules** into the chunk. These are synthetic Rspack runtime modules whose source is assembled at build time from multiple fragments:
 
-See: `examples/webpack.config.js` for a complete example.
+| Fragment                    | Source                                | Purpose                                                                                         |
+| --------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| **defensive preamble**      | generated                             | Caches `location`, `setTimeout`, `document`, etc. before scuttling can remove them              |
+| **LOCKDOWN_SHIMS**          | generated                             | Array for static shims to register themselves                                                   |
+| **static shims** (optional) | user-provided files                   | Code that runs between `repairIntrinsics` and `hardenIntrinsics`, e.g. polyfills for intrinsics |
+| **root**                    | JSON                                  | The resource ID of the root package                                                             |
+| **idmap**                   | JSON                                  | `[resourceId, [moduleId, ...]][]` — maps resource IDs to their module IDs                       |
+| **unenforceable**           | JSON                                  | Module IDs that bypass policy enforcement                                                       |
+| **ctxm**                    | JSON                                  | Context module IDs (webpack's `require.context`)                                                |
+| **kch**                     | JSON                                  | Known chunk IDs (prevents loading unknown chunks at runtime)                                    |
+| **externals**               | JSON                                  | External module ID → name mapping                                                               |
+| **options**                 | JSON                                  | Lockdown options, scuttling config                                                              |
+| **scuttling** (optional)    | `lavamoat-core/src/scuttle.js`        | Scuttles `globalThis` if configured                                                             |
+| **policy**                  | JSON                                  | The full policy object                                                                          |
+| **ENUM**                    | JSON                                  | Key names used by the wrapper (`scopeTerminator`, `runtimeHandler`, `globalThis`)               |
+| **endowmentsToolkit**       | `lavamoat-core`                       | Functions for building per-package globals from the policy                                      |
+| **repairs**                 | generated from `src/runtime/repairs/` | Fixes for browser APIs that break under SES (e.g. `MessageEvent`, `addEventListener`)           |
+| **runtime**                 | `src/runtime/runtime.js`              | The main LavaMoat runtime (see Phase 4)                                                         |
+| **debug** (optional)        | `src/runtime/debug.js`                | Proxy-based helpers for detecting missing endowments                                            |
 
-### Scuttling GlobalThis
+These fragments are concatenated into a single source string using a shared `LAVAMOAT` namespace object, then registered as Rspack `RuntimeModule` instances that Rspack includes in the chunk's runtime bootstrap.
 
-With defense-in-depth in mind, you can also make the actual `globalThis` unusable in case a reference to it is accidentally made accessible for a package. When enabled, this feature removes access to all globals after their copies were captured and passed to Compartments in LavaMoat. You can specify exceptions to maintain access to specific globals that are deliberately used outside of LavaMoat.
+### Phase 3: Asset emission (SES lockdown)
 
-Configure scuttling using:
+**Hook:** `compilation.hooks.processAssets`
 
-```js
-new LavaMoatPlugin({
-  scuttleGlobalThis: {
-    enabled: true,
-    exceptions: [
-      'yourRequiredGlobal',
-      /RegExp matching globals that a webdriver depends on for running your tests/,
-    ], // list of globals that should remain accessible
-  },
-});
-```
+The plugin emits the [SES lockdown](https://github.com/endojs/endo/tree/master/packages/ses#lockdown) script. This is the `ses` package's source code, unmodified and unminified (minification would break its security guarantees). There are two modes:
 
-### diagnosticsVerbosity
+- **External file** (default): Emitted as `dist/lockdown` (no `.js` extension, to prevent minifiers from processing it). If `htmlTemplatePluginInterop` is enabled, a `<script src="./lockdown">` tag is injected into the HTML output before all other scripts.
+- **Inline** (`inlineLockdown: /pattern/`): The lockdown source is prepended to output files matching the regex.
 
-| level | description                                                                                                            |
-| ----- | ---------------------------------------------------------------------------------------------------------------------- |
-| 1     | Prints more detailed warnings from compilation and wrapping of modules.                                                |
-| 2     | Enables verbose error output for all compilation errors and syntax checks. Logs the steps the plugin is going through. |
-| 3+    | Debugging logs for the plugin internals.                                                                               |
+The lockdown script **must execute before any bundle code**. It installs `repairIntrinsics` and `hardenIntrinsics` on `globalThis`, which the LavaMoat runtime calls during Phase 4.
 
-### Gotchas
+### Phase 4: Runtime execution (in the browser)
 
-#### Implicit modules
+When the page loads in the extension:
 
-- Webpack may include dependencies polyfilling Node.js built-ins, such as the `events` or `buffer` packages. In other cases, it will ignore the built-ins and provide empty modules in their place (see below).
+1. **`lockdown` script runs** — installs SES primitives (`repairIntrinsics`, `hardenIntrinsics`, `Compartment`, `harden`) on `globalThis`.
 
-When a dependency (eg. `buffer`) is provided by Webpack, and you need to add it explicitly to your dependencies, you'll receive the following error:
+2. **Rspack runtime bootstrap executes**, which includes the LavaMoat runtime modules:
 
-```
-Error: LavaMoat - Encountered unknown package directory for file "/home/(...)/node_modules/buffer/index.js"
-```
+   a. **Defensive preamble** — caches essential globals (`location`, `setTimeout`, `document`, `self`) in local variables so they survive scuttling.
 
-#### Webpack-ignored modules
+   b. **Static shims** run (if any), registered into the frozen `LOCKDOWN_SHIMS` array.
 
-When a built-in Node.js module is ignored, Webpack generates something like this:
+   c. **Main LavaMoat runtime** (`runtime.js`) executes:
 
-```js
-const nodeCrypto = __webpack_require__(/*! crypto */ '?0b7d');
-```
+   - Calls `repairIntrinsics(lockdownOptions)` — patches known platform bugs
+   - Runs all `LOCKDOWN_SHIMS`
+   - Calls `hardenIntrinsics()` — **freezes all JavaScript intrinsics** (`Object`, `Array`, `Promise`, `Function.prototype`, etc.)
+   - Initializes the endowments toolkit from `lavamoat-core`
+   - Scans the policy for globals with `"write"` permission
+   - Creates a `stricterScopeTerminator` Proxy that traps all property lookups (prevents modules from reaching bundler-scope variables)
+   - Exposes `lavamoatRuntimeWrapper` as `__webpack_require__._LM_` — this is the `evalKit` function that wrapped modules call
 
-A carveout is necessary in policy enforcement for these modules.
-Sadly, even treeshaking doesn't eliminate that module. It's left there and failing to work when reached by runtime control flow.
+3. **Each wrapped module executes.** When Rspack's `__webpack_require__` loads a module, the wrapped closure calls `__webpack_require__._LM_(resourceId, runtimeKit)`, which:
 
-This plugin will skip policy enforcement for such ignored modules.
+   - Creates a new `Compartment` for the package (or reuses an existing one)
+   - Calls `installGlobalsForPolicy` to populate the Compartment's `globalThis` with only the globals the policy allows (via `getEndowmentsForConfig` from `lavamoat-core`)
+   - Applies browser API repairs to the compartment's endowments
+   - Returns a frozen object with `{ scopeTerminator, runtimeHandler, globalThis }`
+   - The triple-`with` closure uses these to create the module's restricted execution scope
 
-#### HMR
+4. **Policy enforcement on `require`.** The `__webpack_require__` passed to each module is wrapped by `wrapRequireWithPolicy`. When module A tries to import module B:
 
-LavaMoat is not compatible with Hot Module Replacement (HMR) and is highly unlikely to ever be; HMR is the antithesis of sandboxing. If you wish to use HMR for development, disable LavaMoat in your dev configuration while keeping it enabled for production builds.
-You could keep lockdown added to the page if you wish to detect incompatibilities with the hardened environment early.
+   - The wrapper resolves B's module ID to a resource ID using the `idmap`
+   - It checks A's policy entry in `policy.resources[A].packages` for permission to import B
+   - If allowed, the original `__webpack_require__` is called
+   - If denied, a `Policy does not allow importing B from A` error is thrown
+   - The root package implicitly has permission to import anything
 
-# Security
+5. **Chunk loading enforcement.** The wrapped `__webpack_require__.e` only allows loading chunk IDs that were known at compile time (from the `kch` list), preventing runtime manipulation of chunk loading paths.
 
-**This is an experimental software. Use at your own risk!**
+6. **GlobalThis scuttling** (optional). If `scuttleGlobalThis` is enabled, after the root Compartment's globals are set up, all properties on the real `globalThis` are removed (except configured exceptions). This means even if a package somehow obtains a reference to the real `globalThis`, it finds nothing useful there.
 
-- [SES lockdown][] must be added to the page without any bundling or transforming for any security guarantees to be sustained.
-  - The plugin is attempting to add it as an asset to the compilation for the sake of Developer Experience. `.js` extension is omitted to prevent minification.
-  - Optionally lockdown can be inlined into the bundle files. You need to declare which of the output files to inline lockdown runtime code to. These need to be the first file of the bundle that get loaded on the page.  
-    When you have a single bundle, you just configure a regex with one unique file name or a `.*`. It gets more complex with builds for multiple pages. The plugin doesn't attempt to guess where to inline lockdown.  
-    e.g. If you have 2 entries `user.js` and `admin.js` and a set up to suffix resulting bundles with commit id, you can use `/user\.[a-f0-9]+\.js|admin\.[a-f0-9]+\.js/` to match the files.
-- Each javascript module resulting from the webpack build is scoped to its package's policy
+## Rspack vs Webpack: key differences
 
-## Threat Model
+| Concern             | Webpack plugin                                     | Rspack plugin                                                       |
+| ------------------- | -------------------------------------------------- | ------------------------------------------------------------------- |
+| Module wrapping     | `NormalModuleFactory` generator hooks (JS codegen) | Rsdoctor `moduleSources` hook (post-Rust codegen)                   |
+| Rsdoctor dependency | Not needed                                         | Required — forces a minimal `RsdoctorPlugin` builtin if not present |
+| NMF generator hooks | Native                                             | Polyfilled via `ensureRspackNmfGeneratorHooks.js`                   |
+| Module ID timing    | Available during codegen                           | Available via Rsdoctor `moduleIds` hook before `moduleSources`      |
 
-- Webpack itself is considered trusted.
-- All plugins can bypass LavaMoat protections intentionally.
-- It's unlikely _but possible_ that a plugin can bypass LavaMoat protections _unintentionally_. Some of the warnings LavaMoat Plugin reports can help detect that.
-- It should not be possible for loaders to bypass LavaMoat protections.
-- Some plugins (eg. MiniCssExtractPlugin) execute code from the bundle at build time. To make the plugin work you need to trust it and the modules it runs and add the LavaMoat.exclude loader for them.
-- This Webpack plugin _does not_ protect against malicious execution by other third-party plugins at runtime (use [LavaMoat](https://npm.im/lavamoat) for that).
+## HMR compatibility
 
-## Webpack runtime
-
-Elements of the Webpack runtime (e.g., `__webpack_require__.*`) are currently mostly left intact. To avoid opening up potential bypasses, some functionality of the Webpack runtime is not available.
-
-Module Federation depends on extending runtime in ways we would not expose to modules. We're open to contributions or collaboration on carefully enabling it.
-
-# Contributing
-
-See [DEVELOPMENT.md](./DEVELOPMENT.md) for notes on plans and roadmap. Refer to the main CONTRIBUTING.md for general guidelines on how to contribute.
-
-## Testing
-
-Run `npm test` to start the automated tests.
-
-### Manual testing
-
-- Navigate to `example/`
-- Run `npm ci` and `npm test`
-- Open `dist/index.html` in your browser and inspect the console
-
-[SES lockdown]: https://github.com/endojs/endo/tree/master/packages/ses#lockdown
+LavaMoat is **not compatible with Hot Module Replacement**. HMR requires mutating module state at runtime, which is the antithesis of compartment-based sandboxing. Disable LavaMoat in development builds if you need HMR. You can still include the lockdown script alone to detect SES incompatibilities early.

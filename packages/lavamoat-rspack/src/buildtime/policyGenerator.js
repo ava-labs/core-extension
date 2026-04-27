@@ -74,9 +74,16 @@ module.exports = {
    * @param {string} opts.location
    * @param {IsBuiltinFn} opts.isBuiltin
    * @param {ModuleWithConnections[]} opts.modulesToInspect
+   * @param {string[]} [opts.knownIncompatiblePackages]
    * @returns {LavaMoatPolicy}
    */
-  generatePolicy({ canonicalNameMap, location, isBuiltin, modulesToInspect }) {
+  generatePolicy({
+    canonicalNameMap,
+    location,
+    isBuiltin,
+    modulesToInspect,
+    knownIncompatiblePackages,
+  }) {
     const { applyOverride } = loadPoliciesSync({
       policyPath: path.join(location, 'policy.json'),
       policyOverridePath: path.join(location, 'policy-override.json'),
@@ -131,6 +138,27 @@ module.exports = {
         getPackageNameForModulePathMonorepo(canonicalNameMap, specifier),
     });
 
+    const allowedIncompat = new Set(knownIncompatiblePackages ?? []);
+    /** @type {string[]} */
+    const unexpectedIncompat = [];
+
+    moduleInspector.on(
+      'compat-warning',
+      /** @param {{ moduleRecord: import('lavamoat-core').LavamoatModuleRecord }} event */
+      ({ moduleRecord }) => {
+        if (allowedIncompat.has(moduleRecord.packageName)) {
+          diag.rawDebug(
+            1,
+            `LavaMoatPlugin: Suppressed known compat warning for "${moduleRecord.packageName}"`,
+          );
+          return;
+        }
+        unexpectedIncompat.push(
+          `  - "${moduleRecord.packageName}" (${moduleRecord.file})`,
+        );
+      },
+    );
+
     for (const { module, connections } of modulesToInspect) {
       // Skip modules the user intentionally excludes.
       // This is policy generation so we don't need to protect ourselves from an attack where the module has a loader defined in the specifier.
@@ -184,6 +212,12 @@ module.exports = {
           { cause: e },
         );
       }
+    }
+
+    if (unexpectedIncompat.length > 0) {
+      throw new Error(
+        `LavaMoatPlugin: SES-incompatible code found in ${unexpectedIncompat.length} unexpected package(s):\n${unexpectedIncompat.join('\n')}\n\nIf these packages are safe to allow, add them to the "knownIncompatiblePackages" option.`,
+      );
     }
 
     const policy = moduleInspector.generatePolicy({});
