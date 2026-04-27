@@ -65,6 +65,8 @@ const ExplorerLink = ({
   hash: string;
 }) => (
   <IconButton
+    data-testid="show-in-explorer-button"
+    data-tx-hash={hash}
     size="small"
     sx={{ color: 'background.default', padding: 0 }}
     onClick={() => {

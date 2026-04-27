@@ -5,8 +5,8 @@ on:
     - cron: '0 11 * * 1-5'
   workflow_dispatch:
     inputs:
-      extension-branch:
-        description: 'Branch name to checkout for testing'
+      test-branch:
+        description: 'Branch name to checkout for test files'
         required: true
         default: 'main'
       send-slack:
@@ -18,76 +18,47 @@ on:
         default: 'true'
 
 jobs:
-  build:
-    name: Build Extension
-    runs-on: ubuntu-latest-16-cores-core-extension
+  download:
+    name: Download Extension
+    runs-on: ubuntu-latest
     environment: alpha
     env:
       TESTRAIL_EMAIL: ${{ secrets.TESTRAIL_EMAIL }}
       TESTRAIL_API_KEY: ${{ secrets.TESTRAIL_API_KEY }}
     outputs:
       test_run_id: ${{ steps.create-testrail-run.outputs.test_run_id }}
+      release_tag: ${{ steps.download-release.outputs.release_tag }}
 
     steps:
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.18.3
-          check-latest: true
-
-      - name: Enable corepack
-        run: corepack enable
-
-      - name: Checkout extension
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.extension-branch || 'main' }}
-          fetch-depth: 0
+          sparse-checkout: '.'
+          sparse-checkout-cone-mode: false
 
-      - name: Create env file
+      - name: Download latest alpha release
+        id: download-release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          touch .env.production
-          echo RELEASE=alpha >> .env.production
-          echo 'POSTHOG_KEY="${{ secrets.POSTHOG_KEY }}"' >> .env.production
-          echo 'POSTHOG_URL="${{ secrets.POSTHOG_URL }}"' >> .env.production
-          echo 'ANALYTICS_ENCRYPTION_KEY="${{ secrets.ANALYTICS_ENCRYPTION_KEY }}"' >> .env.production
-          echo 'ANALYTICS_ENCRYPTION_KEY_ID="${{ secrets.ANALYTICS_ENCRYPTION_KEY_ID }}"' >> .env.production
-          echo 'COVALENT_API_KEY="${{ secrets.COVALENT_API_KEY }}"' >> .env.production
-          echo 'GLACIER_URL="${{ secrets.GLACIER_URL }}"' >> .env.production
-          echo 'PROXY_URL="${{ secrets.PROXY_URL }}"' >> .env.production
-          echo 'CORE_EXTENSION_LANDING_URL="${{ secrets.CORE_EXTENSION_LANDING_URL }}"' >> .env.production
-          echo 'SENTRY_DSN="${{ secrets.SENTRY_DSN }}"' >> .env.production
-          echo 'CORE_WEB_BASE_URL="${{ secrets.CORE_WEB_BASE_URL }}"' >> .env.production
-          echo 'WALLET_CONNECT_PROJECT_ID="${{ secrets.WALLET_CONNECT_PROJECT_ID }}"' >> .env.production
-          echo 'SEEDLESS_URL="${{ secrets.SEEDLESS_URL }}"' >> .env.production
-          echo 'SEEDLESS_ORG_ID="${{ secrets.SEEDLESS_ORG_ID }}"' >> .env.production
-          echo 'GOOGLE_OAUTH_CLIENT_ID="${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}"' >> .env.production
-          echo 'APPLE_OAUTH_CLIENT_ID="${{ secrets.APPLE_OAUTH_CLIENT_ID }}"' >> .env.production
-          echo 'APPLE_OAUTH_REDIRECT_URL="${{ secrets.APPLE_OAUTH_REDIRECT_URL }}"' >> .env.production
-          echo 'CUBESIGNER_ENV="${{ secrets.CUBESIGNER_ENV }}"' >> .env.production
-          echo 'SEEDLESS_FIDO_IDENTITY_URL="${{ secrets.SEEDLESS_FIDO_IDENTITY_URL }}"' >> .env.production
-          echo 'NEWSLETTER_BASE_URL="${{ secrets.NEWSLETTER_BASE_URL }}"' >> .env.production
-          echo 'NEWSLETTER_PORTAL_ID="${{ secrets.NEWSLETTER_PORTAL_ID }}"' >> .env.production
-          echo 'NEWSLETTER_FORM_ID="${{ secrets.NEWSLETTER_FORM_ID }}"' >> .env.production
-          echo 'FIREBASE_CONFIG="${{ secrets.FIREBASE_CONFIG }}"' >> .env.production
-          echo 'ID_SERVICE_URL="${{ secrets.ID_SERVICE_URL }}"' >> .env.production
-          echo 'GASLESS_SERVICE_URL="${{ secrets.GASLESS_SERVICE_URL }}"' >> .env.production
-          echo 'NOTIFICATION_SENDER_SERVICE_URL="${{ secrets.NOTIFICATION_SENDER_SERVICE_URL }}"' >> .env.production
-          echo 'EXTENSION_PUBLIC_KEY="${{ secrets.EXTENSION_PUBLIC_KEY }}"' >> .env.production
-          echo 'BALANCE_SERVICE_URL="${{ secrets.BALANCE_SERVICE_URL }}"' >> .env.production
-          echo 'PROFILE_SERVICE_URL="${{ secrets.PROFILE_SERVICE_URL }}"' >> .env.production
-          echo 'TOKEN_AGGREGATOR_SERVICE_URL="${{ secrets.TOKEN_AGGREGATOR_SERVICE_URL }}"' >> .env.production
-          echo 'MARKR_API_URL="${{ secrets.MARKR_API_URL }}"' >> .env.production
-          echo 'MARKR_API_TOKEN="${{ secrets.MARKR_API_TOKEN }}"' >> .env.production
-      - name: Install dependencies
-        run: |
-          yarn install
-          yarn allow-scripts
+          TAG=$(gh release list --limit 20 --json tagName,isPrerelease,isDraft \
+            --jq '[.[] | select(.isPrerelease and (.isDraft | not) and (.tagName | contains("-alpha.")))] | .[0].tagName')
 
-      - name: Build extension
-        run: yarn build:alpha
+          if [ -z "$TAG" ]; then
+            echo "::error::No alpha pre-release found on GitHub Releases"
+            exit 1
+          fi
 
-      - name: Upload built extension
+          echo "Downloading release: $TAG"
+          echo "release_tag=$TAG" >> "$GITHUB_OUTPUT"
+
+          gh release download "$TAG" --pattern "*.zip" --dir ./tmp
+          mkdir -p ./dist
+          unzip ./tmp/*.zip -d ./dist
+          echo "Extension unpacked to ./dist"
+          ls -la ./dist
+
+      - name: Upload extension artifact
         uses: actions/upload-artifact@v4
         with:
           name: extension
@@ -111,7 +82,7 @@ jobs:
   e2e:
     name: Run E2E Tests - Shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
     runs-on: ubuntu-latest-16-cores-core-extension
-    needs: build
+    needs: download
     environment: e2e
     permissions:
       id-token: write
@@ -124,12 +95,16 @@ jobs:
     env:
       CI: true
       AWS_REGION: us-east-1
-      TEST_RUN_ID: ${{ needs.build.outputs.test_run_id }}
+      SNAPSHOT_SET: alpha
+      TEST_RUN_ID: ${{ needs.download.outputs.test_run_id }}
       TESTRAIL_EMAIL: ${{ secrets.TESTRAIL_EMAIL }}
       TESTRAIL_API_KEY: ${{ secrets.TESTRAIL_API_KEY }}
       WALLET_PASSWORD: ${{ secrets.WALLET_PASSWORD }}
       RECOVERY_PHRASE_12_WORDS: ${{ secrets.RECOVERY_PHRASE_12_WORDS }}
       RECOVERY_PHRASE_24_WORDS: ${{ secrets.RECOVERY_PHRASE_24_WORDS }}
+      APITOKEN_CRYPTOAPIS: ${{ secrets.APITOKEN_CRYPTOAPIS }}
+      APITOKEN_ETHERSCAN: ${{ secrets.APITOKEN_ETHERSCAN }}
+      APITOKEN_GLACIER: ${{ secrets.APITOKEN_GLACIER }}
 
     container:
       image: mcr.microsoft.com/playwright:v1.55.1-noble
@@ -139,7 +114,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.extension-branch || 'main' }}
+          ref: ${{ github.event.inputs.test-branch || 'main' }}
           fetch-depth: 0
 
       - name: Install Chrome
@@ -197,13 +172,13 @@ jobs:
         shell: bash
         working-directory: e2e/helpers
         run: |
-          mkdir -p storage-snapshots
-          cd storage-snapshots
+          mkdir -p storage-snapshots/alpha
+          cd storage-snapshots/alpha
           source ~/py_env/bin/activate
           echo "=== Listing S3 bucket contents ==="
-          aws s3 ls s3://core-qa-automation-snapshots/ext/ || echo "Failed to list S3 bucket"
+          aws s3 ls s3://core-qa-automation-snapshots/ext/alpha/ || echo "Failed to list S3 bucket"
           echo "=== Downloading snapshots ==="
-          aws s3 sync s3://core-qa-automation-snapshots/ext/ .
+          aws s3 sync s3://core-qa-automation-snapshots/ext/alpha/ .
           echo "=== Downloaded files ==="
           ls -la
 
@@ -247,10 +222,10 @@ jobs:
     name: Send Slack Notification
     runs-on: ubuntu-latest
     environment: e2e
-    needs: [build, e2e]
+    needs: [download, e2e]
     if: always()
     env:
-      TEST_RUN_ID: ${{ needs.build.outputs.test_run_id }}
+      TEST_RUN_ID: ${{ needs.download.outputs.test_run_id }}
 
     steps:
       - name: Notify Slack on success

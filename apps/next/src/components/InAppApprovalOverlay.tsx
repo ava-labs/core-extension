@@ -51,7 +51,11 @@ export const InAppApprovalOverlay = () => {
   }, [approval]);
 
   return (
-    <Dialog {...dialogProps} open={Boolean(approval)}>
+    <Dialog
+      data-testid="approval-dialog"
+      {...dialogProps}
+      open={Boolean(approval)}
+    >
       <ApprovalRoutes location={fakeLocation} />
     </Dialog>
   );
