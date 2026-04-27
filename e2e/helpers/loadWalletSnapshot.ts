@@ -206,26 +206,17 @@ export const loadWalletSnapshot = async (
     // This waits for the loading spinner to disappear and actual UI to appear
     console.log('Waiting for extension to initialize...');
     try {
-      await extensionPage.waitForFunction(
-        () => {
-          // Check for loading spinner
-          const spinner = document.querySelector('[class*="CircularProgress"]');
-          if (spinner) return false;
+      await extensionPage
+        .locator('[data-testid="loading-screen"]')
+        .waitFor({ state: 'hidden', timeout: 30000 })
+        .catch(() => {});
 
-          // Check for lock screen (password input)
-          const passwordInput = document.querySelector(
-            'input[type="password"], input[placeholder*="password" i]',
-          );
-          if (passwordInput) return true;
-
-          // Check for any visible buttons (UI ready)
-          const buttons = Array.from(document.querySelectorAll('button'));
-          return buttons.some(
-            (btn) => btn.textContent && btn.textContent.trim().length > 2,
-          );
-        },
-        { timeout: 30000 },
-      );
+      const readyIndicator = extensionPage
+        .locator('input[type="password"]')
+        .or(extensionPage.locator('[data-testid*="settings"]'))
+        .or(extensionPage.locator('[data-testid*="nav"]'))
+        .first();
+      await readyIndicator.waitFor({ state: 'visible', timeout: 30000 });
       console.log('Extension initialized successfully');
     } catch {
       console.log(

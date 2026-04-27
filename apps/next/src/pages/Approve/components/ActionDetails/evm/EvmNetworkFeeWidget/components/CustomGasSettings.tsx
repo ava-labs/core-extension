@@ -105,6 +105,7 @@ export const CustomGasSettings: FC<CustomGasSettingsProps> = ({
 
   return (
     <Page
+      data-testid="custom-gas-settings"
       withBackButton
       withViewSwitcher={false}
       onBack={onBack}
@@ -121,6 +122,7 @@ export const CustomGasSettings: FC<CustomGasSettingsProps> = ({
           >
             <Stack textAlign="end">
               <FeeInput
+                data-testid="custom-fee-max-base"
                 autoFocus
                 defaultValue={customMaxFeeString}
                 onChange={(ev) => {
@@ -142,6 +144,7 @@ export const CustomGasSettings: FC<CustomGasSettingsProps> = ({
             )}
           >
             <FeeInput
+              data-testid="custom-fee-max-priority"
               defaultValue={customMaxTipString}
               onChange={(ev) => {
                 setCustomMaxTipString(ev.currentTarget.value || '0');
@@ -155,6 +158,7 @@ export const CustomGasSettings: FC<CustomGasSettingsProps> = ({
             )}
           >
             <FeeInput
+              data-testid="custom-fee-gas-limit"
               defaultValue={gasLimit}
               onChange={(ev) => {
                 setCustomGasLimitString(ev.currentTarget.value || '0');
@@ -184,7 +188,7 @@ export const CustomGasSettings: FC<CustomGasSettingsProps> = ({
           </TxDetailsRow>
         </DetailsSection>
         <Fade in={Boolean(error)}>
-          <Stack width="100%" textAlign="center">
+          <Stack width="100%" textAlign="center" data-testid="custom-fee-error">
             <Typography variant="caption" color="error.main">
               {error}
             </Typography>
@@ -193,6 +197,7 @@ export const CustomGasSettings: FC<CustomGasSettingsProps> = ({
       </Stack>
       <Stack width="100%" gap={1}>
         <Button
+          data-testid="custom-fee-save"
           variant="contained"
           color="primary"
           size="extension"
@@ -203,6 +208,7 @@ export const CustomGasSettings: FC<CustomGasSettingsProps> = ({
           {t('Save')}
         </Button>
         <Button
+          data-testid="custom-fee-cancel"
           variant="contained"
           color="secondary"
           size="extension"

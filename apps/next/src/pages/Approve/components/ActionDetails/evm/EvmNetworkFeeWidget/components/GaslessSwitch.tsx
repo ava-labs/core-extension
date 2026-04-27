@@ -25,6 +25,7 @@ export const GaslessSwitchRow: FC<GaslessSwitchRowProps> = ({
 
   return (
     <Stack
+      data-testid="gasless-switch-row"
       direction="row"
       alignItems="center"
       justifyContent="space-between"
@@ -43,6 +44,7 @@ export const GaslessSwitchRow: FC<GaslessSwitchRowProps> = ({
         {/* Gotta wrap in div because the "disabled" prop is preventing a tooltip from popping up*/}
         <div>
           <Switch
+            data-testid="gasless-toggle"
             size="small"
             checked={checked}
             onChange={onChange}

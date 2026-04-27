@@ -49,6 +49,7 @@ export const ActionDrawer = ({
         <Stack gap={1}>
           {approve && (
             <Button
+              data-testid="approve-action-button"
               variant="contained"
               color="primary"
               size="extension"
@@ -65,6 +66,7 @@ export const ActionDrawer = ({
           )}
           {reject && (
             <Button
+              data-testid="reject-action-button"
               variant="contained"
               color="secondary"
               size="extension"

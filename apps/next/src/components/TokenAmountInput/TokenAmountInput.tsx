@@ -207,6 +207,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
         />
         <Grow in={Boolean(token)} mountOnEnter unmountOnExit>
           <InvisibleAmountInput
+            data-testid="send-amount-input"
             autoFocus={autoFocus}
             placeholder={(0).toFixed(2)}
             onChange={(ev) => onAmountChange?.(ev.target.value, false)}
@@ -259,6 +260,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
             {t('50%')}
           </AmountPresetButton>
           <AmountPresetButton
+            data-testid="amount-preset-max"
             onClick={() => handlePresetClick(100)}
             disabled={arePresetButtonsDisabled}
           >

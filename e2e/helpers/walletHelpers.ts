@@ -1,5 +1,6 @@
 import type { Page } from '@playwright/test';
 import { TEST_CONFIG } from '../constants';
+import { waitForPortfolioShellReady } from './extensionHelpers';
 
 /**
  * Unlocks the wallet with the provided password
@@ -23,8 +24,8 @@ export async function unlockWallet(
   });
   await unlockButton.click();
 
-  // Wait for unlock to complete (portfolio or main view should be visible)
-  await page.waitForTimeout(2000);
+  const portfolioTimeout = process.env.CI ? 90_000 : 45_000;
+  await waitForPortfolioShellReady(page, portfolioTimeout);
 }
 
 /**

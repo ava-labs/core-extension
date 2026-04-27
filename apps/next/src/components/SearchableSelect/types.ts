@@ -51,4 +51,5 @@ export type SearchableSelectTriggerProps<T> = {
   value?: T;
   renderValue: (value?: T) => React.ReactNode;
   onClick: undefined | VoidFunction;
+  'data-testid'?: string;
 };
