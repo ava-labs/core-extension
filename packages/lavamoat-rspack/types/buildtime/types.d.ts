@@ -25,6 +25,7 @@ export interface CompleteLavaMoatPluginOptions {
   isBuiltin: (specifier: string) => boolean;
   skipRepairs?: true | string[];
   scuttleGlobalThis?: LavaMoatScuttleOpts;
+  knownIncompatiblePackages?: string[];
   debugRuntime?: boolean;
   unlockedChunksUnsafe?: RegExp;
   staticShims_experimental?: string[];

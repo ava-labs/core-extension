@@ -80,13 +80,13 @@
       },
       "meta": {
         "graph-optimization": [
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/addresses' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/transactions' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/signers' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/transaction-messages' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/addresses' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/functional' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/rpc-types' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/rpc' and the bundler collapsed that to a direct import."
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/transactions' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/rpc' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/rpc-types' and the bundler collapsed that to a direct import."
         ]
       },
       "packages": {
@@ -144,10 +144,10 @@
       "meta": {
         "graph-optimization": [
           "Dependency '@solana/kit' reexports from '@solana/kit>@solana/addresses' and the bundler collapsed that to a direct import.",
-          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/rpc' and the bundler collapsed that to a direct import.",
-          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/keys' and the bundler collapsed that to a direct import.",
           "Dependency '@solana/kit' reexports from '@solana/kit>@solana/transaction-messages' and the bundler collapsed that to a direct import.",
-          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/transactions' and the bundler collapsed that to a direct import."
+          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/transactions' and the bundler collapsed that to a direct import.",
+          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/rpc' and the bundler collapsed that to a direct import.",
+          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/keys' and the bundler collapsed that to a direct import."
         ]
       },
       "packages": {
@@ -439,8 +439,8 @@
       "meta": {
         "graph-optimization": [
           "Dependency '@core/ui>react-router-dom' reexports from '@core/ui>react-router-dom>react-router' and the bundler collapsed that to a direct import.",
-          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/keys' and the bundler collapsed that to a direct import.",
-          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/addresses' and the bundler collapsed that to a direct import."
+          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/addresses' and the bundler collapsed that to a direct import.",
+          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/keys' and the bundler collapsed that to a direct import."
         ]
       },
       "packages": {
@@ -1860,15 +1860,15 @@
       },
       "meta": {
         "graph-optimization": [
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/addresses' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-numbers' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-core' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/accounts' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/addresses' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-strings' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-data-structures' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/accounts' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/programs' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-strings' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/instructions' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/signers' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/programs' and the bundler collapsed that to a direct import."
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/signers' and the bundler collapsed that to a direct import."
         ]
       },
       "packages": {
@@ -1893,10 +1893,10 @@
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-numbers' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-data-structures' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-core' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/addresses' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/options' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/instructions' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/addresses' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-strings' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/instructions' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/programs' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/accounts' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/signers' and the bundler collapsed that to a direct import."
@@ -1923,27 +1923,27 @@
       },
       "meta": {
         "graph-optimization": [
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-core' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/accounts' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-data-structures' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-numbers' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/addresses' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/instructions' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/options' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/programs' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-strings' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/signers' and the bundler collapsed that to a direct import.",
-          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/addresses' and the bundler collapsed that to a direct import.",
-          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/instructions' and the bundler collapsed that to a direct import.",
           "Dependency '@solana/kit' reexports from '@solana/kit>@solana/codecs>@solana/codecs-numbers' and the bundler collapsed that to a direct import.",
-          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/programs' and the bundler collapsed that to a direct import.",
-          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/codecs>@solana/codecs-data-structures' and the bundler collapsed that to a direct import.",
           "Dependency '@solana/kit' reexports from '@solana/kit>@solana/codecs>@solana/options' and the bundler collapsed that to a direct import.",
           "Dependency '@solana/kit' reexports from '@solana/kit>@solana/keys>@solana/codecs-core' and the bundler collapsed that to a direct import.",
-          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/signers' and the bundler collapsed that to a direct import.",
+          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/instructions' and the bundler collapsed that to a direct import.",
+          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/addresses' and the bundler collapsed that to a direct import.",
+          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/codecs>@solana/codecs-data-structures' and the bundler collapsed that to a direct import.",
           "Dependency '@solana/kit' reexports from '@solana/kit>@solana/accounts' and the bundler collapsed that to a direct import.",
           "Dependency '@solana/kit' reexports from '@solana/kit>@solana/keys>@solana/codecs-strings' and the bundler collapsed that to a direct import.",
-          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/instruction-plans' and the bundler collapsed that to a direct import."
+          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/instruction-plans' and the bundler collapsed that to a direct import.",
+          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/signers' and the bundler collapsed that to a direct import.",
+          "Dependency '@solana/kit' reexports from '@solana/kit>@solana/programs' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-numbers' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-core' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-data-structures' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/accounts' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/instructions' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/addresses' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-strings' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/options' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/signers' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/programs' and the bundler collapsed that to a direct import."
         ]
       },
       "packages": {
@@ -2435,9 +2435,9 @@
     "@avalabs/core-wallets-sdk>@solana/kit>@solana/sysvars": {
       "meta": {
         "graph-optimization": [
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-core' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-data-structures' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-numbers' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs>@solana/codecs-data-structures' and the bundler collapsed that to a direct import."
+          "Dependency '@avalabs/core-wallets-sdk>@solana/kit>@solana/codecs' reexports from '@avalabs/core-wallets-sdk>@solana/kit>@solana/keys>@solana/codecs-core' and the bundler collapsed that to a direct import."
         ]
       },
       "packages": {

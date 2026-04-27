@@ -107,7 +107,8 @@ function getPackageNameForModulePathMonorepo(
       const pkg = JSON.parse(fs.readFileSync(pj, 'utf8'));
       const npmName = pkg && pkg.name;
       if (!npmName) {
-        break;
+        dir = path.dirname(dir);
+        continue;
       }
       const logical = findExistingLogicalPathByNpmName(
         canonicalNameMap,
