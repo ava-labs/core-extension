@@ -50,7 +50,6 @@ export enum FeatureGates {
   FUSION_AVALANCHE_EVM = 'fusion-avalanche-evm',
   FUSION_LOMBARD_BTC_TO_AVA = 'fusion-lombard-btc-to-ava',
   FUSION_LOMBARD_AVA_TO_BTC = 'fusion-lombard-ava-to-btc',
-  FORCE_SAE = 'force-sae',
 }
 
 export enum FeatureVars {
@@ -60,6 +59,7 @@ export enum FeatureVars {
   FUSION_FEE_UNITS_MARGIN_BPS = 'fusion-fee-units-margin-bps',
   FUSION_TRANSFER_GAS_MARGIN_BPS = 'fusion-transfer-gas-margin-bps',
   FUSION_ADDITIVE_FEES_BUFFER_BPS = 'fusion-additive-fees-buffer-bps',
+  SAE_OVERRIDE = 'sae-override',
 }
 
 export enum FeatureFlagEvents {
