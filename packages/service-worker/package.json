@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "rsbuild build -w --config rsbuild.worker.dev.ts",
     "build": "rsbuild build --config rsbuild.worker.prod.ts",
+    "build:dev": "rsbuild build --config rsbuild.worker.dev.ts",
     "lint": "eslint --fix \"src/**/*.ts*\" --no-warn-ignored",
     "prettify": "prettier --write \"src/**/*.ts*\"",
     "test": "yarn jest",

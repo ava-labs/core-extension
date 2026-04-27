@@ -8,8 +8,16 @@ import {
 import { MdInfoOutline } from 'react-icons/md';
 
 type TxDetailsRowProps = StackProps & {
-  label: React.ReactNode | string;
+  label: React.ReactNode;
   tooltip?: string;
+};
+
+const labelToTestId = (label: React.ReactNode): string | undefined => {
+  if (typeof label !== 'string') return undefined;
+  return `tx-detail-${label
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')}`;
 };
 
 export const TxDetailsRow = ({
@@ -19,6 +27,7 @@ export const TxDetailsRow = ({
   ...rest
 }: TxDetailsRowProps) => (
   <Stack
+    data-testid={labelToTestId(label)}
     direction="row"
     gap={1}
     px={2}

@@ -69,6 +69,7 @@ function TokenSelectRaw({
       onValueChange={(token) => onValueChange(getUniqueTokenId(token))}
       label={t('Token')}
       skipGroupingEntirely
+      searchInputProps={{}}
       slots={{
         trigger: TokenSelectTrigger,
       }}
