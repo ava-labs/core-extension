@@ -8,10 +8,9 @@
  *
  * Optional `--testid-inventory`: extra report for data-testid declaration vs getByTestId / `[data-testid=…]` locators.
  *
- * Optional `e2e/testid-coverage.config.json` (only for testid inventory path):
- * - ignoredOrphanTestIds, ledgerSpecAdditionalModules
+ * Config JSON: `e2e/<name>.config.json` or `e2e/scripts/<name>.config.json` (testid, required-scenarios, coverage-model).
  *
- * CLI: node scripts/e2e-testid-coverage.mjs [--json] [--verbose] [--testid-inventory] [--testrail] [--app-dir …] [--e2e-dir …]
+ * CLI: node e2e/scripts/e2e-testid-coverage.mjs [--json] [--verbose] [--testid-inventory] [--testrail] [--app-dir …] [--e2e-dir …]
  *
  * Optional --testrail: fetch TestRail run/suite for cross-check only; headline coverage is codebaseCompositeCoverage
  * (e2e/coverage-model.config.json) and does not use TestRail.
@@ -1046,7 +1045,7 @@ function fileContainsJsx(sf) {
 }
 
 /**
- * Tokens used to match spec titles to a components/ subfolder name (e.g. SwapPage → swap, swappage).
+ * Tokens used to match spec titles to a pages/* top-level folder name (e.g. SwapPage → swap, swappage).
  * @param {string} dirName
  */
 function featureDirMatchTokens(dirName) {
@@ -2021,7 +2020,7 @@ async function main() {
       `Testid buckets: ${ti.totals.numerator}/${ti.totals.denominator} (${ti.totals.percent}%) — static: ${ti.totals.appStaticTestIds}, patterns: ${ti.totals.appPatternTestIds}`,
     );
     lines.push(
-      `Surface gap (coarse): ${ti.totals.componentTsxFilesWithJsxNoTestId} TSX files under components/ have JSX but no testid in file (${ti.totals.componentTsxFilesWithJsx} jsx files total).`,
+      `Surface gap (coarse): ${ti.totals.componentTsxFilesWithJsxNoTestId} TSX files under apps/next/src/pages have JSX but no testid in file (${ti.totals.componentTsxFilesWithJsx} jsx files total).`,
     );
     lines.push(
       `Feature areas (testid touch): ${ti.totals.featureAreasByTestid.totalTopLevelFolders} folders; ${ti.totals.featureAreasByTestid.foldersWithDeclaredTestIds} declare testids; e2e touches ${ti.totals.featureAreasByTestid.foldersTouchedByGlobalE2e} → ${ti.totals.featureAreasByTestid.percentOfAllComponentAreasTouchedByE2e}% of all areas by testid`,
