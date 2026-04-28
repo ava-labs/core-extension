@@ -7,4 +7,5 @@ export type AddressEnablerProps = {
   label: string;
   labelVariant: TypographyProps['variant'];
   visibility?: 'always' | 'hover';
+  invertTheme?: boolean;
 };

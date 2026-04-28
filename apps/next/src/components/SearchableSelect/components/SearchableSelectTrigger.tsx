@@ -18,11 +18,12 @@ export function SearchableSelectTrigger<T>({
   value,
   renderValue,
   onClick,
+  'data-testid': dataTestId,
 }: SearchableSelectTriggerProps<T>) {
   const theme = useTheme();
   return (
     <Card>
-      <Container ref={ref} onClick={onClick}>
+      <Container ref={ref} onClick={onClick} data-testid={dataTestId}>
         <LabelAndValueWrapper>
           <Typography variant="subtitle3">{label}</Typography>
           {renderValue(value)}

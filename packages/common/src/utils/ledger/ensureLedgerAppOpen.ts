@@ -1,0 +1,271 @@
+import Transport, {
+  StatusCodes,
+  TransportStatusError,
+} from '@ledgerhq/hw-transport';
+import { wait } from '@avalabs/core-utils-sdk';
+
+/** Ledger DMK `GetAppAndVersionCommand` — CLA/INS. */
+const GET_APP_AND_VERSION_CLA = 0xb0;
+const GET_APP_AND_VERSION_INS = 0x01;
+
+/** Ledger DMK `OpenAppCommand` — CLA/INS. */
+const OPEN_APP_CLA = 0xe0;
+const OPEN_APP_INS = 0xd8;
+
+/**
+ * Return to BOLOS from a running app (same as Ledger Live `ledger-live-common/src/hw/quitApp.ts`).
+ * `OpenAppCommand` is only handled on the dashboard; inside another app it must be sent after quit.
+ */
+const QUIT_APP_CLA = 0xb0;
+const QUIT_APP_INS = 0xa7;
+
+/** Names reported by `GetAppAndVersion` on the device home screen (Ledger Live `isDashboardName`). */
+const LEDGER_DASHBOARD_APP_NAMES = new Set<string>(['BOLOS', 'OLOS\u0000']);
+
+const POST_QUIT_SETTLE_MS = 400;
+/**
+ * Some devices (e.g. Ledger Flex) briefly reset their USB connection when
+ * launching an app. Give them time to re-enumerate before polling again.
+ */
+const POST_OPEN_APP_SETTLE_MS = 1_500;
+const MAX_ENSURE_APP_ROUNDS = 6;
+
+/**
+ * BOLOS often returns 0x6807 when OpenApp is rejected (e.g. dashboard + browser transport), not only
+ * when the app is missing. Use {@link StatusCodes.APP_NOT_FOUND_OR_INVALID_CONTEXT} for a definitive
+ * missing-app signal.
+ */
+export function getLedgerAutoOpenAppFailedMessage(appName: string): string {
+  return `Could not switch to the ${appName} app automatically. Open it on your Ledger, then try again.`;
+}
+
+export function getLedgerQuitAppFailedMessage(): string {
+  return 'Could not exit the current Ledger app automatically. Return to the device home screen, then try again.';
+}
+
+export function getLedgerAppNotInstalledMessage(appName: string): string {
+  return `The ${appName} app is not installed on this Ledger device. Install it from Ledger Live, then try again.`;
+}
+
+export function isLedgerDashboardApplication(name: string): boolean {
+  return LEDGER_DASHBOARD_APP_NAMES.has(name);
+}
+
+/**
+ * WebUSB throws a DOMException containing "transfer error" when the device
+ * resets its USB connection mid-transfer (e.g. during an app switch on Flex).
+ * These are transient — the device re-enumerates shortly after.
+ */
+function isUsbTransferError(err: unknown): boolean {
+  return (
+    err instanceof Error && err.message.toLowerCase().includes('transfer error')
+  );
+}
+
+/** Strip SW when present (`transport.send` returns payload + `0x9000` on success). */
+function apduBodyWithoutSuccessSw(data: Buffer): Buffer {
+  if (
+    data.length >= 2 &&
+    data.readUInt16BE(data.length - 2) === StatusCodes.OK
+  ) {
+    return data.subarray(0, data.length - 2);
+  }
+  return data;
+}
+
+/**
+ * Parses GetAppAndVersion payload (no status word). Matches `@ledgerhq/hw-app-eth`
+ * `getAppAndVersion` field layout; first byte is skipped (format), not validated.
+ */
+export function parseLedgerGetAppAndVersionResponse(data: Buffer): {
+  name: string;
+  version: string;
+} {
+  if (data.length < 3) {
+    throw new Error('getAppAndVersion: response too short');
+  }
+  let offset = 1;
+  const nameLength = data.readUInt8(offset);
+  offset += 1;
+  if (offset + nameLength > data.length) {
+    throw new Error('getAppAndVersion: invalid name length');
+  }
+  const name = data.subarray(offset, offset + nameLength).toString('ascii');
+  offset += nameLength;
+  if (offset >= data.length) {
+    throw new Error('getAppAndVersion: response truncated after app name');
+  }
+  const versionLength = data.readUInt8(offset);
+  offset += 1;
+  if (offset + versionLength > data.length) {
+    throw new Error('getAppAndVersion: invalid version length');
+  }
+  const version = data
+    .subarray(offset, offset + versionLength)
+    .toString('ascii');
+  return { name, version };
+}
+
+/**
+ * BOLOS `GetAppAndVersion` — current application name and version on the device.
+ */
+export async function getLedgerActiveApplication(
+  transport: Pick<Transport, 'send'>,
+): Promise<{ name: string; version: string }> {
+  const data = await transport.send(
+    GET_APP_AND_VERSION_CLA,
+    GET_APP_AND_VERSION_INS,
+    0x00,
+    0x00,
+  );
+  return parseLedgerGetAppAndVersionResponse(apduBodyWithoutSuccessSw(data));
+}
+
+/**
+ * Open-app APDU data: raw ASCII app name only (same as Ledger Live
+ * `ledger-live-common/src/hw/openApp.ts`). Lc is set by `transport.send`;
+ * do not prepend a separate length byte.
+ */
+function buildOpenLedgerAppPayload(appName: string): Buffer {
+  const ascii = Buffer.from(appName, 'ascii');
+  if (ascii.length === 0 || ascii.length > 255) {
+    throw new Error('Invalid Ledger app name length');
+  }
+  return ascii;
+}
+
+const OPEN_APP_EXCHANGE_MS = 60_000;
+const OPEN_APP_RETRY_DELAY_MS = 500;
+
+function mapOpenAppTransportError(
+  err: unknown,
+  notInstalledMessage: string,
+  autoOpenFailedMessage: string,
+): Error {
+  if (err instanceof TransportStatusError) {
+    if (err.statusCode === StatusCodes.APP_NOT_FOUND_OR_INVALID_CONTEXT) {
+      return new Error(notInstalledMessage);
+    }
+    if (
+      err.statusCode === 0x6807 ||
+      err.statusCode === StatusCodes.CONDITIONS_OF_USE_NOT_SATISFIED
+    ) {
+      return new Error(autoOpenFailedMessage);
+    }
+  }
+  return err instanceof Error ? err : new Error(String(err));
+}
+
+async function openLedgerAppByName(
+  transport: Pick<Transport, 'send'>,
+  appName: string,
+  notInstalledMessage: string,
+  autoOpenFailedMessage: string,
+): Promise<void> {
+  const fullTransport = transport as Transport;
+  const previousTimeout = fullTransport.exchangeTimeout;
+  const sendOpen = () =>
+    transport.send(
+      OPEN_APP_CLA,
+      OPEN_APP_INS,
+      0x00,
+      0x00,
+      buildOpenLedgerAppPayload(appName),
+    );
+
+  fullTransport.setExchangeTimeout?.(OPEN_APP_EXCHANGE_MS);
+
+  try {
+    try {
+      await sendOpen();
+    } catch (first) {
+      if (
+        first instanceof TransportStatusError &&
+        first.statusCode === 0x6807
+      ) {
+        await wait(OPEN_APP_RETRY_DELAY_MS);
+        try {
+          await sendOpen();
+        } catch (second) {
+          throw mapOpenAppTransportError(
+            second,
+            notInstalledMessage,
+            autoOpenFailedMessage,
+          );
+        }
+        return;
+      }
+      throw mapOpenAppTransportError(
+        first,
+        notInstalledMessage,
+        autoOpenFailedMessage,
+      );
+    }
+  } finally {
+    fullTransport.setExchangeTimeout?.(previousTimeout);
+  }
+}
+
+async function quitLedgerApplication(
+  transport: Pick<Transport, 'send'>,
+): Promise<void> {
+  try {
+    await transport.send(QUIT_APP_CLA, QUIT_APP_INS, 0x00, 0x00);
+  } catch (err) {
+    if (err instanceof TransportStatusError) {
+      throw new Error(getLedgerQuitAppFailedMessage());
+    }
+    throw err instanceof Error ? err : new Error(String(err));
+  }
+}
+
+/**
+ * If the device is not already running the requested Ledger app: from the home
+ * screen sends `OpenAppCommand` (0xe0 / 0xd8); from another app sends `QuitApp`
+ * (0xb0 / 0xa7) first, then opens the target app once BOLOS is active. If the
+ * app is not installed, throws with an install hint (status 0x5123).
+ *
+ * @param appName BOLOS application name — must match `getAppAndVersion` output
+ *   (e.g. `'Avalanche'`, `'Ethereum'`, `'Solana'`, `'Bitcoin'`). Matches
+ *   `LedgerAppType` enum values from `@core/ui`.
+ */
+export async function ensureLedgerAppOpen(
+  transport: Pick<Transport, 'send'>,
+  appName: string,
+): Promise<void> {
+  const notInstalledMessage = getLedgerAppNotInstalledMessage(appName);
+  const autoOpenFailedMessage = getLedgerAutoOpenAppFailedMessage(appName);
+
+  for (let round = 0; round < MAX_ENSURE_APP_ROUNDS; round += 1) {
+    let name: string;
+    try {
+      ({ name } = await getLedgerActiveApplication(transport));
+    } catch (err) {
+      if (isUsbTransferError(err)) {
+        // Device is still re-enumerating after an app switch; retry shortly.
+        await wait(OPEN_APP_RETRY_DELAY_MS);
+        continue;
+      }
+      throw err;
+    }
+
+    if (name === appName) {
+      return;
+    }
+    if (isLedgerDashboardApplication(name)) {
+      await openLedgerAppByName(
+        transport,
+        appName,
+        notInstalledMessage,
+        autoOpenFailedMessage,
+      );
+      // Wait for the device to finish its USB reset before polling again.
+      await wait(POST_OPEN_APP_SETTLE_MS);
+      continue;
+    }
+    await quitLedgerApplication(transport);
+    await wait(POST_QUIT_SETTLE_MS);
+  }
+
+  throw new Error(autoOpenFailedMessage);
+}

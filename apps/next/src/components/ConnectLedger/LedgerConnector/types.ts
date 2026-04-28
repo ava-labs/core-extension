@@ -14,6 +14,7 @@ export type ErrorType =
   | 'incorrect-app'
   | 'no-app'
   | 'device-locked'
+  | 'app-not-installed'
   | 'duplicated-wallet';
 export type PublicKey = {
   hasActivity?: boolean;

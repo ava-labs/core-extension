@@ -14,6 +14,7 @@ import { Account } from '@core/types';
 import { FC } from 'react';
 import { AddressItem } from '../../../../../components/Address/AddressItem';
 import * as Styled from '../../Styled';
+import { XPChainAddressEnabler } from '@/components/Address';
 
 type Props = {
   position: PopoverPosition | undefined;
@@ -67,6 +68,7 @@ export const AccountContextMenu: FC<Props> = ({
         Icon={XPChainIcon}
         address={account.addressAVM}
         onClick={onClose}
+        AddressEnabler={XPChainAddressEnabler}
       />
       <Styled.Divider variant="inset" component="li" />
       <AddressItem

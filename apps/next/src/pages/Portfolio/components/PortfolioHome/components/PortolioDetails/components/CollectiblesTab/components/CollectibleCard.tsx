@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import { Box, Typography } from '@avalabs/k2-alpine';
 import { FormattedCollectible } from '../CollectiblesTab';
 import { MediaRenderer } from './MediaRenderer';
@@ -10,15 +10,28 @@ export const CollectibleCard = memo(function CollectibleCard({
   onImageDimensions,
   showTokenId = true,
   minHeight,
+  onMediaError,
+  onMediaLoad,
 }: {
   collectible: FormattedCollectible;
   onClick: () => void;
   onImageDimensions: () => void;
   showTokenId?: boolean;
   minHeight?: number;
+  onMediaError?: (id: string) => void;
+  onMediaLoad?: (id: string) => void;
 }) {
   const { enhancedCollectible, showError, refetch, isLoading } =
     useCollectibleDisplay(collectible);
+
+  const handleLoad = useCallback(() => {
+    onImageDimensions();
+    onMediaLoad?.(collectible.uniqueCollectibleId);
+  }, [onImageDimensions, onMediaLoad, collectible.uniqueCollectibleId]);
+
+  const handleError = useCallback(() => {
+    onMediaError?.(collectible.uniqueCollectibleId);
+  }, [onMediaError, collectible.uniqueCollectibleId]);
 
   return (
     <Box
@@ -65,7 +78,8 @@ export const CollectibleCard = memo(function CollectibleCard({
         collectible={enhancedCollectible}
         showError={showError}
         isLoading={isLoading}
-        onLoad={onImageDimensions}
+        onLoad={handleLoad}
+        onError={handleError}
         refetch={refetch}
         staticMimeType={collectible.staticMimeType}
         maintainAspectRatio={false}

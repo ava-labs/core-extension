@@ -60,7 +60,7 @@ export const AddressItem: FC<Props> = ({
       label={label}
       labelVariant={labelVariant}
       subtitle={
-        <Tooltip title={strippedAddress} enterDelay={1000}>
+        <Tooltip title={strippedAddress} enterDelay={1000} enterNextDelay={500}>
           <Typography
             variant="mono2"
             color="text.secondary"

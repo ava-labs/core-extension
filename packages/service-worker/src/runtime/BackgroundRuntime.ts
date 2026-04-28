@@ -4,7 +4,6 @@ import browser from 'webextension-polyfill';
 import { ConnectionService } from '../connections/ConnectionService';
 import { AppCheckService } from '../services/appcheck/AppCheckService';
 import { TransactionStatusEventsSubscriber } from '~/services/transactions/TransactionStatusEventsSubscriber';
-import { BridgeService } from '../services/bridge/BridgeService';
 import { GasStationService } from '../services/gasless/GasStationService';
 import { LockService } from '../services/lock/LockService';
 import { NotificationsService } from '../services/notifications/NotificationsService';
@@ -22,8 +21,6 @@ export class BackgroundRuntime {
     private connectionService: ConnectionService,
     private lockService: LockService,
     private onboardingService: OnboardingService,
-    // we try to fetch the bridge configs as soon as possible
-    private bridgeService: BridgeService,
     private moduleManager: ModuleManager,
     private addressResolver: AddressResolver,
     private appCheckService: AppCheckService,

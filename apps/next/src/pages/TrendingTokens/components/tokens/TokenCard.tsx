@@ -1,6 +1,5 @@
 import {
   getUniqueTokenIdGeneric,
-  getUniqueTokenId,
   TrendingToken,
   TrendingTokensNetwork,
 } from '@core/types';
@@ -12,11 +11,9 @@ import { formatCurrency } from '../../utils/formatAmount';
 import upIcon from '../../assets/up.svg';
 import downIcon from '../../assets/down.svg';
 import { useHistory } from 'react-router-dom';
-import { getSwapPath } from '@/config/routes';
 import { TokenType } from '@avalabs/vm-module-types';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { useTargetSwapTokens } from '@/pages/Swap/hooks';
-import { SwappableToken } from '@/pages/Swap/types';
+import { getFusionPath } from '@/config/routes';
 
 type TokenCardProps = {
   token: TrendingToken;
@@ -49,18 +46,6 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
   const { currency } = useSettingsContext();
   const { t } = useTranslation();
   const { push } = useHistory();
-
-  // Create a minimal "from token" to get target tokens for the correct network
-  const networkFromToken = useMemo(
-    () =>
-      ({
-        coreChainId: getCoreChainId(network),
-      }) as SwappableToken,
-    [network],
-  );
-
-  // Get swappable target tokens for the network using swap hooks
-  const targetTokens = useTargetSwapTokens(networkFromToken);
 
   // Native token ID for swap source (AVAX or SOL)
   const nativeTokenId = useMemo(() => getNativeTokenId(network), [network]);
@@ -110,12 +95,6 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
     });
   }, [token, network]);
 
-  const isBuyable = useMemo(() => {
-    return targetTokens.some((targetToken) => {
-      return getUniqueTokenId(targetToken) === uniqueTokenId;
-    });
-  }, [targetTokens, uniqueTokenId]);
-
   return (
     <Stack
       width="100%"
@@ -123,8 +102,8 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
       alignItems="center"
       justifyContent="space-between"
       pt={1}
-      onMouseEnter={() => isBuyable && setShowBuyButton(true)}
-      onMouseLeave={() => isBuyable && setShowBuyButton(false)}
+      onMouseEnter={() => setShowBuyButton(true)}
+      onMouseLeave={() => setShowBuyButton(false)}
     >
       {/* Left side - Avatar */}
       <Box position="relative" sx={{ transform: 'translateY(-4px)' }}>
@@ -195,7 +174,7 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
                 color="secondary"
                 onClick={() =>
                   push(
-                    getSwapPath({
+                    getFusionPath({
                       from: nativeTokenId,
                       to: uniqueTokenId,
                     }),

@@ -2,6 +2,7 @@ import { render, screen } from '@shared/tests/test-utils';
 import { ChainId, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { NetworkWithCaipId } from '@core/types';
 import { TransactionStatusProviderWithConfetti } from './TransactionsProviderWithConfetti';
+import { useIsOptimisticConfirmationEnabled } from '@core/ui';
 
 const mockTriggerConfetti = jest.fn();
 const mockHistoryReplace = jest.fn();
@@ -25,14 +26,15 @@ jest.mock('react-router-dom', () => ({
 }));
 
 jest.mock('@core/ui', () => ({
+  useIsOptimisticConfirmationEnabled: jest.fn(),
   TransactionStatusProvider: ({
     children,
     onPending,
     onSuccess,
   }: {
     children: React.ReactNode;
-    onPending?: (params: { network?: NetworkWithCaipId }) => void;
-    onSuccess?: (params: { network?: NetworkWithCaipId }) => void;
+    onPending?: (params: { network?: NetworkWithCaipId }) => Promise<void>;
+    onSuccess?: (params: { network?: NetworkWithCaipId }) => Promise<void>;
   }) => {
     capturedOnPending = onPending;
     capturedOnSuccess = onSuccess;
@@ -96,6 +98,10 @@ describe('TransactionStatusProviderWithConfetti', () => {
 
   describe('handlePending', () => {
     beforeEach(() => {
+      jest
+        .mocked(useIsOptimisticConfirmationEnabled)
+        .mockReturnValue(() => Promise.resolve(false));
+
       render(
         <TransactionStatusProviderWithConfetti>
           <div>Test</div>
@@ -103,50 +109,79 @@ describe('TransactionStatusProviderWithConfetti', () => {
       );
     });
 
-    it('navigates to home on pending', () => {
+    it('navigates to home on pending', async () => {
       const network = createMockNetwork(ChainId.ETHEREUM_HOMESTEAD);
-      capturedOnPending?.({ network });
+      await capturedOnPending?.({ network });
 
       expect(mockHistoryReplace).toHaveBeenCalledWith('/');
     });
 
-    it('triggers confetti for Avalanche C-Chain', () => {
-      const network = createMockNetwork(ChainId.AVALANCHE_MAINNET_ID);
-      capturedOnPending?.({ network });
+    it('triggers confetti for Avalanche primary chains before Helicon is enabled', async () => {
+      jest
+        .mocked(useIsOptimisticConfirmationEnabled)
+        .mockReturnValue(() => Promise.resolve(true));
 
+      render(
+        <TransactionStatusProviderWithConfetti>
+          <div>Test</div>
+        </TransactionStatusProviderWithConfetti>,
+      );
+
+      await capturedOnPending?.({
+        network: createMockNetwork(ChainId.AVALANCHE_MAINNET_ID),
+      });
       expect(mockTriggerConfetti).toHaveBeenCalledTimes(1);
+
+      await capturedOnPending?.({
+        network: createMockNetwork(ChainId.AVALANCHE_P, NetworkVMType.PVM),
+      });
+      expect(mockTriggerConfetti).toHaveBeenCalledTimes(2);
+
+      await capturedOnPending?.({
+        network: createMockNetwork(ChainId.AVALANCHE_X, NetworkVMType.AVM),
+      });
+
+      expect(mockTriggerConfetti).toHaveBeenCalledTimes(3);
     });
 
-    it('triggers confetti for Avalanche P-Chain', () => {
-      const network = createMockNetwork(ChainId.AVALANCHE_P, NetworkVMType.PVM);
-      capturedOnPending?.({ network });
+    it('does not trigger confetti for Avalanche primary chains after Helicon is enabled', async () => {
+      jest
+        .mocked(useIsOptimisticConfirmationEnabled)
+        .mockReturnValue(() => Promise.resolve(false));
 
-      expect(mockTriggerConfetti).toHaveBeenCalledTimes(1);
+      await capturedOnPending?.({
+        network: createMockNetwork(ChainId.AVALANCHE_MAINNET_ID),
+      });
+      expect(mockTriggerConfetti).toHaveBeenCalledTimes(0);
+
+      await capturedOnPending?.({
+        network: createMockNetwork(ChainId.AVALANCHE_P, NetworkVMType.PVM),
+      });
+      expect(mockTriggerConfetti).toHaveBeenCalledTimes(0);
+
+      await capturedOnPending?.({
+        network: createMockNetwork(ChainId.AVALANCHE_X, NetworkVMType.AVM),
+      });
+
+      expect(mockTriggerConfetti).toHaveBeenCalledTimes(0);
     });
 
-    it('triggers confetti for Avalanche X-Chain', () => {
-      const network = createMockNetwork(ChainId.AVALANCHE_X, NetworkVMType.AVM);
-      capturedOnPending?.({ network });
-
-      expect(mockTriggerConfetti).toHaveBeenCalledTimes(1);
-    });
-
-    it('does not trigger confetti for Ethereum network', () => {
+    it('does not trigger confetti for Ethereum network', async () => {
       const network = createMockNetwork(ChainId.ETHEREUM_HOMESTEAD);
-      capturedOnPending?.({ network });
+      await capturedOnPending?.({ network });
 
       expect(mockTriggerConfetti).not.toHaveBeenCalled();
     });
 
-    it('does not trigger confetti for Bitcoin network', () => {
+    it('does not trigger confetti for Bitcoin network', async () => {
       const network = createMockNetwork(ChainId.BITCOIN);
-      capturedOnPending?.({ network });
+      await capturedOnPending?.({ network });
 
       expect(mockTriggerConfetti).not.toHaveBeenCalled();
     });
 
-    it('does not trigger confetti when network is undefined', () => {
-      capturedOnPending?.({ network: undefined });
+    it('does not trigger confetti when network is undefined', async () => {
+      await capturedOnPending?.({ network: undefined });
 
       expect(mockTriggerConfetti).not.toHaveBeenCalled();
     });
@@ -154,6 +189,9 @@ describe('TransactionStatusProviderWithConfetti', () => {
 
   describe('handleSuccess', () => {
     beforeEach(() => {
+      jest
+        .mocked(useIsOptimisticConfirmationEnabled)
+        .mockReturnValue(() => Promise.resolve(false));
       render(
         <TransactionStatusProviderWithConfetti>
           <div>Test</div>
@@ -161,43 +199,73 @@ describe('TransactionStatusProviderWithConfetti', () => {
       );
     });
 
-    it('triggers confetti for Ethereum network', () => {
+    it('triggers confetti for Ethereum network', async () => {
       const network = createMockNetwork(ChainId.ETHEREUM_HOMESTEAD);
-      capturedOnSuccess?.({ network });
+      await capturedOnSuccess?.({ network });
 
       expect(mockTriggerConfetti).toHaveBeenCalledTimes(1);
     });
 
-    it('triggers confetti for Bitcoin network', () => {
+    it('triggers confetti for Bitcoin network', async () => {
       const network = createMockNetwork(ChainId.BITCOIN);
-      capturedOnSuccess?.({ network });
+      await capturedOnSuccess?.({ network });
 
       expect(mockTriggerConfetti).toHaveBeenCalledTimes(1);
     });
 
-    it('does not trigger confetti for Avalanche C-Chain', () => {
-      const network = createMockNetwork(ChainId.AVALANCHE_MAINNET_ID);
-      capturedOnSuccess?.({ network });
+    it('triggers confetti for Avalanche primary chains after Helicon is enabled', async () => {
+      jest
+        .mocked(useIsOptimisticConfirmationEnabled)
+        .mockReturnValue(() => Promise.resolve(false));
 
-      expect(mockTriggerConfetti).not.toHaveBeenCalled();
+      await capturedOnSuccess?.({
+        network: createMockNetwork(ChainId.AVALANCHE_MAINNET_ID),
+      });
+      expect(mockTriggerConfetti).toHaveBeenCalledTimes(1);
+
+      await capturedOnSuccess?.({
+        network: createMockNetwork(ChainId.AVALANCHE_P, NetworkVMType.PVM),
+      });
+      expect(mockTriggerConfetti).toHaveBeenCalledTimes(2);
+
+      await capturedOnSuccess?.({
+        network: createMockNetwork(ChainId.AVALANCHE_X, NetworkVMType.AVM),
+      });
+
+      expect(mockTriggerConfetti).toHaveBeenCalledTimes(3);
     });
 
-    it('does not trigger confetti for Avalanche P-Chain', () => {
-      const network = createMockNetwork(ChainId.AVALANCHE_P, NetworkVMType.PVM);
-      capturedOnSuccess?.({ network });
+    it('does not trigger confetti for Avalanche primary chains before Helicon is enabled', async () => {
+      jest
+        .mocked(useIsOptimisticConfirmationEnabled)
+        .mockReturnValue(() => Promise.resolve(true));
 
-      expect(mockTriggerConfetti).not.toHaveBeenCalled();
+      // Gotta re-render the component to update the mock
+      render(
+        <TransactionStatusProviderWithConfetti>
+          <div>Test</div>
+        </TransactionStatusProviderWithConfetti>,
+      );
+
+      await capturedOnSuccess?.({
+        network: createMockNetwork(ChainId.AVALANCHE_MAINNET_ID),
+      });
+      expect(mockTriggerConfetti).toHaveBeenCalledTimes(0);
+
+      await capturedOnSuccess?.({
+        network: createMockNetwork(ChainId.AVALANCHE_P, NetworkVMType.PVM),
+      });
+      expect(mockTriggerConfetti).toHaveBeenCalledTimes(0);
+
+      await capturedOnSuccess?.({
+        network: createMockNetwork(ChainId.AVALANCHE_X, NetworkVMType.AVM),
+      });
+
+      expect(mockTriggerConfetti).toHaveBeenCalledTimes(0);
     });
 
-    it('does not trigger confetti for Avalanche X-Chain', () => {
-      const network = createMockNetwork(ChainId.AVALANCHE_X, NetworkVMType.AVM);
-      capturedOnSuccess?.({ network });
-
-      expect(mockTriggerConfetti).not.toHaveBeenCalled();
-    });
-
-    it('triggers confetti when network is undefined (non-Avalanche default)', () => {
-      capturedOnSuccess?.({ network: undefined });
+    it('triggers confetti when network is undefined (non-Avalanche default)', async () => {
+      await capturedOnSuccess?.({ network: undefined });
 
       expect(mockTriggerConfetti).toHaveBeenCalledTimes(1);
     });

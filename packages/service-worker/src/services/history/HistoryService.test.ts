@@ -3,8 +3,9 @@ import { HistoryService } from './HistoryService';
 import { TxHistoryItem } from '@core/types';
 import { NetworkVMType, TokenType } from '@avalabs/vm-module-types';
 import { TransactionType } from '@avalabs/vm-module-types';
-import { ETHEREUM_ADDRESS } from '@core/common';
 import { BridgeType } from '@avalabs/bridge-unified';
+
+const ETHEREUM_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 describe('src/background/services/history/HistoryService.ts', () => {
   let service: HistoryService;

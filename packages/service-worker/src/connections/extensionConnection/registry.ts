@@ -25,15 +25,6 @@ import { RefreshNftMetadataHandler } from '../../services/balances/handlers/refr
 import { StartBalancesPollingHandler } from '../../services/balances/handlers/startBalancesPolling';
 import { StopBalancesPollingHandler } from '../../services/balances/handlers/stopBalancesPolling';
 import { UpdateBalancesForNetworkHandler } from '../../services/balances/handlers/updateBalancesForNetwork';
-import { BridgeConfigUpdatedEvents } from '../../services/bridge/events/bridgeConfigUpdateEvents';
-import { BridgeStateUpdateEvents } from '../../services/bridge/events/bridgeStateUpdateEvents';
-import { BridgeTransferEvents } from '../../services/bridge/events/bridgeTransferEvents';
-import { BridgeCreateTransactionHandler } from '../../services/bridge/handlers/createBridgeTransaction';
-import { EstimateGasForBridgeTxHandler } from '../../services/bridge/handlers/estimateGasForBridgeTx';
-import { BridgeGetConfigHandler } from '../../services/bridge/handlers/getBridgeConfig';
-import { BridgeGetStateHandler } from '../../services/bridge/handlers/getBridgeState';
-import { BridgeRemoveTransactionHandler } from '../../services/bridge/handlers/removeBridgeTransaction';
-import { BridgeSetIsDevEnvHandler } from '../../services/bridge/handlers/setIsDevEnv';
 import { ContactsUpdatedEvents } from '../../services/contacts/events/contactsUpdatedEvent';
 import { CreateContactHandler } from '../../services/contacts/handlers/createContact';
 import { GetContactsHandler } from '../../services/contacts/handlers/getContacts';
@@ -126,9 +117,6 @@ import { UpdateThemeHandler } from '../../services/settings/handlers/updateTheme
 import { UpdateTokensVisiblityHandler } from '../../services/settings/handlers/updateTokensVisibility';
 import { ResetExtensionStateHandler } from '../../services/storage/handlers/resetExtensionState';
 import { GetTokensListHandler } from '../../services/tokens/handlers/getTokenList';
-import { UnifiedBridgeEvents } from '../../services/unifiedBridge/events/unifiedBridgeEvents';
-import { UnifiedBridgeGetState } from '../../services/unifiedBridge/handlers/unifiedBridgeGetState';
-import { UnifiedBridgeTrackTransfer } from '../../services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
 import { CheckIfWalletExists } from '~/services/wallet/handlers/checkIfWalletExists';
 import { GetBtcWalletPolicyDetails } from '../../services/wallet/handlers/getBtcWalletPolicyDetails';
 import { GetUnencryptedMnemonicHandler } from '../../services/wallet/handlers/getUnencryptedMnemonic';
@@ -174,6 +162,7 @@ import {
   MarkTransferAsRead,
   ClearHistoricalTransfers,
 } from '~/services/transferTracking/handlers';
+import { SetBridgeDevEnvHandler } from '~/services/settings/handlers/setBridgeDevEnv';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -196,23 +185,11 @@ import {
   { token: 'ExtensionRequestHandler', useToken: InitAnalyticsIdsHandler },
   { token: 'ExtensionRequestHandler', useToken: StoreAnalyticsIdsHandler },
   { token: 'ExtensionRequestHandler', useToken: CaptureAnalyticsEventHandler },
-
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: BridgeCreateTransactionHandler,
-  },
   {
     token: 'ExtensionRequestHandler',
     useToken: UpdateBalancesForNetworkHandler,
   },
   { token: 'ExtensionRequestHandler', useToken: GetBalancesHandler },
-  { token: 'ExtensionRequestHandler', useToken: BridgeGetConfigHandler },
-  { token: 'ExtensionRequestHandler', useToken: BridgeGetStateHandler },
-  { token: 'ExtensionRequestHandler', useToken: BridgeSetIsDevEnvHandler },
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: BridgeRemoveTransactionHandler,
-  },
   { token: 'ExtensionRequestHandler', useToken: CreateContactHandler },
   { token: 'ExtensionRequestHandler', useToken: GetContactsHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateContactHandler },
@@ -288,6 +265,7 @@ import {
   { token: 'ExtensionRequestHandler', useToken: GetUnencryptedMnemonicHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateShowNoBalanceHandler },
   { token: 'ExtensionRequestHandler', useToken: SetAnalyticsConsentHandler },
+  { token: 'ExtensionRequestHandler', useToken: SetBridgeDevEnvHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateCurrencyHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateThemeHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateTokensVisiblityHandler },
@@ -369,19 +347,7 @@ import {
   },
   {
     token: 'ExtensionRequestHandler',
-    useToken: UnifiedBridgeTrackTransfer,
-  },
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: UnifiedBridgeGetState,
-  },
-  {
-    token: 'ExtensionRequestHandler',
     useToken: GetPrivateKeyHandler,
-  },
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: EstimateGasForBridgeTxHandler,
   },
   {
     token: 'ExtensionRequestHandler',
@@ -559,13 +525,10 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: AccountsUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: AnalyticsUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: BalancesUpdatedEvents },
-  { token: 'ExtensionEventEmitter', useToken: BridgeConfigUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: OnboardingUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: NetworkUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: NetworksUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: ContactsUpdatedEvents },
-  { token: 'ExtensionEventEmitter', useToken: BridgeTransferEvents },
-  { token: 'ExtensionEventEmitter', useToken: BridgeStateUpdateEvents },
   { token: 'ExtensionEventEmitter', useToken: SettingsUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: PermissionStateUpdateEvents },
   { token: 'ExtensionEventEmitter', useToken: LedgerTransportRequestEvents },
@@ -580,7 +543,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: WalletConnectEvents },
   { token: 'ExtensionEventEmitter', useToken: SeedlessTokenEvents },
   { token: 'ExtensionEventEmitter', useToken: SeedlessMfaEvents },
-  { token: 'ExtensionEventEmitter', useToken: UnifiedBridgeEvents },
   { token: 'ExtensionEventEmitter', useToken: ApprovalEvents },
   { token: 'ExtensionEventEmitter', useToken: GaslessChallangeUpdateEvent },
   { token: 'ExtensionEventEmitter', useToken: SubscriptionsChangedEvents },

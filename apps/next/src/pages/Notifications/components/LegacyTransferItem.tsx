@@ -7,8 +7,6 @@ import { useTranslation } from 'react-i18next';
 import { NotificationListItem } from './NotificationListItem';
 import { BridgeTransfer } from '@avalabs/bridge-unified';
 import { getLegacyTransferTimestamp } from '../lib/getLegacyTransferTimestamp';
-import { useHistory } from 'react-router-dom';
-import { getBridgePath } from '@/config/routes';
 
 type Props = {
   transfer: BridgeTransfer;
@@ -18,7 +16,6 @@ type Props = {
 export const LegacyTransferItem: FC<Props> = ({ transfer, showSeparator }) => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const { push } = useHistory();
 
   const isSuccessful = transfer.completedAt && !transfer.errorCode;
   const isFailed = transfer.completedAt && transfer.errorCode;
@@ -57,13 +54,6 @@ export const LegacyTransferItem: FC<Props> = ({ transfer, showSeparator }) => {
       }
       showSeparator={showSeparator}
       accessoryType="chevron"
-      onClick={() =>
-        push(
-          getBridgePath({
-            transactionId: transfer.sourceTxHash,
-          }),
-        )
-      }
     />
   );
 };

@@ -3,7 +3,7 @@ import {
   DerivationPath,
   getAddressPublicKeyFromXPub,
 } from '@avalabs/core-wallets-sdk';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   LedgerAppType,
@@ -39,6 +39,7 @@ import {
   WalletExistsError,
 } from '../../types';
 import { buildAddressPublicKey, buildExtendedPublicKey } from '../../util';
+import { classifyLedgerOnboardingError } from './classifyLedgerOnboardingError';
 
 export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   derivationPathSpec,
@@ -54,6 +55,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     wasTransportAttempted,
     initLedgerTransport,
     getExtendedPublicKey,
+    prepareTransportForOnboarding,
   } = useLedgerContext();
   const { appType, appVersion } = useActiveLedgerAppInfo(true);
   const checkIfWalletExists = useDuplicatedWalletChecker();
@@ -70,6 +72,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   const [status, setStatus] = useState<DerivationStatus>('waiting');
   const [wasManualConnectionAttempted, setWasManualConnectionAttempted] =
     useState(false);
+  const appSwitchInFlight = useRef(false);
 
   const getEvmExtendedPublicKeys = useCallback(
     async (indexes: number[]) => {
@@ -342,30 +345,12 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
       return;
     }
 
-    if (hasLedgerTransport) {
-      if (appType === LedgerAppType.AVALANCHE && appVersion) {
-        if (isLedgerVersionCompatible(appVersion, REQUIRED_LEDGER_VERSION)) {
-          setStatus('ready');
-          setError(undefined);
-        } else {
-          setStatus('error');
-          setError('unsupported-version');
-        }
-      } else if (appType === LedgerAppType.DASHBOARD) {
-        // Device is unlocked but sitting on the dashboard with no app open.
-        setStatus('error');
-        setError('no-app');
-      } else if (appType === LedgerAppType.UNKNOWN) {
-        // Device is likely locked or unresponsive.
-        setStatus('error');
-        setError('device-locked');
-      } else {
-        setStatus('error');
-        setError('incorrect-app');
-      }
-    } else if (!hasLedgerTransport && !wasTransportAttempted) {
+    if (!hasLedgerTransport && !wasTransportAttempted) {
       initLedgerTransport();
-    } else if (!hasLedgerTransport && !wasManualConnectionAttempted) {
+      return;
+    }
+
+    if (!hasLedgerTransport && !wasManualConnectionAttempted) {
       getLedgerTransport().then((transport) => {
         if (!transport) {
           // If it fails, it's either disconnected or the call was not triggered by user gesture.
@@ -373,18 +358,60 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
           setWasManualConnectionAttempted(true);
         }
       });
+      return;
     }
+
+    if (!hasLedgerTransport) {
+      return;
+    }
+
+    if (appType === LedgerAppType.AVALANCHE && appVersion) {
+      if (isLedgerVersionCompatible(appVersion, REQUIRED_LEDGER_VERSION)) {
+        setStatus('ready');
+        setError(undefined);
+      } else {
+        setStatus('error');
+        setError('unsupported-version');
+      }
+      return;
+    }
+
+    if ((status === 'error' && error) || appSwitchInFlight.current) {
+      return;
+    }
+
+    setStatus('waiting');
+    setError(undefined);
+
+    let cancelled = false;
+    appSwitchInFlight.current = true;
+
+    prepareTransportForOnboarding(LedgerAppType.AVALANCHE)
+      .catch((err: unknown) => {
+        if (cancelled) {
+          return;
+        }
+        setStatus('error');
+        setError(classifyLedgerOnboardingError(err, LedgerAppType.AVALANCHE));
+      })
+      .finally(() => {
+        appSwitchInFlight.current = false;
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [
     appType,
     appVersion,
     hasLedgerTransport,
     initLedgerTransport,
     status,
-    retrieveKeys,
     wasTransportAttempted,
     popDeviceSelection,
     error,
     wasManualConnectionAttempted,
+    prepareTransportForOnboarding,
   ]);
 
   const onRetry = useCallback(async () => {

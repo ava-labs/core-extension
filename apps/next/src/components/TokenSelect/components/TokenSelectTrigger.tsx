@@ -9,7 +9,9 @@ export const TokenSelectTrigger = ({
   value: token,
   ...props
 }: SearchableSelectTriggerProps<FungibleTokenBalance>) => (
-  <StyledStack {...props}>{renderValue(token)}</StyledStack>
+  <StyledStack {...props} data-testid="token-select-trigger">
+    {renderValue(token)}
+  </StyledStack>
 );
 
 const StyledStack = styled(Stack)(({ onClick, theme }) => ({

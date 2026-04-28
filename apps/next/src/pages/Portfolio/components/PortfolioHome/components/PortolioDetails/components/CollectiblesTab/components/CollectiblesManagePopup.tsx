@@ -15,6 +15,8 @@ export type CollectiblesManagePopupProps = {
   toggleCollectible: (collectible: FormattedCollectible) => void;
   hideUnreachable: boolean;
   toggleHideUnreachable: () => void;
+  hideBrokenImages: boolean;
+  setHideBrokenImages: (value: boolean) => void;
 };
 
 export const CollectiblesManagePopup = ({
@@ -25,6 +27,8 @@ export const CollectiblesManagePopup = ({
   toggleCollectible,
   hideUnreachable,
   toggleHideUnreachable,
+  hideBrokenImages,
+  setHideBrokenImages,
 }: CollectiblesManagePopupProps) => {
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -68,23 +72,42 @@ export const CollectiblesManagePopup = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value.trim())}
           />
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              py: 1.5,
-            }}
-          >
-            <Typography variant="body2">
-              {t('Hide unreachable collectibles')}
-            </Typography>
-            <Switch
-              checked={hideUnreachable}
-              onChange={toggleHideUnreachable}
-              size="small"
-            />
-          </Box>
+          <Stack>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                py: 1.5,
+              }}
+            >
+              <Typography variant="body2">
+                {t('Hide unreachable collectibles')}
+              </Typography>
+              <Switch
+                checked={hideUnreachable}
+                onChange={toggleHideUnreachable}
+                size="small"
+              />
+            </Box>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                py: 1.5,
+              }}
+            >
+              <Typography variant="body2">
+                {t('Hide NFTs without media')}
+              </Typography>
+              <Switch
+                checked={hideBrokenImages}
+                onChange={() => setHideBrokenImages(!hideBrokenImages)}
+                size="small"
+              />
+            </Box>
+          </Stack>
           {filteredCollectibles.length > 0 ? (
             <CollectibleSwitchList
               collectibles={filteredCollectibles}

@@ -1,5 +1,5 @@
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { AddressPublicKeyJson, DerivationStatus } from '@core/types';
 import {
@@ -10,6 +10,7 @@ import {
 
 import { ErrorType, PublicKey, UseLedgerPublicKeyFetcher } from '../../types';
 import { buildAddressPublicKey } from '../../util';
+import { classifyLedgerOnboardingError } from './classifyLedgerOnboardingError';
 
 export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   __,
@@ -21,11 +22,13 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     wasTransportAttempted,
     initLedgerTransport,
     getPublicKey,
+    prepareTransportForOnboarding,
   } = useLedgerContext();
   const { appType } = useActiveLedgerAppInfo(true);
 
   const [error, setError] = useState<ErrorType>();
   const [status, setStatus] = useState<DerivationStatus>('waiting');
+  const solanaSwitchInFlightRef = useRef<Promise<void> | null>(null);
 
   const getPublicKeyFromLedger = useCallback(
     async (accountIndex: number): Promise<AddressPublicKeyJson> => {
@@ -78,23 +81,48 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
 
   // Attempt to automatically connect as soon as we establish the transport.
   useEffect(() => {
+    if (error === 'duplicated-wallet' || status === 'needs-user-gesture') {
+      return;
+    }
+
     if (hasLedgerTransport) {
       if (appType === LedgerAppType.SOLANA) {
+        solanaSwitchInFlightRef.current = null;
         setStatus('ready');
         setError(undefined);
-      } else if (appType === LedgerAppType.DASHBOARD) {
-        // Device is unlocked but sitting on the dashboard with no app open.
-        setStatus('error');
-        setError('no-app');
-      } else if (appType === LedgerAppType.UNKNOWN) {
-        // Device is likely locked or unresponsive.
-        setStatus('error');
-        setError('device-locked');
-      } else {
-        // A known non-Solana app is open — prompt the user to switch.
-        setStatus('error');
-        setError('incorrect-app');
+        return;
       }
+
+      if (status === 'error' && error) {
+        return;
+      }
+
+      if (solanaSwitchInFlightRef.current) {
+        return;
+      }
+
+      setStatus('waiting');
+      setError(undefined);
+
+      let cancelled = false;
+      const switchPromise = prepareTransportForOnboarding(
+        LedgerAppType.SOLANA,
+      ).finally(() => {
+        solanaSwitchInFlightRef.current = null;
+      });
+      solanaSwitchInFlightRef.current = switchPromise;
+
+      switchPromise.catch((err: unknown) => {
+        if (cancelled) {
+          return;
+        }
+        setStatus('error');
+        setError(classifyLedgerOnboardingError(err, LedgerAppType.SOLANA));
+      });
+
+      return () => {
+        cancelled = true;
+      };
     } else if (!hasLedgerTransport && !wasTransportAttempted) {
       initLedgerTransport();
     } else if (!hasLedgerTransport) {
@@ -107,12 +135,12 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     }
   }, [
     appType,
+    error,
     hasLedgerTransport,
     initLedgerTransport,
+    prepareTransportForOnboarding,
     status,
-    retrieveKeys,
     wasTransportAttempted,
-    popDeviceSelection,
   ]);
 
   const onRetry = useCallback(async () => {

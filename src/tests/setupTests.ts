@@ -4,6 +4,21 @@ import { jest } from '@jest/globals';
 import { MockTextEncoder } from './MockTextEncoder';
 import crypto from 'node:crypto';
 
+// @lombard.finance/sdk (transitive dep of @avalabs/bridge-unified) attempts a
+// dynamic import that fails in Jest's VM without --experimental-vm-modules.
+// The error is caught internally but logged to console.error on every test
+// suite that transitively loads bridge-unified.
+const _consoleError = console.error.bind(console);
+console.error = (...args: unknown[]) => {
+  if (
+    typeof args[0] === 'string' &&
+    args[0].includes('Failed to initialize bitcoinjs-lib ECC library')
+  ) {
+    return;
+  }
+  _consoleError(...args);
+};
+
 // polyfill TextEncoder till it's supported in jsdom
 // https://github.com/jsdom/jsdom/issues/2524
 global.TextEncoder = MockTextEncoder;

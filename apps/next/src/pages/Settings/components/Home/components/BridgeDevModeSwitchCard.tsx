@@ -1,15 +1,14 @@
 import { SwitchCard } from '@/components/SwitchCard';
-import { useNextUnifiedBridgeContext } from '@/pages/Bridge/contexts';
 import { Stack } from '@avalabs/k2-alpine';
 import { isProductionBuild } from '@core/common';
-import { toast, useNetworkContext } from '@core/ui';
+import { toast, useNetworkContext, useSettingsContext } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const BridgeDevModeSwitchCard = () => {
-  const { devMode } = useNextUnifiedBridgeContext();
   const { isDeveloperMode } = useNetworkContext();
   const { t } = useTranslation();
+  const { isBridgeDevEnv, setBridgeDevEnv } = useSettingsContext();
 
   return (
     <Stack width={1}>
@@ -20,13 +19,13 @@ const BridgeDevModeSwitchCard = () => {
         )}
         orientation="horizontal"
         titleSize="large"
-        checked={devMode.enabled}
+        checked={isBridgeDevEnv}
         disabled={!isDeveloperMode}
         onChange={async () => {
           const toastId = 'bridge-dev-mode-switch';
-          const nextState = !devMode.enabled;
+          const nextState = !isBridgeDevEnv;
           try {
-            await devMode.set(nextState);
+            await setBridgeDevEnv(nextState);
             toast.success(
               t('The bridge dev mode is {{mode}}', {
                 mode: nextState ? t('on') : t('off'),

@@ -56,6 +56,9 @@ export const ConnectSolana: FC<ConnectionStepProps> = ({
       'unable-to-connect': t('Open the Solana app on your Ledger device'),
       'unsupported-version': t('Open the Solana app on your Ledger device'),
       'duplicated-wallet': t('Open the Solana app on your Ledger device'),
+      'app-not-installed': t(
+        'The Solana app does not appear to be installed on your Ledger. Install it from Ledger Live, then try again.',
+      ),
     }),
     [t],
   );

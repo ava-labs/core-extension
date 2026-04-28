@@ -6,6 +6,7 @@ import { ChangePassword } from './components/ChangePassword';
 import { ConnectedSites } from './components/ConnectedSites';
 import { SettingsHomePage } from './components/Home';
 import { NetworkManagement } from './components/NetworkManagement';
+import { NotificationPreferences } from './components/NotificationPreferences';
 import { RecoveryMethods } from './components/RecoveryMethods';
 import { Authenticator } from './components/RecoveryMethods/Authenticator';
 import { FIDO } from './components/RecoveryMethods/FIDO/FIDO';
@@ -19,6 +20,10 @@ export const Settings: FC = () => {
       <Route path={`${path}/avatar`} component={AvatarSelector} />
       <Route path={`${path}/change-password`} component={ChangePassword} />
       <Route path={`${path}/connected-sites`} component={ConnectedSites} />
+      <Route
+        path={`${path}/notification-preferences`}
+        component={NotificationPreferences}
+      />
       <Route path={`${path}/recovery-phrase`} component={RecoveryPhrase} />
       <Route
         path={`${path}/recovery-method/authenticator`}

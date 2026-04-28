@@ -1,4 +1,3 @@
-import { satoshiToBtc } from '@avalabs/core-bridge-sdk';
 import { wait } from '@avalabs/core-utils-sdk';
 import type {
   CreateTransactionResponse,
@@ -13,7 +12,7 @@ import {
   TransactionStatus,
 } from 'fireblocks-sdk';
 
-import { wrapError } from '@core/common';
+import { satoshiToBtc, wrapError } from '@core/common';
 
 import {
   BtcTransactionRequest,

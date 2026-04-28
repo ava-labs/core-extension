@@ -12,6 +12,8 @@ import {
 } from './wallet_setSettings';
 import { buildRpcCall } from '@shared/tests/test-utils';
 import { SettingsService } from '../SettingsService';
+import { BalanceNotificationService } from '../../notifications/BalanceNotificationService';
+import { NewsNotificationService } from '../../notifications/NewsNotificationService';
 import { ethErrors } from 'eth-rpc-errors';
 
 describe('packages/service-worker/src/services/settings/handlers/wallet_setSettings', () => {
@@ -41,7 +43,24 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
     setShowHighlightBanners: setShowHighlightBannersMock,
   } as unknown as SettingsService;
 
-  const handler = new WalletSetSettingsHandler(settingsServiceMock);
+  const subscribeMock = jest.fn();
+  const unsubscribeMock = jest.fn();
+
+  const balanceNotificationServiceMock = {
+    subscribe: subscribeMock,
+    unsubscribe: unsubscribeMock,
+  } as unknown as BalanceNotificationService;
+
+  const newsNotificationServiceMock = {
+    subscribe: jest.fn(),
+    unsubscribe: jest.fn(),
+  } as unknown as NewsNotificationService;
+
+  const handler = new WalletSetSettingsHandler(
+    settingsServiceMock,
+    balanceNotificationServiceMock,
+    newsNotificationServiceMock,
+  );
 
   const mockSettingsState: SettingsState = {
     currency: CURRENCIES.USD,
@@ -60,6 +79,7 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
     maxBuy: '1000',
     privacyMode: false,
     filterSmallUtxos: false,
+    isBridgeDevEnv: false,
   };
 
   const mockSettingsResponse: WalletSetSettingsResponse = {
@@ -73,6 +93,7 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
     coreAssistant: true,
     preferredView: 'floating',
     showHighlightBanners: true,
+    isBridgeDevEnv: false,
   };
 
   const createRequest = (params?: [Partial<SettingsState>?]) => ({

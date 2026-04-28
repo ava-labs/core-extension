@@ -14,6 +14,7 @@ import { useHistory } from 'react-router-dom';
 import { getNavigateToQRCode } from '../../QRCode/utils';
 import * as Styled from '../../Styled';
 import { QRCodeIconButton } from './QRCodeIconButton';
+import { XPChainAddressEnabler } from '@/components/Address';
 
 type Props = {
   account: Account;
@@ -50,6 +51,7 @@ export const AddressesCard: FC<Props> = ({ account }) => {
             address={account.addressAVM}
             copyActionVisibility="always"
             truncate={TRUNCATE_LENGTH}
+            AddressEnabler={XPChainAddressEnabler}
           />
           <Styled.Divider variant="inset" component="li" />
           <AddressItem

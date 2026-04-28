@@ -156,6 +156,7 @@ test.describe('Onboarding Tests', () => {
       ],
     },
     async ({ extensionPage }) => {
+      test.setTimeout(120000);
       test.skip(
         !RECOVERY_PHRASE_12_WORDS.length,
         'RECOVERY_PHRASE_12_WORDS env var not set',

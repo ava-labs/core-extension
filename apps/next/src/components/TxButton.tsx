@@ -24,6 +24,7 @@ export const TxButton = ({
   return (
     <OfflineTooltip>
       <Button
+        data-testid="tx-submit-button"
         variant="contained"
         color="primary"
         size="extension"

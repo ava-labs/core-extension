@@ -3,6 +3,7 @@ import { CircularProgress, Stack, StackProps } from '@avalabs/k2-alpine';
 export const LoadingScreen = (props: StackProps) => {
   return (
     <Stack
+      data-testid="loading-screen"
       height="100vh"
       width="100vw"
       justifyContent="center"

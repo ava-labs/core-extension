@@ -41,15 +41,10 @@ export enum ExtensionRequest {
   TOKEN_PRICE_GET_BY_ADDRESS = 'token_price_get_by_address',
   BALANCE_NATIVE_GET = 'balance_native_get',
 
-  BRIDGE_GET_CONFIG = 'bridge_get_config',
-
-  BRIDGE_GET_STATE = 'bridge_get_state',
   BRIDGE_TRANSFER_ASSET = 'bridge_transfer_asset',
   BRIDGE_TRANSACTION_CREATE = 'bridge_transaction_create',
   BRIDGE_TRANSACTION_REMOVE = 'bridge_transaction_remove',
-  BRIDGE_SET_IS_DEV_ENV = 'bridge_set_is_dev_env',
   BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT = 'bridge_get_eth_max_transfer_amount',
-  BRIDGE_ESTIMATE_GAS = 'bridge_estimate_gas',
 
   WALLET_GET_DETAILS = 'wallet_getDetails',
   WALLET_UNENCRYPTED_MNEMONIC = 'wallet_getUnencryptedMnemonic',
@@ -96,6 +91,7 @@ export enum ExtensionRequest {
   SETTINGS_SET_MAX_BUY = 'settings_set_max_buy',
   SETTINGS_SET_PRIVACY_MODE = 'settings_set_privacy_mode',
   SETTINGS_SET_FILTER_SMALL_UTXOS = 'settings_set_filter_small_utxos',
+  SETTINGS_SET_BRIDGE_DEV_ENV = 'settings_set_bridge_dev_env',
 
   CONTACTS_GET = 'contacts_get',
   CONTACTS_CREATE = 'contacts_create',
@@ -173,13 +169,6 @@ export enum ExtensionRequest {
   SEEDLESS_REMOVE_FIDO_DEVICE = 'seedless_remove_fido_device',
   SEEDLESS_REMOVE_TOTP = 'seedless_remove_totp',
   SEEDLESS_DERIVE_MISSING_KEYS = 'seedless_derive_missing_keys',
-
-  UNIFIED_BRIDGE_GET_FEE = 'unified_bridge_get_fee',
-  UNIFIED_BRIDGE_ESTIMATE_GAS = 'unified_bridge_estimate_gas',
-  UNIFIED_BRIDGE_TRANSFER_ASSET = 'unified_bridge_transfer_asset',
-  UNIFIED_BRIDGE_TRACK_TRANSFER = 'unified_bridge_track_transfer',
-  UNIFIED_BRIDGE_GET_STATE = 'unified_bridge_get_state',
-  UNIFIED_BRIDGE_GET_ASSETS = 'unified_bridge_get_assets',
 
   WALLET_IMPORT_SEED_PHRASE = 'wallet_import_seed_phrase',
   WALLET_IMPORT_LEDGER = 'wallet_import_ledger',

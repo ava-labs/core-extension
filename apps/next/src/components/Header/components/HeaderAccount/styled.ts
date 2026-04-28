@@ -54,9 +54,8 @@ export const Container = styled('div', {
     [`&:hover .${accountInfoClass}`]: {
       display: 'flex',
     },
-    [`&:hover .${addressListClass}`]: {
+    [`&:hover .${addressListClass}, &:focus-within .${addressListClass}`]: {
       opacity: 1,
-      transform: 'scale(1)',
       visibility: 'visible',
     },
   }),

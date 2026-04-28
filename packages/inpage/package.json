@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "rsbuild build -w --config rsbuild.inpage.ts",
     "build": "rsbuild build --config rsbuild.inpage.ts",
+    "build:dev": "rsbuild build --env-mode development --config rsbuild.inpage.ts",
     "lint": "eslint --fix \"src/**/*.ts*\"",
     "prettify": "prettier --write \"src/**/*.ts*\"",
     "test": "yarn jest",
@@ -13,8 +14,8 @@
     "typecheck": "yarn tsc --skipLibCheck --noEmit"
   },
   "dependencies": {
-    "@avalabs/evm-module": "3.7.0",
-    "@avalabs/svm-module": "3.7.0",
+    "@avalabs/evm-module": "3.7.2",
+    "@avalabs/svm-module": "3.7.2",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/types": "workspace:*",

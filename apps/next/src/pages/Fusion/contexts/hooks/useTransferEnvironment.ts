@@ -1,10 +1,9 @@
-import { useBridgeEnvironment } from '@/hooks/useBridgeEnvironment';
-import { useNetworkContext } from '@core/ui';
+import { useNetworkContext, useSettingsContext } from '@core/ui';
 import { getEnvironment } from '../../lib/getEnvironment';
 
 export const useTransferEnvironment = () => {
   const { isDeveloperMode } = useNetworkContext();
-  const { isBridgeDevEnv } = useBridgeEnvironment(isDeveloperMode);
+  const { isBridgeDevEnv } = useSettingsContext();
 
   return getEnvironment(isDeveloperMode, isBridgeDevEnv);
 };

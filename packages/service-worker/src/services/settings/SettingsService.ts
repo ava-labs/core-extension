@@ -43,6 +43,7 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   maxBuy: 'unlimited',
   privacyMode: false,
   filterSmallUtxos: true,
+  isBridgeDevEnv: false,
 };
 
 @singleton()
@@ -352,6 +353,14 @@ export class SettingsService implements OnStorageReady, OnLock {
     await this.saveSettings({
       ...settings,
       filterSmallUtxos: filter,
+    });
+  }
+
+  async setBridgeDevEnv(enabled: boolean) {
+    const settings = await this.getSettings();
+    await this.saveSettings({
+      ...settings,
+      isBridgeDevEnv: enabled,
     });
   }
 

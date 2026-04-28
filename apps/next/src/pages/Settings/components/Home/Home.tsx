@@ -105,7 +105,7 @@ export const SettingsHomePage = () => {
       }}
     >
       <Stack direction="row" gap={1.5} width="100%">
-        <Stack width="50%">
+        <Stack width="50%" data-testid="settings-testnet-mode-row">
           <SwitchCard
             titleSize="large"
             checked={isDeveloperMode}
@@ -423,6 +423,16 @@ export const SettingsHomePage = () => {
             )}
           </>
         )}
+      </SettingsCard>
+
+      <SettingsCard title={t('Notifications')}>
+        <SettingsNavItem
+          label={t('Notification preferences')}
+          href={`${path}/notification-preferences`}
+          sx={{
+            py: 0,
+          }}
+        />
       </SettingsCard>
 
       <SettingsCard title={t('Contacts')}>

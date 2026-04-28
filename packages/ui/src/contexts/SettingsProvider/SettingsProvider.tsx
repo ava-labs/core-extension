@@ -22,6 +22,7 @@ import type {
   UpdateShowNoBalanceHandler,
   UpdateThemeHandler,
   UpdateTokensVisiblityHandler,
+  SetBridgeDevEnvHandler,
 } from '@core/service-worker';
 import {
   ColorTheme,
@@ -89,6 +90,7 @@ type SettingsFromProvider = SettingsState & {
   setMaxBuy: (maxBuy: MaxBuyOption) => Promise<boolean>;
   setPrivacyMode: (enabled: boolean) => Promise<boolean>;
   setFilterSmallUtxos: (filter: boolean) => Promise<boolean>;
+  setBridgeDevEnv: (enabled: boolean) => Promise<boolean>;
 };
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
@@ -331,6 +333,16 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
     [request],
   );
 
+  const setBridgeDevEnv = useCallback(
+    (enabled: boolean) => {
+      return request<SetBridgeDevEnvHandler>({
+        method: ExtensionRequest.SETTINGS_SET_BRIDGE_DEV_ENV,
+        params: [enabled],
+      });
+    },
+    [request],
+  );
+
   return (
     <SettingsContext.Provider
       value={
@@ -359,6 +371,7 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
           setMaxBuy,
           setPrivacyMode,
           setFilterSmallUtxos,
+          setBridgeDevEnv,
         } as SettingsFromProvider
       }
     >
