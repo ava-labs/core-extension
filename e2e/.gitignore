@@ -10,9 +10,9 @@ playwright-report/
 # Build artifacts
 dist/
 
-# Environment files
-.env
-.env.local
+# Environment files (always allow .env.example through)
+.env*
+!.env.example
 
 # Wallet snapshots (downloaded from AWS S3 in CI)
 # These contain sensitive wallet data and should NOT be committed
