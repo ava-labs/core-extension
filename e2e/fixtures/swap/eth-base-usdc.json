@@ -1,0 +1,60 @@
+{
+  "pair": {
+    "from": {
+      "id": "NATIVE:eth:8453",
+      "symbol": "ETH",
+      "chain": "base",
+      "chainId": 8453,
+      "decimals": 18
+    },
+    "to": {
+      "id": "ERC20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913:8453",
+      "symbol": "USDC",
+      "chain": "base",
+      "chainId": 8453,
+      "decimals": 6,
+      "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+    },
+    "amount": "0.0001",
+    "fixture": "eth-base-usdc",
+    "chain": "base"
+  },
+  "quote": [
+    {
+      "uuid": "mock-eth-base-usdc-quote-001",
+      "aggregator": "markr",
+      "chainId": 8453,
+      "tokenIn": "0x0000000000000000000000000000000000000000",
+      "tokenInDecimals": 18,
+      "tokenOut": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "tokenOutDecimals": 6,
+      "amountIn": "100000000000000",
+      "amountOut": "227000",
+      "gasEstimate": "120000",
+      "recommendedSlippage": 0.5,
+      "expiredAt": 9999999999999,
+      "done": false
+    },
+    {
+      "uuid": "mock-eth-base-usdc-quote-001",
+      "aggregator": "markr",
+      "chainId": 8453,
+      "tokenIn": "0x0000000000000000000000000000000000000000",
+      "tokenInDecimals": 18,
+      "tokenOut": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "tokenOutDecimals": 6,
+      "amountIn": "100000000000000",
+      "amountOut": "227000",
+      "gasEstimate": "120000",
+      "recommendedSlippage": 0.5,
+      "expiredAt": 9999999999999,
+      "done": true
+    }
+  ],
+  "swapTx": {
+    "to": "0x6a000f20005980200259b80c5102003040001068",
+    "data": "0xe3ead59e00000000000000000000000000000000000000000000000000005af3107a4000",
+    "value": "0x5af3107a4000"
+  },
+  "spenderAddress": "0x6a000f20005980200259b80c5102003040001068"
+}

@@ -1,0 +1,60 @@
+{
+  "pair": {
+    "from": {
+      "id": "NATIVE:eth:1",
+      "symbol": "ETH",
+      "chain": "ethereum",
+      "chainId": 1,
+      "decimals": 18
+    },
+    "to": {
+      "id": "ERC20:0x514910771af9ca656af840dff83e8264ecf986ca:1",
+      "symbol": "LINK",
+      "chain": "ethereum",
+      "chainId": 1,
+      "decimals": 18,
+      "address": "0x514910771af9ca656af840dff83e8264ecf986ca"
+    },
+    "amount": "0.0001",
+    "fixture": "eth-link",
+    "chain": "ethereum"
+  },
+  "quote": [
+    {
+      "uuid": "mock-eth-link-quote-001",
+      "aggregator": "markr",
+      "chainId": 1,
+      "tokenIn": "0x0000000000000000000000000000000000000000",
+      "tokenInDecimals": 18,
+      "tokenOut": "0x514910771af9ca656af840dff83e8264ecf986ca",
+      "tokenOutDecimals": 18,
+      "amountIn": "100000000000000",
+      "amountOut": "21722312235566446",
+      "gasEstimate": "70840",
+      "recommendedSlippage": 0.5,
+      "expiredAt": 9999999999999,
+      "done": false
+    },
+    {
+      "uuid": "mock-eth-link-quote-001",
+      "aggregator": "markr",
+      "chainId": 1,
+      "tokenIn": "0x0000000000000000000000000000000000000000",
+      "tokenInDecimals": 18,
+      "tokenOut": "0x514910771af9ca656af840dff83e8264ecf986ca",
+      "tokenOutDecimals": 18,
+      "amountIn": "100000000000000",
+      "amountOut": "21722312235566446",
+      "gasEstimate": "70840",
+      "recommendedSlippage": 0.5,
+      "expiredAt": 9999999999999,
+      "done": true
+    }
+  ],
+  "swapTx": {
+    "to": "0x6a000f20005980200259b80c5102003040001068",
+    "data": "0xe3ead59e00000000000000000000000000000000000000000000000000005af3107a4000",
+    "value": "0x5af3107a4000"
+  },
+  "spenderAddress": "0x6a000f20005980200259b80c5102003040001068"
+}

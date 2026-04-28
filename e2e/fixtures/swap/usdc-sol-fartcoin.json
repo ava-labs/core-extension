@@ -1,0 +1,68 @@
+{
+  "pair": {
+    "from": {
+      "id": "SPL:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v:4503599627369476",
+      "symbol": "USDC",
+      "chain": "solana",
+      "chainId": 4503599627369476,
+      "decimals": 6,
+      "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+    },
+    "to": {
+      "id": "SPL:9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump:4503599627369476",
+      "symbol": "Fartcoin",
+      "chain": "solana",
+      "chainId": 4503599627369476,
+      "decimals": 6,
+      "address": "9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump"
+    },
+    "amount": "0.5",
+    "fixture": "usdc-sol-fartcoin",
+    "chain": "solana"
+  },
+  "quote": {
+    "inputMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    "inAmount": "500000",
+    "outputMint": "9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump",
+    "outAmount": "490000",
+    "otherAmountThreshold": "485100",
+    "swapMode": "ExactIn",
+    "slippageBps": 50,
+    "platformFee": null,
+    "priceImpactPct": "0.003",
+    "routePlan": [
+      {
+        "swapInfo": {
+          "ammKey": "mock-amm-usdc-fartcoin-1",
+          "label": "Raydium",
+          "inputMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "outputMint": "So11111111111111111111111111111111111111112",
+          "inAmount": "500000",
+          "outAmount": "2941000",
+          "feeAmount": "1500",
+          "feeMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+        },
+        "percent": 100
+      },
+      {
+        "swapInfo": {
+          "ammKey": "mock-amm-usdc-fartcoin-2",
+          "label": "Raydium",
+          "inputMint": "So11111111111111111111111111111111111111112",
+          "outputMint": "9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump",
+          "inAmount": "2941000",
+          "outAmount": "490000",
+          "feeAmount": "1500",
+          "feeMint": "So11111111111111111111111111111111111111112"
+        },
+        "percent": 100
+      }
+    ],
+    "contextSlot": 300000002,
+    "timeTaken": 0.06
+  },
+  "jupiterSwapTx": {
+    "swapTransaction": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDBBQWOH6Ccz5wKuERRESRdSxWSxFR4noJHc+VxXxNFKIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMGRm/lIRcy/+ytunLDm+e8jOW7xfcSayxDmzpAAAAAbQreB/SHw7Sgz3BaIaqm1sHEzIiPxJsunRBHwzqSVIYBAgIAAQwCAAAAoIYBAAAAAAA=",
+    "simulationError": null
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "pair": {
+    "from": {
+      "id": "ERC20:0x940181a94a35a4569e4529a3cdfb74e38fd98631:8453",
+      "symbol": "AERO",
+      "chain": "base",
+      "chainId": 8453,
+      "decimals": 18,
+      "address": "0x940181a94a35a4569e4529a3cdfb74e38fd98631"
+    },
+    "to": {
+      "id": "NATIVE:eth:8453",
+      "symbol": "ETH",
+      "chain": "base",
+      "chainId": 8453,
+      "decimals": 18
+    },
+    "amount": "0.1",
+    "fixture": "aero-eth-base",
+    "chain": "base"
+  },
+  "quote": [
+    {
+      "uuid": "mock-aero-eth-base-quote-001",
+      "aggregator": "markr",
+      "chainId": 8453,
+      "tokenIn": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "tokenInDecimals": 18,
+      "tokenOut": "0x0000000000000000000000000000000000000000",
+      "tokenOutDecimals": 18,
+      "amountIn": "100000000000000000",
+      "amountOut": "26000000000000",
+      "gasEstimate": "180000",
+      "recommendedSlippage": 0.5,
+      "expiredAt": 9999999999999,
+      "done": false
+    },
+    {
+      "uuid": "mock-aero-eth-base-quote-001",
+      "aggregator": "markr",
+      "chainId": 8453,
+      "tokenIn": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "tokenInDecimals": 18,
+      "tokenOut": "0x0000000000000000000000000000000000000000",
+      "tokenOutDecimals": 18,
+      "amountIn": "100000000000000000",
+      "amountOut": "26000000000000",
+      "gasEstimate": "180000",
+      "recommendedSlippage": 0.5,
+      "expiredAt": 9999999999999,
+      "done": true
+    }
+  ],
+  "swapTx": {
+    "to": "0x6a000f20005980200259b80c5102003040001068",
+    "data": "0xe3ead59e000000000000000000000000000000000000000000000000016345785d8a0000",
+    "value": "0x0"
+  },
+  "spenderAddress": "0x6a000f20005980200259b80c5102003040001068"
+}

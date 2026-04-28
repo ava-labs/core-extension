@@ -1,0 +1,60 @@
+{
+  "pair": {
+    "from": {
+      "id": "ERC20:0xcd94a87696fac69edae3a70fe5725307ae1c43f6:43114",
+      "symbol": "BLACK",
+      "chain": "avalanche",
+      "chainId": 43114,
+      "decimals": 18,
+      "address": "0xcd94a87696fac69edae3a70fe5725307ae1c43f6"
+    },
+    "to": {
+      "id": "NATIVE:avax:43114",
+      "symbol": "AVAX",
+      "chain": "avalanche",
+      "chainId": 43114,
+      "decimals": 18
+    },
+    "amount": "0.01",
+    "fixture": "black-avax",
+    "chain": "avalanche"
+  },
+  "quote": [
+    {
+      "uuid": "mock-black-avax-quote-001",
+      "aggregator": "markr",
+      "chainId": 43114,
+      "tokenIn": "0xcd94a87696fac69edae3a70fe5725307ae1c43f6",
+      "tokenInDecimals": 18,
+      "tokenOut": "0x0000000000000000000000000000000000000000",
+      "tokenOutDecimals": 18,
+      "amountIn": "10000000000000000",
+      "amountOut": "800000000000000",
+      "gasEstimate": "350000",
+      "recommendedSlippage": 1.0,
+      "expiredAt": 9999999999999,
+      "done": false
+    },
+    {
+      "uuid": "mock-black-avax-quote-001",
+      "aggregator": "markr",
+      "chainId": 43114,
+      "tokenIn": "0xcd94a87696fac69edae3a70fe5725307ae1c43f6",
+      "tokenInDecimals": 18,
+      "tokenOut": "0x0000000000000000000000000000000000000000",
+      "tokenOutDecimals": 18,
+      "amountIn": "10000000000000000",
+      "amountOut": "800000000000000",
+      "gasEstimate": "350000",
+      "recommendedSlippage": 1.0,
+      "expiredAt": 9999999999999,
+      "done": true
+    }
+  ],
+  "swapTx": {
+    "to": "0x18556DA13313f3532c54CCb4f31ee34f7eFF87EB",
+    "data": "0xabcdef01000000000000000000000000000000000000000000000000000000000000beef",
+    "value": "0x0"
+  },
+  "spenderAddress": "0x18556DA13313f3532c54CCb4f31ee34f7eFF87EB"
+}

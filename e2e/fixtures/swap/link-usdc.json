@@ -1,0 +1,61 @@
+{
+  "pair": {
+    "from": {
+      "id": "ERC20:0x514910771af9ca656af840dff83e8264ecf986ca:1",
+      "symbol": "LINK",
+      "chain": "ethereum",
+      "chainId": 1,
+      "decimals": 18,
+      "address": "0x514910771af9ca656af840dff83e8264ecf986ca"
+    },
+    "to": {
+      "id": "ERC20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48:1",
+      "symbol": "USDC",
+      "chain": "ethereum",
+      "chainId": 1,
+      "decimals": 6,
+      "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+    },
+    "amount": "0.001",
+    "fixture": "link-usdc",
+    "chain": "ethereum"
+  },
+  "quote": [
+    {
+      "uuid": "mock-link-usdc-quote-001",
+      "aggregator": "markr",
+      "chainId": 1,
+      "tokenIn": "0x514910771af9ca656af840dff83e8264ecf986ca",
+      "tokenInDecimals": 18,
+      "tokenOut": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "tokenOutDecimals": 6,
+      "amountIn": "1000000000000000",
+      "amountOut": "9774",
+      "gasEstimate": "123846",
+      "recommendedSlippage": 0.5,
+      "expiredAt": 9999999999999,
+      "done": false
+    },
+    {
+      "uuid": "mock-link-usdc-quote-001",
+      "aggregator": "markr",
+      "chainId": 1,
+      "tokenIn": "0x514910771af9ca656af840dff83e8264ecf986ca",
+      "tokenInDecimals": 18,
+      "tokenOut": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "tokenOutDecimals": 6,
+      "amountIn": "1000000000000000",
+      "amountOut": "9774",
+      "gasEstimate": "123846",
+      "recommendedSlippage": 0.5,
+      "expiredAt": 9999999999999,
+      "done": true
+    }
+  ],
+  "swapTx": {
+    "to": "0x6a000f20005980200259b80c5102003040001068",
+    "data": "0xe3ead59e000000000000000000000000000000000000000000000000000038d7ea4c68000",
+    "value": "0x0"
+  },
+  "spenderAddress": "0x6a000f20005980200259b80c5102003040001068"
+}

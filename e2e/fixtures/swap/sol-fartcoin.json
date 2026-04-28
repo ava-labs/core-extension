@@ -1,0 +1,54 @@
+{
+  "pair": {
+    "from": {
+      "id": "NATIVE:SOL:4503599627369476",
+      "symbol": "SOL",
+      "chain": "solana",
+      "chainId": 4503599627369476,
+      "decimals": 9
+    },
+    "to": {
+      "id": "SPL:9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump:4503599627369476",
+      "symbol": "Fartcoin",
+      "chain": "solana",
+      "chainId": 4503599627369476,
+      "decimals": 6,
+      "address": "9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump"
+    },
+    "amount": "0.001",
+    "fixture": "sol-fartcoin",
+    "chain": "solana"
+  },
+  "quote": {
+    "inputMint": "So11111111111111111111111111111111111111112",
+    "inAmount": "1000000",
+    "outputMint": "9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump",
+    "outAmount": "170000",
+    "otherAmountThreshold": "168300",
+    "swapMode": "ExactIn",
+    "slippageBps": 50,
+    "platformFee": null,
+    "priceImpactPct": "0.001",
+    "routePlan": [
+      {
+        "swapInfo": {
+          "ammKey": "mock-amm-sol-fartcoin",
+          "label": "Raydium",
+          "inputMint": "So11111111111111111111111111111111111111112",
+          "outputMint": "9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump",
+          "inAmount": "1000000",
+          "outAmount": "170000",
+          "feeAmount": "500",
+          "feeMint": "So11111111111111111111111111111111111111112"
+        },
+        "percent": 100
+      }
+    ],
+    "contextSlot": 300000000,
+    "timeTaken": 0.05
+  },
+  "jupiterSwapTx": {
+    "swapTransaction": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDBBQWOH6Ccz5wKuERRESRdSxWSxFR4noJHc+VxXxNFKIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMGRm/lIRcy/+ytunLDm+e8jOW7xfcSayxDmzpAAAAAbQreB/SHw7Sgz3BaIaqm1sHEzIiPxJsunRBHwzqSVIYBAgIAAQwCAAAAoIYBAAAAAAA=",
+    "simulationError": null
+  }
+}
