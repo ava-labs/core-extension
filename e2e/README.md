@@ -82,6 +82,75 @@ Set these in `.env` (or export in CI). A template is available in
 | `RECOVERY_PHRASE_12_WORDS` | 12-word recovery phrase (space-separated) |
 | `RECOVERY_PHRASE_24_WORDS` | 24-word recovery phrase (space-separated) |
 
+## TestRail Automation Sync
+
+Reconcile the `custom_automation_id` annotations on Playwright tests with
+TestRail's case-level Automation ID custom field. The script lives at
+`scripts/testrail-sync.mjs` and uses Playwright's own `--list --reporter=json`
+output to enumerate tests, so dynamic IDs (e.g. `` `custom_automation_id:SWP-MOCK-FLOW-${key}` ``)
+and parameterized titles are fully resolved before comparison.
+
+### Required env
+
+Add the following to `e2e/.env` (template in `.env.example`). The API key is
+generated under TestRail → My Settings → API Keys — it is **not** your password.
+
+```
+TESTRAIL_HOST=https://avalabs.testrail.io
+TESTRAIL_EMAIL=you@avalabs.org
+TESTRAIL_API_KEY=...
+TESTRAIL_PROJECT_ID=...
+TESTRAIL_SUITE_ID=     # optional
+```
+
+### Common usage
+
+```bash
+# Read-only drift report (no writes to TestRail)
+yarn testrail:report
+
+# Push title-matched updates after reviewing the report
+yarn testrail:sync
+
+# Restrict discovery to @smoke or @regression
+node scripts/testrail-sync.mjs --grep @regression
+
+# Verify which custom field key TestRail uses on this instance
+node scripts/testrail-sync.mjs --debugCases 3
+```
+
+### What the report shows
+
+| Section                                         | What it means                                                        |
+| ----------------------------------------------- | -------------------------------------------------------------------- |
+| Tests missing `custom_automation_id` annotation | Specs that should be tagged but aren't                               |
+| Duplicate automation IDs in local tests         | Same ID reused across specs (almost always a copy-paste bug)         |
+| Local IDs missing in TestRail                   | Test exists in code but TestRail has no case linked to it            |
+| TestRail IDs missing locally                    | TestRail has a case linked to an ID nothing in code references       |
+| Title-match sync candidates                     | Single-match-on-both-sides cases where the IDs differ → safe to push |
+
+### CI flags
+
+Useful when wiring this into a workflow:
+
+| Flag                  | Effect                                                  |
+| --------------------- | ------------------------------------------------------- |
+| `--apply`             | Required to mutate TestRail. Default is report-only.    |
+| `--failOnMissing`     | Exit 1 if any local IDs are absent in TestRail.         |
+| `--failOnDuplicates`  | Exit 1 if local tests share an automation_id.           |
+| `--failOnUnannotated` | Exit 1 if any spec lacks an automation_id annotation.   |
+| `--json`              | Append a machine-readable summary at the end of stdout. |
+| `--jsonOut <path>`    | Write the same machine-readable summary to a file.      |
+
+Without any `--failOn*` flag the script exits 0 even when drift exists, so it
+is safe to run as an advisory check.
+
+The scheduled regression workflow (`.github/workflows/e2e_regression_tests.yaml`)
+runs `yarn testrail:report --jsonOut /tmp/drift.json` in a `testrail-drift` job
+with `continue-on-error: true`. When drift is detected, it publishes a
+GitHub Actions Job Summary; otherwise the summary stays empty. The full JSON
+is uploaded as an artifact (`testrail-drift-report`).
+
 ## Snapshots
 
 Local snapshots live in `helpers/storage-snapshots/`.
