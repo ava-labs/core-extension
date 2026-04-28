@@ -79,6 +79,106 @@ jobs:
             --run-include-all | grep "run_id:" | awk '{print $2}')
           echo "test_run_id=$TEST_RUN_ID" >> $GITHUB_OUTPUT
 
+  testrail-drift:
+    name: TestRail Automation ID Drift (advisory)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    env:
+      TESTRAIL_HOST: https://avalabs.testrail.io
+      TESTRAIL_EMAIL: ${{ secrets.TESTRAIL_EMAIL }}
+      TESTRAIL_API_KEY: ${{ secrets.TESTRAIL_API_KEY }}
+      TESTRAIL_PROJECT_ID: ${{ secrets.TESTRAIL_PROJECT_ID }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.test-branch || 'main' }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.18.3
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Install E2E dependencies
+        working-directory: e2e
+        run: yarn install --immutable
+
+      - name: Run TestRail drift report
+        working-directory: e2e
+        run: yarn testrail:report --jsonOut /tmp/drift.json
+
+      - name: Publish drift to job summary (only when drift exists)
+        if: always()
+        run: |
+          if [ ! -f /tmp/drift.json ]; then
+            echo "Drift report did not produce JSON output — skipping summary."
+            exit 0
+          fi
+
+          MISSING=$(jq -r '.counts.missingInTestRail // 0' /tmp/drift.json)
+          DUPES=$(jq -r '.counts.duplicates // 0' /tmp/drift.json)
+          UNANN=$(jq -r '.counts.unannotated // 0' /tmp/drift.json)
+          ORPHAN=$(jq -r '.counts.missingInLocal // 0' /tmp/drift.json)
+          CANDS=$(jq -r '.counts.updateCandidates // 0' /tmp/drift.json)
+          TOTAL=$((MISSING + DUPES + UNANN + ORPHAN + CANDS))
+
+          if [ "$TOTAL" -eq 0 ]; then
+            echo "No TestRail drift detected. Skipping summary."
+            exit 0
+          fi
+
+          {
+            echo "## TestRail automation ID drift (advisory)"
+            echo ""
+            echo "| Type | Count |"
+            echo "| ---- | -----:|"
+            echo "| Local IDs missing in TestRail | $MISSING |"
+            echo "| TestRail IDs missing locally  | $ORPHAN |"
+            echo "| Duplicate local IDs           | $DUPES |"
+            echo "| Tests without automation_id   | $UNANN |"
+            echo "| Title-match sync candidates   | $CANDS |"
+            echo ""
+
+            if [ "$MISSING" -gt 0 ]; then
+              echo "### Local IDs missing in TestRail"
+              jq -r '.missingInTestRail[] | "- \(.)"' /tmp/drift.json
+              echo ""
+            fi
+
+            if [ "$DUPES" -gt 0 ]; then
+              echo "### Duplicate local automation IDs"
+              jq -r '.duplicateIds[] | "- **\(.id)** — " + (.files | join(", "))' /tmp/drift.json
+              echo ""
+            fi
+
+            if [ "$UNANN" -gt 0 ]; then
+              echo "### Tests missing custom_automation_id annotation"
+              jq -r '.unannotated[] | "- \(.title) — `\(.file):\(.line)`"' /tmp/drift.json
+              echo ""
+            fi
+
+            if [ "$CANDS" -gt 0 ]; then
+              echo "### Title-match sync candidates"
+              jq -r '.updateCandidates[] | "- Case \(.caseId): \(.title) — `\(.fromValue // "(empty)")` → `\(.toValue)`"' /tmp/drift.json
+              echo ""
+            fi
+
+            echo "_Run \`yarn testrail:sync\` locally to push title-matched updates._"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload drift report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: testrail-drift-report
+          path: /tmp/drift.json
+          if-no-files-found: ignore
+          retention-days: 14
+
   e2e:
     name: Run E2E Tests - Shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
     runs-on: ubuntu-latest-16-cores-core-extension
