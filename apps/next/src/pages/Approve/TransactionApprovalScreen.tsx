@@ -93,7 +93,7 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
     gaslessPhase === GaslessPhase.ERROR || gaslessUnavailable.current;
 
   return (
-    <Styled.ApprovalScreenPage>
+    <Styled.ApprovalScreenPage data-testid="approval-screen">
       <NoScrollStack stackProps={{ sx: { mt: 3 } }}>
         <ApprovalScreenTitle title={action.displayData.title} />
         {hasNoteWarning(action) && (
