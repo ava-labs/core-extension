@@ -78,7 +78,18 @@ function parseArgs(argv) {
   for (let i = 2; i < argv.length; i += 1) {
     const arg = argv[i];
     const next = argv[i + 1];
-    const consumeNext = () => {
+    /**
+     * Consume the next argv entry as a value for `arg`. Refuses missing
+     * values and refuses values that look like another flag (start with `-`),
+     * which catches both bare-flag mistakes (`--suiteId --apply`) and a
+     * value-flag at the very end of argv (`... --jsonOut`).
+     */
+    const consumeValue = () => {
+      if (next === undefined || next.startsWith('-')) {
+        throw new MissingConfigError(
+          `Flag ${arg} requires a value (got ${next === undefined ? 'nothing' : `"${next}"`}).`,
+        );
+      }
       i += 1;
       return next;
     };
@@ -86,19 +97,19 @@ function parseArgs(argv) {
     switch (arg) {
       case '--projectId':
       case '-p':
-        args.projectId = consumeNext();
+        args.projectId = consumeValue();
         break;
       case '--suiteId':
       case '-s':
-        args.suiteId = consumeNext();
+        args.suiteId = consumeValue();
         break;
       case '--testrailField':
       case '-f':
-        args.testrailField = consumeNext();
+        args.testrailField = consumeValue();
         break;
       case '--grep':
       case '-g':
-        args.grep = consumeNext();
+        args.grep = consumeValue();
         break;
       case '--apply':
         args.apply = true;
@@ -116,12 +127,14 @@ function parseArgs(argv) {
         args.json = true;
         break;
       case '--jsonOut':
-        args.jsonOut = consumeNext();
+        args.jsonOut = consumeValue();
         break;
       case '--debugCases':
         args.debugCases = true;
+        // Optional numeric arg: only consume when it's clearly a count.
         if (next && /^\d+$/.test(next)) {
-          args.debugCasesLimit = Number(consumeNext());
+          args.debugCasesLimit = Number(next);
+          i += 1;
         }
         break;
       case '--help':
@@ -336,19 +349,27 @@ async function fetchAllCases({ host, email, apiKey, projectId, suiteId }) {
     }
 
     const payload = await response.json();
-
-    if (Array.isArray(payload)) {
-      collected.push(...payload);
-      break;
-    }
-
-    const page = payload.cases ?? [];
+    const isPaginatedObject = !Array.isArray(payload);
+    const page = isPaginatedObject ? (payload.cases ?? []) : payload;
     collected.push(...page);
 
-    const hasMore = Boolean(payload?._links?.next);
-    if (!hasMore || page.length === 0) {
+    if (page.length === 0) {
       break;
     }
+
+    if (isPaginatedObject) {
+      // TestRail Cloud / v6.7+: trust the explicit "no next page" signal.
+      if (!payload?._links?.next) {
+        break;
+      }
+    } else {
+      // Older array-shape response: keep paginating while pages are full.
+      // A short page (or the next empty one) signals we've reached the end.
+      if (page.length < limit) {
+        break;
+      }
+    }
+
     offset += limit;
   }
 
