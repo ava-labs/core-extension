@@ -1,0 +1,9 @@
+{
+  "ignoredOrphanTestIds": [],
+  "ledgerSpecAdditionalModules": [
+    "pages/extension/BasePage.ts",
+    "pages/extension/OnboardingPage.ts",
+    "pages/extension/ContactsPage.ts",
+    "pages/extension/NetworksPage.ts"
+  ]
+}

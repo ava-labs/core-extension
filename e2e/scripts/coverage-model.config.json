@@ -1,0 +1,9 @@
+{
+  "definition": "Weights for codebaseCompositeCoverage only (no TestRail). Default mix matches core-web QA-add-test-coverage-script; adjust weights if the extension risk profile changes.",
+  "impliedUncertaintyPercentagePoints": 10,
+  "weights": {
+    "e2eFeatureCoveragePercent": 0.08,
+    "requiredScenariosPercent": 0.22,
+    "featureFolderWalletSlotPercent": 0.7
+  }
+}
