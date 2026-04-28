@@ -25,7 +25,8 @@
     "zip": "node build-scripts/zipscript.mjs",
     "scanner": "yarn workspace @core-ext/next run scanner",
     "sentry": "node sentryscript.js",
-    "submit-build": "node build-scripts/submitBuild.mjs"
+    "submit-build": "node build-scripts/submitBuild.mjs",
+    "e2e:coverage": "node e2e/scripts/e2e-testid-coverage.mjs"
   },
   "workspaces": [
     "apps/*",
