@@ -144,6 +144,7 @@
     "ledger-bitcoin/@ledgerhq/hw-transport": "6.31.10",
     "pbkdf2": "3.1.3",
     "sha.js": "2.4.12",
-    "tiny-secp256k1": "1.1.7"
+    "tiny-secp256k1": "1.1.7",
+    "@date-fns/tz@npm:^1.4.1": "patch:@date-fns/tz@npm%3A1.4.1#.yarn/patches/@date-fns-tz-npm-1.4.1-e102649294.patch"
   }
 }

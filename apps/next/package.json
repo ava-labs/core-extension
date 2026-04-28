@@ -4,7 +4,7 @@
   "license": "Limited Ecosystem License",
   "packageManager": "yarn@4.7.0",
   "scripts": {
-    "dev": "rsbuild build -w --config rsbuild.next.dev.ts",
+    "dev": "rsbuild build --config rsbuild.next.dev.ts",
     "build": "rsbuild build --config rsbuild.next.prod.ts",
     "build:alpha": "rsbuild build --config rsbuild.next.alpha.ts",
     "build:dev": "rsbuild build --config rsbuild.next.dev.ts",
@@ -68,6 +68,7 @@
     "@commitlint/cli": "17.0.3",
     "@commitlint/config-angular": "17.0.3",
     "@commitlint/config-conventional": "17.0.3",
+    "@core/lavamoat-rspack": "workspace:*",
     "@eslint/compat": "1.2.4",
     "@eslint/eslintrc": "3.2.0",
     "@eslint/js": "9.16.0",
