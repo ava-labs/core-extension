@@ -32,12 +32,14 @@ export const TypingAvatar = () => {
   const isLight = theme.palette.mode === 'light';
   // Light mode uses grey.850 (#28282E) to match core-light-avatar.svg
   const hexagonFill = isLight
-    ? getHexAlpha(theme.palette.grey[850], 10)
+    ? getHexAlpha(theme.palette.neutral[850], 10)
     : getHexAlpha(theme.palette.common.white, 10);
   const hexagonStroke = isLight
-    ? getHexAlpha(theme.palette.grey[850], 10)
+    ? getHexAlpha(theme.palette.neutral[850], 10)
     : getHexAlpha(theme.palette.common.white, 10);
-  const dotFill = isLight ? theme.palette.grey[850] : theme.palette.grey[400];
+  const dotFill = isLight
+    ? theme.palette.neutral[850]
+    : theme.palette.neutral[400];
 
   return (
     <TypingAnimation
