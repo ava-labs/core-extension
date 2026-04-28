@@ -149,6 +149,12 @@ jobs:
               echo ""
             fi
 
+            if [ "$ORPHAN" -gt 0 ]; then
+              echo "### TestRail IDs missing locally"
+              jq -r '.missingInLocal[] | "- \(.)"' /tmp/drift.json
+              echo ""
+            fi
+
             if [ "$DUPES" -gt 0 ]; then
               echo "### Duplicate local automation IDs"
               jq -r '.duplicateIds[] | "- **\(.id)** — " + (.files | join(", "))' /tmp/drift.json

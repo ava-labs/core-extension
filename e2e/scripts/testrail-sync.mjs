@@ -36,7 +36,8 @@
  *   --failOnMissing             Exit 1 if any local IDs are absent in TestRail
  *   --failOnDuplicates          Exit 1 if local tests share an automation_id
  *   --failOnUnannotated         Exit 1 if any tests lack an automation_id
- *   --json                      Emit machine-readable summary at the end
+ *   --json                      Print a machine-readable summary at the end
+ *   --jsonOut <path>            Write the same machine-readable summary to a file
  *   --debugCases [n]            Dump n raw TestRail case objects (default 5)
  *   --help, -h                  Show this help
  */
@@ -46,11 +47,17 @@ import path from 'node:path';
 import process from 'node:process';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import dotenv from 'dotenv';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const E2E_DIR = path.resolve(__dirname, '..');
 const REPO_ROOT = path.resolve(E2E_DIR, '..');
+
+// Load `e2e/.env` so local invocations match Playwright's behavior
+// (`e2e/config/base.config.ts` does the same). CI exports its own env, where
+// the file may not exist — `override: false` ensures shell env wins.
+dotenv.config({ path: path.resolve(E2E_DIR, '.env'), override: false });
 
 function parseArgs(argv) {
   const args = {
@@ -163,10 +170,24 @@ Flags:
   console.log(banner);
 }
 
+/**
+ * Sentinel error: missing required configuration (env var, --projectId).
+ * Caught by main().catch to print help and exit 2 — same behavior as the
+ * other argument-validation paths.
+ */
+class MissingConfigError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'MissingConfigError';
+  }
+}
+
 function requireEnv(name) {
   const value = process.env[name];
   if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`);
+    throw new MissingConfigError(
+      `Missing required environment variable: ${name}`,
+    );
   }
   return value;
 }
@@ -660,6 +681,12 @@ async function main() {
 }
 
 main().catch((err) => {
+  if (err instanceof MissingConfigError) {
+    console.error(err.message);
+    printHelp();
+    process.exit(2);
+  }
+
   console.error('\nTestRail sync failed.');
   if (err instanceof Error) {
     console.error(err.message);
