@@ -3,6 +3,7 @@ export type ExplorerNetwork =
   | 'Avalanche P-Chain'
   | 'Avalanche X-Chain'
   | 'Ethereum'
+  | 'Base'
   | 'Beam L1'
   | 'Bitcoin'
   | 'Solana';
@@ -263,6 +264,13 @@ const EVM_RPC: Partial<
   Ethereum: {
     Mainnet: ['https://ethereum-rpc.publicnode.com'],
     Testnet: ['https://ethereum-sepolia-rpc.publicnode.com'],
+  },
+  Base: {
+    Mainnet: ['https://mainnet.base.org', 'https://base-rpc.publicnode.com'],
+    Testnet: [
+      'https://sepolia.base.org',
+      'https://base-sepolia-rpc.publicnode.com',
+    ],
   },
   'Beam L1': {
     Mainnet: ['https://subnets.avax.network/beam/mainnet/rpc'],

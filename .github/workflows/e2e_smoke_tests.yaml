@@ -234,11 +234,18 @@ jobs:
         working-directory: e2e
         env:
           PLAYWRIGHT_SHARD: ${{ matrix.shardIndex }}
+          TEST_RUN_TYPE: ${{ github.event.inputs.test-run-type || 'smoke' }}
         run: |
+          if [ "$TEST_RUN_TYPE" = "full" ]; then
+            GREP_PATTERN="@smoke|@regression"
+          else
+            GREP_PATTERN="@smoke"
+          fi
+          echo "Running tests with grep: $GREP_PATTERN"
           xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' \
             npx playwright test --headed \
             --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} \
-            --grep=@smoke
+            --grep="$GREP_PATTERN"
 
       - name: Upload results to TestRail
         if: always() && env.TEST_RUN_ID != ''

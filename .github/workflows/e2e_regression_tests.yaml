@@ -9,6 +9,13 @@ on:
         description: 'Branch name to checkout for test files'
         required: true
         default: 'main'
+      include-live-swaps:
+        type: choice
+        description: 'Also run live swap tests? (executes real on-chain transactions)'
+        options:
+          - 'false'
+          - 'true'
+        default: 'false'
       send-slack:
         type: choice
         description: 'Send slack notification?'
@@ -292,11 +299,18 @@ jobs:
         working-directory: e2e
         env:
           PLAYWRIGHT_SHARD: ${{ matrix.shardIndex }}
+          INCLUDE_LIVE_SWAPS: ${{ github.event.inputs.include-live-swaps || 'false' }}
         run: |
+          if [ "$INCLUDE_LIVE_SWAPS" = "true" ]; then
+            GREP_PATTERN="@regression|@swap-live"
+          else
+            GREP_PATTERN="@regression"
+          fi
+          echo "Running tests with grep: $GREP_PATTERN"
           xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' \
             npx playwright test --headed \
             --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} \
-            --grep=@regression
+            --grep="$GREP_PATTERN"
 
       - name: Upload results to TestRail
         if: always() && env.TEST_RUN_ID != ''
