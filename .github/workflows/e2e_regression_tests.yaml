@@ -169,7 +169,7 @@ jobs:
 
             if [ "$CANDS" -gt 0 ]; then
               echo "### Title-match sync candidates"
-              jq -r '.updateCandidates[] | "- Case \(.caseId): \(.title) — `\(.fromValue // "(empty)")` → `\(.toValue)`"' /tmp/drift.json
+              jq -r '.updateCandidates[] | "- Case \(.caseId): \(.title) — `\(if (.fromValue // "") == "" then "(empty)" else .fromValue end)` → `\(.toValue)`"' /tmp/drift.json
               echo ""
             fi
 

@@ -529,8 +529,10 @@ async function main() {
 
   // ---- Report ------------------------------------------------------------
   printSection('Summary');
+  const annotatedSpecsCount = specs.length - unannotated.length;
   console.log(`Tests discovered (Playwright): ${specs.length}`);
-  console.log(`  with custom_automation_id:   ${localIds.length}`);
+  console.log(`  annotated specs:             ${annotatedSpecsCount}`);
+  console.log(`  unique automation IDs:       ${localIds.length}`);
   console.log(`  unannotated:                 ${unannotated.length}`);
   console.log(`  duplicate IDs locally:       ${duplicateIds.length}`);
   console.log(`TestRail cases fetched:        ${testRailCases.length}`);
