@@ -1,0 +1,15 @@
+{
+  "definition": "Matrix of product flows that should each be covered under mnemonic (fixtures/extension.fixture or analytics.fixture chain), seedless, and Ledger e2e where applicable. Mnemonic = specs whose source references extension.fixture (see scripts/e2e-testid-coverage.mjs). Flow keys are matched via heuristics in that script — extend specTextCoversFlow when adding flows.",
+  "flows": [
+    "onboarding",
+    "networks",
+    "contacts",
+    "send",
+    "swap",
+    "cross-chain-transfer",
+    "stake-delegate",
+    "defi",
+    "collectibles"
+  ],
+  "walletModes": ["mnemonic", "seedless", "ledger"]
+}
