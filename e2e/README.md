@@ -87,8 +87,9 @@ Set these in `.env` (or export in CI). A template is available in
 Reconcile the `custom_automation_id` annotations on Playwright tests with
 TestRail's case-level Automation ID custom field. The script lives at
 `scripts/testrail-sync.mjs` and uses Playwright's own `--list --reporter=json`
-output to enumerate tests, so dynamic IDs (e.g. `` `custom_automation_id:SWP-MOCK-FLOW-${key}` ``)
-and parameterized titles are fully resolved before comparison.
+output to enumerate tests, so dynamic IDs (e.g. `` `custom_automation_id:${MOCK_PAIR_IDS[key]}` ``
+backed by a per-spec lookup table) and parameterized titles are fully resolved
+before comparison.
 
 ### Required env
 

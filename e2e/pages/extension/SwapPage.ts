@@ -133,6 +133,64 @@ export class SwapPage extends BasePage {
     return this.page.getByTestId('approve-action-button');
   }
 
+  private get approvalDialog(): Locator {
+    return this.page.locator('[data-testid="approval-dialog"]');
+  }
+
+  getGaslessCheckbox(): Locator {
+    return this.approvalDialog
+      .locator('[data-testid="gasless-toggle"]')
+      .locator('input');
+  }
+
+  getFeePresetSelector(): Locator {
+    return this.approvalDialog.locator('[data-testid="fee-preset-selector"]');
+  }
+
+  async isGaslessToggleVisible(
+    timeout = process.env.CI ? 30_000 : 10_000,
+  ): Promise<boolean> {
+    const gaslessToggle = this.approvalDialog.locator(
+      '[data-testid="gasless-toggle"]',
+    );
+    return gaslessToggle
+      .waitFor({ state: 'visible', timeout })
+      .then(() => true)
+      .catch(() => false);
+  }
+
+  async toggleGaslessOn(): Promise<void> {
+    const gaslessToggle = this.approvalDialog.locator(
+      '[data-testid="gasless-toggle"]',
+    );
+    const isVisible = await gaslessToggle
+      .isVisible({ timeout: 5000 })
+      .catch(() => false);
+    if (!isVisible) return;
+
+    const toggleInput = gaslessToggle.locator('input');
+    if (!(await toggleInput.isChecked())) {
+      await gaslessToggle.click();
+      await expect(toggleInput).toBeChecked({ timeout: 5000 });
+    }
+  }
+
+  async toggleGaslessOff(): Promise<void> {
+    const gaslessToggle = this.approvalDialog.locator(
+      '[data-testid="gasless-toggle"]',
+    );
+    const isVisible = await gaslessToggle
+      .isVisible({ timeout: 5000 })
+      .catch(() => false);
+    if (!isVisible) return;
+
+    const toggleInput = gaslessToggle.locator('input');
+    if (await toggleInput.isChecked()) {
+      await gaslessToggle.click();
+      await expect(toggleInput).not.toBeChecked({ timeout: 5000 });
+    }
+  }
+
   private async raceOutcome(
     timeout: number,
   ): Promise<'overlay' | 'home' | 'error'> {
@@ -179,6 +237,15 @@ export class SwapPage extends BasePage {
     timeout = SWAP_TIMEOUTS.TRANSACTION,
   ): Promise<void> {
     await this.homeIndicator.waitFor({ state: 'visible', timeout });
+  }
+
+  async clickApprove(): Promise<void> {
+    await this.approveButton.waitFor({ state: 'visible', timeout: 10_000 });
+    await this.approveButton.click();
+  }
+
+  async waitForApprovalDialogClose(timeout = 60_000): Promise<void> {
+    await this.approvalDialog.waitFor({ state: 'hidden', timeout });
   }
 
   // ── Toast (Sonner) — transaction status notifications ──────────────

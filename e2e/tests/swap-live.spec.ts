@@ -34,6 +34,23 @@ const CHAIN_TO_EXPLORER: Record<SwapChain, ExplorerNetwork> = {
 
 const ALL_PAIRS = Object.entries(SWAP_PAIRS);
 
+// TestRail automation_id mapping. Live cases occupy a separate range from
+// the mock cases (see swap-mock.spec.ts) so each runtime keeps an
+// independent pass/fail history. Adding a new pair to SWAP_PAIRS without an
+// ID here will fail the `satisfies` check below.
+const LIVE_PAIR_IDS = {
+  AVAX_USDC: 'SWP-016',
+  BLACK_AVAX: 'SWP-017',
+  BLACK_USDC: 'SWP-018',
+  ETH_LINK: 'SWP-019',
+  LINK_ETH: 'SWP-020',
+  LINK_USDC: 'SWP-021',
+  SOL_FARTCOIN: 'SWP-022',
+  FARTCOIN_SOL: 'SWP-023',
+  ETH_BASE_USDC: 'SWP-024',
+  AERO_BASE_ETH: 'SWP-025',
+} as const satisfies Record<keyof typeof SWAP_PAIRS, string>;
+
 test.describe('Swap Live', () => {
   for (const [key, pair] of ALL_PAIRS) {
     // AVAX_USDC is the canonical live smoke gate; all other live pairs
@@ -42,13 +59,13 @@ test.describe('Swap Live', () => {
       key === 'AVAX_USDC' ? ['@smoke', '@swap-live'] : ['@swap-live'];
 
     test(
-      `${pair.from.symbol} → ${pair.to.symbol} (${pair.chain})`,
+      `${pair.from.symbol} → ${pair.to.symbol} (${pair.chain}) (live)`,
       {
         annotation: [
           { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
           {
             type: 'testrail_case_field',
-            description: `custom_automation_id:SWP-LIVE-${key}`,
+            description: `custom_automation_id:${LIVE_PAIR_IDS[key as keyof typeof LIVE_PAIR_IDS]}`,
           },
         ],
         tag: tags,
@@ -103,15 +120,106 @@ test.describe('Swap Live', () => {
   }
 });
 
-test.describe('Swap Live — Edge Cases', () => {
+test.describe('Swap Live — Gasless', () => {
   test(
-    'amount exceeds balance → swap disabled',
+    'AVAX → USDC with gasless toggled on (live)',
     {
       annotation: [
         { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
         {
           type: 'testrail_case_field',
-          description: 'custom_automation_id:SWP-LIVE-ERR-BALANCE',
+          description: 'custom_automation_id:SWP-026',
+        },
+      ],
+      tag: '@swap-live',
+    },
+    async ({ unlockedExtensionPage }, testInfo) => {
+      test.setTimeout(SWAP_TIMEOUTS.TEST);
+
+      const pair = SWAP_PAIRS.AVAX_USDC;
+      const swapPage = new SwapPage(unlockedExtensionPage);
+
+      await swapPage.navigateToSwap({ from: pair.from, to: pair.to });
+      await swapPage.waitForTokensLoaded();
+      await swapPage.enterFromAmount(pair.amount);
+      await swapPage.waitForQuote();
+
+      await expect
+        .poll(() => swapPage.isSwapButtonEnabled(), { timeout: 10_000 })
+        .toBe(true);
+
+      // Start listening for the success toast before clicking Swap so we
+      // don't miss optimistic confirmations (Avalanche C-Chain).
+      const successToastPromise = swapPage.waitForSuccessToast(
+        SWAP_TIMEOUTS.TRANSACTION,
+      );
+
+      await swapPage.clickSwap();
+
+      // Wait for the approval overlay, then try to enable gasless.
+      // If the toggle isn't shown (eligibility/feature flag/etc.), continue
+      // with the regular paid-fee approval path — same fallback shape used
+      // by the Send tests (SND-002/SND-006).
+      const overlayVisible = await swapPage.waitForApprovalOverlay(
+        SWAP_TIMEOUTS.APPROVAL,
+      );
+      expect(overlayVisible).toBe(true);
+
+      const gaslessVisible = await swapPage.isGaslessToggleVisible();
+      if (gaslessVisible) {
+        await swapPage.toggleGaslessOn();
+        await expect(swapPage.getGaslessCheckbox()).toBeChecked();
+        // Wait for the SW to swap in the gasless tx data: the fee preset
+        // selector disappears once gasless mode takes over, then give the
+        // network fee widget a moment to settle before approving so we
+        // don't fire the approve click against a stale (paid-fee) tx.
+        await expect(swapPage.getFeePresetSelector()).not.toBeVisible({
+          timeout: 10_000,
+        });
+        await unlockedExtensionPage.waitForTimeout(2000);
+
+        // Single-click approve. For gasless, the SW relays the tx through
+        // Gas Station and the approval dialog stays up for ~5-7s while it
+        // finalizes — use the explicit dialog-close wait instead of
+        // handleApprovalFlow() which would double-click the approve
+        // button after its short 2s settle. The success toast then fires
+        // shortly after the dialog dismisses (already being awaited above).
+        await swapPage.clickApprove();
+        await swapPage.waitForApprovalDialogClose(45_000);
+      } else {
+        testInfo.annotations.push({
+          type: 'note',
+          description:
+            'SWP-026 (gasless): toggle not shown (eligibility / API); asserted paid-fee approval path.',
+        });
+        await swapPage.handleApprovalFlow();
+      }
+
+      // Wait for the success toast and extract tx hash
+      const successToast = await successToastPromise;
+      await expect(successToast).toContainText('Transaction successful');
+
+      const txHash = await swapPage.getTxHashFromToast();
+      expect(txHash).toMatch(/^0x[a-fA-F0-9]{64}$/);
+
+      await verifyTransactionOnExplorer(
+        txHash,
+        CHAIN_TO_EXPLORER[pair.chain],
+        'Mainnet',
+      );
+    },
+  );
+});
+
+test.describe('Swap Live — Edge Cases', () => {
+  test(
+    'amount exceeds balance → swap disabled (live)',
+    {
+      annotation: [
+        { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
+        {
+          type: 'testrail_case_field',
+          description: 'custom_automation_id:SWP-027',
         },
       ],
       tag: '@swap-live',

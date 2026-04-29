@@ -32,6 +32,27 @@ import { SWAP_PAIRS, SWAP_TIMEOUTS } from '../types/swap';
 
 const ALL_PAIRS = Object.entries(SWAP_PAIRS);
 
+// TestRail automation_id mapping. Mock and live each own their own range so
+// every runtime keeps an independent pass/fail history. Adding a new pair to
+// SWAP_PAIRS without an ID here will fail the `satisfies` check below.
+const MOCK_PAIR_IDS = {
+  AVAX_USDC: 'SWP-001',
+  BLACK_AVAX: 'SWP-002',
+  BLACK_USDC: 'SWP-003',
+  ETH_LINK: 'SWP-004',
+  LINK_ETH: 'SWP-005',
+  LINK_USDC: 'SWP-006',
+  SOL_FARTCOIN: 'SWP-007',
+  FARTCOIN_SOL: 'SWP-008',
+  ETH_BASE_USDC: 'SWP-009',
+  AERO_BASE_ETH: 'SWP-010',
+} as const satisfies Record<keyof typeof SWAP_PAIRS, string>;
+
+const MOCK_QUICK_IDS = {
+  AVAX_USDC: 'SWP-012',
+  ETH_LINK: 'SWP-013',
+} as const;
+
 // Pairs whose flow opens an approval/spend dialog we can deep-check.
 // Native-EVM source ⇒ swap transaction approval. ERC-20 source ⇒ token spend
 // approval. Solana doesn't surface the same dialog shape.
@@ -82,21 +103,16 @@ async function assertApprovalDialog(page: Page): Promise<void> {
   expect(feeVisible || gaslessVisible).toBe(true);
 }
 
-// ---------------------------------------------------------------------------
-// Pair Flows — combined Quote Validation + Approval Flow + (for relevant
-// pairs) inline dialog deep-check. Replaces three previous suites.
-// ---------------------------------------------------------------------------
-
 test.describe('Swap Mock — Pair Flows', () => {
   for (const [key, pair] of ALL_PAIRS) {
     test(
-      `${pair.from.symbol} → ${pair.to.symbol} (${pair.chain})`,
+      `${pair.from.symbol} → ${pair.to.symbol} (${pair.chain}) (mock)`,
       {
         annotation: [
           { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
           {
             type: 'testrail_case_field',
-            description: `custom_automation_id:SWP-MOCK-FLOW-${key}`,
+            description: `custom_automation_id:${MOCK_PAIR_IDS[key as keyof typeof MOCK_PAIR_IDS]}`,
           },
         ],
         tag: '@regression',
@@ -154,19 +170,15 @@ test.describe('Swap Mock — Pair Flows', () => {
   }
 });
 
-// ---------------------------------------------------------------------------
-// Reject — clicking Reject from the approval overlay returns to swap page.
-// ---------------------------------------------------------------------------
-
 test.describe('Swap Mock — Reject', () => {
   test(
-    'reject button on transaction approval returns to swap page',
+    'reject button on transaction approval returns to swap page (mock)',
     {
       annotation: [
         { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
         {
           type: 'testrail_case_field',
-          description: 'custom_automation_id:SWP-MOCK-TX-APPROVAL-REJECT',
+          description: 'custom_automation_id:SWP-011',
         },
       ],
       tag: '@regression',
@@ -252,13 +264,13 @@ test.describe('Swap Mock — Quick Swaps (Degen Mode)', () => {
 
   for (const { key, pair, chain } of QUICK_PAIRS) {
     test(
-      `${pair.from.symbol} → ${pair.to.symbol} completes with Quick Swaps enabled via UI (${chain})`,
+      `${pair.from.symbol} → ${pair.to.symbol} completes with Quick Swaps enabled via UI (${chain}) (mock)`,
       {
         annotation: [
           { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
           {
             type: 'testrail_case_field',
-            description: `custom_automation_id:SWP-MOCK-QUICK-${key}`,
+            description: `custom_automation_id:${MOCK_QUICK_IDS[key as keyof typeof MOCK_QUICK_IDS]}`,
           },
         ],
         tag: '@regression',
@@ -293,13 +305,13 @@ test.describe('Swap Mock — Quick Swaps (Degen Mode)', () => {
   }
 
   test(
-    'Quick Swaps settings — toggle, fee selector, and swap amount limit',
+    'Quick Swaps settings — toggle, fee selector, and swap amount limit (mock)',
     {
       annotation: [
         { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
         {
           type: 'testrail_case_field',
-          description: 'custom_automation_id:SWP-MOCK-QUICK-SETTINGS',
+          description: 'custom_automation_id:SWP-014',
         },
       ],
       tag: '@regression',
@@ -392,19 +404,15 @@ test.describe('Swap Mock — Quick Swaps (Degen Mode)', () => {
   );
 });
 
-// ---------------------------------------------------------------------------
-// Edge Cases
-// ---------------------------------------------------------------------------
-
 test.describe('Swap Mock — Edge Cases', () => {
   test(
-    'amount exceeds balance → swap disabled',
+    'amount exceeds balance → swap disabled (mock)',
     {
       annotation: [
         { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
         {
           type: 'testrail_case_field',
-          description: 'custom_automation_id:SWP-MOCK-ERR-BALANCE',
+          description: 'custom_automation_id:SWP-015',
         },
       ],
       tag: '@regression',
