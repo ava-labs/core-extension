@@ -61,6 +61,20 @@ async function setupMarkrMocks(
   context: BrowserContext,
   fixture: SwapFixture,
 ): Promise<void> {
+  // KNOWN ISSUE — env-coupled mock URL.
+  //
+  // `MARKR_BASE_URL` here is the prod Markr path. The extension's actual Markr
+  // endpoint is driven by `MARKR_API_URL` at build time (e.g. dev builds use
+  // `…/markr-helium`, staging uses `…/markr-staging`). When the build's URL
+  // doesn't match the constant, these route handlers don't fire and Markr
+  // requests fall through to the real network — the swap-mock tests then
+  // "pass" against live data instead of fixtures.
+  //
+  // Switching to a wildcard or regex (e.g. `**/markr*/quote`) makes the
+  // routes intercept correctly, but the recorded fixtures are tied to a
+  // specific Markr SSE schema and other deployments may emit a different
+  // shape. Until fixtures are re-recorded against the build's actual Markr
+  // endpoint, leave the exact-URL match in place. Fix tracked separately.
   await context.route(`${MARKR_BASE_URL}/quote`, async (route) => {
     await route.fulfill({
       status: 200,

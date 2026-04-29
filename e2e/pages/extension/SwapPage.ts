@@ -207,6 +207,27 @@ export class SwapPage extends BasePage {
     ]);
   }
 
+  /**
+   * Post-click race. Safe to use only after the approval dialog has been
+   * observed visible (otherwise `state: 'hidden'` resolves immediately
+   * because the locator isn't in the DOM yet).
+   */
+  private async racePostClickOutcome(
+    timeout: number,
+  ): Promise<'overlay' | 'approved' | 'error'> {
+    return Promise.race([
+      this.approveButton
+        .waitFor({ state: 'visible', timeout })
+        .then(() => 'overlay' as const),
+      this.approvalDialog
+        .waitFor({ state: 'hidden', timeout })
+        .then(() => 'approved' as const),
+      this.errorAlert
+        .waitFor({ state: 'visible', timeout })
+        .then(() => 'error' as const),
+    ]);
+  }
+
   async handleApprovalFlow(
     timeout = SWAP_TIMEOUTS.APPROVAL,
   ): Promise<'home' | 'error' | 'approved'> {
@@ -216,21 +237,18 @@ export class SwapPage extends BasePage {
     await this.approveButton.click();
     await this.page.waitForTimeout(2000);
 
-    const second = await this.raceOutcome(30_000);
+    const second = await this.racePostClickOutcome(30_000);
+    if (second !== 'overlay') return second;
 
-    if (second === 'overlay') {
-      await this.approveButton.click();
-      return Promise.race([
-        this.homeIndicator
-          .waitFor({ state: 'visible', timeout: 30_000 })
-          .then(() => 'home' as const),
-        this.errorAlert
-          .waitFor({ state: 'visible', timeout: 30_000 })
-          .then(() => 'error' as const),
-      ]);
-    }
-
-    return second;
+    await this.approveButton.click();
+    return Promise.race([
+      this.approvalDialog
+        .waitFor({ state: 'hidden', timeout: 30_000 })
+        .then(() => 'approved' as const),
+      this.errorAlert
+        .waitFor({ state: 'visible', timeout: 30_000 })
+        .then(() => 'error' as const),
+    ]);
   }
 
   async waitForHomeNavigation(

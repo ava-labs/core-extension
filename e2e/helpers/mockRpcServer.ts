@@ -287,12 +287,14 @@ export function createMockRpcServer(port: number): http.Server {
 
   server.on('error', (err: NodeJS.ErrnoException) => {
     if (err.code === 'EADDRINUSE') {
-      console.log(
-        `[MockRPC] Port ${port} already in use — reusing existing server`,
+      throw new Error(
+        `[MockRPC] Port ${port} is already in use. Refusing to reuse the ` +
+          `existing listener because it may not be this mock RPC server. ` +
+          `Stop the squatting process (e.g. \`lsof -ti :${port} | xargs kill\`) ` +
+          `or run again with the port freed.`,
       );
-    } else {
-      throw err;
     }
+    throw err;
   });
 
   server.listen(port, '127.0.0.1', () => {
