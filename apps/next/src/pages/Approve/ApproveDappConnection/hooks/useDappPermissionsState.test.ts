@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { SecretType, Account, Permissions } from '@core/types';
+import { SecretType, Account } from '@core/types';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { useAccountsContext, useWalletContext } from '@core/ui';
 import { isChainSupportedByWallet } from '@core/common';
@@ -48,8 +48,6 @@ const displayData = {
   dappDomain: 'example.com',
 };
 
-const noPermissions: Permissions = {};
-
 describe('useDappPermissionsState', () => {
   const account1 = makeAccount('acc-1', '0xaaa');
   const account2 = makeAccount('acc-2', '0xbbb');
@@ -72,7 +70,7 @@ describe('useDappPermissionsState', () => {
 
   it('defaults to the active account as selected', () => {
     const { result } = renderHook(() =>
-      useDappPermissionsState(account1, noPermissions, displayData),
+      useDappPermissionsState(account1, displayData),
     );
 
     expect(result.current.selectedAccountId).toBe('acc-1');
@@ -80,7 +78,7 @@ describe('useDappPermissionsState', () => {
 
   it('allows selecting a different account', () => {
     const { result } = renderHook(() =>
-      useDappPermissionsState(account1, noPermissions, displayData),
+      useDappPermissionsState(account1, displayData),
     );
 
     act(() => {
@@ -92,7 +90,7 @@ describe('useDappPermissionsState', () => {
 
   it('selecting one account deselects the previously selected one', () => {
     const { result } = renderHook(() =>
-      useDappPermissionsState(account1, noPermissions, displayData),
+      useDappPermissionsState(account1, displayData),
     );
 
     act(() => {
@@ -110,7 +108,7 @@ describe('useDappPermissionsState', () => {
 
   it('reports numberOfSelectedAccounts as 1 when an account is selected', () => {
     const { result } = renderHook(() =>
-      useDappPermissionsState(account1, noPermissions, displayData),
+      useDappPermissionsState(account1, displayData),
     );
 
     expect(result.current.numberOfSelectedAccounts).toBe(1);
