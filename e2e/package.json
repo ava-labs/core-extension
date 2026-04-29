@@ -8,7 +8,9 @@
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
     "test:ui": "playwright test --ui",
-    "report": "playwright show-report"
+    "report": "playwright show-report",
+    "testrail:report": "node scripts/testrail-sync.mjs",
+    "testrail:sync": "node scripts/testrail-sync.mjs --apply"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",

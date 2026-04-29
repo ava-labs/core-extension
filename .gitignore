@@ -55,6 +55,10 @@ builds
 .DS_Store
 todo.*
 
+# Playwright run output (when tests are invoked from the repo root)
+test-results/
+playwright-report/
+
 # snyk
 .dccache
 
