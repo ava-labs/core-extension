@@ -1,4 +1,4 @@
-import { Stack } from '@avalabs/k2-alpine';
+import { Button, Stack } from '@avalabs/k2-alpine';
 import { FC, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -17,8 +17,13 @@ export const ConnectedSites: FC = () => {
   const [searchQuery, setSearchQuery] = useUrlPersistedQuery('search');
   const { capture } = useAnalyticsContext();
 
-  const { selectedAccount, connectedSites, selectAccount, disconnectSite } =
-    useConnectedSites();
+  const {
+    selectedAccount,
+    connectedSites,
+    selectAccount,
+    disconnectSite,
+    disconnectAllSites,
+  } = useConnectedSites();
   const { removeMaliciousDappDomain } = useDappScansCache();
 
   const filteredSites = useMemo(() => {
@@ -58,16 +63,23 @@ export const ConnectedSites: FC = () => {
     [disconnectSite, selectedAccount, t, removeMaliciousDappDomain, capture],
   );
 
+  const handleDisconnectAll = useCallback(async () => {
+    try {
+      await disconnectAllSites(selectedAccount);
+      toast.success(t('Disconnected from all apps'));
+      capture('ConnectedSitesDisconnectAllClicked');
+    } catch (error) {
+      console.error('Failed to disconnect all:', error);
+      toast.error(t('Failed to disconnect from all apps'));
+    }
+  }, [disconnectAllSites, selectedAccount, t, capture]);
+
   const connectedSitesCount = connectedSites.length;
   return (
     <Page
-      title={
-        connectedSitesCount > 0
-          ? t('{{sitesCount}} Connected sites', {
-              sitesCount: connectedSitesCount,
-            })
-          : t('Connected sites')
-      }
+      title={t('{{sitesCount}} Connected apps', {
+        sitesCount: connectedSitesCount,
+      })}
       withBackButton
       contentProps={{
         gap: 2,
@@ -104,6 +116,9 @@ export const ConnectedSites: FC = () => {
               />
             </Card>
           ))}
+          <Button variant="text" color="error" onClick={handleDisconnectAll}>
+            {t('Disconnect all')}
+          </Button>
         </Stack>
       ) : (
         <EmptyConnectedSites hasSearchQuery={!!searchQuery?.trim()} />

@@ -58,12 +58,25 @@ export const useConnectedSites = () => {
     [revokeAddressPermission],
   );
 
+  const disconnectAllSites = useCallback(
+    async (account?: Account) => {
+      if (!account) return;
+
+      const addresses = getAllAddressesForAccount(account).filter(Boolean);
+      for (const domain of Object.keys(permissions ?? {})) {
+        await revokeAddressPermission(domain, addresses);
+      }
+    },
+    [permissions, revokeAddressPermission],
+  );
+
   return {
     selectedAccount,
     accounts: allAccounts,
     connectedSites,
     selectAccount,
     disconnectSite,
+    disconnectAllSites,
     isDomainConnectedToAccount,
   };
 };

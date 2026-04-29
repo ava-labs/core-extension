@@ -23,9 +23,7 @@ export const EmptyConnectedSites: FC<EmptyConnectedSitesProps> = ({
         {hasSearchQuery ? '🕵️‍♂️' : '🚀'}
       </Box>
       <Typography variant="subtitle3" color="text.primary" lineHeight="21px">
-        {hasSearchQuery
-          ? t('No matching sites found')
-          : t('No connected sites')}
+        {hasSearchQuery ? t('No matching apps found') : t('No connected apps')}
       </Typography>
       <Typography variant="caption" color="text.secondary">
         {hasSearchQuery

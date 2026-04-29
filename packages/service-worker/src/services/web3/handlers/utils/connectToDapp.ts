@@ -163,9 +163,10 @@ export const getDappConnector =
       return;
     }
 
-    const accountToActivate = isVMCapableAccount(vm, activeAccount)
-      ? activeAccount
-      : vmCapableAccounts[0].account;
+    const explicitlySelectedAccount = vmCapableAccounts.find(
+      ({ enabled }) => enabled,
+    )?.account;
+    const accountToActivate = explicitlySelectedAccount ?? activeAccount;
 
     await permissionsService.updateAccessForDomain({
       domain: pendingAction.site.domain,
@@ -173,8 +174,11 @@ export const getDappConnector =
       notifiedVMConnectors: [vm],
     });
 
-    if (accountToActivate.id !== activeAccount.id) {
-      await accountsService.activateAccount(accountToActivate.id);
+    if (
+      explicitlySelectedAccount &&
+      explicitlySelectedAccount.id !== activeAccount.id
+    ) {
+      await accountsService.activateAccount(explicitlySelectedAccount.id);
     }
 
     const addressForRequestedVM = getAddressByVMType(accountToActivate, vm);
