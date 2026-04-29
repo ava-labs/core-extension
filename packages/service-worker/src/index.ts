@@ -87,6 +87,7 @@ export type { SeedlessOnboardingHandler } from './services/onboarding/handlers/s
 export type { GetAllPermissionsHandler } from './services/permissions/handlers/getAllPermissions';
 export type { GetPermissionsForDomainHandler } from './services/permissions/handlers/getPermissionsForDomain';
 export type { RevokeAddressPermissionsForDomainHandler } from './services/permissions/handlers/revokeAddressPermissionsForDomain';
+export type { RevokeAddressPermissionsForDomainsHandler } from './services/permissions/handlers/revokeAddressPermissionsForDomains';
 export type { AppendSolanaPublicKeysHandler } from './services/secrets/handlers/appendSolanaPublicKeys';
 export type { AvalancheRenameWalletHandler } from './services/secrets/handlers/avalanche_renameWallet';
 export type { AddFidoDeviceHandler } from './services/seedless/handlers/addFidoDevice';

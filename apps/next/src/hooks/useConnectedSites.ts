@@ -13,8 +13,12 @@ export interface ConnectedSite {
 
 export const useConnectedSites = () => {
   const { accounts, selectAccount, allAccounts } = useAccountsContext();
-  const { permissions, revokeAddressPermission, isDomainConnectedToAccount } =
-    usePermissionContext();
+  const {
+    permissions,
+    revokeAddressPermission,
+    revokeAllAddressPermissions,
+    isDomainConnectedToAccount,
+  } = usePermissionContext();
 
   const selectedAccount = accounts.active;
 
@@ -62,12 +66,13 @@ export const useConnectedSites = () => {
     async (account?: Account) => {
       if (!account) return;
 
+      const domains = connectedSites.map((site) => site.domain);
+      if (!domains.length) return;
+
       const addresses = getAllAddressesForAccount(account).filter(Boolean);
-      for (const domain of Object.keys(permissions ?? {})) {
-        await revokeAddressPermission(domain, addresses);
-      }
+      await revokeAllAddressPermissions(domains, addresses);
     },
-    [permissions, revokeAddressPermission],
+    [connectedSites, revokeAllAddressPermissions],
   );
 
   return {

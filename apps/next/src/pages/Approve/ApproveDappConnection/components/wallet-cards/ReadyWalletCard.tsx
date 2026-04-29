@@ -29,10 +29,14 @@ export const ReadyWalletCard: FC<ConnectWalletCardProps> = ({
             direction="row"
             alignItems="center"
             gap={1.5}
-            px={0.5}
+            p={0.5}
             onClick={() => selectAccount(account.id)}
             sx={{
               cursor: 'pointer',
+              borderRadius: 1,
+              '&:hover': {
+                backgroundColor: 'action.hover',
+              },
             }}
           >
             <CheckIcon

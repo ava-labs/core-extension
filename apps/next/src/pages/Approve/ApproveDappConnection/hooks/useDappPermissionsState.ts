@@ -19,7 +19,13 @@ export const useDappPermissionsState = (
 
   const { addressVM: vm } = displayData;
 
-  const [selectedAccountId, setSelectedAccountId] = useState(activeAccount.id);
+  const [selectedAccountId, setSelectedAccountId] = useState(() => {
+    const addresses = mapAddressesToVMs(activeAccount);
+    if (addresses[vm]) return activeAccount.id;
+    return (
+      allAccounts.find((a) => mapAddressesToVMs(a)[vm])?.id ?? activeAccount.id
+    );
+  });
 
   const selectAccount = (accountId: string) => setSelectedAccountId(accountId);
 

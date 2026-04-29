@@ -113,4 +113,35 @@ describe('useDappPermissionsState', () => {
 
     expect(result.current.numberOfSelectedAccounts).toBe(1);
   });
+
+  it('falls back to the first VM-capable account when the active account has no address for the requested VM', () => {
+    const nonVmAccount = makeAccount('no-vm', '');
+    const vmAccount = makeAccount('has-vm', '0xccc');
+
+    jest.mocked(useAccountsContext).mockReturnValue({
+      allAccounts: [nonVmAccount, vmAccount],
+      getAllWalletAccountsForVM: jest.fn().mockReturnValue([vmAccount]),
+      getAccount: jest.fn(),
+    } as unknown as ReturnType<typeof useAccountsContext>);
+
+    // Active account has no EVM address; only vmAccount does
+    const { mapAddressesToVMs: mockMap } = jest.requireMock('@core/common');
+    mockMap.mockImplementation((account: { id: string; addressC: string }) =>
+      account.id === 'no-vm' ? {} : { [NetworkVMType.EVM]: account.addressC },
+    );
+
+    const { result } = renderHook(() =>
+      useDappPermissionsState(nonVmAccount, displayData),
+    );
+
+    expect(result.current.selectedAccountId).toBe('has-vm');
+  });
+
+  it('keeps the active account selected when it supports the requested VM', () => {
+    const { result } = renderHook(() =>
+      useDappPermissionsState(account2, displayData),
+    );
+
+    expect(result.current.selectedAccountId).toBe('acc-2');
+  });
 });

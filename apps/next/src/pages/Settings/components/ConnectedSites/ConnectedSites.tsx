@@ -24,7 +24,8 @@ export const ConnectedSites: FC = () => {
     disconnectSite,
     disconnectAllSites,
   } = useConnectedSites();
-  const { removeMaliciousDappDomain } = useDappScansCache();
+  const { removeMaliciousDappDomain, removeMaliciousDappDomains } =
+    useDappScansCache();
 
   const filteredSites = useMemo(() => {
     if (!searchQuery?.trim()) {
@@ -65,14 +66,23 @@ export const ConnectedSites: FC = () => {
 
   const handleDisconnectAll = useCallback(async () => {
     try {
+      const domains = connectedSites.map((site) => site.domain);
       await disconnectAllSites(selectedAccount);
+      await removeMaliciousDappDomains(domains);
       toast.success(t('Disconnected from all apps'));
       capture('ConnectedSitesDisconnectAllClicked');
     } catch (error) {
       console.error('Failed to disconnect all:', error);
       toast.error(t('Failed to disconnect from all apps'));
     }
-  }, [disconnectAllSites, selectedAccount, t, capture]);
+  }, [
+    connectedSites,
+    disconnectAllSites,
+    selectedAccount,
+    t,
+    capture,
+    removeMaliciousDappDomains,
+  ]);
 
   const connectedSitesCount = connectedSites.length;
   return (
