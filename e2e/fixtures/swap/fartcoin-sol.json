@@ -19,36 +19,35 @@
     "fixture": "fartcoin-sol",
     "chain": "solana"
   },
-  "quote": {
-    "inputMint": "9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump",
-    "inAmount": "1000000",
-    "outputMint": "So11111111111111111111111111111111111111112",
-    "outAmount": "5882000",
-    "otherAmountThreshold": "5823180",
-    "swapMode": "ExactIn",
-    "slippageBps": 50,
-    "platformFee": null,
-    "priceImpactPct": "0.002",
-    "routePlan": [
-      {
-        "swapInfo": {
-          "ammKey": "mock-amm-fartcoin-sol",
-          "label": "Raydium",
-          "inputMint": "9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump",
-          "outputMint": "So11111111111111111111111111111111111111112",
-          "inAmount": "1000000",
-          "outAmount": "5882000",
-          "feeAmount": "3000",
-          "feeMint": "9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump"
-        },
-        "percent": 100
-      }
-    ],
-    "contextSlot": 300000001,
-    "timeTaken": 0.04
-  },
+  "quote": [
+    {
+      "uuid": "79ed64b4-986e-4613-af19-c55dc64d6b83",
+      "aggregator": {
+        "id": "jupiter",
+        "name": "Jupiter",
+        "logo_url": "https://markr-token-images.s3.eu-central-1.amazonaws.com/aggregators/jupiter_128.png"
+      },
+      "chainId": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+      "tokenIn": "9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump",
+      "tokenOut": "11111111111111111111111111111111",
+      "amountIn": "100000",
+      "amountOut": "236598",
+      "gasEstimate": 5000,
+      "expiredAt": 1777500315,
+      "tokenInDecimals": 6,
+      "tokenOutDecimals": 9,
+      "recommendedSlippage": 100
+    },
+    {
+      "done": true
+    }
+  ],
   "jupiterSwapTx": {
     "swapTransaction": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDBBQWOH6Ccz5wKuERRESRdSxWSxFR4noJHc+VxXxNFKIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMGRm/lIRcy/+ytunLDm+e8jOW7xfcSayxDmzpAAAAAbQreB/SHw7Sgz3BaIaqm1sHEzIiPxJsunRBHwzqSVIYBAgIAAQwCAAAAoIYBAAAAAAA=",
     "simulationError": null
+  },
+  "swapTx": {
+    "chainType": "svm",
+    "swapTransaction": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQALFdJGcCFFUCUzrQJ5Ll5huPSaE6BI8whShsdOzu7alwLPC0gHT3W46jBpye0/BrwyGXgq5M2OXJ03SYJWsZhLnVAUnpgG2fTbxmVcuTCLX6OO+ljdtzvIq58OwpTQWV18I1jvZ3+1Y15kc3JLcOFrZAVUA06kehx7P82IhTxBXTJUlNSr43/HzV6jeeoFjDTt1hyoUaxKSL2rjfxTZTWd6vbAmXbP26QoUw279iZJuNZh5LtI0cqgxeCS4syQP/Uj0tI0d7nENDEgo1rhnwP5XRChgVhBntkq9uPzDDRDPNl809UIbzJibqp24Xo3k25/fgecBYSq4H7SaLLhAwOiC4fT3GKaGstRRGm5qwQgbjQalSQyfU7PrsmDXKwSZpo9DPq/NM1fTQ5w1YQS27LiNn9shJPRq/hIRty100nmy4zbAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADBkZv5SEXMv/srbpyw5vnvIzlu8X3EmssQ5s6QAAAAAR51VvyMcBu7nTFbs5oFQf9sbLeo/SOUQKxzaJWvBOPBt324ddloZPZy+FGzut5rBy0he1fWzeROoz1hX7/AKk6uJA/tzXKscZ8Wa9IV+32Gwr4MqUKfFnjIZGeDsipvHl4txRFPNPoeusfwJvwZ/ls0tTWm1cTlaqb8Yav+do/hfJWEMtNlCZy65uKMlO0LXUsOnFlxXBhTckhW9nrU4iMlyWPTiSJ8bs9ECkUjg2DC1oTmdr/EIQEjnvY2+n4WaRjFzgOTFl9swSdBs330lMJ/jnFmoNvZCQrqSjA22lCtD/6J/XX9kp0wJsfKVh53ksJqzbfyd1RSzIap7OM5ej80T2gQVWQE89K66GoTtcCOtT/IahHR/87Basw+oIHw+B8n7nwvVGqgMJDvqvCyd8DThLFjj+LQTTLoe5h1LMvBQsABQLEngIACwAJA9TiCAAAAAAAEQYACQAdCg0BAQwxDQ4AAgcDCQ8dBgwTDCIOGhkbBwEhDQ0gDx8QFAwcGBIWFwEDHR8VHA4NDR4cBQQIDDHBIJszQdacgQQCAAAAdtrCZsUUGNG7AWQAASZkAQKghgEAAAAAADacAwAAAAAAZABVDQMJAAABCQJcoeC7U+WLUsWv62dstVNsy9GahI0JZq8jBTh/C7H7SgRpZ2xqBDw+P2Pv2QAaF/4pk3Mch4XlQJ9/5K0H0Xn6yG/XnxiLnFUOXAP9/7ADsqj+"
   }
 }

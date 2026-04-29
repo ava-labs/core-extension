@@ -21,40 +21,67 @@
   },
   "quote": [
     {
-      "uuid": "mock-eth-link-quote-001",
-      "aggregator": "markr",
+      "uuid": "81ba7d2c-379b-4f1b-b050-e0c631755d62",
+      "aggregator": {
+        "id": "kyber",
+        "name": "KyberSwap",
+        "logo_url": "https://markr-token-images.s3.eu-central-1.amazonaws.com/aggregators/kyber_128.png"
+      },
       "chainId": 1,
       "tokenIn": "0x0000000000000000000000000000000000000000",
-      "tokenInDecimals": 18,
       "tokenOut": "0x514910771af9ca656af840dff83e8264ecf986ca",
+      "amountIn": "1000000000000000",
+      "amountOut": "247444553510676782",
+      "gasEstimate": 439533,
+      "expiredAt": 1777500189,
+      "tokenInDecimals": 18,
       "tokenOutDecimals": 18,
-      "amountIn": "100000000000000",
-      "amountOut": "21722312235566446",
-      "gasEstimate": "70840",
-      "recommendedSlippage": 0.5,
-      "expiredAt": 9999999999999,
-      "done": false
+      "recommendedSlippage": 20
     },
     {
-      "uuid": "mock-eth-link-quote-001",
-      "aggregator": "markr",
+      "uuid": "9a374012-e7f3-4573-8b9c-119cb33c9d13",
+      "aggregator": {
+        "id": "velora",
+        "name": "Velora",
+        "logo_url": "https://markr-token-images.s3.eu-central-1.amazonaws.com/aggregators/velora_128.png"
+      },
       "chainId": 1,
       "tokenIn": "0x0000000000000000000000000000000000000000",
-      "tokenInDecimals": 18,
       "tokenOut": "0x514910771af9ca656af840dff83e8264ecf986ca",
+      "amountIn": "1000000000000000",
+      "amountOut": "247444553510676783",
+      "gasEstimate": 256746,
+      "expiredAt": 1777500190,
+      "tokenInDecimals": 18,
       "tokenOutDecimals": 18,
-      "amountIn": "100000000000000",
-      "amountOut": "21722312235566446",
-      "gasEstimate": "70840",
-      "recommendedSlippage": 0.5,
-      "expiredAt": 9999999999999,
+      "recommendedSlippage": 20
+    },
+    {
+      "uuid": "9bf59698-e3b1-4e89-bcc0-454ac0983184",
+      "aggregator": {
+        "id": "odos",
+        "name": "Odos",
+        "logo_url": "https://markr-token-images.s3.eu-central-1.amazonaws.com/aggregators/odos_128.png"
+      },
+      "chainId": 1,
+      "tokenIn": "0x0000000000000000000000000000000000000000",
+      "tokenOut": "0x514910771af9ca656af840dff83e8264ecf986ca",
+      "amountIn": "1000000000000000",
+      "amountOut": "250318763391438784",
+      "gasEstimate": 423268,
+      "expiredAt": 1777500193,
+      "tokenInDecimals": 18,
+      "tokenOutDecimals": 18,
+      "recommendedSlippage": 20
+    },
+    {
       "done": true
     }
   ],
   "swapTx": {
-    "to": "0x6a000f20005980200259b80c5102003040001068",
-    "data": "0xe3ead59e00000000000000000000000000000000000000000000000000005af3107a4000",
-    "value": "0x5af3107a4000"
+    "to": "0xBfE89044833efC8EAbde529A6a2F8f28bd485b70",
+    "value": "1000000000000000",
+    "data": "0x796a42ad0000000000000000000000000d05a7d3448512b78fa8a9e46c4872c88c4a0d050000000000000000000000000000000000000000000000000000000000000000000000000000000000000000514910771af9ca656af840dff83e8264ecf986ca00000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000000000000000000000000000036ffcfddd161e3c1c8f2aada1d99f5ac6e1011ce002fc53a6e36ab104e30f11a13053734edec23900000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000069f28112000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c883bd37f900000001514910771af9ca656af840dff83e8264ecf986ca07038d7ea4c680000803794f96cc8fcfc00083120001365084b05fa7d5028346bd21d842ed0601bab5b800000001bfe89044833efc8eabde529a6a2f8f28bd485b7000000000000000000003010204000e01020203010000640000010002030001000103001eff0000000000a856139af24e63cc24d888728cd5eef5746013740000000000000000000000000000000000000000dac17f958d2ee523a2206206994597c13d831ec700000000000000000000000000000000000000000000000000000000"
   },
-  "spenderAddress": "0x6a000f20005980200259b80c5102003040001068"
+  "spenderAddress": "0xBfE89044833efC8EAbde529A6a2F8f28bd485b70"
 }

@@ -1,20 +1,49 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import type { BrowserContext, Page, Route } from '@playwright/test';
-import {
-  MARKR_BASE_URL,
-  JUPITER_BASE_URL,
-  MOCK_RPC_URL,
-  type SwapFixture,
-} from '../types/swap';
+import { MARKR_BASE_URL, MOCK_RPC_URL, type SwapFixture } from '../types/swap';
+
+/**
+ * Set `RECORD_FIXTURES=1` to forward Markr/Jupiter requests to the real
+ * network and write captured responses back to the matching fixture file.
+ * Use this whenever the upstream schema changes (new Markr deployment,
+ * etc.). The build's `MARKR_API_TOKEN` is replayed automatically so the
+ * extension proxy returns 200 instead of 403.
+ */
+const RECORD_MODE = process.env.RECORD_FIXTURES === '1';
+
+const FIXTURES_DIR = path.resolve(__dirname, '..', 'fixtures', 'swap');
+
+function fixturePath(name: string): string {
+  return path.join(FIXTURES_DIR, `${name}.json`);
+}
 
 export function loadSwapFixture(fixtureName: string): SwapFixture {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   return require(`../fixtures/swap/${fixtureName}.json`);
 }
 
+function writeFixturePartial(name: string, patch: Partial<SwapFixture>): void {
+  const filePath = fixturePath(name);
+  let current: SwapFixture;
+  try {
+    current = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch {
+    current = { pair: patch.pair as SwapFixture['pair'], quote: undefined };
+  }
+  fs.writeFileSync(filePath, JSON.stringify({ ...current, ...patch }, null, 2));
+  console.log(
+    `[record] updated ${path.relative(process.cwd(), filePath)} (${Object.keys(patch).join(', ')})`,
+  );
+}
+
 /**
  * Intercepts swap-related HTTP requests via context.route() and returns
- * fixture data. Automatically selects Markr (EVM) or Jupiter (Solana)
- * routes based on the fixture's chain field.
+ * fixture data. The current production swap path routes everything —
+ * EVM and Solana — through Markr (`MarkrServiceInitializer` accepts both
+ * `evmSigner` and `solanaSigner`), so a single Markr mock handler covers
+ * all chains. If a future deployment splits Solana traffic back to
+ * Jupiter, restore the Jupiter helpers from git history.
  */
 export async function setupSwapApiMocks(
   context: BrowserContext,
@@ -22,11 +51,10 @@ export async function setupSwapApiMocks(
 ): Promise<void> {
   const chain = fixture.pair.chain;
 
-  if (chain === 'solana') {
-    await setupJupiterMocks(context, fixture);
-  } else {
-    await setupMarkrMocks(context, fixture);
+  if (!RECORD_MODE) {
+    await installMarkrUrlGuard(context);
   }
+  await setupMarkrMocks(context, fixture);
 
   await context.route('**/proxy/blockaid/**', async (route) => {
     await route.fulfill({
@@ -57,24 +85,45 @@ export async function setupSwapApiMocks(
   }
 }
 
+/**
+ * Catches Markr-shaped URLs that don't match `MARKR_BASE_URL`. This is the
+ * silent-bypass scenario: if the build's `MARKR_API_URL` ever drifts from
+ * the constant in `swap.ts`, the mock routes installed below won't fire
+ * and tests would pass against the real network. Failing loud here makes
+ * that drift impossible to miss.
+ *
+ * Install order matters: this guard is added FIRST so the specific mock
+ * routes (added after) take precedence for matching URLs. Playwright
+ * routes are last-added-first-served, so non-matching URLs fall through
+ * to this guard.
+ */
+async function installMarkrUrlGuard(context: BrowserContext): Promise<void> {
+  await context.route('**/proxy/markr*/**', async (route) => {
+    const url = route.request().url();
+    if (url.startsWith(MARKR_BASE_URL)) {
+      await route.fallback();
+      return;
+    }
+    const msg =
+      `[swap-mock] Unmocked Markr request: ${url}\n` +
+      `Expected prefix: ${MARKR_BASE_URL}\n` +
+      `The build's MARKR_API_URL no longer matches MARKR_BASE_URL in ` +
+      `e2e/types/swap.ts. Update the constant, then refresh fixtures with ` +
+      `RECORD_FIXTURES=1.`;
+    await route.abort();
+    throw new Error(msg);
+  });
+}
+
 async function setupMarkrMocks(
   context: BrowserContext,
   fixture: SwapFixture,
 ): Promise<void> {
-  // KNOWN ISSUE — env-coupled mock URL.
-  //
-  // `MARKR_BASE_URL` here is the prod Markr path. The extension's actual Markr
-  // endpoint is driven by `MARKR_API_URL` at build time (e.g. dev builds use
-  // `…/markr-helium`, staging uses `…/markr-staging`). When the build's URL
-  // doesn't match the constant, these route handlers don't fire and Markr
-  // requests fall through to the real network — the swap-mock tests then
-  // "pass" against live data instead of fixtures.
-  //
-  // Switching to a wildcard or regex (e.g. `**/markr*/quote`) makes the
-  // routes intercept correctly, but the recorded fixtures are tied to a
-  // specific Markr SSE schema and other deployments may emit a different
-  // shape. Until fixtures are re-recorded against the build's actual Markr
-  // endpoint, leave the exact-URL match in place. Fix tracked separately.
+  if (RECORD_MODE) {
+    await setupMarkrRecordMode(context, fixture);
+    return;
+  }
+
   await context.route(`${MARKR_BASE_URL}/quote`, async (route) => {
     await route.fulfill({
       status: 200,
@@ -83,7 +132,7 @@ async function setupMarkrMocks(
         'Cache-Control': 'no-cache',
         Connection: 'keep-alive',
       },
-      body: buildSsePayload(fixture.quote),
+      body: buildSsePayload(refreshExpiry(fixture.quote)),
     });
   });
 
@@ -112,30 +161,50 @@ async function setupMarkrMocks(
   });
 }
 
-async function setupJupiterMocks(
+async function setupMarkrRecordMode(
   context: BrowserContext,
   fixture: SwapFixture,
 ): Promise<void> {
-  await context.route(`${JUPITER_BASE_URL}/quote**`, async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(fixture.quote),
-    });
-  });
+  // Passive observation. Cloudflare on the Markr edge blocks
+  // `route.fetch()` replays from Node (TLS-fingerprint check), so we let the
+  // original browser-originated request pass through unrouted and just
+  // listen on the response.
+  const fixtureName = fixture.pair.fixture;
 
-  await context.route(`${JUPITER_BASE_URL}/swap`, async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(
-        fixture.jupiterSwapTx ?? {
-          swapTransaction:
-            'AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDBBQWOH6Ccz5wKuERRESRdSxWSxFR4noJHc+VxXxNFKIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMGRm/lIRcy/+ytunLDm+e8jOW7xfcSayxDmzpAAAAAbQreB/SHw7Sgz3BaIaqm1sHEzIiPxJsunRBHwzqSVIYBAgIAAQwCAAAAoIYBAAAAAAA=',
-          simulationError: null,
-        },
-      ),
-    });
+  context.on('response', async (response) => {
+    const url = response.url();
+    if (!url.includes(MARKR_BASE_URL)) return;
+    if (response.status() !== 200) return;
+
+    const body = await response.text().catch(() => null);
+    if (body === null) return;
+
+    if (url.endsWith('/quote')) {
+      const events = parseSseEvents(body);
+      if (events.length > 0) {
+        writeFixturePartial(fixtureName, {
+          pair: fixture.pair,
+          quote: events,
+        });
+      }
+    } else if (url.endsWith('/swap')) {
+      try {
+        writeFixturePartial(fixtureName, {
+          swapTx: JSON.parse(body) as SwapFixture['swapTx'],
+        });
+      } catch {
+        /* non-JSON */
+      }
+    } else if (url.includes('/spender-address')) {
+      try {
+        const json = JSON.parse(body) as { address?: string };
+        if (json?.address) {
+          writeFixturePartial(fixtureName, { spenderAddress: json.address });
+        }
+      } catch {
+        /* non-JSON */
+      }
+    }
   });
 }
 
@@ -209,6 +278,35 @@ export async function enableQuickSwaps(page: Page): Promise<void> {
 function buildSsePayload(quoteData: unknown): string {
   const items = Array.isArray(quoteData) ? quoteData : [quoteData];
   return items.map((item) => `data:${JSON.stringify(item)}\n\n`).join('');
+}
+
+/**
+ * Markr quotes carry an `expiredAt` (unix seconds). Replay rewrites it to a
+ * far-future value so fixtures recorded at any point in time stay valid.
+ */
+function refreshExpiry(quoteData: unknown): unknown {
+  const farFuture = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 365;
+  const items = Array.isArray(quoteData) ? quoteData : [quoteData];
+  return items.map((item) => {
+    if (item && typeof item === 'object' && 'expiredAt' in item) {
+      return { ...(item as Record<string, unknown>), expiredAt: farFuture };
+    }
+    return item;
+  });
+}
+
+function parseSseEvents(body: string): unknown[] {
+  const events: unknown[] = [];
+  for (const line of body.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith('data:')) continue;
+    try {
+      events.push(JSON.parse(trimmed.slice(5).trim()));
+    } catch {
+      /* skip non-JSON */
+    }
+  }
+  return events;
 }
 
 async function proxyToMockRpc(route: Route, pathSuffix = ''): Promise<void> {

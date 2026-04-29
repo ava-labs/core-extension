@@ -217,7 +217,15 @@ export const SWAP_TIMEOUTS = {
 export const MOCK_RPC_PORT = 18545;
 export const MOCK_RPC_URL = `http://127.0.0.1:${MOCK_RPC_PORT}`;
 
-export const MARKR_BASE_URL = 'https://proxy-api.avax.network/proxy/markr';
+/**
+ * Markr aggregator endpoint. The extension's actual Markr URL is driven by
+ * `MARKR_API_URL` at build time; in current dev/staging/prod builds this
+ * resolves to `markr-helium` regardless of environment, so a single constant
+ * is sufficient. If a future deployment forks this path, switch the mock
+ * routes in `helpers/swapMocks.ts` to a host-agnostic glob/regex.
+ */
+export const MARKR_BASE_URL =
+  'https://proxy-api.avax.network/proxy/markr-helium';
 export const JUPITER_BASE_URL = 'https://lite-api.jup.ag/swap/v1';
 
 export const SOL_MINT = 'So11111111111111111111111111111111111111112';

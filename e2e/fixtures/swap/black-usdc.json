@@ -22,40 +22,85 @@
   },
   "quote": [
     {
-      "uuid": "mock-black-usdc-quote-001",
-      "aggregator": "markr",
+      "uuid": "afd371e7-0d87-42d2-b07c-a5db3d0cb10a",
+      "aggregator": {
+        "id": "yak",
+        "name": "Yield Yak",
+        "logo_url": "https://markr-token-images.s3.eu-central-1.amazonaws.com/aggregators/yak_128.png"
+      },
       "chainId": 43114,
       "tokenIn": "0xcd94a87696fac69edae3a70fe5725307ae1c43f6",
-      "tokenInDecimals": 18,
       "tokenOut": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+      "amountIn": "10000000000000000000",
+      "amountOut": "64729",
+      "gasEstimate": 1185000,
+      "expiredAt": 1777500167,
+      "tokenInDecimals": 18,
       "tokenOutDecimals": 6,
-      "amountIn": "10000000000000000",
-      "amountOut": "80",
-      "gasEstimate": "350000",
-      "recommendedSlippage": 1.0,
-      "expiredAt": 9999999999999,
-      "done": false
+      "recommendedSlippage": 100
     },
     {
-      "uuid": "mock-black-usdc-quote-001",
-      "aggregator": "markr",
+      "uuid": "6ad94c56-8419-497f-8f3e-e737ee64991a",
+      "aggregator": {
+        "id": "velora",
+        "name": "Velora",
+        "logo_url": "https://markr-token-images.s3.eu-central-1.amazonaws.com/aggregators/velora_128.png"
+      },
       "chainId": 43114,
       "tokenIn": "0xcd94a87696fac69edae3a70fe5725307ae1c43f6",
-      "tokenInDecimals": 18,
       "tokenOut": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+      "amountIn": "10000000000000000000",
+      "amountOut": "64162",
+      "gasEstimate": 378740,
+      "expiredAt": 1777500167,
+      "tokenInDecimals": 18,
       "tokenOutDecimals": 6,
-      "amountIn": "10000000000000000",
-      "amountOut": "80",
-      "gasEstimate": "350000",
-      "recommendedSlippage": 1.0,
-      "expiredAt": 9999999999999,
+      "recommendedSlippage": 100
+    },
+    {
+      "uuid": "d48e62f8-816d-4d4b-8205-581e80715a7c",
+      "aggregator": {
+        "id": "odos",
+        "name": "Odos",
+        "logo_url": "https://markr-token-images.s3.eu-central-1.amazonaws.com/aggregators/odos_128.png"
+      },
+      "chainId": 43114,
+      "tokenIn": "0xcd94a87696fac69edae3a70fe5725307ae1c43f6",
+      "tokenOut": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+      "amountIn": "10000000000000000000",
+      "amountOut": "64730",
+      "gasEstimate": 434236,
+      "expiredAt": 1777500167,
+      "tokenInDecimals": 18,
+      "tokenOutDecimals": 6,
+      "recommendedSlippage": 100
+    },
+    {
+      "uuid": "988ec548-1ac9-4f8a-8dc2-0146d875bfea",
+      "aggregator": {
+        "id": "kyber",
+        "name": "KyberSwap",
+        "logo_url": "https://markr-token-images.s3.eu-central-1.amazonaws.com/aggregators/kyber_128.png"
+      },
+      "chainId": 43114,
+      "tokenIn": "0xcd94a87696fac69edae3a70fe5725307ae1c43f6",
+      "tokenOut": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+      "amountIn": "10000000000000000000",
+      "amountOut": "64746",
+      "gasEstimate": 914178,
+      "expiredAt": 1777500167,
+      "tokenInDecimals": 18,
+      "tokenOutDecimals": 6,
+      "recommendedSlippage": 100
+    },
+    {
       "done": true
     }
   ],
   "swapTx": {
-    "to": "0x18556DA13313f3532c54CCb4f31ee34f7eFF87EB",
-    "data": "0xfeedface000000000000000000000000000000000000000000000000000000000000cafe",
-    "value": "0x0"
+    "to": "0x3Ea14456AC3588b495B2647f29eF45Cd12158E5b",
+    "value": "0",
+    "data": "0x796a42ad0000000000000000000000000d05a7d3448512b78fa8a9e46c4872c88c4a0d05000000000000000000000000cd94a87696fac69edae3a70fe5725307ae1c43f6000000000000000000000000b97ef9ef8734c71904d8002f8b6bc66dd9c48a6e0000000000000000000000000000000000000000000000008ac7230489e80000000000000000000000000000000000000000000000000000000000000000f8331c8f2aada1d99f5ac6e1011ce002fc53a6e36ab104e30f11a13053734edec23900000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000069f280f8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f783bd37f90001cd94a87696fac69edae3a70fe5725307ae1c43f60001b97ef9ef8734c71904d8002f8b6bc66dd9c48a6e088ac7230489e8000002fcda028f5c00013f0f8a28ac15b95e7d9d3b6e9422d3d0ae64197f000000013ea14456ac3588b495b2647f29ef45cd12158e5b00000000000000000004010205000b01020203000215000100010401ff00000000000000000000000000864d4e5ee7318e97483db7eb0912e09f161516ea9a6142ef0766915db02066f791d969c22eba1dcacd94a87696fac69edae3a70fe5725307ae1c43f6b31f66aa3c1e785363f0875a1b74e27b85fd66c700000000000000000000000000000000000000000000000000"
   },
-  "spenderAddress": "0x18556DA13313f3532c54CCb4f31ee34f7eFF87EB"
+  "spenderAddress": "0x3Ea14456AC3588b495B2647f29eF45Cd12158E5b"
 }
