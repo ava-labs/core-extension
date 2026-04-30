@@ -26,10 +26,9 @@ export type WalletToConnect = {
 export type DappPermissionsState = {
   isLoading: boolean;
   wallets: WalletToConnect[];
-  isSelected: (accountId: string) => boolean;
-  toggleAccount: (accountId: string) => void;
+  selectedAccountId: string;
+  selectAccount: (accountId: string) => void;
   numberOfSelectedAccounts: number;
-  accountSettings: Map<string, boolean>;
 };
 
 export type ConnectWalletCardProps = Omit<DappPermissionsState, 'wallets'> & {

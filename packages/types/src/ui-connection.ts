@@ -62,6 +62,7 @@ export enum ExtensionRequest {
   ACTION_UPDATE_TX_DATA = 'action_updateTxData',
 
   PERMISSIONS_REVOKE_ADDRESS_ACCESS_FOR_DOMAIN = 'permissions_revokeAddressAccessForDomain',
+  PERMISSIONS_REVOKE_ADDRESS_ACCESS_FOR_DOMAINS = 'permissions_revokeAddressAccessForDomains',
   PERMISSIONS_GET_PERMISSIONS = 'permissions_getPermissionsForDomain',
   PERMISSIONS_GET_ALL_PERMISSIONS = 'permissions_getAllPermissions',
 

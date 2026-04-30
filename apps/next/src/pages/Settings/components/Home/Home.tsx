@@ -281,7 +281,7 @@ export const SettingsHomePage = () => {
         )}
       >
         <SettingsNavItem
-          label={t('Connected sites')}
+          label={t('Connected apps')}
           href={`${path}/connected-sites`}
           divider
           onClick={() => capture('ConnectedSitesClicked')}

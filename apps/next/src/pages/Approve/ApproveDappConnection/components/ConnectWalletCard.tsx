@@ -30,6 +30,7 @@ export const ConnectWalletCard: FC<ConnectWalletCardProps> = (props) => {
 
   return (
     <WalletCard
+      stickinessMargin={0}
       accountsNumber={wallet.accounts.length}
       key={wallet.id}
       id={wallet.id}

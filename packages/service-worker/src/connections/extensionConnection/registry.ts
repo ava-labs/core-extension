@@ -86,6 +86,7 @@ import { PermissionStateUpdateEvents } from '../../services/permissions/events/p
 import { GetAllPermissionsHandler } from '../../services/permissions/handlers/getAllPermissions';
 import { GetPermissionsForDomainHandler } from '../../services/permissions/handlers/getPermissionsForDomain';
 import { RevokeAddressPermissionsForDomainHandler } from '../../services/permissions/handlers/revokeAddressPermissionsForDomain';
+import { RevokeAddressPermissionsForDomainsHandler } from '../../services/permissions/handlers/revokeAddressPermissionsForDomains';
 import { WalletUpdatedEvents } from '../../services/secrets/events/WalletUpdatedEvent';
 import { SeedlessMfaEvents } from '../../services/seedless/events/seedlessMfaEvents';
 import { SeedlessTokenEvents } from '../../services/seedless/events/seedlessTokenEvents';
@@ -250,6 +251,10 @@ import { SetBridgeDevEnvHandler } from '~/services/settings/handlers/setBridgeDe
   {
     token: 'ExtensionRequestHandler',
     useToken: RevokeAddressPermissionsForDomainHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: RevokeAddressPermissionsForDomainsHandler,
   },
   { token: 'ExtensionRequestHandler', useToken: GetAllPermissionsHandler },
   {

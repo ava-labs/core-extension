@@ -2,7 +2,7 @@ import { Stack, Typography } from '@avalabs/k2-alpine';
 import { FC, useCallback, useEffect } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
-import { Account, Action, ActionStatus, Permissions } from '@core/types';
+import { Account, Action, ActionStatus } from '@core/types';
 
 import { NoScrollStack } from '@/components/NoScrollStack';
 import { useDappScansCache } from '@/hooks/useDappScansCache';
@@ -19,7 +19,6 @@ import { ConnectDappDisplayData } from '../types';
 
 type DappAccountSelectorProps = {
   activeAccount: Account;
-  permissions: Permissions;
   action: Action<ConnectDappDisplayData>;
   updateAction: UpdateActionFn;
   cancelHandler: CancelActionFn;
@@ -31,28 +30,18 @@ export const DappAccountSelector: FC<DappAccountSelectorProps> = ({
   updateAction,
   cancelHandler,
   activeAccount,
-  permissions,
 }) => {
   const { t } = useTranslation();
   const {
     wallets,
     isLoading,
-    isSelected,
-    toggleAccount,
-    accountSettings,
+    selectedAccountId,
+    selectAccount,
     numberOfSelectedAccounts,
-  } = useDappPermissionsState(activeAccount, permissions, action.displayData);
+  } = useDappPermissionsState(activeAccount, action.displayData);
   const { storeMaliciousDappDomain } = useDappScansCache();
 
   const onApproveClicked = useCallback(async () => {
-    if (!numberOfSelectedAccounts) {
-      return;
-    }
-
-    const result = Array.from(
-      accountSettings.entries().map(([id, enabled]) => ({ id, enabled })),
-    );
-
     // If the app is malicious, save this data for later use.
     if (action.displayData.isMalicious) {
       storeMaliciousDappDomain(action.displayData.dappDomain);
@@ -61,11 +50,10 @@ export const DappAccountSelector: FC<DappAccountSelectorProps> = ({
     updateAction({
       status: ActionStatus.SUBMITTING,
       id: action.actionId,
-      result,
+      result: [{ id: selectedAccountId, enabled: true }],
     });
   }, [
-    numberOfSelectedAccounts,
-    accountSettings,
+    selectedAccountId,
     updateAction,
     action.actionId,
     action.displayData.dappDomain,
@@ -121,9 +109,8 @@ export const DappAccountSelector: FC<DappAccountSelectorProps> = ({
             wallet={wallet}
             initiallyExpanded
             numberOfSelectedAccounts={numberOfSelectedAccounts}
-            accountSettings={accountSettings}
-            isSelected={isSelected}
-            toggleAccount={toggleAccount}
+            selectedAccountId={selectedAccountId}
+            selectAccount={selectAccount}
             isLoading={isLoading}
             isActiveWallet={
               isPrimaryAccount(activeAccount) &&
@@ -138,15 +125,7 @@ export const DappAccountSelector: FC<DappAccountSelectorProps> = ({
         reject={cancelHandler}
         isProcessing={action.status === ActionStatus.SUBMITTING}
         isDisabled={!numberOfSelectedAccounts}
-        approveText={
-          numberOfSelectedAccounts === 0
-            ? t('Connect')
-            : numberOfSelectedAccounts === 1
-              ? t('Connect 1 account')
-              : t('Connect {{count}} accounts', {
-                  count: numberOfSelectedAccounts,
-                })
-        }
+        approveText={t('Connect')}
       />
     </NoScrollStack>
   );
