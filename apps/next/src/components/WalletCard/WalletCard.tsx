@@ -29,6 +29,7 @@ interface WalletCardProps extends PropsWithChildren {
   initialExpanded: boolean;
   disableRename?: boolean;
   showActiveIndicator?: boolean;
+  stickinessMargin?: number;
 }
 
 export const WalletCard: FC<WalletCardProps> = ({
@@ -40,6 +41,7 @@ export const WalletCard: FC<WalletCardProps> = ({
   initialExpanded,
   name,
   showActiveIndicator,
+  stickinessMargin,
 }) => {
   const { t } = useTranslation();
   const { push } = useHistory();
@@ -74,6 +76,7 @@ export const WalletCard: FC<WalletCardProps> = ({
       <Styled.Accordion
         expanded={isExpanded}
         onChange={(_, expanded) => setIsExpanded(expanded)}
+        stickinessMargin={stickinessMargin}
       >
         <Styled.AccordionSummary
           component="div"
