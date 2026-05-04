@@ -27,11 +27,6 @@ export type { RefreshNftMetadataHandler } from './services/balances/handlers/ref
 export type { StartBalancesPollingHandler } from './services/balances/handlers/startBalancesPolling';
 export type { StopBalancesPollingHandler } from './services/balances/handlers/stopBalancesPolling';
 export type { UpdateBalancesForNetworkHandler } from './services/balances/handlers/updateBalancesForNetwork';
-export type { BridgeCreateTransactionHandler } from './services/bridge/handlers/createBridgeTransaction';
-export type { BridgeGetConfigHandler } from './services/bridge/handlers/getBridgeConfig';
-export type { BridgeGetStateHandler } from './services/bridge/handlers/getBridgeState';
-export type { BridgeRemoveTransactionHandler } from './services/bridge/handlers/removeBridgeTransaction';
-export type { BridgeSetIsDevEnvHandler } from './services/bridge/handlers/setIsDevEnv';
 export type { CreateContactHandler } from './services/contacts/handlers/createContact';
 export type { GetContactsHandler } from './services/contacts/handlers/getContacts';
 export type { RemoveContactHandler } from './services/contacts/handlers/removeContact';
@@ -93,6 +88,7 @@ export type { SeedlessOnboardingHandler } from './services/onboarding/handlers/s
 export type { GetAllPermissionsHandler } from './services/permissions/handlers/getAllPermissions';
 export type { GetPermissionsForDomainHandler } from './services/permissions/handlers/getPermissionsForDomain';
 export type { RevokeAddressPermissionsForDomainHandler } from './services/permissions/handlers/revokeAddressPermissionsForDomain';
+export type { RevokeAddressPermissionsForDomainsHandler } from './services/permissions/handlers/revokeAddressPermissionsForDomains';
 export type { AppendSolanaPublicKeysHandler } from './services/secrets/handlers/appendSolanaPublicKeys';
 export type { AvalancheRenameWalletHandler } from './services/secrets/handlers/avalanche_renameWallet';
 export type { AddFidoDeviceHandler } from './services/seedless/handlers/addFidoDevice';
@@ -114,6 +110,7 @@ export type { AddCustomTokenHandler } from './services/settings/handlers/addCust
 export type { GetSettingsHandler } from './services/settings/handlers/getSettings';
 export type { GetTokenDataHandler } from './services/settings/handlers/getTokenDataByAddress';
 export type { SetAnalyticsConsentHandler } from './services/settings/handlers/setAnalyticsConsent';
+export type { SetBridgeDevEnvHandler } from './services/settings/handlers/setBridgeDevEnv';
 export type { SetCoreAssistantHandler } from './services/settings/handlers/setCoreAssistant';
 export type { SetLanguageHandler } from './services/settings/handlers/setLanguage';
 export type { SetPreferredViewHandler } from './services/settings/handlers/setPreferredView';
@@ -129,8 +126,6 @@ export type { UpdateThemeHandler } from './services/settings/handlers/updateThem
 export type { UpdateTokensVisiblityHandler } from './services/settings/handlers/updateTokensVisibility';
 export type { ResetExtensionStateHandler } from './services/storage/handlers/resetExtensionState';
 export type { GetTokensListHandler } from './services/tokens/handlers/getTokenList';
-export type { UnifiedBridgeGetState } from './services/unifiedBridge/handlers/unifiedBridgeGetState';
-export type { UnifiedBridgeTrackTransfer } from './services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
 export type { GetBtcWalletPolicyDetails } from './services/wallet/handlers/getBtcWalletPolicyDetails';
 export type { GetUnencryptedMnemonicHandler } from './services/wallet/handlers/getUnencryptedMnemonic';
 export type { GetWalletDetailsHandler } from './services/wallet/handlers/getWalletDetails';

@@ -47,6 +47,7 @@ interface WalletGetSettingsHandlerResult {
   maxBuy: '1000' | '5000' | '10000' | '50000' | 'unlimited';
   privacyMode: boolean;
   filterSmallUtxos: boolean;
+  isBridgeDevEnv: boolean;
   notificationSubscriptions: Record<string, boolean>;
 }
 @injectable()
@@ -99,6 +100,7 @@ export class WalletGetSettingsHandler extends DAppRequestHandler<
         maxBuy: settings.maxBuy,
         privacyMode: settings.privacyMode,
         filterSmallUtxos: settings.filterSmallUtxos,
+        isBridgeDevEnv: settings.isBridgeDevEnv,
         notificationSubscriptions: {
           ...balanceSubscriptions,
           ...newsSubscriptions,

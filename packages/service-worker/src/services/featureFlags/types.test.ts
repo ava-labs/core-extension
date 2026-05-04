@@ -18,8 +18,8 @@ describe('featureFlagsSchema', () => {
   describe('all flags disabled validation', () => {
     it('should reject when all FeatureGates are false', () => {
       const result = featureFlagsSchema.safeParse({
-        [FeatureGates.BRIDGE]: false,
-        [FeatureGates.SWAP]: false,
+        [FeatureGates.BUY]: false,
+        [FeatureGates.EVERYTHING]: false,
         [FeatureGates.EVENTS]: false,
       });
 
@@ -33,8 +33,8 @@ describe('featureFlagsSchema', () => {
 
     it('should reject when all FeatureGates are undefined', () => {
       const result = featureFlagsSchema.safeParse({
-        [FeatureGates.BRIDGE]: undefined,
-        [FeatureGates.SWAP]: undefined,
+        [FeatureGates.BUY]: undefined,
+        [FeatureGates.EVERYTHING]: undefined,
       });
 
       expect(result.success).toBe(false);
@@ -63,14 +63,14 @@ describe('featureFlagsSchema', () => {
     it('should accept when at least one FeatureGate is true', () => {
       const result = featureFlagsSchema.safeParse({
         [FeatureGates.EVERYTHING]: true,
-        [FeatureGates.BRIDGE]: false,
-        [FeatureGates.SWAP]: false,
+        [FeatureGates.BUY]: false,
+        [FeatureGates.DEFI]: false,
       });
 
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data[FeatureGates.EVERYTHING]).toBe(true);
-        expect(result.data[FeatureGates.BRIDGE]).toBe(false);
+        expect(result.data[FeatureGates.BUY]).toBe(false);
       }
     });
 
@@ -90,16 +90,16 @@ describe('featureFlagsSchema', () => {
     it('should accept mix of enabled and disabled flags', () => {
       const result = featureFlagsSchema.safeParse({
         [FeatureGates.EVERYTHING]: true,
-        [FeatureGates.BRIDGE]: true,
-        [FeatureGates.SWAP]: false,
+        [FeatureGates.BUY]: true,
+        [FeatureGates.DEFI]: false,
         [FeatureGates.EVENTS]: false,
       });
 
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data[FeatureGates.EVERYTHING]).toBe(true);
-        expect(result.data[FeatureGates.BRIDGE]).toBe(true);
-        expect(result.data[FeatureGates.SWAP]).toBe(false);
+        expect(result.data[FeatureGates.BUY]).toBe(true);
+        expect(result.data[FeatureGates.DEFI]).toBe(false);
       }
     });
 
@@ -168,7 +168,7 @@ describe('featureFlagsSchema', () => {
     it('should accept undefined FeatureGate values', () => {
       const result = featureFlagsSchema.safeParse({
         [FeatureGates.EVERYTHING]: true,
-        [FeatureGates.BRIDGE]: undefined,
+        [FeatureGates.BUY]: undefined,
       });
 
       expect(result.success).toBe(true);
@@ -191,7 +191,7 @@ describe('posthogResponseSchema', () => {
       const result = posthogResponseSchema.safeParse({
         featureFlags: {
           [FeatureGates.EVERYTHING]: true,
-          [FeatureGates.BRIDGE]: false,
+          [FeatureGates.BUY]: false,
         },
         featureFlagPayloads: {
           [FeatureGates.DEFI]: '>=1.60.0',
@@ -274,8 +274,8 @@ describe('posthogResponseSchema', () => {
     it('should reject all flags disabled in featureFlags', () => {
       const result = posthogResponseSchema.safeParse({
         featureFlags: {
-          [FeatureGates.BRIDGE]: false,
-          [FeatureGates.SWAP]: false,
+          [FeatureGates.EVERYTHING]: false,
+          [FeatureGates.BUY]: false,
         },
         featureFlagPayloads: {},
       });

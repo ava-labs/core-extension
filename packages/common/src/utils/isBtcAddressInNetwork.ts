@@ -1,7 +1,4 @@
-import {
-  isBase58AddressInNetwork,
-  isBech32AddressInNetwork,
-} from '@avalabs/core-bridge-sdk';
+import { isBase58AddressInNetwork, isBech32AddressInNetwork } from './address';
 
 /**
  * Check if the given address is a valid Bitcoin address

@@ -56,6 +56,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
     maxBuy: '1000',
     privacyMode: false,
     filterSmallUtxos: false,
+    isBridgeDevEnv: false,
   };
 
   // Maps settings to the expected handler response format
@@ -79,6 +80,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
     maxBuy: settings.maxBuy,
     privacyMode: settings.privacyMode,
     filterSmallUtxos: settings.filterSmallUtxos,
+    isBridgeDevEnv: settings.isBridgeDevEnv,
     notificationSubscriptions,
   });
 
@@ -244,6 +246,22 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
       expect(result).toEqual({
         ...request,
         result: getExpectedResponse(settingsWithPendingConsent),
+      });
+    });
+
+    it('should return settings with isBridgeDevEnv true', async () => {
+      const request = createRequest();
+      const settingsWithBridgeDevEnv = {
+        ...mockSettingsState,
+        isBridgeDevEnv: true,
+      };
+      getSettingsMock.mockResolvedValueOnce(settingsWithBridgeDevEnv);
+
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
+
+      expect(result).toEqual({
+        ...request,
+        result: getExpectedResponse(settingsWithBridgeDevEnv),
       });
     });
 

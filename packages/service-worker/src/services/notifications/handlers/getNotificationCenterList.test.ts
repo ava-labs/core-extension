@@ -1,3 +1,4 @@
+import { noop } from '@core/common';
 import { NotificationCenterService } from '../NotificationCenterService';
 import { GetNotificationCenterList } from './getNotificationCenterList';
 
@@ -12,6 +13,7 @@ describe('GetNotificationCenterList', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
+    jest.spyOn(console, 'error').mockImplementation(noop);
   });
 
   it('should return notifications list on success', async () => {

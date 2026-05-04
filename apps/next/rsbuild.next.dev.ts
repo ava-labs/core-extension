@@ -5,6 +5,8 @@ import commonConfig from './rsbuild.next.common';
 import { transformManifestFiles } from '../../build-scripts/manifestHelpers.js';
 import { getEnvVars } from '../../build-scripts/getEnvVars.js';
 
+const skipSourceMap = process.env.NO_SOURCE_MAPS === 'true';
+
 export default defineConfig((...args) =>
   mergeRsbuildConfig(commonConfig(...args), {
     mode: 'development',
@@ -12,9 +14,7 @@ export default defineConfig((...args) =>
       define: getEnvVars('dev'),
     },
     output: {
-      sourceMap: {
-        js: 'inline-source-map',
-      },
+      sourceMap: skipSourceMap ? false : { js: 'inline-source-map' },
     },
     tools: {
       rspack: {

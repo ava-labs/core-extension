@@ -242,6 +242,36 @@ export class PermissionsService implements OnLock {
     return savedPermissions;
   }
 
+  async revokePermissionsForDomains(domains: string[], addresses: string[]) {
+    if (!domains.length) return;
+
+    const currentPermissions = await this.getPermissions();
+
+    let updated: Permissions = { ...currentPermissions };
+    for (const domain of domains) {
+      const permissionsForDomain = updated[domain];
+      if (!permissionsForDomain) continue;
+
+      const remaining = omit(permissionsForDomain.accounts, addresses);
+      if (Object.keys(remaining).length === 0) {
+        updated = omit(updated, domain) as Permissions;
+      } else {
+        updated = {
+          ...updated,
+          [domain]: { ...permissionsForDomain, accounts: remaining },
+        };
+      }
+    }
+
+    const savedPermissions = this.#setPermissions(updated, VMs);
+    await this.storageService.save<PermissionsState | undefined>(
+      PERMISSION_STORAGE_KEY,
+      { permissions: savedPermissions },
+    );
+
+    return savedPermissions;
+  }
+
   async grantPermission(domain: string, address: string, vm: NetworkVMType) {
     const currentPermissions = await this.getPermissions();
     const permissionsForDomain = currentPermissions[domain] ?? {

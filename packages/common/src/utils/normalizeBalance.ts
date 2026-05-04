@@ -1,5 +1,5 @@
 import { bnToBig } from '@avalabs/core-utils-sdk';
-import type Big from 'big.js';
+import Big from 'big.js';
 import { isBN } from 'bn.js';
 import type BN from 'bn.js';
 
@@ -18,4 +18,12 @@ export function normalizeBalance(
   }
 
   return balance;
+}
+
+export function btcToSatoshi(btc: Big): number {
+  return btc.mul(100_000_000).toNumber();
+}
+
+export function satoshiToBtc(satoshis: number): Big {
+  return new Big(satoshis).div(100_000_000);
 }

@@ -135,6 +135,7 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
         label={label}
         value={value}
         renderValue={renderValue}
+        data-testid={hookProps.id ? `${hookProps.id}-trigger` : undefined}
         onClick={
           disabled
             ? undefined
@@ -164,6 +165,9 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
               <SearchInput
                 autoFocus
                 ref={searchInputRef}
+                data-testid={
+                  hookProps.id ? `${hookProps.id}-search-input` : undefined
+                }
                 slotProps={{ htmlInput: getSearchInputProps() }}
                 {...searchInputProps}
               />

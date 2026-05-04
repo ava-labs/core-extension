@@ -1,14 +1,8 @@
 import { WalletTotalBalanceProvider } from '@core/ui';
 import { Route, Switch } from 'react-router-dom';
 
-import {
-  getBridgePath,
-  getContactsPath,
-  getSendPath,
-  getSwapPath,
-} from '@/config/routes';
+import { getContactsPath, getSendPath } from '@/config/routes';
 import AccountManagement from '@/pages/AccountManagement';
-import { Bridge } from '@/pages/Bridge';
 import { Concierge } from '@/pages/Concierge';
 import { Contacts } from '@/pages/Contacts';
 import { DeFiProtocolDetails } from '@/pages/DeFi/DeFiProtocolDetails';
@@ -25,7 +19,6 @@ import { SeedlessAuthPopup } from '@/pages/Seedless/SeedlessAuthPopup';
 import { Send } from '@/pages/Send';
 import { Settings } from '@/pages/Settings';
 import { RecoveryMethodsFullScreen } from '@/pages/Settings/components/RecoveryMethods/FullScreens/RecoveryMethodsFullScreen';
-import { Swap } from '@/pages/Swap';
 import { TrendingTokens } from '@/pages/TrendingTokens';
 import { Fusion } from '@/pages/Fusion';
 import { Notifications } from '@/pages/Notifications';
@@ -54,9 +47,7 @@ export const AppRoutes = () => (
         component={RecoveryMethodsFullScreen}
       />
       <Route path="/trending" component={TrendingTokens} />
-      <Route path={getSwapPath()} component={Swap} />
       <Route path={'/concierge'} component={Concierge} />
-      <Route path={getBridgePath()} component={Bridge} />
       <Route path="/ledger/reconnect" component={LedgerReconnect} />
       <Route path="/ledger/derivation-path" component={ChangeDerivationPath} />
       <Route

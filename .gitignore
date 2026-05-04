@@ -1,3 +1,6 @@
+# Cursor IDE
+.cursor/
+
 # Logs
 logs
 *.log
@@ -52,8 +55,15 @@ builds
 .DS_Store
 todo.*
 
+# Playwright run output (when tests are invoked from the repo root)
+test-results/
+playwright-report/
+
 # snyk
 .dccache
+
+# E2E wallet snapshots (downloaded from S3 at CI runtime)
+e2e/helpers/storage-snapshots/
 
 # CLI
 .sentryclirc

@@ -2815,6 +2815,8 @@ __metadata:
     "@types/webextension-polyfill": "npm:0.10.0"
     "@typescript-eslint/eslint-plugin": "npm:8.17.0"
     "@typescript-eslint/parser": "npm:8.17.0"
+    big.js: "npm:6.1.1"
+    bitcoinjs-lib: "npm:5.2.0"
     eslint: "npm:9.15.0"
     eslint-config-prettier: "npm:9.1.0"
     eslint-plugin-prettier: "npm:5.2.1"
@@ -3004,7 +3006,6 @@ __metadata:
     "@sentry/integrations": "npm:7.66.0"
     "@solana/kit": "npm:5.4.0"
     "@types/argon2-browser": "npm:1.18.4"
-    "@types/big.js": "npm:6.1.6"
     "@types/bn.js": "npm:5.1.1"
     "@types/chrome": "npm:0.0.304"
     "@types/events": "npm:3.0.0"
@@ -3110,7 +3111,6 @@ __metadata:
   resolution: "@core/ui@workspace:packages/ui"
   dependencies:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.4"
-    "@avalabs/bridge-unified": "npm:4.4.2"
     "@avalabs/core-bridge-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.87"
@@ -10966,7 +10966,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"abitype@npm:1.2.3, abitype@npm:^1.0.9, abitype@npm:^1.2.3":
+"abitype@npm:1.2.3, abitype@npm:^1.0.9":
   version: 1.2.3
   resolution: "abitype@npm:1.2.3"
   peerDependencies:
@@ -10978,6 +10978,21 @@ __metadata:
     zod:
       optional: true
   checksum: 10c0/c8740de1ae4961723a153224a52cb9a34a57903fb5c2ad61d5082b0b79b53033c9335381aa8c663c7ec213c9955a9853f694d51e95baceedef27356f7745c634
+  languageName: node
+  linkType: hard
+
+"abitype@npm:^1.2.3":
+  version: 1.2.4
+  resolution: "abitype@npm:1.2.4"
+  peerDependencies:
+    typescript: ">=5.0.4"
+    zod: ^3.22.0 || ^4.0.0
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+    zod:
+      optional: true
+  checksum: 10c0/b420d8368f92a9bf456bc51a15866af2d8463e2397006551148e654cef9ca786a31d487e27942992c5b5b443b8a6b8adb0efff0c96d58e2ed81b23940fe86b2f
   languageName: node
   linkType: hard
 
@@ -12115,6 +12130,13 @@ __metadata:
   bin:
     bestzip: bin/cli.js
   checksum: 10c0/dfdfa234f06162764f446e9edae0c4a16f0fddfbdb7c2e3c78f85023c8e7d8d93ddd5e9e0ce3182d45882b8509e686168292f81aa35465de45f61ba4986fc309
+  languageName: node
+  linkType: hard
+
+"big.js@npm:6.1.1":
+  version: 6.1.1
+  resolution: "big.js@npm:6.1.1"
+  checksum: 10c0/28fa65b097279a6851878bc2cb9aaea1e5201b5792a67edab45fd3e3673d41a2aae87ff9f716b3adb489e36c3c7e6680c03d392aee9b507e9522690fa80c93c8
   languageName: node
   linkType: hard
 

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "rsbuild build -w --config rsbuild.inpage.ts",
     "build": "rsbuild build --config rsbuild.inpage.ts",
+    "build:dev": "rsbuild build --env-mode development --config rsbuild.inpage.ts",
     "lint": "eslint --fix \"src/**/*.ts*\"",
     "prettify": "prettier --write \"src/**/*.ts*\"",
     "test": "yarn jest",

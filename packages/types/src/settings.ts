@@ -84,6 +84,7 @@ export interface SettingsState {
   maxBuy: MaxBuyOption;
   privacyMode: boolean;
   filterSmallUtxos: boolean;
+  isBridgeDevEnv: boolean;
 }
 
 export const SETTINGS_STORAGE_KEY = 'settings';

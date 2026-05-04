@@ -87,6 +87,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     maxBuy: '1000',
     privacyMode: false,
     filterSmallUtxos: true,
+    isBridgeDevEnv: false,
   };
   const storedUnencryptedSettings: SettingsState = {
     currency: 'USD',
@@ -105,6 +106,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     maxBuy: '1000',
     privacyMode: false,
     filterSmallUtxos: true,
+    isBridgeDevEnv: false,
   };
 
   const customToken: NetworkContractToken = {
@@ -485,6 +487,20 @@ describe('background/services/settings/SettingsService.ts', () => {
         expect(eventListener).toHaveBeenCalledWith({
           ...storedSettings,
           privacyMode: true,
+        });
+      });
+    });
+
+    describe('setBridgeDevEnv', () => {
+      it('should save the new value for bridge dev env properly', async () => {
+        const eventListener = jest.fn();
+        service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
+
+        await service.setBridgeDevEnv(true);
+
+        expect(eventListener).toHaveBeenCalledWith({
+          ...storedSettings,
+          isBridgeDevEnv: true,
         });
       });
     });

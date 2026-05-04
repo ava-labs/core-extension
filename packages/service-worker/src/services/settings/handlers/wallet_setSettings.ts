@@ -30,6 +30,7 @@ const SettingsSchema = z.object({
   collectiblesVisibility: z
     .record(z.string(), z.record(z.string(), z.boolean()))
     .optional(),
+  isBridgeDevEnv: z.boolean().optional(),
   notificationSubscriptions: z
     .record(
       z.union([
@@ -78,6 +79,7 @@ export interface WalletSetSettingsResponse {
   coreAssistant: boolean;
   preferredView: 'floating' | 'sidebar';
   showHighlightBanners: boolean;
+  isBridgeDevEnv: boolean;
 }
 
 @injectable()
@@ -172,6 +174,12 @@ export class WalletSetSettingsHandler extends DAppRequestHandler<
         );
       }
 
+      if (validatedSettings.isBridgeDevEnv !== undefined) {
+        await this.settingsService.setBridgeDevEnv(
+          validatedSettings.isBridgeDevEnv,
+        );
+      }
+
       if (validatedSettings.notificationSubscriptions !== undefined) {
         const { notificationSubscriptions } = validatedSettings;
 
@@ -226,6 +234,7 @@ export class WalletSetSettingsHandler extends DAppRequestHandler<
         coreAssistant: finalSettings.coreAssistant,
         preferredView: finalSettings.preferredView,
         showHighlightBanners: finalSettings.showHighlightBanners,
+        isBridgeDevEnv: finalSettings.isBridgeDevEnv,
       };
 
       return {

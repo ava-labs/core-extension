@@ -106,7 +106,7 @@ export const SettingsHomePage = () => {
       }}
     >
       <Stack direction="row" gap={1.5} width="100%">
-        <Stack width="50%">
+        <Stack width="50%" data-testid="settings-testnet-mode-row">
           <SwitchCard
             titleSize="large"
             checked={isDeveloperMode}
@@ -282,7 +282,7 @@ export const SettingsHomePage = () => {
         )}
       >
         <SettingsNavItem
-          label={t('Connected sites')}
+          label={t('Connected apps')}
           href={`${path}/connected-sites`}
           divider
           onClick={() => capture('ConnectedSitesClicked')}

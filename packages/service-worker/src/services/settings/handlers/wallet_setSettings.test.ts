@@ -79,6 +79,7 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
     maxBuy: '1000',
     privacyMode: false,
     filterSmallUtxos: false,
+    isBridgeDevEnv: false,
   };
 
   const mockSettingsResponse: WalletSetSettingsResponse = {
@@ -92,6 +93,7 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
     coreAssistant: true,
     preferredView: 'floating',
     showHighlightBanners: true,
+    isBridgeDevEnv: false,
   };
 
   const createRequest = (params?: [Partial<SettingsState>?]) => ({

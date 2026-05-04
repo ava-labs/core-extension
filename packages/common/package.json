@@ -12,6 +12,10 @@
     "test": "yarn jest",
     "test:watch": "yarn jest --watch"
   },
+  "dependencies": {
+    "big.js": "6.1.1",
+    "bitcoinjs-lib": "5.2.0"
+  },
   "peerDependencies": {
     "@sentry/browser": "7.66.0"
   },

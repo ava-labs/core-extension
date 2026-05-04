@@ -1,8 +1,8 @@
-import { isBech32Address } from '@avalabs/core-bridge-sdk';
 import { isAddress } from 'ethers';
 import { isAddress as isSvmAddress } from '@solana/kit';
 import { stripAddressPrefix } from './stripAddressPrefix';
 import { utils } from '@avalabs/avalanchejs';
+import { isBech32Address } from './address';
 
 export const isValidAddress = (address: string) => {
   return !!address.length && isAddress(address);

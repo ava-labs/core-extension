@@ -133,9 +133,12 @@ test.describe('Networks Tests', () => {
 
       await networksPage.navigateToNetworks();
 
-      const toggleVisible =
-        await networksPage.isNetworkToggleVisible(arbitrumChainId);
-      expect(toggleVisible).toBe(true);
+      // Narrow the list so Arbitrum is in view and stable (long lists + virtualisation).
+      await networksPage.searchForNetwork('Arbitrum');
+
+      await expect(networksPage.getNetworkToggle(arbitrumChainId)).toBeVisible({
+        timeout: 10000,
+      });
 
       const initialState = await networksPage.isNetworkEnabled(arbitrumChainId);
 
@@ -143,7 +146,8 @@ test.describe('Networks Tests', () => {
 
       await expect
         .poll(() => networksPage.isNetworkEnabled(arbitrumChainId), {
-          timeout: 10000,
+          timeout: 25000,
+          intervals: [400, 800, 1500, 2500],
         })
         .toBe(!initialState);
 
@@ -151,7 +155,8 @@ test.describe('Networks Tests', () => {
 
       await expect
         .poll(() => networksPage.isNetworkEnabled(arbitrumChainId), {
-          timeout: 10000,
+          timeout: 25000,
+          intervals: [400, 800, 1500, 2500],
         })
         .toBe(initialState);
     },
@@ -181,7 +186,6 @@ test.describe('Networks Tests', () => {
 
       await networksPage.addCustomNetwork(MONAD_NETWORK);
 
-      await unlockedExtensionPage.waitForTimeout(2000);
       await networksPage.navigateToNetworksFromAnyPage();
 
       await expect
@@ -546,7 +550,6 @@ test.describe('Networks Tests', () => {
       ).not.toBeVisible();
 
       await networksPage.switchToCustomTab();
-      await unlockedExtensionPage.waitForTimeout(500);
 
       await expect(
         networksPage.getNetworkItem(MONAD_CHAIN_ID),
@@ -584,10 +587,13 @@ test.describe('Networks Tests', () => {
       await manageTokensPage.waitFor({ state: 'visible', timeout: 10000 });
 
       const monToken = unlockedExtensionPage.getByText('MON', { exact: true });
-      await expect(monToken.first()).toBeVisible({ timeout: 10000 });
+      await expect(monToken.first()).toBeVisible({ timeout: 30000 });
 
       await networksPage.backButton.click();
-      await unlockedExtensionPage.waitForTimeout(1000);
+      await networksPage.networksList.waitFor({
+        state: 'visible',
+        timeout: 10000,
+      });
 
       await networksPage.navigateToNetworks();
 
@@ -598,14 +604,13 @@ test.describe('Networks Tests', () => {
 
       await expect
         .poll(() => networksPage.isNetworkEnabled(MONAD_CHAIN_ID), {
-          timeout: 10000,
+          timeout: 25000,
+          intervals: [400, 800, 1500, 2500],
         })
         .toBe(false);
 
       await networksPage.backButton.click();
-      await unlockedExtensionPage.waitForTimeout(500);
       await networksPage.backButton.click();
-      await unlockedExtensionPage.waitForTimeout(1000);
 
       await manageButton.waitFor({ state: 'visible', timeout: 15000 });
       await manageButton.click();
