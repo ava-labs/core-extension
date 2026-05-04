@@ -603,11 +603,11 @@ test.describe('Networks Tests', () => {
 
       await tokenSearchInput.clear();
 
+      // Back from Manage Tokens lands on Portfolio (where the Manage button
+      // is) — not on the networks list — so we wait for the Manage button to
+      // re-appear before opening Settings → Networks.
       await networksPage.backButton.click();
-      await networksPage.networksList.waitFor({
-        state: 'visible',
-        timeout: 10000,
-      });
+      await manageButton.waitFor({ state: 'visible', timeout: 15000 });
 
       await networksPage.navigateToNetworks();
 
