@@ -629,6 +629,32 @@ describe('background/services/network/NetworkService', () => {
         'customRpcHeaders' in networkWithoutHeaders,
       );
     });
+
+    it('enables the new chainId BEFORE dispatching the chainlist update', async () => {
+      // Regression test: `_allNetworks.dispatch` is what triggers
+      // `NETWORKS_UPDATED_EVENT` to the UI. If we dispatched before
+      // `enableNetwork` ran, the event would carry a stale `enabledNetworks`
+      // list and balances for the just-added network would not be polled
+      // until the user toggled it manually.
+      const enabledAtDispatch: number[][] = [];
+      const allNetworks = service['_allNetworks'];
+      const originalDispatch = allNetworks.dispatch.bind(allNetworks);
+      const spy = jest
+        .spyOn(allNetworks, 'dispatch')
+        .mockImplementation((value) => {
+          enabledAtDispatch.push([...service['_enabledNetworks']]);
+          originalDispatch(value);
+        });
+
+      try {
+        await service.saveCustomNetwork(customNetwork);
+
+        expect(enabledAtDispatch).toHaveLength(1);
+        expect(enabledAtDispatch[0]).toContain(customNetwork.chainId);
+      } finally {
+        spy.mockRestore();
+      }
+    });
   });
   describe('when chain list is not available through Glacier', () => {
     beforeEach(() => {
