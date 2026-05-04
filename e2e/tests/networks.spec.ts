@@ -540,9 +540,14 @@ test.describe('Networks Tests', () => {
       await deleteDialog.waitFor({ state: 'visible', timeout: 10000 });
       await deleteDialog.getByRole('button', { name: 'Delete' }).click();
 
+      // Wait for the confirmation dialog to dismiss before asserting on the
+      // networks list; the modal can stay mounted briefly while the delete
+      // request is processed and the route transitions back.
+      await deleteDialog.waitFor({ state: 'hidden', timeout: 15000 });
+
       await networksPage.networksList.waitFor({
         state: 'visible',
-        timeout: 10000,
+        timeout: 15000,
       });
 
       await expect(
@@ -586,8 +591,17 @@ test.describe('Networks Tests', () => {
       );
       await manageTokensPage.waitFor({ state: 'visible', timeout: 10000 });
 
-      const monToken = unlockedExtensionPage.getByText('MON', { exact: true });
+      // The Manage Tokens list is virtualised, so off-screen rows like MON are
+      // not rendered into the DOM. Filter the list down via the search input
+      // before asserting on visibility.
+      const tokenSearchInput = manageTokensPage.getByPlaceholder('Search');
+      await tokenSearchInput.waitFor({ state: 'visible', timeout: 10000 });
+      await tokenSearchInput.fill('MON');
+
+      const monToken = manageTokensPage.getByText('MON', { exact: true });
       await expect(monToken.first()).toBeVisible({ timeout: 30000 });
+
+      await tokenSearchInput.clear();
 
       await networksPage.backButton.click();
       await networksPage.networksList.waitFor({
@@ -616,6 +630,16 @@ test.describe('Networks Tests', () => {
       await manageButton.click();
 
       await manageTokensPage.waitFor({ state: 'visible', timeout: 10000 });
+
+      // Re-filter on MON after disabling Monad so the absence assertion is
+      // meaningful — without filtering, MON could be off-screen in the
+      // virtualised list and "not visible" trivially.
+      const tokenSearchInputAfter = manageTokensPage.getByPlaceholder('Search');
+      await tokenSearchInputAfter.waitFor({
+        state: 'visible',
+        timeout: 10000,
+      });
+      await tokenSearchInputAfter.fill('MON');
 
       await expect(monToken).not.toBeVisible({ timeout: 10000 });
     },
