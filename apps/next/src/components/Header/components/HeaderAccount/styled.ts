@@ -41,6 +41,10 @@ export const Container = styled('div', {
     },
     '&:hover::after': {
       pointerEvents: 'auto',
+      // Must be above the ConciergePrompt hover detection area (zIndex: tooltip - 1 = 1499)
+      // which overlaps this bridge and would otherwise intercept pointer events,
+      // breaking the hover chain before the cursor reaches the AddressList.
+      zIndex: theme.zIndex.tooltip,
     },
     [`& .${avatarOnlyClass}`]: {
       display: showAccountInfoByDefault ? 'none' : 'block',
