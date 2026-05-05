@@ -19,6 +19,7 @@ import {
   NoteWarning,
   Styled,
 } from './components';
+import { TxDataUpdateProvider, useTxDataUpdate } from './contexts';
 import { useApprovalHelpers, useGasless } from './hooks';
 import { hasNoteWarning, hasOverlayWarning } from './lib';
 import {
@@ -38,7 +39,15 @@ type TransactionApprovalScreenProps = {
   error: ActionError;
 };
 
-export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
+export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = (
+  props,
+) => (
+  <TxDataUpdateProvider>
+    <TransactionApprovalScreenContent {...props} />
+  </TxDataUpdateProvider>
+);
+
+const TransactionApprovalScreenContent: FC<TransactionApprovalScreenProps> = ({
   action,
   network,
   updateAction,
@@ -51,6 +60,7 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
   useLiveBalance(POLLED_BALANCES);
 
   const { isUsingHardwareWallet, deviceType } = useIsUsingHardwareWallet();
+  const { isUpdating: isUpdatingTxData } = useTxDataUpdate();
 
   const { tryFunding, setGaslessDefaultValues, gaslessPhase } = useGasless({
     action,
@@ -123,6 +133,7 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
           approve={() => tryFunding(handleApproval)}
           reject={handleRejection}
           isProcessing={isProcessing}
+          isDisabled={isUpdatingTxData}
           withConfirmationSwitch={hasOverlayWarning(action)}
         />
       </NoScrollStack>

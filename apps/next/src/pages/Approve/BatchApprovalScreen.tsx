@@ -26,6 +26,7 @@ import {
   NoteWarning,
   Styled,
 } from './components';
+import { TxDataUpdateProvider, useTxDataUpdate } from './contexts';
 import { useApprovalHelpers } from './hooks';
 import { hasNoteWarning, hasOverlayWarning } from './lib';
 import { CancelActionFn, UpdateActionFn, ActionError } from './types';
@@ -67,6 +68,7 @@ const BatchApprovalContent: FC<BatchApprovalContentProps> = ({
   useLiveBalance(POLLED_BALANCES);
 
   const { isUsingHardwareWallet, deviceType } = useIsUsingHardwareWallet();
+  const { isUpdating: isUpdatingTxData } = useTxDataUpdate();
 
   const approve = useCallback(async () => {
     updateAction(
@@ -163,6 +165,7 @@ const BatchApprovalContent: FC<BatchApprovalContentProps> = ({
           approve={handleApproval}
           reject={handleRejection}
           isProcessing={isProcessing}
+          isDisabled={isUpdatingTxData}
           withConfirmationSwitch={hasOverlayWarning(action)}
         />
       </NoScrollStack>
@@ -224,12 +227,14 @@ export const BatchApprovalScreen = () => {
   }
 
   return (
-    <BatchApprovalContent
-      action={action}
-      network={network}
-      updateAction={updateAction}
-      cancelHandler={cancelHandler}
-      error={error}
-    />
+    <TxDataUpdateProvider>
+      <BatchApprovalContent
+        action={action}
+        network={network}
+        updateAction={updateAction}
+        cancelHandler={cancelHandler}
+        error={error}
+      />
+    </TxDataUpdateProvider>
   );
 };

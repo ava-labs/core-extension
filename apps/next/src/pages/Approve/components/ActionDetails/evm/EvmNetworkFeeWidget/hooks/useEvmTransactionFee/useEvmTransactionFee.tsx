@@ -8,6 +8,10 @@ import { calculateGasAndFees } from '@core/common';
 import { useNativeToken } from '@/hooks/useNativeToken';
 import { useUpdateAccountBalance } from '@/hooks/useUpdateAccountBalance';
 import { useCurrentFeesForNetwork } from '@/hooks/useCurrentFeesForNetwork';
+import {
+  usePendingTxDataUpdate,
+  useTxDataUpdate,
+} from '@/pages/Approve/contexts';
 
 import { EvmFeePreset, EvmGasSettings } from '../../types';
 import { getFeeInfo, getInitialFeeRate, hasEnoughForFee } from './lib';
@@ -21,6 +25,7 @@ export const useEvmTransactionFee: UseEvmTransactionFee = ({
   useUpdateAccountBalance(network);
 
   const { request } = useConnectionContext();
+  const { trackTxDataUpdate } = useTxDataUpdate();
 
   const networkFee = useCurrentFeesForNetwork(network);
   const nativeToken = useNativeToken({ network });
@@ -45,12 +50,14 @@ export const useEvmTransactionFee: UseEvmTransactionFee = ({
         return;
       }
 
-      await request<UpdateActionTxDataHandler>({
-        method: ExtensionRequest.ACTION_UPDATE_TX_DATA,
-        params: [action.actionId, { maxFeeRate, maxTipRate, gasLimit }],
-      });
+      await trackTxDataUpdate(
+        request<UpdateActionTxDataHandler>({
+          method: ExtensionRequest.ACTION_UPDATE_TX_DATA,
+          params: [action.actionId, { maxFeeRate, maxTipRate, gasLimit }],
+        }),
+      );
     },
-    [action?.actionId, request],
+    [action?.actionId, request, trackTxDataUpdate],
   );
 
   useEffect(() => {
@@ -92,16 +99,28 @@ export const useEvmTransactionFee: UseEvmTransactionFee = ({
     [networkFee, updateFee],
   );
 
-  const initialFeeRate = useRef<bigint | undefined>(
-    getInitialFeeRate(signingData),
+  const needsInitialFeeRate = useRef<boolean>(!getInitialFeeRate(signingData));
+  const [hasInitializedFeeRate, setHasInitializedFeeRate] = useState(
+    !needsInitialFeeRate.current,
   );
 
+  // Keep approval blocked until the initial fee rate has been pushed to the
+  // service worker. Otherwise the user could submit the action while we're
+  // still about to dispatch the first ACTION_UPDATE_TX_DATA call.
+  usePendingTxDataUpdate(!hasInitializedFeeRate);
+
   useEffect(() => {
-    // If the dapp did not give us any fee rate, we must initialize it ourselves.
-    if (!initialFeeRate.current) {
-      choosePreset(getDefaultFeePreset(network));
+    if (hasInitializedFeeRate) {
+      return;
     }
-  }, [networkFee, choosePreset, network]);
+    if (!networkFee) {
+      return;
+    }
+
+    choosePreset(getDefaultFeePreset(network)).finally(() => {
+      setHasInitializedFeeRate(true);
+    });
+  }, [hasInitializedFeeRate, networkFee, choosePreset, network]);
 
   if (!networkFee || !nativeToken || !signingData || !customPreset) {
     return {
