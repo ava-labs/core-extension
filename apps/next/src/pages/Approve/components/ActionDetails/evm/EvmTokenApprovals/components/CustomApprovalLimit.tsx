@@ -66,7 +66,7 @@ export const CustomApprovalLimit: FC<CustomApprovalLimitProps> = ({
 
   return (
     <>
-      <DetailsSection>
+      <DetailsSection data-testid="approval-spend-limit-section">
         <TxDetailsRow label={t('Spend limit')}>
           <CustomLimitTrigger
             approval={approval}

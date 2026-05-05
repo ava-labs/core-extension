@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
 import type { CustomNetworkData } from '../../types/networks';
 
@@ -132,12 +132,10 @@ export class NetworksPage extends BasePage {
       .catch(() => false);
     if (isListVisible) return;
 
-    const isNavItemVisible = await this.networksNavItem
-      .isVisible({ timeout: 3000 })
-      .catch(() => false);
-    if (isNavItemVisible) {
-      await this.networksNavItem.click();
-      await this.networksList.waitFor({ state: 'visible', timeout: 10000 });
+    // After flows like addCustomNetwork the app drops onto the Settings root
+    // page. The Networks row lives below the fold, so attempt to scroll it
+    // into view before declaring it missing.
+    if (await this.tryClickNetworksNavItem()) {
       return;
     }
 
@@ -152,6 +150,19 @@ export class NetworksPage extends BasePage {
     }
 
     await this.navigateToNetworks();
+  }
+
+  private async tryClickNetworksNavItem(): Promise<boolean> {
+    await this.networksNavItem
+      .scrollIntoViewIfNeeded({ timeout: 5000 })
+      .catch(() => {});
+    const isVisible = await this.networksNavItem
+      .isVisible({ timeout: 5000 })
+      .catch(() => false);
+    if (!isVisible) return false;
+    await this.networksNavItem.click();
+    await this.networksList.waitFor({ state: 'visible', timeout: 10000 });
+    return true;
   }
 
   getNetworkItem(chainId: number): Locator {
@@ -206,10 +217,18 @@ export class NetworksPage extends BasePage {
     const toggle = this.getNetworkToggle(chainId);
     await toggle.scrollIntoViewIfNeeded();
     await toggle.waitFor({ state: 'visible', timeout: 5000 });
-    await this.page.waitForTimeout(500);
     const input = toggle.locator('input');
+    // Capture the current state before clicking so we can poll for the flip.
+    // Back-to-back toggles can otherwise click during a transition and the
+    // second click is silently dropped, leaving state stale.
+    const wasChecked = await input.isChecked();
     await input.click();
-    await this.page.waitForTimeout(1000);
+    await expect
+      .poll(() => input.isChecked(), {
+        timeout: 15_000,
+        intervals: [200, 400, 800, 1500],
+      })
+      .toBe(!wasChecked);
   }
 
   async switchToCustomTab(): Promise<void> {
@@ -263,6 +282,10 @@ export class NetworksPage extends BasePage {
     }
 
     await this.saveButton.click();
+    // Save triggers a navigation back to Settings/Networks. Wait for the
+    // add-network form to dismiss before letting callers route to the next
+    // screen, otherwise they can race the in-flight transition.
+    await this.saveButton.waitFor({ state: 'hidden', timeout: 15_000 });
   }
 
   async isNetworkInList(networkName: string): Promise<boolean> {
@@ -352,7 +375,12 @@ export class NetworksPage extends BasePage {
     index: number,
   ): Promise<{ key: string; value: string }> {
     const field = this.getRpcHeaderField(index);
+    await field.waitFor({ state: 'visible', timeout: 10_000 });
     const inputs = field.locator('input');
+    // The header card mounts before its inner inputs hydrate when reopening
+    // the RPC headers panel; wait for the key input explicitly so inputValue()
+    // doesn't race the render.
+    await inputs.first().waitFor({ state: 'visible', timeout: 10_000 });
     const key = await inputs.first().inputValue();
     const value = await inputs.nth(1).inputValue();
     return { key, value };

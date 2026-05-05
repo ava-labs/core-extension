@@ -377,6 +377,7 @@ export const SettingsHomePage = () => {
               )}
               secondaryAction={
                 <Switch
+                  data-testid="settings-quick-swaps-toggle"
                   size="small"
                   checked={isQuickSwapsEnabled}
                   onChange={() => setQuickSwapsEnabled(!isQuickSwapsEnabled)}

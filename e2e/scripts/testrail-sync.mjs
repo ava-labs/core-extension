@@ -10,7 +10,7 @@
  *
  *   1. **Robust test discovery.** Instead of regex-scraping `*.spec.ts`, this
  *      script invokes `playwright test --list --reporter=json` so that
- *      template-literal IDs (e.g. `custom_automation_id:SWP-MOCK-FLOW-${key}`
+ *      template-literal IDs (e.g. `custom_automation_id:${MOCK_PAIR_IDS[key]}`
  *      in `tests/swap-mock.spec.ts`, or `${row.testrailId}` in
  *      `tests/send.spec.ts`) are resolved by the runtime, not the parser.
  *
