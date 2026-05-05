@@ -232,20 +232,25 @@ const installGlobalsForPolicy = (resourceId, packageCompartmentGlobal) => {
 };
 
 const compartmentMap = new Map();
+
+// `idmap` is shipped as `[resourceId, moduleId[]][]` to keep the policy small,
+// but `enforcePolicy()` looks up a resource for every cross-package require.
+// Flatten it into a direct moduleId -> resourceId map once at startup so the
+// hot path is O(1) instead of scanning every entry on each call.
+const moduleIdToResourceId = new Map();
+LAVAMOAT.idmap.forEach(([resourceId, moduleIds]) => {
+  moduleIds.forEach((moduleId) => {
+    moduleIdToResourceId.set(moduleId, resourceId);
+  });
+});
+
 /**
  * Finds the resource ID for a given module ID.
  *
  * @param {string} moduleId
  * @returns {string | undefined}
  */
-const findResourceId = (moduleId) => {
-  const found = LAVAMOAT.idmap.find(([, moduleIds]) =>
-    moduleIds.includes(moduleId),
-  );
-  if (found) {
-    return found[0];
-  }
-};
+const findResourceId = (moduleId) => moduleIdToResourceId.get(moduleId);
 
 /**
  * @callback WebpackRequire

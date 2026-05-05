@@ -257,16 +257,18 @@ class LavaMoatRspackPlugin {
     compiler.hooks.thisCompilation.tap(
       PLUGIN_NAME,
       (compilation, { normalModuleFactory }) => {
+        // HtmlRspackPlugin / other plugins use child compilers; their compilations
+        // do not run the same seal/chunk phases. Skip before touching shared state
+        // so later warnings/errors from the main build aren't routed into the
+        // child compilation arrays (where they'd be misattributed or hidden).
+        if (compilation.compiler.isChild()) {
+          return;
+        }
+
         // Wire up error and warning collection
         PROGRESS.reportErrorsTo(compilation.errors);
         STORE.mainCompilationWarnings = compilation.warnings;
         assertFields(STORE, ['mainCompilationWarnings', 'options']);
-
-        // HtmlRspackPlugin / other plugins use child compilers; their compilations
-        // do not run the same seal/chunk phases. Skip to avoid bogus progress errors.
-        if (compilation.compiler.isChild()) {
-          return;
-        }
 
         if (STORE.options.generatePolicyOnly) {
           compiler.options.devtool = false; // source maps are expensive to make and unnecessary
