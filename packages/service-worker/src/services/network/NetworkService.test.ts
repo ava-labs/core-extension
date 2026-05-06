@@ -629,6 +629,28 @@ describe('background/services/network/NetworkService', () => {
         'customRpcHeaders' in networkWithoutHeaders,
       );
     });
+
+    it('enables the new chainId BEFORE dispatching the chainlist update', async () => {
+      // Ensure the chain is enabled before dispatching network updates.
+      const enabledAtDispatch: number[][] = [];
+      const allNetworks = service['_allNetworks'];
+      const originalDispatch = allNetworks.dispatch.bind(allNetworks);
+      const spy = jest
+        .spyOn(allNetworks, 'dispatch')
+        .mockImplementation((value) => {
+          enabledAtDispatch.push([...service['_enabledNetworks']]);
+          originalDispatch(value);
+        });
+
+      try {
+        await service.saveCustomNetwork(customNetwork);
+
+        expect(enabledAtDispatch).toHaveLength(1);
+        expect(enabledAtDispatch[0]).toContain(customNetwork.chainId);
+      } finally {
+        spy.mockRestore();
+      }
+    });
   });
   describe('when chain list is not available through Glacier', () => {
     beforeEach(() => {

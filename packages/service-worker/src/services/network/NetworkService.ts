@@ -639,13 +639,13 @@ export class NetworkService implements OnLock, OnStorageReady {
       [chainId]: customNetwork,
     };
 
+    // Enable first so the networks update event includes the new chainId.
+    await this.enableNetwork(chainId);
+
     this._allNetworks.dispatch({
       ...chainlist,
       ...this._customNetworks,
     });
-
-    // Automatically favorite the newly added network
-    await this.enableNetwork(chainId);
 
     return customNetwork;
   }
@@ -714,10 +714,10 @@ export class NetworkService implements OnLock, OnStorageReady {
       delete chainlist[chainID];
     }
 
-    // Update the lsit of all networks.
-    this._allNetworks.dispatch({ ...chainlist, ...this._customNetworks });
+    // Disable first so the networks update event carries the right state.
+    await this.disableNetwork(chainID);
 
-    // Switch to Avalanache Mainnet or Fuji if the active network was removed.
+    // Switch to Avalanche Mainnet or Fuji if the active network was removed.
     if (this.uiActiveNetwork?.chainId === chainID) {
       const network = await this.getNetwork(
         wasTestnet
@@ -730,7 +730,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       }
     }
 
-    await this.disableNetwork(chainID);
+    this._allNetworks.dispatch({ ...chainlist, ...this._customNetworks });
   }
 
   async getUnknownUsedNetwork(addressC: string) {
