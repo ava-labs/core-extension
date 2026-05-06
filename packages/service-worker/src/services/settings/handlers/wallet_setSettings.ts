@@ -30,6 +30,11 @@ const SettingsSchema = z.object({
   collectiblesVisibility: z
     .record(z.string(), z.record(z.string(), z.boolean()))
     .optional(),
+  isQuickSwapsEnabled: z.boolean().optional(),
+  feeSetting: z.enum(['low', 'medium', 'high']).optional(),
+  maxBuy: z.enum(['1000', '5000', '10000', '50000', 'unlimited']).optional(),
+  privacyMode: z.boolean().optional(),
+  filterSmallUtxos: z.boolean().optional(),
   isBridgeDevEnv: z.boolean().optional(),
   notificationSubscriptions: z
     .record(
@@ -79,6 +84,11 @@ export interface WalletSetSettingsResponse {
   coreAssistant: boolean;
   preferredView: 'floating' | 'sidebar';
   showHighlightBanners: boolean;
+  isQuickSwapsEnabled: boolean;
+  feeSetting: 'low' | 'medium' | 'high';
+  maxBuy: '1000' | '5000' | '10000' | '50000' | 'unlimited';
+  privacyMode: boolean;
+  filterSmallUtxos: boolean;
   isBridgeDevEnv: boolean;
 }
 
@@ -174,6 +184,32 @@ export class WalletSetSettingsHandler extends DAppRequestHandler<
         );
       }
 
+      if (validatedSettings.isQuickSwapsEnabled !== undefined) {
+        await this.settingsService.setQuickSwapsEnabled(
+          validatedSettings.isQuickSwapsEnabled,
+        );
+      }
+
+      if (validatedSettings.feeSetting !== undefined) {
+        await this.settingsService.setFeeSetting(validatedSettings.feeSetting);
+      }
+
+      if (validatedSettings.maxBuy !== undefined) {
+        await this.settingsService.setMaxBuy(validatedSettings.maxBuy);
+      }
+
+      if (validatedSettings.privacyMode !== undefined) {
+        await this.settingsService.setPrivacyMode(
+          validatedSettings.privacyMode,
+        );
+      }
+
+      if (validatedSettings.filterSmallUtxos !== undefined) {
+        await this.settingsService.setFilterSmallUtxos(
+          validatedSettings.filterSmallUtxos,
+        );
+      }
+
       if (validatedSettings.isBridgeDevEnv !== undefined) {
         await this.settingsService.setBridgeDevEnv(
           validatedSettings.isBridgeDevEnv,
@@ -234,6 +270,11 @@ export class WalletSetSettingsHandler extends DAppRequestHandler<
         coreAssistant: finalSettings.coreAssistant,
         preferredView: finalSettings.preferredView,
         showHighlightBanners: finalSettings.showHighlightBanners,
+        isQuickSwapsEnabled: finalSettings.isQuickSwapsEnabled,
+        feeSetting: finalSettings.feeSetting,
+        maxBuy: finalSettings.maxBuy,
+        privacyMode: finalSettings.privacyMode,
+        filterSmallUtxos: finalSettings.filterSmallUtxos,
         isBridgeDevEnv: finalSettings.isBridgeDevEnv,
       };
 
