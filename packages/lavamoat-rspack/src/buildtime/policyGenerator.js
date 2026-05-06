@@ -283,7 +283,9 @@ module.exports = {
     mkdirSync(location, { recursive: true });
     writeFileSync(
       path.join(location, 'policy.json'),
-      jsonStringifySortedPolicy(policy),
+      // Trailing newline so the file plays nicely with POSIX tooling
+      // (cat, diff, editors that warn about missing final newline, etc.).
+      `${jsonStringifySortedPolicy(policy)}\n`,
       'utf8',
     );
     return applyOverride(policy);
