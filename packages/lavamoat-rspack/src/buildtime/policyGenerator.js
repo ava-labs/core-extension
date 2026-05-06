@@ -159,20 +159,34 @@ module.exports = {
       },
     );
 
-    for (const { module, connections } of modulesToInspect) {
-      // Skip modules the user intentionally excludes.
-      // This is policy generation so we don't need to protect ourselves from an attack where the module has a loader defined in the specifier.
-      if (isExcludedUnsafe(module)) continue;
+    // Process modules in a deterministic order so that any state lavamoat-core
+    // accumulates across `inspectModule` calls (and any iteration-order leakage
+    // into the generated policy) doesn't depend on the order rspack's module
+    // graph happens to hand us. Modules without `userRequest` are filtered first
+    // and surfaced via diag, mirroring the original loop.
+    const sortedModulesToInspect = Array.from(modulesToInspect)
+      .filter(({ module }) => {
+        if (isExcludedUnsafe(module)) return false;
+        if (module.userRequest === undefined) {
+          diag.rawDebug(
+            1,
+            `LavaMoatPlugin: Module ${module.identifier()} has no userRequest`,
+          );
+          diag.rawDebug(2, { skippingInspectingModule: module });
+          return false;
+        }
+        return true;
+      })
+      // Plain codepoint comparison (instead of localeCompare) so the sort is
+      // identical regardless of the host machine's locale.
+      .sort((a, b) => {
+        const ar = /** @type {string} */ (a.module.userRequest);
+        const br = /** @type {string} */ (b.module.userRequest);
+        if (ar === br) return 0;
+        return ar < br ? -1 : 1;
+      });
 
-      if (module.userRequest === undefined) {
-        diag.rawDebug(
-          1,
-          `LavaMoatPlugin: Module ${module.identifier()} has no userRequest`,
-        );
-        diag.rawDebug(2, { skippingInspectingModule: module });
-        continue;
-      }
-
+    for (const { module, connections } of sortedModulesToInspect) {
       const packageName = getPackageNameForModulePathMonorepo(
         canonicalNameMap,
         module.userRequest,
@@ -186,31 +200,47 @@ module.exports = {
         content: module.originalSource()?.source()?.toString(),
         importMap: {
           // connections are a much better source of information than module.dependencies which contain
-          // all imported references separately along with exports and fluff
-          ...Array.from(connections).reduce((acc, connection) => {
-            // connection.resolvedModule is pointing to the original module instance, before optimizations. connection.module is the module instance after. If they differ, a reexport might have been collapsed into a direct import from reexported module.
-            if (connection.module !== connection.resolvedModule) {
-              reportGraphOptimization(
-                packageName,
-                connection.resolvedModule,
-                connection.module,
-              );
-            }
-            // @ts-expect-error - bad types?
-            const depSpecifier = connection.module?.userRequest;
-            // Skip connections without a usable specifier (would otherwise add an
-            // 'undefined' string key) and self-references that would inflate the
-            // module's own importMap with an entry pointing to itself.
-            if (
-              typeof depSpecifier !== 'string' ||
-              depSpecifier.length === 0 ||
-              depSpecifier === module.userRequest
-            ) {
+          // all imported references separately along with exports and fluff.
+          // Sort connections by their target's userRequest so the importMap
+          // (and any side effects in `reportGraphOptimization`) is built in
+          // deterministic order regardless of rspack's traversal.
+          ...Array.from(connections)
+            .sort((a, b) => {
+              const ar =
+                /** @type {any} */ (a.module)?.userRequest ??
+                a.module?.identifier() ??
+                '';
+              const br =
+                /** @type {any} */ (b.module)?.userRequest ??
+                b.module?.identifier() ??
+                '';
+              if (ar === br) return 0;
+              return ar < br ? -1 : 1;
+            })
+            .reduce((acc, connection) => {
+              // connection.resolvedModule is pointing to the original module instance, before optimizations. connection.module is the module instance after. If they differ, a reexport might have been collapsed into a direct import from reexported module.
+              if (connection.module !== connection.resolvedModule) {
+                reportGraphOptimization(
+                  packageName,
+                  connection.resolvedModule,
+                  connection.module,
+                );
+              }
+              // @ts-expect-error - bad types?
+              const depSpecifier = connection.module?.userRequest;
+              // Skip connections without a usable specifier (would otherwise add an
+              // 'undefined' string key) and self-references that would inflate the
+              // module's own importMap with an entry pointing to itself.
+              if (
+                typeof depSpecifier !== 'string' ||
+                depSpecifier.length === 0 ||
+                depSpecifier === module.userRequest
+              ) {
+                return acc;
+              }
+              acc[depSpecifier] = depSpecifier;
               return acc;
-            }
-            acc[depSpecifier] = depSpecifier;
-            return acc;
-          }, /** @type {Record<string, string>} */ ({})),
+            }, /** @type {Record<string, string>} */ ({})),
         },
       });
 
@@ -225,18 +255,31 @@ module.exports = {
     }
 
     if (unexpectedIncompat.length > 0) {
+      // Sort so the error output is identical between builds for the same input.
+      unexpectedIncompat.sort();
       throw new Error(
         `LavaMoatPlugin: SES-incompatible code found in ${unexpectedIncompat.length} unexpected package(s):\n${unexpectedIncompat.join('\n')}\n\nIf these packages are safe to allow, add them to the "knownIncompatiblePackages" option.`,
       );
     }
 
     const policy = moduleInspector.generatePolicy({});
-    Object.entries(meta).forEach(([packageName, packageMeta]) => {
-      if (!policy.resources[packageName]) {
-        return;
-      }
-      policy.resources[packageName].meta = packageMeta;
-    });
+    // Sort meta package names + the per-package warning arrays so the emitted
+    // policy.json is byte-stable across runs. `jsonStringifySortedPolicy` only
+    // sorts object keys; arrays keep their insertion order.
+    Object.keys(meta)
+      .sort()
+      .forEach((packageName) => {
+        if (!policy.resources[packageName]) {
+          return;
+        }
+        const packageMeta = meta[packageName];
+        Object.values(packageMeta).forEach((entries) => {
+          if (Array.isArray(entries)) {
+            entries.sort();
+          }
+        });
+        policy.resources[packageName].meta = packageMeta;
+      });
     mkdirSync(location, { recursive: true });
     writeFileSync(
       path.join(location, 'policy.json'),
