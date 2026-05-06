@@ -11,7 +11,6 @@ import {
 import { LinkItem } from '@avalabs/vm-module-types';
 import { type CSSProperties, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MdWarningAmber } from 'react-icons/md';
 
 import { TxDetailsRow } from './DetailRow';
 
@@ -24,10 +23,7 @@ export const LinkDetail = ({ item }: LinkDetailProps) => {
   const textRef = useRef<HTMLSpanElement>(null);
   const [overflowPx, setOverflowPx] = useState(0);
 
-  // We observe the rendered text element so the overflow distance stays
-  // accurate when (a) the URL changes and (b) the available width changes
-  // — most notably when the truncation indicator is added/removed, which
-  // itself shrinks the available space for the URL.
+  // Keep overflow distance in sync with URL/content width changes.
   useLayoutEffect(() => {
     const node = textRef.current;
     if (!node) {
@@ -53,7 +49,6 @@ export const LinkDetail = ({ item }: LinkDetailProps) => {
   const fullUrl = item.value.url;
   const hostname = getWebsiteDomain(fullUrl);
   const isTruncated = overflowPx > 0;
-  const truncationHintLabel = t('URL is truncated. Hover to see full address.');
   const marqueeStyle: CSSProperties | undefined = isTruncated
     ? ({
         '--marquee-distance': `-${overflowPx}px`,
@@ -63,41 +58,32 @@ export const LinkDetail = ({ item }: LinkDetailProps) => {
 
   return (
     <TxDetailsRow label={item.label}>
-      <UrlContainer>
-        <Tooltip title={fullUrl} slotProps={tooltipSlotProps} arrow>
-          <UrlBlock>
-            {item.value.icon && (
-              <Favicon
-                sx={{ backgroundImage: `url(${item.value.icon})` }}
-                role="presentation"
-              />
-            )}
-            <UrlLink
-              href={fullUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={t('Open {{url}} in a new tab', { url: fullUrl })}
-            >
-              <TruncatedUrl ref={textRef} variant="body3" color="text.primary">
-                {isTruncated ? (
-                  <MarqueeText data-marquee="true" style={marqueeStyle}>
-                    {hostname}
-                  </MarqueeText>
-                ) : (
-                  hostname
-                )}
-              </TruncatedUrl>
-            </UrlLink>
-          </UrlBlock>
-        </Tooltip>
-        {isTruncated && (
-          <Tooltip title={truncationHintLabel} arrow>
-            <TruncationHint aria-label={truncationHintLabel}>
-              <MdWarningAmber size={16} />
-            </TruncationHint>
-          </Tooltip>
-        )}
-      </UrlContainer>
+      <Tooltip title={fullUrl} slotProps={tooltipSlotProps} arrow>
+        <UrlContainer>
+          {item.value.icon && (
+            <Favicon
+              sx={{ backgroundImage: `url(${item.value.icon})` }}
+              role="presentation"
+            />
+          )}
+          <UrlLink
+            href={fullUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={t('Open {{url}} in a new tab', { url: fullUrl })}
+          >
+            <TruncatedUrl ref={textRef} variant="body3" color="text.primary">
+              {isTruncated ? (
+                <MarqueeText data-marquee="true" style={marqueeStyle}>
+                  {hostname}
+                </MarqueeText>
+              ) : (
+                hostname
+              )}
+            </TruncatedUrl>
+          </UrlLink>
+        </UrlContainer>
+      </Tooltip>
     </TxDetailsRow>
   );
 };
@@ -133,21 +119,10 @@ const UrlContainer = styled(Stack)({
   minWidth: 0,
   justifyContent: 'flex-end',
   textAlign: 'right',
-  // Pause the marquee whenever the user hovers anywhere on the URL row
-  // (favicon, link, warning icon) so they can read it at rest.
+  // Pause the marquee while hovered/focused so the URL is readable at rest.
   '&:hover [data-marquee="true"], &:focus-within [data-marquee="true"]': {
     animationPlayState: 'paused',
   },
-});
-
-// Wraps the favicon + link as a single hover surface for the URL tooltip.
-// It must shrink to share space with the truncation indicator.
-const UrlBlock = styled(Stack)({
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 4,
-  minWidth: 0,
-  overflow: 'hidden',
 });
 
 const Favicon = styled(Box)({
@@ -183,14 +158,6 @@ const MarqueeText = styled('span')({
     animation: `${bounceMarquee} var(--marquee-duration, 8s) ease-in-out infinite`,
   },
 });
-
-const TruncationHint = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  flexShrink: 0,
-  color: theme.palette.warning.main,
-  lineHeight: 1,
-}));
 
 const isExtensionItself = (link: string) => {
   try {
