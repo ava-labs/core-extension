@@ -631,11 +631,7 @@ describe('background/services/network/NetworkService', () => {
     });
 
     it('enables the new chainId BEFORE dispatching the chainlist update', async () => {
-      // Regression test: `_allNetworks.dispatch` is what triggers
-      // `NETWORKS_UPDATED_EVENT` to the UI. If we dispatched before
-      // `enableNetwork` ran, the event would carry a stale `enabledNetworks`
-      // list and balances for the just-added network would not be polled
-      // until the user toggled it manually.
+      // Ensure the chain is enabled before dispatching network updates.
       const enabledAtDispatch: number[][] = [];
       const allNetworks = service['_allNetworks'];
       const originalDispatch = allNetworks.dispatch.bind(allNetworks);

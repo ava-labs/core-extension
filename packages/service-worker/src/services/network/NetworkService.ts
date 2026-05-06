@@ -639,13 +639,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       [chainId]: customNetwork,
     };
 
-    // Auto-favorite the new network BEFORE announcing the chainlist update.
-    // `_allNetworks.dispatch` is what triggers `NETWORKS_UPDATED_EVENT` (via
-    // the `activeNetworks` signal). If we dispatched first, the event would
-    // carry a stale `enabledNetworks` list — without the new chainId — and
-    // the UI would not poll balances for it until the user toggled it
-    // manually. Enabling first makes the single subsequent event carry the
-    // correct state for every consumer (UI balances, network state, etc.).
+    // Enable first so the networks update event includes the new chainId.
     await this.enableNetwork(chainId);
 
     this._allNetworks.dispatch({
@@ -720,9 +714,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       delete chainlist[chainID];
     }
 
-    // Disable BEFORE announcing the chainlist update so the resulting
-    // `NETWORKS_UPDATED_EVENT` carries the correct `enabledNetworks`. See
-    // `saveCustomNetwork` for the same ordering rationale.
+    // Disable first so the networks update event carries the right state.
     await this.disableNetwork(chainID);
 
     // Switch to Avalanche Mainnet or Fuji if the active network was removed.
