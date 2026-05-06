@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useConnectionContext } from '@core/ui';
 import { ExtensionRequest } from '@core/types';
@@ -99,9 +99,8 @@ export const useEvmTransactionFee: UseEvmTransactionFee = ({
     [networkFee, updateFee],
   );
 
-  const needsInitialFeeRate = useRef<boolean>(!getInitialFeeRate(signingData));
-  const [hasInitializedFeeRate, setHasInitializedFeeRate] = useState(
-    !needsInitialFeeRate.current,
+  const [hasInitializedFeeRate, setHasInitializedFeeRate] = useState(() =>
+    Boolean(getInitialFeeRate(signingData)),
   );
 
   // Keep approval blocked until the initial fee rate has been pushed to the

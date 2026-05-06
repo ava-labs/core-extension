@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { ExtensionRequest } from '@core/types';
 import { useConnectionContext } from '@core/ui';
@@ -69,9 +69,8 @@ export const useBtcTransactionFee: UseBtcTransactionFee = ({
     [networkFee, updateFee],
   );
 
-  const needsInitialFeeRate = useRef<boolean>(!getInitialFeeRate(signingData));
-  const [hasInitializedFeeRate, setHasInitializedFeeRate] = useState(
-    !needsInitialFeeRate.current,
+  const [hasInitializedFeeRate, setHasInitializedFeeRate] = useState(() =>
+    Boolean(getInitialFeeRate(signingData)),
   );
 
   // Keep approval blocked until the initial fee rate has been pushed to the
