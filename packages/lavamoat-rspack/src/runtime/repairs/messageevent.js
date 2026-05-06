@@ -4,15 +4,27 @@ const { call } = Function.prototype;
 const messageToGlobalMap = new WeakMap();
 /** @type {any & { window: any | undefined }} */
 const theRealGlobalThis = globalThis;
-// TODO: enabe after further testing:
+// TODO: enable after further testing:
 // const realms = new Map()
 // realms.set(globalThis.top || {}, 'top')
 // realms.set(globalThis.parent || {}, 'parent')
 // realms.set(globalThis.opener || {}, 'opener')
 
 const mep = MessageEvent.prototype;
-// eslint-disable-next-line no-undef
-const lastResortGlobal = new Compartment().globalThis;
+
+// Lazily create the fallback global the first time the patched source getter
+// is invoked. This file is loaded as a runtime module; if SES (and therefore
+// `Compartment`) isn't present, we don't want top-level code to throw before
+// the runtime can fall back to its no-op path.
+let lastResortGlobal;
+const getLastResortGlobal = () => {
+  if (lastResortGlobal === undefined) {
+    lastResortGlobal =
+      // eslint-disable-next-line no-undef
+      typeof Compartment === 'function' ? new Compartment().globalThis : null;
+  }
+  return lastResortGlobal;
+};
 
 const original = Object.getOwnPropertyDescriptor(mep, 'source');
 if (original && original.get) {
@@ -24,7 +36,7 @@ if (original && original.get) {
       const w = sourceGetter(this);
       // How the hell would globalThis !== globalThis.window? Ask FF contentscripts
       if (w === theRealGlobalThis || w === theRealGlobalThis.window) {
-        return messageToGlobalMap.get(this) || lastResortGlobal;
+        return messageToGlobalMap.get(this) || getLastResortGlobal();
         // } else if (w && typeof w === 'object' && realms.has(w)) {
         //   return messageToGlobalMap.get(this)[realms.get(w)] || lastResortGlobal
       } else {

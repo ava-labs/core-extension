@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
 import type { LavaMoatPolicy } from '@lavamoat/types';
 import type {
   EndowmentsToolkitFactory,
@@ -16,7 +15,7 @@ export interface RuntimeNamespace {
     scuttle: (
       globalThis: Record<string, unknown>,
       scuttleGlobalThis?: LavaMoatScuttleOpts,
-    ) => {};
+    ) => void;
   };
   root: string;
   idmap: [string, string[]][];

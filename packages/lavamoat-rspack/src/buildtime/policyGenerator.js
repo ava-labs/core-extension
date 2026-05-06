@@ -198,6 +198,16 @@ module.exports = {
             }
             // @ts-expect-error - bad types?
             const depSpecifier = connection.module?.userRequest;
+            // Skip connections without a usable specifier (would otherwise add an
+            // 'undefined' string key) and self-references that would inflate the
+            // module's own importMap with an entry pointing to itself.
+            if (
+              typeof depSpecifier !== 'string' ||
+              depSpecifier.length === 0 ||
+              depSpecifier === module.userRequest
+            ) {
+              return acc;
+            }
             acc[depSpecifier] = depSpecifier;
             return acc;
           }, /** @type {Record<string, string>} */ ({})),
