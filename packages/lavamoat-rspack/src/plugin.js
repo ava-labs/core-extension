@@ -162,26 +162,6 @@ class LavaMoatRspackPlugin {
      * @property {Record<string, any>} [externals]
      */
 
-    /** @type {Store} */
-    const STORE = {
-      options: this.options,
-      chunkIds: [],
-      excludes: [],
-      tooEarly: [],
-    };
-
-    const PROGRESS = progress({
-      steps: [
-        'start',
-        'canonicalNameMap',
-        'pathsCollected',
-        'pathsProcessed',
-        'generatorCalled:repeats',
-        'runtimeAdded:repeats',
-        'finish',
-      ],
-    });
-
     diag.run(2, () => {
       // Log stack traces for all errors on higher verbosity
       compiler.hooks.done.tap(PLUGIN_NAME, (stats) => {
@@ -194,12 +174,11 @@ class LavaMoatRspackPlugin {
     });
 
     // ========================================
-    // finalize options
+    // finalize options (compiler-scoped: only runs once per `apply`)
 
-    if (typeof STORE.options.readableResourceIds === 'undefined') {
+    if (typeof this.options.readableResourceIds === 'undefined') {
       // default options.readableResourceIds to true when mode !== production
-      STORE.options.readableResourceIds =
-        compiler.options.mode !== 'production';
+      this.options.readableResourceIds = compiler.options.mode !== 'production';
     }
 
     /** @type {string[]} */
@@ -217,7 +196,7 @@ class LavaMoatRspackPlugin {
     // compiler.options.optimization.mangleExports = false;
     // compiler.options.optimization.usedExports = false;
     // compiler.options.optimization.providedExports = false;
-    Object.freeze(STORE.options);
+    Object.freeze(this.options);
 
     // =======================================
 
@@ -236,23 +215,39 @@ class LavaMoatRspackPlugin {
     // resolve = { sync: adapterFunction(compilation.resolverFactory.get('normal').resolveSync.bind(compilation.resolverFactory.get('normal'))) }
 
     // =================================================================
-    // run long asynchronous processing ahead of all compilations
-    compiler.hooks.beforeRun.tapAsync(PLUGIN_NAME, (_, callback) => {
-      assertFields(STORE, ['options']);
+    // canonicalNameMap is expensive but stable across rebuilds, so we keep it
+    // at compiler scope and load it lazily on the first invocation. Both
+    // `beforeRun` (one-shot `compiler.run()`) and `watchRun` (rsbuild's
+    // `build -w`) need to be wired -- only one fires per execution mode.
+    /** @type {CanonicalNameMap | undefined} */
+    let canonicalNameMap;
+    /**
+     * @param {(err?: Error | null) => void} callback
+     */
+    const ensureCanonicalNameMap = (callback) => {
+      if (canonicalNameMap) {
+        callback();
+        return;
+      }
       loadCanonicalNameMap({
-        rootDir: STORE.options.rootDir || compiler.context,
+        rootDir: this.options.rootDir || compiler.context,
         includeDevDeps: true, // even the most proper projects end up including devDeps in their bundles :(
         resolve: browserResolve,
       })
         .then((map) => {
-          STORE.canonicalNameMap = map;
-          PROGRESS.report('canonicalNameMap');
+          canonicalNameMap = map;
           callback();
         })
         .catch((err) => {
           callback(err);
         });
-    });
+    };
+    compiler.hooks.beforeRun.tapAsync(PLUGIN_NAME, (_, callback) =>
+      ensureCanonicalNameMap(callback),
+    );
+    compiler.hooks.watchRun.tapAsync(PLUGIN_NAME, (_, callback) =>
+      ensureCanonicalNameMap(callback),
+    );
 
     compiler.hooks.thisCompilation.tap(
       PLUGIN_NAME,
@@ -264,6 +259,32 @@ class LavaMoatRspackPlugin {
         if (compilation.compiler.isChild()) {
           return;
         }
+
+        // STORE / PROGRESS are allocated per-compilation. Watch mode reuses the
+        // compiler across rebuilds, so anything kept at compiler scope (e.g.
+        // chunkIds, PROGRESS step pointer) would carry stale state from the
+        // previous build into the next one.
+        /** @type {Store} */
+        const STORE = {
+          options: this.options,
+          chunkIds: [],
+          excludes: [],
+          tooEarly: [],
+          canonicalNameMap,
+        };
+
+        const PROGRESS = progress({
+          steps: [
+            'start',
+            'canonicalNameMap',
+            'pathsCollected',
+            'pathsProcessed',
+            'generatorCalled:repeats',
+            'runtimeAdded:repeats',
+            'finish',
+          ],
+        });
+        PROGRESS.report('canonicalNameMap');
 
         // Wire up error and warning collection
         PROGRESS.reportErrorsTo(compilation.errors);

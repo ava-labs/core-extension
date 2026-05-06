@@ -1,4 +1,6 @@
-const { getPackageNameForModulePath } = require('@lavamoat/aa');
+const {
+  getPackageNameForModulePathMonorepo,
+} = require('./canonicalPackageName');
 const diag = require('./diagnostics');
 
 const ROOT_IDENTIFIER = '$root$';
@@ -76,6 +78,7 @@ exports.generateIdentifierLookup = ({
   policy,
   canonicalNameMap,
   contextModules,
+  externals,
   readableResourceIds,
 }) => {
   /**
@@ -94,14 +97,14 @@ exports.generateIdentifierLookup = ({
           );
         } else {
           mapping[path] = {
-            aa: getPackageNameForModulePath(canonicalNameMap, path),
+            aa: getPackageNameForModulePathMonorepo(canonicalNameMap, path),
             moduleIds: [moduleId],
           };
         }
       }
     }
     for (const c of contextModules) {
-      const resourceId = getPackageNameForModulePath(
+      const resourceId = getPackageNameForModulePathMonorepo(
         canonicalNameMap,
         c.context,
       );
@@ -141,18 +144,58 @@ exports.generateIdentifierLookup = ({
     Object.values(pathLookup).map((pl) => pl.aa),
   );
 
+  // Externals (Rspack `ExternalModule`s) never reach the path-based lookup
+  // because they have no source file in the bundle. The runtime resolves them
+  // via `findResourceId(externalName)`, which reads from `identifiersForModuleIds`,
+  // so any external whose `userRequest` matches a policy resource needs an
+  // explicit entry here -- otherwise the package can never be granted at runtime
+  // even when policy.resources[*].packages allows it.
+  /** @type {[string | number, string][]} */
+  const externalEntries = externals
+    ? /** @type {[string | number, string][]} */ (Object.entries(externals))
+    : [];
+  for (const [, externalName] of externalEntries) {
+    if (externalName in usedIdentifiersIndex) {
+      identifiersWithKnownPaths.add(externalName);
+    }
+  }
+
   crossReference(identifiersWithKnownPaths, usedIdentifiers);
 
-  const identifiersForModuleIds = Object.entries(
-    Object.entries(pathLookup).reduce((acc, [, { aa, moduleIds }]) => {
+  /** @type {Record<string, (string | number)[]>} */
+  const idsByResource = Object.entries(pathLookup).reduce(
+    (acc, [, { aa, moduleIds }]) => {
       const key = translate(aa);
       if (acc[key] === undefined) {
         acc[key] = [];
       }
       acc[key].push(...moduleIds);
       return acc;
-    }, /** @type {Record<string, (string | number)[]>} */ ({})),
+    },
+    /** @type {Record<string, (string | number)[]>} */ ({}),
   );
+
+  for (const [moduleId, externalName] of externalEntries) {
+    if (!(externalName in usedIdentifiersIndex)) {
+      // No matching resource in policy; runtime will fall through to the
+      // standard "not allowed" path.
+      continue;
+    }
+    const key = translate(externalName);
+    if (idsByResource[key] === undefined) {
+      idsByResource[key] = [];
+    }
+    if (!idsByResource[key].includes(moduleId)) {
+      idsByResource[key].push(moduleId);
+    }
+    // The runtime keys its lookup by the raw external specifier
+    // (`LAVAMOAT.externals[id]`), so we register that under the same resource.
+    if (!idsByResource[key].includes(externalName)) {
+      idsByResource[key].push(externalName);
+    }
+  }
+
+  const identifiersForModuleIds = Object.entries(idsByResource);
 
   /**
    * TODO: use real policy type here

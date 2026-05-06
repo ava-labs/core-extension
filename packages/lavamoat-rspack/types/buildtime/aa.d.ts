@@ -3,6 +3,7 @@ export function generateIdentifierLookup({
   policy,
   canonicalNameMap,
   contextModules,
+  externals,
   readableResourceIds,
 }: {
   paths: {
