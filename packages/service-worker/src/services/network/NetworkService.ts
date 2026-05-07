@@ -428,9 +428,11 @@ export class NetworkService implements OnLock, OnStorageReady {
       logoUri: LOGO_BY_ALIAS.p,
       vmName: NetworkVMType.PVM,
       rpcUrl: isDevnet ? this.#avalancheDevnetMode.rpcUrl : network.rpcUrl,
-      explorerUrl: isDevnet
-        ? this.#avalancheDevnetMode.explorerUrl
-        : getXPExplorerUrl(type, 'p'),
+      explorerUrl: getXPExplorerUrl(
+        type,
+        'p',
+        this.#avalancheDevnetMode.explorerUrl,
+      ),
     });
   }
 
@@ -451,9 +453,11 @@ export class NetworkService implements OnLock, OnStorageReady {
       logoUri: LOGO_BY_ALIAS.x,
       vmName: NetworkVMType.AVM,
       rpcUrl: isDevnet ? this.#avalancheDevnetMode.rpcUrl : network.rpcUrl,
-      explorerUrl: isDevnet
-        ? this.#avalancheDevnetMode.explorerUrl
-        : getXPExplorerUrl(type, 'x'),
+      explorerUrl: getXPExplorerUrl(
+        type,
+        'x',
+        this.#avalancheDevnetMode.explorerUrl,
+      ),
     });
   }
 
@@ -799,7 +803,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
     return Object.values(chainList ?? {})
       .filter((network) => {
-        // When in testnet mode, onl
+        // When in mainnet mode, only show mainnet networks.
         if (isMainnetMode) {
           return !network.isTestnet;
         }

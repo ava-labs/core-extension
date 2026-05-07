@@ -1,4 +1,4 @@
-import { FC, useCallback } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Collapse, Stack, TextField } from '@avalabs/k2-alpine';
 
@@ -12,6 +12,20 @@ const AvalancheDevnetModeCard = () => {
     useNetworkContext();
   const { t } = useTranslation();
 
+  const [rpcUrl, setRpcUrl] = useState(avalancheDevnetMode.rpcUrl);
+  const [explorerUrl, setExplorerUrl] = useState(
+    avalancheDevnetMode.explorerUrl,
+  );
+
+  // Keep local input state in sync with the persisted value (e.g. after a successful save).
+  useEffect(() => {
+    setRpcUrl(avalancheDevnetMode.rpcUrl);
+  }, [avalancheDevnetMode.rpcUrl]);
+
+  useEffect(() => {
+    setExplorerUrl(avalancheDevnetMode.explorerUrl);
+  }, [avalancheDevnetMode.explorerUrl]);
+
   const updateRpcUrl = useCallback(
     (newUrl: string) => {
       if (!isUrlValid(newUrl)) {
@@ -24,7 +38,7 @@ const AvalancheDevnetModeCard = () => {
           toast.success(t('Devnet RPC URL updated'));
         })
         .catch(() => {
-          toast.error(t('Failed to update devnetRPC URL'));
+          toast.error(t('Failed to update devnet RPC URL'));
         });
     },
     [updateAvalancheDevnetMode, t],
@@ -81,8 +95,9 @@ const AvalancheDevnetModeCard = () => {
           <TextField
             size="small"
             label={t('Devnet RPC URL')}
-            defaultValue={avalancheDevnetMode.rpcUrl}
+            value={rpcUrl}
             placeholder="http://localhost:9650"
+            onChange={(e) => setRpcUrl(e.target.value)}
             onBlur={(e) => {
               if (e.target.value !== avalancheDevnetMode.rpcUrl) {
                 updateRpcUrl(e.target.value);
@@ -92,11 +107,12 @@ const AvalancheDevnetModeCard = () => {
           <TextField
             size="small"
             label={t('Devnet Explorer URL')}
-            defaultValue={avalancheDevnetMode.explorerUrl}
+            value={explorerUrl}
             placeholder="https://subnets.avax-dev.network/"
             helperText={t(
               'Base URL only, "/p-chain" or "/x-chain" suffix will be added automatically.',
             )}
+            onChange={(e) => setExplorerUrl(e.target.value)}
             onBlur={(e) => {
               if (e.target.value !== avalancheDevnetMode.explorerUrl) {
                 updateExplorerUrl(e.target.value);

@@ -22,9 +22,18 @@ export const LOGO_BY_ALIAS: Record<'p' | 'x', string> = {
 };
 
 export const getXPExplorerUrl = (
-  type: Exclude<AvalancheNetworkType, 'devnet'>,
+  type: AvalancheNetworkType,
   alias: 'p' | 'x',
-) => `${BASE_NETWORK_CONFIG_BY_TYPE[type].explorerUrl}${alias}-chain`;
+  devnetExplorerUrl?: string,
+) => {
+  const base =
+    type === 'devnet'
+      ? (devnetExplorerUrl ?? '')
+      : BASE_NETWORK_CONFIG_BY_TYPE[type].explorerUrl;
+
+  // Normalize trailing slash so `<base>/<alias>-chain` always uses a single separator.
+  return `${base.replace(/\/+$/, '')}/${alias}-chain`;
+};
 
 export const getXPChainId = (type: AvalancheNetworkType, alias: 'p' | 'x') => {
   if (type === 'devnet') {

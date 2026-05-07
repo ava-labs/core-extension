@@ -142,9 +142,11 @@ export const isCoreEthNetwork = (
   network: NetworkWithCaipId,
 ): network is CoreEthNetwork => network.vmName === NetworkVMType.CoreEth;
 
-export const isAvalancheNetwork = (
-  network: Network,
-): network is AvalancheNetwork =>
+export const isAvalancheNetwork = <T extends Network>(
+  network: T,
+): network is T & {
+  vmName: NetworkVMType.AVM | NetworkVMType.PVM | NetworkVMType.CoreEth;
+} =>
   network.vmName === NetworkVMType.AVM ||
   network.vmName === NetworkVMType.PVM ||
   network.vmName === NetworkVMType.CoreEth;

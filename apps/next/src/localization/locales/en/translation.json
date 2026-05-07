@@ -334,7 +334,7 @@
   "Failed to send the transaction": "Failed to send the transaction",
   "Failed to switch {{mode}} the bridge dev mode": "Failed to switch {{mode}} the bridge dev mode",
   "Failed to update devnet explorer URL": "Failed to update devnet explorer URL",
-  "Failed to update devnetRPC URL": "Failed to update devnetRPC URL",
+  "Failed to update devnet RPC URL": "Failed to update devnet RPC URL",
   "Failed to update notification settings": "Failed to update notification settings",
   "Farming": "Farming",
   "Fast": "Fast",

@@ -68,12 +68,11 @@ export const SwitchCard = ({
 
 type SwitchCardStyleProps = Pick<SwitchCardProps, 'orientation'>;
 
-const SwitchContainer = styled(Card, {
+const SwitchContainer = styled(Stack, {
   shouldForwardProp: (prop) => prop !== 'orientation',
 })<SwitchCardStyleProps>(({ orientation, theme }) => ({
   padding: theme.spacing(1.5),
   gap: theme.spacing(0.5),
-  display: 'flex',
   justifyContent: 'space-between',
   alignItems: orientation === 'horizontal' ? 'center' : 'flex-start',
   flexDirection: orientation === 'horizontal' ? 'row' : 'column',
