@@ -555,6 +555,7 @@
   "Open the Avalanche app on your Keystone device in order to continue with this transaction": "この取引を続行するには、Keystone デバイスで Avalanche アプリを開いてください",
   "Open the Solana app on your Ledger device": "Ledger デバイスで Solana アプリを開いてください",
   "Open the {{appName}} app on your Ledger device in order to continue with this transaction": "この取引を続行するには、Ledger デバイスで {{appName}} アプリを開いてください",
+  "Open {{url}} in a new tab": "{{url}} を新しいタブで開く",
   "Opt-in for airdrop rewards based on your activity and engagement. Core will collect anonymous interaction data to power this feature.": "活動や参加に基づくエアドロップ報酬を受け取るにはオプトインしてください。Core はこの機能のために匿名の操作データを収集します。",
   "Options": "オプション",
   "Our team is aware of this issue and is working to resolve it.": "チームはこの問題を把握しており、解決に向けて対応中です。",
