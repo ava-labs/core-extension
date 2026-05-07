@@ -331,9 +331,7 @@ export const SettingsHomePage = () => {
             <Switch
               size="small"
               checked={analyticsConsent === AnalyticsConsent.Approved}
-              onChange={() => {
-                const newValue =
-                  analyticsConsent === AnalyticsConsent.Approved ? false : true;
+              onChange={(_, newValue) => {
                 capture('AnalyticsConsentSettingChanged', {
                   analyticsConsent: newValue,
                 });

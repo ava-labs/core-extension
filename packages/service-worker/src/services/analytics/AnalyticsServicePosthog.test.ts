@@ -136,8 +136,8 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
         name: 'SwapSuccessful',
         windowId: 'windowId',
         properties: {
-          sourceChainId: 43114,
-          targetChainId: 1,
+          sourceChainId: 'eip155:43114',
+          targetChainId: 'eip155:1',
           sourceAddress: '0xabc',
         },
       };
@@ -148,8 +148,8 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
       const requestBody = call?.[1] as Record<string, any>;
 
       // Chain ID fields should be present as plain values
-      expect(requestBody.properties.sourceChainId).toBe(43114);
-      expect(requestBody.properties.targetChainId).toBe(1);
+      expect(requestBody.properties.sourceChainId).toBe('eip155:43114');
+      expect(requestBody.properties.targetChainId).toBe('eip155:1');
 
       // Non-chain-ID fields should not be present as plain values (they are encrypted)
       expect('sourceAddress' in requestBody.properties).toBe(false);
@@ -158,6 +158,25 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
       expect(encryptAnalyticsData).toHaveBeenCalledWith(
         JSON.stringify({ sourceAddress: '0xabc' }),
       );
+    });
+
+    it('does not encrypt when only chain ID fields are present', async () => {
+      const service = new AnalyticsServicePosthog(
+        buildFlagsService(),
+        buildAnalyticsService(),
+        buildSettingsService(),
+      );
+
+      await service.captureEncryptedEvent({
+        name: 'SwapSuccessful',
+        windowId: 'windowId',
+        properties: {
+          sourceChainId: ChainId.AVALANCHE_MAINNET_ID,
+          targetChainId: ChainId.ETHEREUM_HOMESTEAD,
+        },
+      });
+
+      expect(encryptAnalyticsData).not.toHaveBeenCalled();
     });
 
     it('normalizes P/X chain IDs when keeping them unencrypted', async () => {

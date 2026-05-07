@@ -88,11 +88,16 @@ export class AnalyticsServicePosthog {
         ? this.#splitChainIdProps(event.properties)
         : { chainIdProps: {}, encryptableProps: event.properties };
 
+    const shouldEncryptProps =
+      useEncryption &&
+      !!encryptableProps &&
+      Object.keys(encryptableProps).length > 0;
+
     const preppedProperties = encryptableProps
       ? await this.prepProperties(
           event.windowId,
           encryptableProps,
-          useEncryption,
+          shouldEncryptProps,
         )
       : {};
 
@@ -145,12 +150,12 @@ export class AnalyticsServicePosthog {
     };
   }
 
-  #splitChainIdProps(properties: Record<string, any>): {
-    chainIdProps: Record<string, any>;
-    encryptableProps: Record<string, any>;
+  #splitChainIdProps(properties: Record<string, unknown>): {
+    chainIdProps: Record<string, unknown>;
+    encryptableProps: Record<string, unknown>;
   } {
-    const chainIdProps: Record<string, any> = {};
-    const encryptableProps: Record<string, any> = {};
+    const chainIdProps: Record<string, unknown> = {};
+    const encryptableProps: Record<string, unknown> = {};
 
     for (const [key, value] of Object.entries(properties)) {
       if (CHAIN_ID_PROP_KEYS.has(key)) {
@@ -164,7 +169,11 @@ export class AnalyticsServicePosthog {
   }
 
   // TODO update with real value
-  private updateChainIdIfNeeded(original: number) {
+  private updateChainIdIfNeeded(original: unknown) {
+    if (typeof original !== 'number') {
+      return original;
+    }
+
     if (original === ChainId.AVALANCHE_P) {
       return BlockchainId.P_CHAIN;
     } else if (original === ChainId.AVALANCHE_TEST_P) {
@@ -179,7 +188,7 @@ export class AnalyticsServicePosthog {
 
   private async prepProperties(
     windowId: string,
-    properties: Record<string, any>,
+    properties: Record<string, unknown>,
     useEncryption = false,
   ) {
     const userEnv = await getUserEnvironment();
