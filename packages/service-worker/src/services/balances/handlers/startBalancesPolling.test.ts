@@ -115,21 +115,34 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
       });
     });
 
-    it('does not start polling', async () => {
+    // Regression: handler must restart polling so a new chainId (e.g. a
+    // freshly-added custom network) is picked up without requiring a manual
+    // toggle. `startPolling` is idempotent — it stops any existing cycle.
+    it('restarts polling with the latest chainIds', async () => {
       const handler = new StartBalancesPollingHandler(
         balancePollingService,
         aggregatorService,
       );
 
+      const scope = 'eip155:43114';
+
       await handler.handle(
-        buildRpcCall({
-          id: '123',
-          method: ExtensionRequest.BALANCES_START_POLLING,
-          params: [account, chainIds],
-        }),
+        buildRpcCall(
+          {
+            id: '123',
+            method: ExtensionRequest.BALANCES_START_POLLING,
+            params: [account, chainIds, [TokenType.ERC20]],
+          },
+          scope,
+        ),
       );
 
-      expect(balancePollingService.startPolling).not.toHaveBeenCalled();
+      expect(balancePollingService.startPolling).toHaveBeenCalledWith(
+        account,
+        caipToChainId(scope),
+        chainIds,
+        [TokenType.ERC20],
+      );
     });
   });
 });

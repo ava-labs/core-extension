@@ -34,7 +34,9 @@ export class StartBalancesPollingHandler implements HandlerType {
   ) {}
 
   handle: HandlerType['handle'] = async ({ request, scope }) => {
-    if (scope && !this.pollingService.isPollingActive) {
+    // Always (re)start so changes to `roundRobinChainIds` (e.g. after a
+    // custom network is added) are picked up. `startPolling` is idempotent.
+    if (scope) {
       const activeChainId = caipToChainId(scope);
       const [account, roundRobinChainIds, tokenTypes] = request.params;
 
