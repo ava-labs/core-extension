@@ -124,6 +124,79 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
         expect(key in requestBody.properties).toBe(false);
       });
     });
+
+    it('keeps chain ID fields unencrypted in the posthog payload', async () => {
+      const service = new AnalyticsServicePosthog(
+        buildFlagsService(),
+        buildAnalyticsService(),
+        buildSettingsService(),
+      );
+
+      const eventWithChainIds = {
+        name: 'SwapSuccessful',
+        windowId: 'windowId',
+        properties: {
+          sourceChainId: 'eip155:43114',
+          targetChainId: 'eip155:1',
+          sourceAddress: '0xabc',
+        },
+      };
+
+      await service.captureEncryptedEvent(eventWithChainIds);
+
+      const call = jest.mocked(HttpClient.prototype.post).mock.calls[0];
+      const requestBody = call?.[1] as Record<string, any>;
+
+      // Chain ID fields should be present as plain values
+      expect(requestBody.properties.sourceChainId).toBe('eip155:43114');
+      expect(requestBody.properties.targetChainId).toBe('eip155:1');
+
+      // Non-chain-ID fields should not be present as plain values (they are encrypted)
+      expect('sourceAddress' in requestBody.properties).toBe(false);
+
+      // encryptAnalyticsData should have been called WITHOUT the chain ID fields
+      expect(encryptAnalyticsData).toHaveBeenCalledWith(
+        JSON.stringify({ sourceAddress: '0xabc' }),
+      );
+    });
+
+    it('does not encrypt when only chain ID fields are present', async () => {
+      const service = new AnalyticsServicePosthog(
+        buildFlagsService(),
+        buildAnalyticsService(),
+        buildSettingsService(),
+      );
+
+      await service.captureEncryptedEvent({
+        name: 'SwapSuccessful',
+        windowId: 'windowId',
+        properties: {
+          sourceChainId: ChainId.AVALANCHE_MAINNET_ID,
+          targetChainId: ChainId.ETHEREUM_HOMESTEAD,
+        },
+      });
+
+      expect(encryptAnalyticsData).not.toHaveBeenCalled();
+    });
+
+    it('normalizes P/X chain IDs when keeping them unencrypted', async () => {
+      const service = new AnalyticsServicePosthog(
+        buildFlagsService(),
+        buildAnalyticsService(),
+        buildSettingsService(),
+      );
+
+      await service.captureEncryptedEvent({
+        name: 'Transfer',
+        windowId: 'windowId',
+        properties: { chainId: ChainId.AVALANCHE_P },
+      });
+
+      const call = jest.mocked(HttpClient.prototype.post).mock.calls[0];
+      const requestBody = call?.[1] as Record<string, any>;
+
+      expect(requestBody.properties.chainId).toBe(BlockchainId.P_CHAIN);
+    });
   });
 
   describe('.captureEvent()', () => {
