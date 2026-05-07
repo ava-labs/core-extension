@@ -555,6 +555,7 @@
   "Open the Avalanche app on your Keystone device in order to continue with this transaction": "Ouvrez l’application Avalanche sur votre appareil Keystone pour poursuivre cette transaction",
   "Open the Solana app on your Ledger device": "Ouvrez l’application Solana sur votre appareil Ledger",
   "Open the {{appName}} app on your Ledger device in order to continue with this transaction": "Ouvrez l’application {{appName}} sur votre appareil Ledger pour poursuivre cette transaction",
+  "Open {{url}} in a new tab": "Ouvrez {{url}} dans un nouvel onglet",
   "Opt-in for airdrop rewards based on your activity and engagement. Core will collect anonymous interaction data to power this feature.": "Activez les récompenses d’airdrop en fonction de votre activité et engagement. Core collectera des données d’interaction anonymes pour alimenter cette fonctionnalité.",
   "Options": "Options",
   "Our team is aware of this issue and is working to resolve it.": "Notre équipe est au courant de ce problème et travaille à le résoudre.",
