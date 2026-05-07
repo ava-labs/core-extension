@@ -117,7 +117,8 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
 
     // Regression: handler must restart polling so a new chainId (e.g. a
     // freshly-added custom network) is picked up without requiring a manual
-    // toggle. `startPolling` is idempotent — it stops any existing cycle.
+    // toggle. `startPolling` is safe to call repeatedly — it stops the
+    // existing cycle before starting a new one.
     it('restarts polling with the latest chainIds', async () => {
       const handler = new StartBalancesPollingHandler(
         balancePollingService,
