@@ -1,8 +1,12 @@
 import { defineConfig, mergeRsbuildConfig } from '@rsbuild/core';
 import { CopyRspackPlugin } from '@rspack/core';
-import commonConfig from './rsbuild.next.common';
+import buildCommonConfig from './rsbuild.next.common';
 import { transformManifestFiles } from '../../build-scripts/manifestHelpers.js';
 import { getEnvVars } from '../../build-scripts/getEnvVars.js';
+
+// Production builds regenerate the policy so PR CI can detect drift between
+// the checked-in policy.json and what the actual bundle would need.
+const commonConfig = buildCommonConfig({ generateLavaMoatPolicy: true });
 
 export default defineConfig((...args) =>
   mergeRsbuildConfig(commonConfig(...args), {
