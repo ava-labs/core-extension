@@ -3,6 +3,7 @@ import {
   NetworkWithCaipId,
   ExtensionRequest,
   ExtensionRequestHandler,
+  AvalancheDevnetMode,
 } from '@core/types';
 import { resolve } from '@core/common';
 import { injectable } from 'tsyringe';
@@ -15,6 +16,7 @@ type HandlerType = ExtensionRequestHandler<
     activeNetwork?: NetworkWithCaipId;
     enabledNetworks: number[];
     customNetworks: number[];
+    avalancheDevnetMode: AvalancheDevnetMode;
   }
 >;
 
@@ -62,6 +64,7 @@ export class GetNetworksStateHandler implements HandlerType {
         networks: networkList,
         enabledNetworks: filteredEnabledNetworks,
         customNetworks,
+        avalancheDevnetMode: this.networkService.avalancheDevnetMode,
         activeNetwork: this.networkService.uiActiveNetwork
           ? activeNetwork
           : undefined,

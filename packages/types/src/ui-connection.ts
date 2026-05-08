@@ -21,6 +21,7 @@ export enum ExtensionRequest {
   NETWORK_REMOVE_CUSTOM = 'network_removeCustomNetwork',
   NETWORKS_GET_STATE = 'networks_get_state',
   NETWORK_UPDATE_DEFAULT = 'network_update_default',
+  NETWORK_UPDATE_AVALANCHE_DEVNET_MODE = 'network_update_avalanche_devnet_mode',
 
   ACCOUNT_GET_ACCOUNTS = 'account_get',
   ACCOUNT_SELECT = 'account_select',
