@@ -31,6 +31,7 @@ import { AmountPresetButton, InvisibleAmountInput } from './components';
 
 type TokenAmountInputProps = {
   id: string;
+  'data-testid'?: string;
   estimatedFee?: bigint;
   alwaysApplyFee?: boolean;
   tokenId: string;
@@ -70,6 +71,7 @@ type AmountInputProps =
 
 export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   id,
+  'data-testid': testId,
   maxAmount,
   minAmount = 0n,
   estimatedFee,
@@ -184,7 +186,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
     isLoading || disabled || !token || !maxAmount || maxAmount <= 0n;
 
   return (
-    <Stack py={1} px={1.5} gap={1}>
+    <Stack py={1} px={1.5} gap={1} data-testid={testId}>
       <Stack
         id={id}
         display="grid"
@@ -218,6 +220,9 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
             slotProps={{
               htmlInput: {
                 ref: amountInputRef,
+                ...(testId && {
+                  'data-testid': `${testId}-amount`,
+                }),
               },
               input: {
                 onFocus,

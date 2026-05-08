@@ -28,10 +28,12 @@ export const FeeSettingsSelector: FC<FeeSettingsSelectorProps> = ({
       py={1}
       gap={0.75}
       sx={{ width: '100%', px: 0 }}
+      data-testid="settings-fee-selector"
     >
       {feeSettings.map((fee) => (
         <FeePresetButton
           key={fee.value}
+          data-testid={`settings-fee-${fee.value}`}
           color={value === fee.value ? 'primary' : 'secondary'}
           onClick={() => onChange(fee.value)}
           fullWidth={false}

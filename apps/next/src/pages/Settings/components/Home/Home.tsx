@@ -67,7 +67,7 @@ export const SettingsHomePage = () => {
   const { contacts } = useContactsContext();
   const { path } = useRouteMatch();
   const { push } = useHistory();
-  const { capture } = useAnalyticsContext();
+  const { capture, initAnalyticsIds, isInitialized } = useAnalyticsContext();
   const { featureFlags, isFlagEnabled } = useFeatureFlagContext();
 
   const {
@@ -331,12 +331,13 @@ export const SettingsHomePage = () => {
             <Switch
               size="small"
               checked={analyticsConsent === AnalyticsConsent.Approved}
-              onChange={() => {
-                const newValue =
-                  analyticsConsent === AnalyticsConsent.Approved ? false : true;
+              onChange={(_, newValue) => {
                 capture('AnalyticsConsentSettingChanged', {
                   analyticsConsent: newValue,
                 });
+                if (newValue && !isInitialized) {
+                  initAnalyticsIds(true);
+                }
                 setAnalyticsConsent(newValue);
               }}
             />
@@ -377,6 +378,7 @@ export const SettingsHomePage = () => {
               )}
               secondaryAction={
                 <Switch
+                  data-testid="settings-quick-swaps-toggle"
                   size="small"
                   checked={isQuickSwapsEnabled}
                   onChange={() => setQuickSwapsEnabled(!isQuickSwapsEnabled)}

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { ExtensionRequest } from '@core/types';
 import { useConnectionContext } from '@core/ui';
@@ -9,6 +9,10 @@ import { DEFAULT_FEE_PRESET } from '@/config';
 import { useNativeToken } from '@/hooks/useNativeToken';
 import { useUpdateAccountBalance } from '@/hooks/useUpdateAccountBalance';
 import { useCurrentFeesForNetwork } from '@/hooks/useCurrentFeesForNetwork';
+import {
+  usePendingTxDataUpdate,
+  useTxDataUpdate,
+} from '@/pages/Approve/contexts';
 
 import { BtcFeePreset } from '../../types';
 import { BtcTxSigningData, UseBtcTransactionFee } from './types';
@@ -21,6 +25,7 @@ export const useBtcTransactionFee: UseBtcTransactionFee = ({
   useUpdateAccountBalance(network);
 
   const { request } = useConnectionContext();
+  const { trackTxDataUpdate } = useTxDataUpdate();
 
   const networkFee = useCurrentFeesForNetwork(network);
   const nativeToken = useNativeToken({ network });
@@ -41,12 +46,14 @@ export const useBtcTransactionFee: UseBtcTransactionFee = ({
         return;
       }
 
-      await request<UpdateActionTxDataHandler>({
-        method: ExtensionRequest.ACTION_UPDATE_TX_DATA,
-        params: [action.actionId, { feeRate: Number(feeRate) }],
-      });
+      await trackTxDataUpdate(
+        request<UpdateActionTxDataHandler>({
+          method: ExtensionRequest.ACTION_UPDATE_TX_DATA,
+          params: [action.actionId, { feeRate: Number(feeRate) }],
+        }),
+      );
     },
-    [action?.actionId, request],
+    [action?.actionId, request, trackTxDataUpdate],
   );
 
   const choosePreset = useCallback(
@@ -62,16 +69,27 @@ export const useBtcTransactionFee: UseBtcTransactionFee = ({
     [networkFee, updateFee],
   );
 
-  const initialFeeRate = useRef<bigint | undefined>(
-    getInitialFeeRate(signingData),
+  const [hasInitializedFeeRate, setHasInitializedFeeRate] = useState(() =>
+    Boolean(getInitialFeeRate(signingData)),
   );
 
+  // Keep approval blocked until the initial fee rate has been pushed to the
+  // service worker. Otherwise the user could submit the action while we're
+  // still about to dispatch the first ACTION_UPDATE_TX_DATA call.
+  usePendingTxDataUpdate(!hasInitializedFeeRate);
+
   useEffect(() => {
-    // If the dapp did not provide us any fee rate, we must initialize it ourselves.
-    if (!initialFeeRate.current) {
-      choosePreset(DEFAULT_FEE_PRESET);
+    if (hasInitializedFeeRate) {
+      return;
     }
-  }, [networkFee, choosePreset]);
+    if (!networkFee) {
+      return;
+    }
+
+    choosePreset(DEFAULT_FEE_PRESET).finally(() => {
+      setHasInitializedFeeRate(true);
+    });
+  }, [hasInitializedFeeRate, networkFee, choosePreset]);
 
   if (!networkFee || !nativeToken || !signingData) {
     return {

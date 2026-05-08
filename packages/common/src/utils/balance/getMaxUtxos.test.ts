@@ -2,7 +2,7 @@ import { utils } from '@avalabs/avalanchejs';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { getMaxUtxoSet } from './getMaxUtxos';
 import {
-  AVALANCHE_P_DEV_NETWORK,
+  AVALANCHE_XP_DEVNET_NETWORK,
   NetworkVMType,
 } from '@avalabs/core-chains-sdk';
 import { ethErrors } from 'eth-rpc-errors';
@@ -10,7 +10,7 @@ import { CommonError, LEDGER_TX_SIZE_LIMIT_BYTES } from '@core/types';
 
 // X-chain network for testing (not exported from core-chains-sdk)
 const AVALANCHE_X_DEV_NETWORK = {
-  ...AVALANCHE_P_DEV_NETWORK,
+  ...AVALANCHE_XP_DEVNET_NETWORK,
   chainId: 9999,
   vmName: NetworkVMType.AVM,
 };
@@ -85,7 +85,7 @@ describe('src/pages/Send/utils/getMaxUtxos', () => {
           isLedgerWallet: false,
           provider,
           wallet: mockedWallet,
-          network: AVALANCHE_P_DEV_NETWORK,
+          network: AVALANCHE_XP_DEVNET_NETWORK,
           filterSmallUtxos: false,
         });
         fail('The call above should have failed');
@@ -105,7 +105,7 @@ describe('src/pages/Send/utils/getMaxUtxos', () => {
         isLedgerWallet: false,
         provider: mockProvider,
         wallet: mockedWallet,
-        network: AVALANCHE_P_DEV_NETWORK,
+        network: AVALANCHE_XP_DEVNET_NETWORK,
         filterSmallUtxos: false,
         feeState,
       });
@@ -126,7 +126,7 @@ describe('src/pages/Send/utils/getMaxUtxos', () => {
         isLedgerWallet: true,
         provider: mockProvider,
         wallet: mockedWallet,
-        network: AVALANCHE_P_DEV_NETWORK,
+        network: AVALANCHE_XP_DEVNET_NETWORK,
         filterSmallUtxos: false,
         feeState,
       });
@@ -151,7 +151,7 @@ describe('src/pages/Send/utils/getMaxUtxos', () => {
         isLedgerWallet: false,
         provider: mockProvider,
         wallet: mockedWallet,
-        network: AVALANCHE_P_DEV_NETWORK,
+        network: AVALANCHE_XP_DEVNET_NETWORK,
         filterSmallUtxos: false,
         feeState,
       });
