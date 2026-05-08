@@ -67,3 +67,7 @@ e2e/helpers/storage-snapshots/
 
 # CLI
 .sentryclirc
+
+# yalc
+.yalc/
+yalc.lock
