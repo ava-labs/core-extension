@@ -10,7 +10,8 @@ import { getConstrainedTargetTokenId } from '../../lib/getConstrainedTargetToken
 
 /**
  * @param supportedChainsMap - Map of supported source chain IDs to their allowed target chain IDs.
- * @returns All known, fungible tokens that live on the supported target networks.
+ * @returns All known, fungible tokens that live on the supported target networks,
+ *          sorted verified-first so the TokenSelect separator renders correctly.
  */
 export const useSwapTargetTokenList = (
   supportedChainsMap: GetSupportedChainsResult,
@@ -40,22 +41,28 @@ export const useSwapTargetTokenList = (
   const allTokens = useAllTokens(supportedTargetNetworks, true);
 
   return useMemo(() => {
+    let filtered: FungibleTokenBalance[];
+
     if (sourceToken) {
       const constrainedTargetTokenId = getConstrainedTargetTokenId(sourceToken);
 
       if (constrainedTargetTokenId) {
-        return allTokens.filter(
+        filtered = allTokens.filter(
           (token) => getUniqueTokenId(token) === constrainedTargetTokenId,
         );
+      } else {
+        const sourceTokenId = getUniqueTokenId(sourceToken);
+        filtered = allTokens.filter(
+          (token) => getUniqueTokenId(token) !== sourceTokenId,
+        );
       }
-
-      const sourceTokenId = getUniqueTokenId(sourceToken);
-
-      return allTokens.filter(
-        (token) => getUniqueTokenId(token) !== sourceTokenId,
-      );
+    } else {
+      filtered = allTokens;
     }
 
-    return allTokens;
+    const verified = filtered.filter((t) => t.isVerified !== false);
+    const unverified = filtered.filter((t) => t.isVerified === false);
+
+    return [...verified, ...unverified];
   }, [allTokens, sourceToken]);
 };
