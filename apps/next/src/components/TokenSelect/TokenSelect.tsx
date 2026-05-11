@@ -363,9 +363,23 @@ function TokenSelectWithSeparator({
                   itemCount={totalItems}
                   itemSize={getItemSize}
                   overscanCount={5}
-                  onScroll={({ scrollOffset: offset }) =>
-                    setScrollOffset(offset)
-                  }
+                  onScroll={(() => {
+                    let frameId: number | null = null;
+                    let latestOffset = 0;
+
+                    return ({ scrollOffset: offset }) => {
+                      latestOffset = offset;
+
+                      if (frameId !== null) {
+                        return;
+                      }
+
+                      frameId = window.requestAnimationFrame(() => {
+                        frameId = null;
+                        setScrollOffset(latestOffset);
+                      });
+                    };
+                  })()}
                   style={{ overflow: 'auto', scrollbarWidth: 'none' }}
                   width="100%"
                 >
