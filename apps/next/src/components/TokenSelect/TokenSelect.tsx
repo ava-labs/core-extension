@@ -297,6 +297,7 @@ function TokenSelectWithSeparator({
             <Stack py={0.5}>
               <SearchInput
                 autoFocus
+                data-testid={id ? `${id}-search-input` : undefined}
                 slotProps={{ htmlInput: getSearchInputProps() }}
               />
             </Stack>
