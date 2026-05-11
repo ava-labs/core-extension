@@ -1004,9 +1004,7 @@ describe('background/services/network/NetworkService', () => {
       glacierServiceMock,
     );
 
-    jest
-      .spyOn(networkService, 'uiActiveNetwork', 'get')
-      .mockReturnValue({ isTestnet: false } as any);
+    jest.spyOn(networkService, 'isMainnet').mockReturnValue(true);
 
     const allNetworks = {
       '1': {
@@ -1037,9 +1035,7 @@ describe('background/services/network/NetworkService', () => {
       },
     });
 
-    jest
-      .spyOn(networkService, 'uiActiveNetwork', 'get')
-      .mockReturnValue({ isTestnet: true } as any);
+    jest.spyOn(networkService, 'isMainnet').mockReturnValue(false);
     // eslint-disable-next-line
     // @ts-expect-error
     networkService._allNetworks.dispatch(allNetworks);
@@ -1057,57 +1053,150 @@ describe('background/services/network/NetworkService', () => {
     });
   });
 
-  it('filters pchain network by feature flag when dispatching allNetowrks signal', async () => {
-    const allNetworks = {
-      '1': {
-        vmName: NetworkVMType.EVM,
-        chainId: 1,
-        caipId: 'eip155:1',
-        isTestnet: false,
-      },
-      [ChainId.AVALANCHE_P]: {
-        chainId: ChainId.AVALANCHE_P,
-        vmName: NetworkVMType.PVM,
-        caipId: 'avax:11111111111111111111111111111111LpoYY',
-        isTestnet: false,
-      },
-    } as any;
-    const networkService = new NetworkService(
-      storageServiceMock,
-      featureFlagsServiceMock,
-      glacierServiceMock,
-    );
+  describe('Avalanche Devnet Mode', () => {
+    const ethSepolia = mockNetwork(NetworkVMType.EVM, true, {
+      chainId: 11155111,
+    });
+    const avaxFujiP = mockNetwork(NetworkVMType.PVM, true, {
+      chainId: ChainId.AVALANCHE_TEST_P,
+    });
+    const avaxFujiX = mockNetwork(NetworkVMType.AVM, true, {
+      chainId: ChainId.AVALANCHE_TEST_X,
+    });
+    const avaxDevnetP = mockNetwork(NetworkVMType.PVM, true, {
+      chainId: ChainId.AVALANCHE_DEVNET_P,
+      isDevnet: true,
+    });
+    const avaxDevnetX = mockNetwork(NetworkVMType.AVM, true, {
+      chainId: ChainId.AVALANCHE_DEVNET_X,
+      isDevnet: true,
+    });
 
-    jest
-      .spyOn(networkService, 'uiActiveNetwork', 'get')
-      .mockReturnValue({ isTestnet: false } as any);
+    const testnetChainList = {
+      [ethSepolia.chainId]: ethSepolia,
+      [avaxFujiP.chainId]: avaxFujiP,
+      [avaxFujiX.chainId]: avaxFujiX,
+      [avaxDevnetP.chainId]: avaxDevnetP,
+      [avaxDevnetX.chainId]: avaxDevnetX,
+    };
 
-    // Feature flag turned on. Should include Pchain
+    const newDevnetMode = {
+      enabled: true,
+      rpcUrl: 'http://localhost:9999',
+      explorerUrl: 'https://example.test/',
+    };
 
-    // eslint-disable-next-line
-    // @ts-expect-error
-    networkService._allNetworks.dispatch(allNetworks);
+    let networkService: NetworkService;
 
-    const result1 = await networkService.activeNetworks.promisify();
-    expect(await result1).toEqual(allNetworks);
+    beforeEach(() => {
+      networkService = new NetworkService(
+        storageServiceMock,
+        featureFlagsServiceMock,
+        glacierServiceMock,
+      );
+      // Put service in testnet mode so `isAvalancheDevnetMode` can become true.
+      jest.spyOn(networkService, 'isMainnet').mockReturnValue(false);
+      // eslint-disable-next-line
+      // @ts-expect-error
+      networkService._allNetworks.dispatch(testnetChainList);
+    });
 
-    featureFlagsServiceMock.featureFlags[FeatureGates.IN_APP_SUPPORT_P_CHAIN] =
-      false;
+    describe('updateAvalancheDevnetMode()', () => {
+      it('persists the new devnet mode to storage', async () => {
+        await networkService.updateAvalancheDevnetMode(newDevnetMode);
 
-    // Feature flag turned off. Should not include Pchain
+        expect(storageServiceMock.save).toHaveBeenCalledWith(
+          NETWORK_STORAGE_KEY,
+          expect.objectContaining({
+            avalancheDevnetMode: newDevnetMode,
+          }),
+        );
+        expect(networkService.avalancheDevnetMode).toEqual(newDevnetMode);
+      });
 
-    // eslint-disable-next-line
-    // @ts-expect-error
-    networkService._allNetworks.dispatch(allNetworks);
+      it('re-dispatches the chainlist so the UI picks up new RPC/explorer URLs', async () => {
+        const dispatchSpy = jest.spyOn(
+          networkService['_allNetworks'],
+          'dispatch',
+        );
 
-    const result2 = await networkService.activeNetworks.promisify();
-    expect(await result2).toEqual({
-      '1': {
-        caipId: 'eip155:1',
-        vmName: 'EVM',
-        chainId: 1,
-        isTestnet: false,
-      },
+        await networkService.updateAvalancheDevnetMode(newDevnetMode);
+
+        expect(dispatchSpy).toHaveBeenCalledWith(
+          expect.objectContaining(testnetChainList),
+        );
+      });
+
+      it('notifies subscribers of developer mode change after the chainlist rebuild', async () => {
+        const onDevModeChange = jest.fn();
+        networkService.developerModeChanged.add(onDevModeChange);
+
+        await networkService.updateAvalancheDevnetMode(newDevnetMode);
+
+        expect(onDevModeChange).toHaveBeenCalled();
+      });
+
+      it('is a no-op when the devnet mode is unchanged', async () => {
+        await networkService.updateAvalancheDevnetMode(newDevnetMode);
+        jest.clearAllMocks();
+
+        await networkService.updateAvalancheDevnetMode({ ...newDevnetMode });
+
+        expect(storageServiceMock.save).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('isAvalancheDevnetMode getter', () => {
+      it('returns false when in mainnet mode regardless of the persisted flag', async () => {
+        jest.spyOn(networkService, 'isMainnet').mockReturnValue(true);
+        await networkService.updateAvalancheDevnetMode({
+          ...newDevnetMode,
+          enabled: true,
+        });
+
+        expect(networkService.isAvalancheDevnetMode).toBe(false);
+      });
+
+      it('returns true only when in testnet mode with devnet enabled', async () => {
+        await networkService.updateAvalancheDevnetMode({
+          ...newDevnetMode,
+          enabled: true,
+        });
+
+        expect(networkService.isAvalancheDevnetMode).toBe(true);
+      });
+    });
+
+    describe('#filterBasedOnDevMode (via activeNetworks signal)', () => {
+      it('shows only Fuji Avalanche networks when devnet mode is disabled', async () => {
+        await networkService.updateAvalancheDevnetMode({
+          ...newDevnetMode,
+          enabled: false,
+        });
+
+        // `activeNetworks` is a `ReadableSignal<Promise<ChainList>>`,
+        // so `promisify()` returns `Promise<Promise<ChainList>>`.
+        const activeNetworks = await networkService.activeNetworks.promisify();
+
+        expect(await activeNetworks[avaxFujiP.chainId]).toBeDefined();
+        expect(await activeNetworks[avaxFujiX.chainId]).toBeDefined();
+        expect(await activeNetworks[avaxDevnetP.chainId]).toBeUndefined();
+        expect(await activeNetworks[avaxDevnetX.chainId]).toBeUndefined();
+      });
+
+      it('shows only devnet Avalanche networks when devnet mode is enabled', async () => {
+        await networkService.updateAvalancheDevnetMode({
+          ...newDevnetMode,
+          enabled: true,
+        });
+
+        const activeNetworks = await networkService.activeNetworks.promisify();
+
+        expect(await activeNetworks[avaxDevnetP.chainId]).toBeDefined();
+        expect(await activeNetworks[avaxDevnetX.chainId]).toBeDefined();
+        expect(await activeNetworks[avaxFujiP.chainId]).toBeUndefined();
+        expect(await activeNetworks[avaxFujiX.chainId]).toBeUndefined();
+      });
     });
   });
 });

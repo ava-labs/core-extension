@@ -50,6 +50,7 @@ import {
 } from './components';
 import { BridgeDevModeSwitchCard } from './components/BridgeDevModeSwitchCard';
 import { useMediaQuery } from '@avalabs/k2-alpine';
+import { AvalancheDevnetModeCard } from './components/AvalancheDevnetModeCard';
 
 const navItemActionCommonSx: SxProps = {
   px: 1,
@@ -67,7 +68,7 @@ export const SettingsHomePage = () => {
   const { contacts } = useContactsContext();
   const { path } = useRouteMatch();
   const { push } = useHistory();
-  const { capture } = useAnalyticsContext();
+  const { capture, initAnalyticsIds, isInitialized } = useAnalyticsContext();
   const { featureFlags, isFlagEnabled } = useFeatureFlagContext();
 
   const {
@@ -331,12 +332,13 @@ export const SettingsHomePage = () => {
             <Switch
               size="small"
               checked={analyticsConsent === AnalyticsConsent.Approved}
-              onChange={() => {
-                const newValue =
-                  analyticsConsent === AnalyticsConsent.Approved ? false : true;
+              onChange={(_, newValue) => {
                 capture('AnalyticsConsentSettingChanged', {
                   analyticsConsent: newValue,
                 });
+                if (newValue && !isInitialized) {
+                  initAnalyticsIds(true);
+                }
                 setAnalyticsConsent(newValue);
               }}
             />
@@ -425,6 +427,8 @@ export const SettingsHomePage = () => {
           </>
         )}
       </SettingsCard>
+
+      <AvalancheDevnetModeCard />
 
       <SettingsCard title={t('Notifications')}>
         <SettingsNavItem

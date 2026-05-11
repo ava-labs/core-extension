@@ -38,6 +38,12 @@ export const AvaxCaipId = {
   [ChainId.AVALANCHE_X]: AvalancheCaip2ChainId.X,
   [ChainId.AVALANCHE_TEST_P]: AvalancheCaip2ChainId.P_TESTNET,
   [ChainId.AVALANCHE_TEST_X]: AvalancheCaip2ChainId.X_TESTNET,
+
+  // Since AVAX CAIP-2 IDs depend on blockchain IDs, we cannot use static values here
+  // (the blockchain ID changes whenever you spin up a new devnet).
+  // This, however, should not affect the functionality at the moment (e.g. Balance API would not support your devnet anyway).
+  [ChainId.AVALANCHE_DEVNET_P]: `avax:devnet-p`,
+  [ChainId.AVALANCHE_DEVNET_X]: `avax:devnet-x`,
 } as const;
 
 export const getNetworkCaipId = (network: PartialBy<Network, 'caipId'>) => {

@@ -5,6 +5,8 @@ import {
   SettingsState,
   AnalyticsConsent,
   ColorTheme,
+  FeeSetting,
+  MaxBuyOption,
 } from '@core/types';
 import {
   WalletSetSettingsHandler,
@@ -28,6 +30,12 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
   const setCoreAssistantMock = jest.fn();
   const setPreferredViewMock = jest.fn();
   const setShowHighlightBannersMock = jest.fn();
+  const setQuickSwapsEnabledMock = jest.fn();
+  const setFeeSettingMock = jest.fn();
+  const setMaxBuyMock = jest.fn();
+  const setPrivacyModeMock = jest.fn();
+  const setFilterSmallUtxosMock = jest.fn();
+  const setBridgeDevEnvMock = jest.fn();
 
   const settingsServiceMock = {
     getSettings: getSettingsMock,
@@ -41,6 +49,12 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
     setCoreAssistant: setCoreAssistantMock,
     setPreferredView: setPreferredViewMock,
     setShowHighlightBanners: setShowHighlightBannersMock,
+    setQuickSwapsEnabled: setQuickSwapsEnabledMock,
+    setFeeSetting: setFeeSettingMock,
+    setMaxBuy: setMaxBuyMock,
+    setPrivacyMode: setPrivacyModeMock,
+    setFilterSmallUtxos: setFilterSmallUtxosMock,
+    setBridgeDevEnv: setBridgeDevEnvMock,
   } as unknown as SettingsService;
 
   const subscribeMock = jest.fn();
@@ -93,6 +107,11 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
     coreAssistant: true,
     preferredView: 'floating',
     showHighlightBanners: true,
+    isQuickSwapsEnabled: false,
+    feeSetting: 'low',
+    maxBuy: '1000',
+    privacyMode: false,
+    filterSmallUtxos: false,
     isBridgeDevEnv: false,
   };
 
@@ -242,6 +261,150 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
         ...request,
         result: updatedResponse,
       });
+    });
+
+    it('should successfully update isQuickSwapsEnabled', async () => {
+      const request = createRequest([{ isQuickSwapsEnabled: true }]);
+      const updatedResponse = {
+        ...mockSettingsResponse,
+        isQuickSwapsEnabled: true,
+      };
+      getSettingsMock.mockResolvedValueOnce({
+        ...mockSettingsState,
+        isQuickSwapsEnabled: true,
+      });
+
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
+
+      expect(setQuickSwapsEnabledMock).toHaveBeenCalledWith(true);
+      expect(result).toEqual({
+        ...request,
+        result: updatedResponse,
+      });
+    });
+
+    it('should successfully update feeSetting', async () => {
+      const request = createRequest([{ feeSetting: 'high' }]);
+      const updatedResponse = {
+        ...mockSettingsResponse,
+        feeSetting: 'high' as FeeSetting,
+      };
+      getSettingsMock.mockResolvedValueOnce({
+        ...mockSettingsState,
+        feeSetting: 'high',
+      });
+
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
+
+      expect(setFeeSettingMock).toHaveBeenCalledWith('high');
+      expect(result).toEqual({
+        ...request,
+        result: updatedResponse,
+      });
+    });
+
+    it('should successfully update maxBuy', async () => {
+      const request = createRequest([{ maxBuy: 'unlimited' }]);
+      const updatedResponse = {
+        ...mockSettingsResponse,
+        maxBuy: 'unlimited' as MaxBuyOption,
+      };
+      getSettingsMock.mockResolvedValueOnce({
+        ...mockSettingsState,
+        maxBuy: 'unlimited',
+      });
+
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
+
+      expect(setMaxBuyMock).toHaveBeenCalledWith('unlimited');
+      expect(result).toEqual({
+        ...request,
+        result: updatedResponse,
+      });
+    });
+
+    it('should successfully update privacyMode', async () => {
+      const request = createRequest([{ privacyMode: true }]);
+      const updatedResponse = {
+        ...mockSettingsResponse,
+        privacyMode: true,
+      };
+      getSettingsMock.mockResolvedValueOnce({
+        ...mockSettingsState,
+        privacyMode: true,
+      });
+
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
+
+      expect(setPrivacyModeMock).toHaveBeenCalledWith(true);
+      expect(result).toEqual({
+        ...request,
+        result: updatedResponse,
+      });
+    });
+
+    it('should successfully update filterSmallUtxos', async () => {
+      const request = createRequest([{ filterSmallUtxos: true }]);
+      const updatedResponse = {
+        ...mockSettingsResponse,
+        filterSmallUtxos: true,
+      };
+      getSettingsMock.mockResolvedValueOnce({
+        ...mockSettingsState,
+        filterSmallUtxos: true,
+      });
+
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
+
+      expect(setFilterSmallUtxosMock).toHaveBeenCalledWith(true);
+      expect(result).toEqual({
+        ...request,
+        result: updatedResponse,
+      });
+    });
+
+    it('should successfully update isBridgeDevEnv', async () => {
+      const request = createRequest([{ isBridgeDevEnv: true }]);
+      const updatedResponse = {
+        ...mockSettingsResponse,
+        isBridgeDevEnv: true,
+      };
+      getSettingsMock.mockResolvedValueOnce({
+        ...mockSettingsState,
+        isBridgeDevEnv: true,
+      });
+
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
+
+      expect(setBridgeDevEnvMock).toHaveBeenCalledWith(true);
+      expect(result).toEqual({
+        ...request,
+        result: updatedResponse,
+      });
+    });
+
+    it('should return error for invalid feeSetting', async () => {
+      const request = createRequest([{ feeSetting: 'invalid' as FeeSetting }]);
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
+
+      expect(setFeeSettingMock).not.toHaveBeenCalled();
+      expect('error' in result).toBe(true);
+      if ('error' in result) {
+        expect(result.error.message).toContain('Error: Invalid settings:');
+        expect(result.error.message).toContain('feeSetting');
+      }
+    });
+
+    it('should return error for invalid maxBuy', async () => {
+      const request = createRequest([{ maxBuy: '999' as MaxBuyOption }]);
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
+
+      expect(setMaxBuyMock).not.toHaveBeenCalled();
+      expect('error' in result).toBe(true);
+      if ('error' in result) {
+        expect(result.error.message).toContain('Error: Invalid settings:');
+        expect(result.error.message).toContain('maxBuy');
+      }
     });
 
     it('should return error when no settings provided', async () => {

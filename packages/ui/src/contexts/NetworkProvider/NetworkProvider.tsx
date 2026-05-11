@@ -5,7 +5,9 @@ import {
   JsonRpcBatchInternal,
 } from '@avalabs/core-wallets-sdk';
 import {
+  AvalancheDevnetMode,
   CustomNetworkPayload,
+  DEFAULT_AVALANCHE_DEVNET_MODE,
   ExtensionRequest,
   Network,
   NetworkOverrides,
@@ -26,6 +28,7 @@ import {
   SaveCustomNetworkHandler,
   SetActiveNetworkHandler,
   SetDevelopermodeNetworkHandler,
+  UpdateAvalancheDevnetModeHandler,
   UpdateDefaultNetworkHandler,
 } from '@core/service-worker';
 import {
@@ -56,6 +59,10 @@ const NetworkContext = createContext<{
   updateDefaultNetwork(network: NetworkOverrides): Promise<unknown>;
   removeCustomNetwork(chainId: number): Promise<unknown>;
   isDeveloperMode: boolean;
+  avalancheDevnetMode: AvalancheDevnetMode;
+  updateAvalancheDevnetMode(
+    payload: Partial<AvalancheDevnetMode>,
+  ): Promise<void>;
   enabledNetworks: NetworkWithCaipId[];
   enabledNetworkIds: number[];
   enableNetwork(chainId: number): void;
@@ -79,6 +86,8 @@ const NetworkContext = createContext<{
   async updateDefaultNetwork() {},
   async removeCustomNetwork() {},
   isDeveloperMode: false,
+  avalancheDevnetMode: DEFAULT_AVALANCHE_DEVNET_MODE,
+  async updateAvalancheDevnetMode() {},
   enabledNetworks: [],
   enabledNetworkIds: [],
   enableNetwork() {},
@@ -104,6 +113,8 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
   const [networks, setNetworks] = useState<NetworkWithCaipId[]>([]);
   const [customNetworks, setCustomNetworks] = useState<number[]>([]);
   const [enabledNetworks, setEnabledNetworks] = useState<number[]>([]);
+  const [avalancheDevnetMode, setAvalancheDevnetMode] =
+    useState<AvalancheDevnetMode>(DEFAULT_AVALANCHE_DEVNET_MODE);
   const { request, events } = useConnectionContext();
   const { capture } = useAnalyticsContext();
 
@@ -236,6 +247,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         setEnabledNetworks,
         result.enabledNetworks.sort(promoteNetworks),
       );
+      updateIfDifferent(setAvalancheDevnetMode, result.avalancheDevnetMode);
       updateIfDifferent(
         setCustomNetworks,
         result.customNetworks.sort(promoteNetworks),
@@ -304,6 +316,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
           setEnabledNetworks,
           result.enabledNetworks.sort(promoteNetworks),
         );
+        updateIfDifferent(setAvalancheDevnetMode, result.avalancheDevnetMode);
         setNetwork((currentNetwork) => {
           const newNetwork = result.activeNetwork ?? currentNetwork; // do not delete currently set network
           networkChanged.dispatch(newNetwork?.caipId);
@@ -343,6 +356,15 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
     [request],
   );
 
+  const updateAvalancheDevnetMode = useCallback(
+    (payload: Partial<AvalancheDevnetMode>) =>
+      request<UpdateAvalancheDevnetModeHandler>({
+        method: ExtensionRequest.NETWORK_UPDATE_AVALANCHE_DEVNET_MODE,
+        params: [{ ...avalancheDevnetMode, ...payload }],
+      }).then(getNetworkState),
+    [request, avalancheDevnetMode, getNetworkState],
+  );
+
   return (
     <NetworkContext.Provider
       value={{
@@ -362,6 +384,8 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         updateDefaultNetwork,
         removeCustomNetwork,
         isDeveloperMode: !!network?.isTestnet,
+        avalancheDevnetMode,
+        updateAvalancheDevnetMode,
         enabledNetworks: enabledNetworksList,
         enabledNetworkIds: enabledNetworks,
         enableNetwork,
