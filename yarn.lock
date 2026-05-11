@@ -308,27 +308,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/fusion-sdk@npm:0.15.1":
-  version: 0.15.1
-  resolution: "@avalabs/fusion-sdk@npm:0.15.1"
-  dependencies:
-    "@bitcoinerlab/secp256k1": "npm:^1.2.0"
-    "@layerzerolabs/lz-v2-utilities": "npm:^3.0.17"
-    "@lombard.finance/sdk": "npm:^4.3.0"
-    "@scure/base": "npm:^1.0.1"
-    axios: "npm:^1.12.0"
-    bignumber.js: "npm:^9.3.1"
-    bitcoinjs-lib: "npm:^6.1.5"
-    coinselect: "npm:^3.1.13"
-    es-toolkit: "npm:^1.42.0"
-  peerDependencies:
-    "@solana/kit": ^5.0.0 || ^6.0.0
-    viem: ^2.38.0
-    zod: ^4.1.0
-  checksum: 10c0/a72d75ea6143dfb5ade116c71487e38a78fd78c976d2a5b4432a69329e4fd45ceca3752b520fedf3858a0b16b76a105d547f17bb593657f781d8bc4408ba1a3a
-  languageName: node
-  linkType: hard
-
 "@avalabs/fusion-sdk@npm:0.17.0":
   version: 0.17.0
   resolution: "@avalabs/fusion-sdk@npm:0.17.0"
@@ -2922,7 +2901,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core/common@workspace:packages/common"
   dependencies:
-    "@avalabs/fusion-sdk": "npm:0.15.1"
+    "@avalabs/fusion-sdk": "npm:0.17.0"
     "@eslint/compat": "npm:1.2.4"
     "@eslint/eslintrc": "npm:3.2.0"
     "@eslint/js": "npm:9.16.0"
@@ -3092,7 +3071,7 @@ __metadata:
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/evm-module": "npm:3.8.0"
-    "@avalabs/fusion-sdk": "npm:0.15.1"
+    "@avalabs/fusion-sdk": "npm:0.17.0"
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/hvm-module": "npm:3.8.0"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
@@ -3238,7 +3217,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core/types@workspace:packages/types"
   dependencies:
-    "@avalabs/fusion-sdk": "npm:0.15.1"
+    "@avalabs/fusion-sdk": "npm:0.17.0"
     fireblocks-sdk: "npm:5.20.0"
     joi: "npm:17.7.0"
     jose: "npm:4.15.5"
@@ -3260,7 +3239,7 @@ __metadata:
     "@avalabs/core-token-prices-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.87"
-    "@avalabs/fusion-sdk": "npm:0.15.1"
+    "@avalabs/fusion-sdk": "npm:0.17.0"
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
     "@avalabs/types": "npm:3.1.0-alpha.87"
