@@ -189,10 +189,14 @@ function TokenSelectWithSeparator({
     searchFn: searchTokens,
   });
 
-  const displayTokens = useMemo(
-    () => groupedOptions[0]?.options ?? [],
-    [groupedOptions],
-  );
+  const displayTokens = useMemo(() => {
+    const tokens = groupedOptions[0]?.options ?? [];
+    return tokens.toSorted((a, b) => {
+      const aVerified = a.isVerified !== false ? 0 : 1;
+      const bVerified = b.isVerified !== false ? 0 : 1;
+      return aVerified - bVerified;
+    });
+  }, [groupedOptions]);
 
   const { separatorAt, totalItems } = useMemo(() => {
     const verifiedCount = displayTokens.filter(
