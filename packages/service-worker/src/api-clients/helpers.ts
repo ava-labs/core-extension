@@ -3,7 +3,10 @@ import {
   GetBalancesResponse,
   GetBalancesResponseError,
 } from '~/api-clients/balance-api';
-import { Caip2IdAccountTypeMap } from '~/api-clients/constants';
+import {
+  Caip2IdAccountTypeMap,
+  NameSpaceAccountTypeMap,
+} from '~/api-clients/constants';
 import { BalanceResponse } from '~/api-clients/types';
 import { isErrorResponse } from '~/api-clients/utils';
 
@@ -46,6 +49,16 @@ export const normalizeXPAddress = (address: string) => {
 export const reconstructAccountFromError = (
   error: GetBalancesResponseError,
 ): Account => {
+  // Fall back to the namespace map (e.g. any `eip155:*` → `addressC`) so the
+  // fallback fetch works for EVM chains the balance service doesn't support
+  // (custom networks, new L1s/L2s) — not just the ones hard-coded in
+  // `Caip2IdAccountTypeMap`.
+  const [namespace] = error.caip2Id.split(':');
+  const accountType =
+    Caip2IdAccountTypeMap[error.caip2Id] ??
+    (namespace ? NameSpaceAccountTypeMap[namespace] : undefined) ??
+    '';
+
   return {
     index: 0,
     walletId: 'N/A',
@@ -57,6 +70,6 @@ export const reconstructAccountFromError = (
     addressC: undefined as unknown as string,
     addressCoreEth: undefined as unknown as string,
     // the id in the error is the account address
-    [Caip2IdAccountTypeMap[error.caip2Id] ?? '']: error.id,
+    [accountType]: error.id,
   };
 };
