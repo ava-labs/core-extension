@@ -56,10 +56,9 @@ export const reconstructAccountFromError = (
   const [namespace] = error.caip2Id.split(':');
   const accountType =
     Caip2IdAccountTypeMap[error.caip2Id] ??
-    (namespace ? NameSpaceAccountTypeMap[namespace] : undefined) ??
-    '';
+    (namespace ? NameSpaceAccountTypeMap[namespace] : undefined);
 
-  return {
+  const account: Account = {
     index: 0,
     walletId: 'N/A',
     type: AccountType.PRIMARY,
@@ -69,7 +68,12 @@ export const reconstructAccountFromError = (
     addressBTC: undefined as unknown as string,
     addressC: undefined as unknown as string,
     addressCoreEth: undefined as unknown as string,
-    // the id in the error is the account address
-    [accountType]: error.id,
   };
+
+  if (accountType) {
+    // the id in the error is the account address
+    account[accountType] = error.id;
+  }
+
+  return account;
 };

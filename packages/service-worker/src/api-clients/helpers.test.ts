@@ -1,3 +1,4 @@
+import { BitcoinCaip2ChainId } from '@avalabs/core-chains-sdk';
 import { AccountType } from '@core/types';
 
 import { reconstructAccountFromError } from './helpers';
@@ -21,14 +22,29 @@ describe('reconstructAccountFromError', () => {
   });
 
   it('still maps known specific chainIds via Caip2IdAccountTypeMap', () => {
+    // Use a non-EVM CAIP-2 ID so the assertion only passes via the specific
+    // map (not the eip155 namespace fallback).
     const account = reconstructAccountFromError({
-      caip2Id: 'eip155:43114',
-      networkType: 'evm',
-      id: '0xabc',
+      caip2Id: BitcoinCaip2ChainId.MAINNET,
+      networkType: 'bitcoin',
+      id: 'bc1qexampleaddress',
       balances: null,
       error: 'boom',
     } as any);
 
-    expect(account.addressC).toBe('0xabc');
+    expect(account.addressBTC).toBe('bc1qexampleaddress');
+  });
+
+  it('does not pollute the account with an empty-string key when nothing maps', () => {
+    const account = reconstructAccountFromError({
+      caip2Id: 'unknown-namespace:42',
+      networkType: 'evm',
+      id: 'whatever',
+      balances: null,
+      error: 'boom',
+    } as any);
+
+    expect(Object.keys(account)).not.toContain('');
+    expect((account as any)['']).toBeUndefined();
   });
 });
