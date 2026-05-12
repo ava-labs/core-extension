@@ -1,5 +1,5 @@
 import { getUniqueTokenId } from '@core/types';
-import { TokenSelectProps } from './types';
+import type { TokenSelectProps } from './types';
 
 /**
  * Custom comparison function to prevent rerenders when tokenList reference changes
@@ -24,24 +24,25 @@ export const areTokenListsEqual = (
     return false;
   }
 
-  // Compare tokenList by token IDs rather than reference
+  // Compare tokenList by token IDs and verification status rather than reference
   if (prevProps.tokenList.length !== nextProps.tokenList.length) {
     return false;
   }
 
-  const prevTokenIds = new Set(
-    prevProps.tokenList.map((token) => getUniqueTokenId(token)),
+  const prevTokenMap = new Map(
+    prevProps.tokenList.map((token) => [getUniqueTokenId(token), token]),
   );
-  const nextTokenIds = new Set(
-    nextProps.tokenList.map((token) => getUniqueTokenId(token)),
+  const nextTokenMap = new Map(
+    nextProps.tokenList.map((token) => [getUniqueTokenId(token), token]),
   );
 
-  if (prevTokenIds.size !== nextTokenIds.size) {
+  if (prevTokenMap.size !== nextTokenMap.size) {
     return false;
   }
 
-  for (const id of prevTokenIds) {
-    if (!nextTokenIds.has(id)) {
+  for (const [id, prevToken] of prevTokenMap) {
+    const nextToken = nextTokenMap.get(id);
+    if (!nextToken || prevToken.isVerified !== nextToken.isVerified) {
       return false;
     }
   }

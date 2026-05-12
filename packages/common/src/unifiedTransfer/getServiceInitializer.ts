@@ -32,7 +32,10 @@ export function getServiceInitializer(
         markrApiUrl: process.env.MARKR_API_URL,
         markrAppId: MARKR_EVM_PARTNER_ID,
         async getTargetChainAssets() {
-          return [];
+          return {
+            assets: [],
+            meta: { currentPage: 1, nextPage: undefined, hasMore: false },
+          };
         },
       } satisfies MarkrServiceInitializer;
 
