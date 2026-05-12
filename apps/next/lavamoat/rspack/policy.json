@@ -98,6 +98,7 @@
         "console.error": true,
         "crypto.randomUUID": true,
         "fetch": true,
+        "queueMicrotask": true,
         "setInterval": true,
         "setTimeout": true,
         "structuredClone": true
@@ -113,6 +114,7 @@
         ]
       },
       "packages": {
+        "@avalabs/avalanchejs": true,
         "@avalabs/fusion-sdk>@lombard.finance/sdk": true,
         "@avalabs/fusion-sdk>@scure/base": true,
         "@solana/kit>@solana/addresses": true,
