@@ -84,6 +84,14 @@ describe('classifyLedgerConnectionError', () => {
       makeError('Error', 'getAppAndVersion: invalid version length'),
       'unexpected_response',
     ],
+    [
+      'public key must be 33 or 65 bytes assertion',
+      makeError(
+        'AssertionError',
+        'AssertionError [ERR_ASSERTION]: Public key must be 33 or 65 bytes.',
+      ),
+      'unexpected_response',
+    ],
     ['unknown', makeError('Error', 'something weird'), 'unknown'],
     ['non-Error throws', 'plain string', 'unknown'],
     ['null', null, 'unknown'],
