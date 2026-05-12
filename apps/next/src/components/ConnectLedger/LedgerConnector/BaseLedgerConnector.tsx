@@ -98,15 +98,17 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
         onSuccess(retrievedKeys);
         callbacks?.onConnectionSuccess();
       })
-      .catch((err) => {
-        if (!(err instanceof WalletExistsError)) {
+      .catch((err: unknown) => {
+        const normalizedError =
+          err instanceof Error ? err : new Error(String(err));
+        if (!(normalizedError instanceof WalletExistsError)) {
           Monitoring.sentryCaptureException(
-            err,
+            normalizedError,
             Monitoring.SentryExceptionTypes.LEDGER,
           );
         }
-        console.error('Failed to derive keys', err);
-        callbacks?.onConnectionFailed(err);
+        console.error('Failed to derive keys', normalizedError);
+        callbacks?.onConnectionFailed(normalizedError);
       })
       .finally(() => {
         setIsRetrieving(false);
