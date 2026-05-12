@@ -36,10 +36,7 @@ import {
   GetBalancesResponseError,
   postV1BalanceGetBalances,
 } from '~/api-clients/balance-api';
-import {
-  convertStreamToArray,
-  reconstructAccountFromError,
-} from '~/api-clients/helpers';
+import { convertStreamToArray } from '~/api-clients/helpers';
 import {
   convertBalanceResponsesToCacheBalanceObject,
   convertBalanceResponseToAtomicCacheBalanceObject,
@@ -248,6 +245,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
 
   async #fallbackOnBalanceServiceErrors(
     errors: GetBalancesResponseError[],
+    accounts: Account[],
     tokenTypes: TokenType[],
   ): Promise<Balances> {
     if (errors.length === 0) {
@@ -258,15 +256,22 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       ({ error }) => !error.includes('Rate limit exceeded'),
     );
 
-    // TODO: if we need to differentiate between chains we can filter based on the networkType
-    const accounts = nonRateLimitsErrors.map(reconstructAccountFromError);
-    const chainIds = nonRateLimitsErrors.map(({ caip2Id }) =>
-      caipToChainId(caip2Id),
+    if (nonRateLimitsErrors.length === 0) {
+      return {};
+    }
+
+    // Use the real accounts already in scope — `BalancesService` picks the
+    // right address (`addressC`, `addressBTC`, …) per the network's VM via
+    // the loaded VM module, so no synthetic account is needed. This also
+    // lets the EVM module's built-in RPC fallback handle chains the balance
+    // service doesn't support (custom networks, new L1s/L2s like Monad).
+    const chainIds = Array.from(
+      new Set(nonRateLimitsErrors.map(({ caip2Id }) => caipToChainId(caip2Id))),
     );
 
     try {
       const { tokens } = await this.#fetchBalances(
-        Array.from(new Set(chainIds)),
+        chainIds,
         accounts,
         tokenTypes,
       );
@@ -374,7 +379,11 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
         });
 
         const fallbackBalanceResponse =
-          await this.#fallbackOnBalanceServiceErrors(errors, tokenTypes);
+          await this.#fallbackOnBalanceServiceErrors(
+            errors,
+            accounts,
+            tokenTypes,
+          );
 
         const balanceObject =
           convertBalanceResponsesToCacheBalanceObject(balances);
