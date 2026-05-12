@@ -309,6 +309,7 @@
         "@core/ui>i18next": true,
         "@core/service-worker>joi": true,
         "@core/ui>lodash": true,
+        "@rsbuild/plugin-node-polyfill>process": true,
         "react-i18next": true,
         "@core/ui>rxjs": true,
         "webextension-polyfill": true
@@ -406,6 +407,7 @@
         "@core/ui>ledger-bitcoin": true,
         "@core/ui>lodash": true,
         "@core/ui>micro-signals": true,
+        "@rsbuild/plugin-node-polyfill>process": true,
         "react": true,
         "react-i18next": true,
         "@core/ui>react-router-dom": true,
