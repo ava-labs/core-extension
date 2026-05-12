@@ -24,6 +24,7 @@ import {
   Troubleshooting,
   WalletExistsError,
 } from '@/components/ConnectLedger';
+import { classifyLedgerConnectionError } from '@/components/ConnectLedger/LedgerConnector/hooks/useLedgerPublicKeyFetcher/classifyLedgerConnectionError';
 import { useModalPageControl } from '@/components/FullscreenModal';
 import { useOpenApp } from '@/hooks/useOpenApp';
 
@@ -128,7 +129,9 @@ export const ImportLedgerFlowContent = () => {
       onConnectionFailed: (err: Error) =>
         err instanceof WalletExistsError
           ? capture(`${ANALYTICS_EVENT_PREFIX}DuplicateWallet`)
-          : capture(`${ANALYTICS_EVENT_PREFIX}ConnectionFailed`),
+          : capture(`${ANALYTICS_EVENT_PREFIX}ConnectionFailed`, {
+              reason: classifyLedgerConnectionError(err),
+            }),
       onConnectionRetry: () => capture(`${ANALYTICS_EVENT_PREFIX}Retry`),
     }),
     [capture],
@@ -138,8 +141,10 @@ export const ImportLedgerFlowContent = () => {
     () => ({
       onConnectionSuccess: () =>
         capture(`${ANALYTICS_EVENT_PREFIX}SolanaKeysDerived`),
-      onConnectionFailed: () =>
-        capture(`${ANALYTICS_EVENT_PREFIX}SolanaKeysFailed`),
+      onConnectionFailed: (err: Error) =>
+        capture(`${ANALYTICS_EVENT_PREFIX}SolanaKeysFailed`, {
+          reason: classifyLedgerConnectionError(err),
+        }),
       onConnectionRetry: () =>
         capture(`${ANALYTICS_EVENT_PREFIX}SolanaKeysRetry`),
     }),
