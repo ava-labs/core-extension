@@ -1,4 +1,9 @@
-import type { Locator, Page, TestInfo } from '@playwright/test';
+import {
+  errors,
+  type Locator,
+  type Page,
+  type TestInfo,
+} from '@playwright/test';
 
 /**
  * Text used by the Sonner toast that `useGasless.tryFunding` shows when the
@@ -47,9 +52,17 @@ export async function waitForSuccessOrGaslessFail(
   successPromise.catch(() => {});
   gaslessFailPromise.catch(() => {});
 
-  return Promise.race([successPromise, gaslessFailPromise]).catch(
-    () => 'timeout' as const,
-  );
+  try {
+    return await Promise.race([successPromise, gaslessFailPromise]);
+  } catch (err) {
+    // Only timeouts collapse into 'timeout' — other failures (page closed,
+    // selector errors, browser crash) must surface with their original
+    // message so they aren't misdiagnosed as transient flakes.
+    if (err instanceof errors.TimeoutError) {
+      return 'timeout' as const;
+    }
+    throw err;
+  }
 }
 
 /**
