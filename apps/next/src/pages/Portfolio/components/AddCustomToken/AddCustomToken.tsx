@@ -12,6 +12,7 @@ import {
 } from '@avalabs/k2-alpine';
 import { SearchableSelect } from '@/components/SearchableSelect';
 import { NetworkVMType } from '@avalabs/vm-module-types';
+import { isValidAddress } from '@core/common';
 import { ExtensionRequest, NetworkWithCaipId } from '@core/types';
 import { toast, useConnectionContext, useNetworkContext } from '@core/ui';
 import { FC, useCallback, useEffect, useState } from 'react';
@@ -52,6 +53,8 @@ export const AddCustomToken: FC = () => {
 
   const selectedNetwork = evmOnly.find((n) => n.caipId === chainId);
 
+  const selectedNetworkName = selectedNetwork?.chainName;
+
   const validateTokenData = useCallback(
     async (address: string, networkCaipId?: NetworkWithCaipId['caipId']) => {
       if (!address.length) {
@@ -59,10 +62,21 @@ export const AddCustomToken: FC = () => {
         return;
       }
 
+      if (!isValidAddress(address)) {
+        setError(t('Not a valid ERC-20 token address.'));
+        return;
+      }
+
       if (isTokenExists(address)) {
         setError(t('Token already exists in the wallet.'));
         return;
       }
+
+      const invalidTokenMessage = selectedNetworkName
+        ? t('Not a valid ERC-20 token on {{networkName}}.', {
+            networkName: selectedNetworkName,
+          })
+        : t('Not a valid ERC-20 token address.');
 
       setIsLoading(true);
       try {
@@ -72,21 +86,17 @@ export const AddCustomToken: FC = () => {
         });
 
         if (!data) {
-          setError(t('Not a valid ERC-20 token address.'));
+          setError(invalidTokenMessage);
         } else {
           setError('');
         }
       } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : t('Not a valid ERC-20 token address.'),
-        );
+        setError(err instanceof Error ? err.message : invalidTokenMessage);
       } finally {
         setIsLoading(false);
       }
     },
-    [isTokenExists, request, t],
+    [isTokenExists, request, selectedNetworkName, t],
   );
 
   const handleTokenAddressChange = (

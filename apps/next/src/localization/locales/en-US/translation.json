@@ -539,6 +539,7 @@
   "Normal": "Normal",
   "Not Found": "Not Found",
   "Not a valid ERC-20 token address.": "Not a valid ERC-20 token address.",
+  "Not a valid ERC-20 token on {{networkName}}.": "Not a valid ERC-20 token on {{networkName}}.",
   "Not enough {{symbol}} to cover the operating expenses. <amount /> is required.": "Not enough {{symbol}} to cover the operating expenses. <amount /> is required.",
   "Notarization failed. Please reach out to the support team to claim your funds.": "Notarization failed. Please reach out to the support team to claim your funds.",
   "Note": "Note",
