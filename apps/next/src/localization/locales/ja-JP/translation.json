@@ -539,6 +539,7 @@
   "Normal": "通常",
   "Not Found": "見つかりません",
   "Not a valid ERC-20 token address.": "有効な ERC-20 トークンアドレスではありません。",
+  "Not a valid ERC-20 token on {{networkName}}.": "Not a valid ERC-20 token on {{networkName}}.",
   "Not enough {{symbol}} to cover the operating expenses. <amount /> is required.": "運営費を賄うのに十分な {{symbol}} がありません。<amount /> が必要です。",
   "Notarization failed. Please reach out to the support team to claim your funds.": "公証に失敗しました。資金の請求についてはサポートチームにご連絡ください。",
   "Note": "メモ",
