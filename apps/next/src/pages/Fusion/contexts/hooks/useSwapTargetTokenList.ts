@@ -1,11 +1,15 @@
 import { useMemo } from 'react';
 
-import { useNetworkContext } from '@core/ui';
+import {
+  useAccountsContext,
+  useNetworkContext,
+  useWalletContext,
+} from '@core/ui';
 import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';
 
 import { useAllTokens } from '@/hooks/useAllTokens';
 import { GetSupportedChainsResult } from '@avalabs/fusion-sdk';
-import { isNotNullish } from '@core/common';
+import { isChainSupportedByWalletOrAccount, isNotNullish } from '@core/common';
 import { getConstrainedTargetTokenId } from '../../lib/getConstrainedTargetTokenId';
 
 /**
@@ -18,6 +22,10 @@ export const useSwapTargetTokenList = (
   sourceToken?: FungibleTokenBalance,
 ): FungibleTokenBalance[] => {
   const { getNetwork } = useNetworkContext();
+  const { walletDetails } = useWalletContext();
+  const {
+    accounts: { active },
+  } = useAccountsContext();
 
   const supportedTargetChainIds = useMemo(() => {
     if (sourceToken) {
@@ -34,8 +42,15 @@ export const useSwapTargetTokenList = (
   }, [supportedChainsMap, sourceToken]);
 
   const supportedTargetNetworks = useMemo(
-    () => supportedTargetChainIds.map(getNetwork).filter(isNotNullish),
-    [getNetwork, supportedTargetChainIds],
+    () =>
+      supportedTargetChainIds
+        .map(getNetwork)
+        .filter(isNotNullish)
+        // Hide chains the active wallet can't sign for (e.g. Solana on Keystone).
+        .filter((network) =>
+          isChainSupportedByWalletOrAccount(network, walletDetails, active),
+        ),
+    [getNetwork, supportedTargetChainIds, walletDetails, active],
   );
 
   const allTokens = useAllTokens(supportedTargetNetworks, true);
