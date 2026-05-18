@@ -5,6 +5,10 @@ import {
   verifyTransactionOnExplorer,
   type ExplorerNetwork,
 } from '../helpers/explorerApi';
+import {
+  attachGaslessSkipArtifacts,
+  waitForSuccessOrGaslessFail,
+} from '../helpers/gaslessHelpers';
 
 const SEND_TEST_TIMEOUT_MS = 180_000;
 
@@ -543,6 +547,7 @@ test.describe('Send Tests', () => {
           sendData.feeSymbol,
         );
 
+        let gaslessOnEnabled = false;
         if (row.gasless) {
           const gaslessVisible = await sendPage.isGaslessToggleVisible();
 
@@ -551,6 +556,7 @@ test.describe('Send Tests', () => {
               await sendPage.toggleGaslessOn();
               await expect(sendPage.getGaslessCheckbox()).toBeChecked();
               await expect(sendPage.getFeePresetSelector()).not.toBeVisible();
+              gaslessOnEnabled = true;
             } else {
               await sendPage.toggleGaslessOff();
               await expect(sendPage.getGaslessCheckbox()).not.toBeChecked();
@@ -571,11 +577,37 @@ test.describe('Send Tests', () => {
         await expect(sendPage.getApproveButton()).toBeEnabled();
         await expect(sendPage.getRejectButton()).toBeVisible();
 
-        const successToastPromise = sendPage.waitForSuccessToast();
+        // See SND-002 comment: gasless funding can silently abort the submit,
+        // so when gasless is actually on we race success vs "Gasless funding
+        // failed" and skip on transient Gas Station outages.
+        const outcomePromise = gaslessOnEnabled
+          ? waitForSuccessOrGaslessFail(
+              sendPage.getSuccessToast(),
+              unlockedExtensionPage,
+            )
+          : sendPage.waitForSuccessToast().then(() => 'success' as const);
 
         await sendPage.approveTransaction();
 
-        const successToast = await successToastPromise;
+        const outcome = await outcomePromise;
+
+        if (outcome === 'gasless-failed') {
+          await attachGaslessSkipArtifacts(
+            unlockedExtensionPage,
+            testInfo,
+            row.testrailId,
+          );
+          test.skip(
+            true,
+            `${row.testrailId}: Gas Station gasless funding failed (transient infra issue); transaction was not submitted.`,
+          );
+        }
+
+        expect(outcome, 'Neither success nor gasless-fail toast appeared').toBe(
+          'success',
+        );
+
+        const successToast = sendPage.getSuccessToast();
         await expect(successToast).toContainText('Transaction successful');
 
         const txHash = await sendPage.getTxHashFromToast();
@@ -769,11 +801,37 @@ test.describe('Send Tests', () => {
         });
       }
 
-      const successToastPromise = sendPage.waitForSuccessToast();
+      // Race success vs "Gasless funding failed" when the toggle is on so we
+      // don't sit in a 30s waitForSuccessToast when Gas Station rejects funding
+      // (the tryFunding hook silently swallows the error and never submits).
+      const outcomePromise = gaslessVisible
+        ? waitForSuccessOrGaslessFail(
+            sendPage.getSuccessToast(),
+            unlockedExtensionPage,
+          )
+        : sendPage.waitForSuccessToast().then(() => 'success' as const);
 
       await sendPage.approveTransaction();
 
-      const successToast = await successToastPromise;
+      const outcome = await outcomePromise;
+
+      if (outcome === 'gasless-failed') {
+        await attachGaslessSkipArtifacts(
+          unlockedExtensionPage,
+          testInfo,
+          'SND-002',
+        );
+        test.skip(
+          true,
+          'SND-002: Gas Station gasless funding failed (transient infra issue); transaction was not submitted.',
+        );
+      }
+
+      expect(outcome, 'Neither success nor gasless-fail toast appeared').toBe(
+        'success',
+      );
+
+      const successToast = sendPage.getSuccessToast();
       await expect(successToast).toContainText('Transaction successful');
 
       const txHash = await sendPage.getTxHashFromToast();
