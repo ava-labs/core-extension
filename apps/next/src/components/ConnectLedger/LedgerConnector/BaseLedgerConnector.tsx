@@ -13,6 +13,7 @@ import {
   ErrorType,
   PublicKey,
   UseLedgerPublicKeyFetcher,
+  WalletExistsError,
 } from './types';
 import { LedgerAppType } from '@core/ui';
 import { DerivationStatus } from '@core/types';
@@ -97,13 +98,17 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
         onSuccess(retrievedKeys);
         callbacks?.onConnectionSuccess();
       })
-      .catch((err) => {
-        Monitoring.sentryCaptureException(
-          err,
-          Monitoring.SentryExceptionTypes.LEDGER,
-        );
-        console.error('Failed to derive keys', err);
-        callbacks?.onConnectionFailed(err);
+      .catch((err: unknown) => {
+        const normalizedError =
+          err instanceof Error ? err : new Error(String(err));
+        if (!(normalizedError instanceof WalletExistsError)) {
+          Monitoring.sentryCaptureException(
+            normalizedError,
+            Monitoring.SentryExceptionTypes.LEDGER,
+          );
+        }
+        console.error('Failed to derive keys', normalizedError);
+        callbacks?.onConnectionFailed(normalizedError);
       })
       .finally(() => {
         setIsRetrieving(false);
