@@ -30,6 +30,7 @@ import {
   isPrimaryAccount,
   isSolanaNetwork,
   isXchainNetwork,
+  Monitoring,
   omitUndefined,
 } from '@core/common';
 import {
@@ -198,9 +199,14 @@ export class WalletService implements OnUnlock {
     network: Network,
     accountIndex?: number | number[],
   ) {
-    const accountIndices = Array.isArray(accountIndex)
-      ? accountIndex
-      : [accountIndex ?? secrets.account.index];
+    // The `accountIndex` array form carries *address indices* within the
+    // active BIP-44 account (used by X/P-chain UTXO multi-address signing).
+    // When nothing is passed we sign with the active account's primary
+    // address (index 0), which is the only address CubeSigner provisions
+    // per account. Falling back to `secrets.account.index` here would
+    // produce `m/44'/9000'/<acct>'/0/<acct>` and miss the provisioned key
+    // for any non-zero active account.
+    const addressIndices = Array.isArray(accountIndex) ? accountIndex : [0];
 
     const vmName =
       isXchainNetwork(network) || isPchainNetwork(network)
@@ -212,12 +218,12 @@ export class WalletService implements OnUnlock {
     const curve = isSolanaNetwork(network) ? 'ed25519' : 'secp256k1';
 
     const derivationPaths = await Promise.all(
-      accountIndices.map((index) =>
+      addressIndices.map((addressIndex) =>
         this.addressResolver.getDerivationPathsByVM(
           secrets.account.index,
           secrets.derivationPathSpec,
           [vmName],
-          index,
+          addressIndex,
         ),
       ),
     );
@@ -227,9 +233,19 @@ export class WalletService implements OnUnlock {
       .filter(isNotNullish);
 
     if (!hasAtLeastOneElement(addressPublicKeys)) {
-      throw new Error('No public keys not available');
-    } else if (addressPublicKeys.length < accountIndices.length) {
-      throw new Error('Some of requested signing keys are not available');
+      const err = new Error('No public keys available');
+      Monitoring.sentryCaptureException(
+        err,
+        Monitoring.SentryExceptionTypes.SEEDLESS,
+      );
+      throw err;
+    } else if (addressPublicKeys.length < addressIndices.length) {
+      const err = new Error('Some of requested signing keys are not available');
+      Monitoring.sentryCaptureException(
+        err,
+        Monitoring.SentryExceptionTypes.SEEDLESS,
+      );
+      throw err;
     }
 
     return new SeedlessWallet({

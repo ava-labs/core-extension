@@ -843,6 +843,63 @@ describe('background/services/wallet/WalletService.ts', () => {
         });
       });
 
+      describe('on a non-zero active account with no external indices', () => {
+        const mockedPublicKeys: AddressPublicKeyJson[] = [
+          {
+            curve: 'secp256k1',
+            derivationPath: "m/44'/9000'/0'/0/0",
+            type: 'address-pubkey',
+            key: '0x0000',
+          },
+          {
+            curve: 'secp256k1',
+            derivationPath: "m/44'/9000'/1'/0/0",
+            type: 'address-pubkey',
+            key: '0x0101',
+          },
+        ];
+
+        it('resolves the derivation path with addressIndex 0, not the active account index', async () => {
+          // Regression for CP-14284: prior to this fix, the fallback was
+          // `[secrets.account.index]`, which made the address index equal
+          // the active account index and produced a non-existent path of
+          // `m/44'/9000'/<acct>'/0/<acct>` for any non-zero account.
+          mockSeedlessWallet({ publicKeys: mockedPublicKeys }, {
+            index: 1,
+          } as any);
+
+          const getPathsSpy = jest
+            .spyOn(addressResolver, 'getDerivationPathsByVM')
+            .mockResolvedValueOnce({
+              [NetworkVMType.PVM]: "m/44'/9000'/1'/0/0",
+              [NetworkVMType.AVM]: "m/44'/9000'/1'/0/0",
+            });
+
+          jest
+            .spyOn(SeedlessWallet.prototype, 'signAvalancheTx')
+            .mockResolvedValueOnce(unsignedTxMock);
+
+          await walletService.sign(avalancheTxMock, {
+            ...networkMock,
+            vmName: NetworkVMType.PVM,
+            isTestnet: true,
+          });
+
+          expect(getPathsSpy).toHaveBeenCalledWith(
+            1, // BIP-44 account segment = active account
+            undefined, // derivationPathSpec (not relevant to this regression)
+            [NetworkVMType.AVM],
+            0, // address segment must default to 0, not the active account index
+          );
+
+          expect(SeedlessWallet).toHaveBeenCalledWith(
+            expect.objectContaining({
+              addressPublicKeys: expect.arrayContaining([mockedPublicKeys[1]]),
+            }),
+          );
+        });
+      });
+
       it('throws on wrong wallet type', async () => {
         spyOnGetWallet().mockResolvedValueOnce(btcWalletMock);
 

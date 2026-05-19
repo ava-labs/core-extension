@@ -60,6 +60,10 @@ jest.mock('./SeedlessMfaService');
 jest.mock('@core/common', () => ({
   ...jest.requireActual('@core/common'),
   getProviderForNetwork: jest.fn(),
+  Monitoring: {
+    ...jest.requireActual('@core/common').Monitoring,
+    sentryCaptureException: jest.fn(),
+  },
 }));
 jest.mock('@scure/base');
 
