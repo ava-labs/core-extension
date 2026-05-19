@@ -539,7 +539,7 @@
   "Normal": "Normal",
   "Not Found": "Bulunamadı",
   "Not a valid ERC-20 token address.": "Geçerli bir ERC-20 token adresi değil.",
-  "Not a valid ERC-20 token on {{networkName}}.": "Not a valid ERC-20 token on {{networkName}}.",
+  "Not a valid ERC-20 token on {{networkName}}.": "{{networkName}} ağında geçerli bir ERC-20 token değil.",
   "Not enough {{symbol}} to cover the operating expenses. <amount /> is required.": "İşletme giderlerini karşılamak için yeterli {{symbol}} yok. <amount /> gereklidir.",
   "Notarization failed. Please reach out to the support team to claim your funds.": "Onaylama başarısız. Fonlarınızı talep etmek için lütfen destek ekibiyle iletişime geçin.",
   "Note": "Not",

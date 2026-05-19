@@ -539,7 +539,7 @@
   "Normal": "一般",
   "Not Found": "找不到",
   "Not a valid ERC-20 token address.": "不是有效的 ERC-20 代幣地址。",
-  "Not a valid ERC-20 token on {{networkName}}.": "Not a valid ERC-20 token on {{networkName}}.",
+  "Not a valid ERC-20 token on {{networkName}}.": "不是 {{networkName}} 上的有效 ERC-20 代幣。",
   "Not enough {{symbol}} to cover the operating expenses. <amount /> is required.": "{{symbol}} 餘額不足以支付運營費用。需要 <amount />。",
   "Notarization failed. Please reach out to the support team to claim your funds.": "公證（Notarization）失敗。請聯絡支援團隊以領回你的資金。",
   "Note": "備註",
