@@ -550,6 +550,7 @@
   "Normal": "सामान्य",
   "Not Found": "नहीं मिला",
   "Not a valid ERC-20 token address.": "मान्य ERC-20 टोकन पता नहीं है।",
+  "Not a valid ERC-20 token on {{networkName}}.": "{{networkName}} पर मान्य ERC-20 टोकन नहीं है।",
   "Not enough {{symbol}} to cover the operating expenses. <amount /> is required.": "परिचालन खर्च को कवर करने के लिए पर्याप्त {{symbol}} नहीं है। <amount /> आवश्यक है।",
   "Notarization failed. Please reach out to the support team to claim your funds.": "नोटराइज़ेशन विफल रहा। अपने फंड का दावा करने के लिए कृपया सहायता टीम से संपर्क करें।",
   "Note": "नोट",
