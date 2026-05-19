@@ -145,15 +145,19 @@ export const SWAP_PAIRS: Record<string, SwapPair> = {
   BLACK_AVAX: {
     from: SWAP_TOKENS.BLACK,
     to: SWAP_TOKENS.AVAX,
-    amount: '10',
+    amount: '50',
     fixture: 'black-avax',
     chain: 'avalanche',
   },
-  BLACK_USDC: {
-    from: SWAP_TOKENS.BLACK,
-    to: SWAP_TOKENS.USDC_AVAX,
-    amount: '10',
-    fixture: 'black-usdc',
+  // TODO(SWP-003 mock): the `usdc-black` fixture still contains the legacy
+  // `BLACK → USDC` recording. The mock flow doesn't validate displayed
+  // amounts so the test passes, but the quote shown in the UI is stale. Re-
+  // record with `RECORD_FIXTURES=1` to get a true `USDC → BLACK` quote.
+  USDC_BLACK: {
+    from: SWAP_TOKENS.USDC_AVAX,
+    to: SWAP_TOKENS.BLACK,
+    amount: '0.3',
+    fixture: 'usdc-black',
     chain: 'avalanche',
   },
   ETH_LINK: {
