@@ -109,8 +109,12 @@ export const TEST_SEND = {
    */
   PCHAIN_AVAX: {
     tokenSymbol: 'AVAX',
-    /** Must match `chainName` on P-Chain network (ChainBadge `alt` in token list). */
-    chainBadgeAltText: 'Avalanche (P-Chain)',
+    /**
+     * Matches `chainName` on the P-Chain network (ChainBadge `alt` in token list).
+     * Network names are environment-dependent — e.g. `Avalanche (P-Chain)` on mainnet
+     * and `Avalanche Fuji Testnet (P-Chain)` on testnet — so match the stable suffix.
+     */
+    chainBadgeAltText: /\(P-Chain\)/i,
     amount: '0.001',
     recipientAccount: 'Account 2',
   },
@@ -120,7 +124,7 @@ export const TEST_SEND = {
    */
   XCHAIN_AVAX: {
     tokenSymbol: 'AVAX',
-    chainBadgeAltText: 'Avalanche (X-Chain)',
+    chainBadgeAltText: /\(X-Chain\)/i,
     amount: '0.001',
     recipientAccount: 'Account 2',
   },

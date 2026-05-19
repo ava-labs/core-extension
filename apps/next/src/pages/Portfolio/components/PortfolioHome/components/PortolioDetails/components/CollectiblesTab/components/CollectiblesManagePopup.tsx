@@ -49,7 +49,12 @@ export const CollectiblesManagePopup = ({
     });
   }, [collectibles, searchQuery]);
   return (
-    <Dialog fullScreen={true} open={open} onClose={onClose}>
+    <Dialog
+      fullScreen={true}
+      open={open}
+      onClose={onClose}
+      sx={{ zIndex: (theme) => theme.zIndex.tooltip + 2 }}
+    >
       <Page
         title={t('Manage Collectibles')}
         withBackButton={true}

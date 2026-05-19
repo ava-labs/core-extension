@@ -1071,5 +1071,136 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         },
       });
     });
+
+    describe('balance-service fallback', () => {
+      // Helper: yields a single chain-specific error from the balance service.
+      const errorStream = (error: {
+        caip2Id: string;
+        id: string;
+        error: string;
+      }) => ({
+        async next() {
+          if (this._done) {
+            return { value: undefined, done: true };
+          }
+          this._done = true;
+          return {
+            value: { ...error, networkType: 'evm', balances: null },
+            done: false,
+          };
+        },
+        _done: false,
+      });
+
+      it('passes the real accounts through to the VM-module path when the balance service rejects a chain', async () => {
+        const networkServiceWithMonad = {
+          activeNetworks: {
+            promisify: jest
+              .fn()
+              .mockResolvedValue({ [network1.chainId]: network1 }),
+          },
+          getFavoriteNetworks: () => [],
+        } as any;
+
+        jest
+          .mocked(createGetBalancePayload)
+          .mockResolvedValue([{ data: [], currency: 'usd' }]);
+        jest.mocked(postV1BalanceGetBalances).mockResolvedValue({
+          stream: errorStream({
+            caip2Id: 'eip155:1',
+            id: account1.addressC,
+            error: '[getEvmBalances] unsupported chain id: 1',
+          }) as any,
+        });
+
+        const fallbackBalances = {
+          [account1.addressC]: { [networkToken1.symbol]: network1TokenBalance },
+        };
+        const balancesService = {
+          getBalancesForNetwork: jest.fn().mockResolvedValue(fallbackBalances),
+        } as any;
+
+        const service = new BalanceAggregatorService(
+          balancesService,
+          networkServiceWithMonad,
+          lockService,
+          storageService,
+          settingsServiceMock,
+          {
+            featureFlags: {
+              [FeatureGates.BALANCE_SERVICE_INTEGRATION]: true,
+            },
+          } as any,
+          mockSecretsService,
+          addressResolverMock,
+          tokenPricesServiceMock,
+        );
+
+        await service.getBalancesForNetworks({
+          chainIds: [network1.chainId],
+          accounts: [account1],
+          tokenTypes: [TokenType.NATIVE],
+        });
+
+        // Real account passed through — not a synthetic one.
+        expect(balancesService.getBalancesForNetwork).toHaveBeenCalledWith(
+          network1,
+          [account1],
+          [TokenType.NATIVE],
+          undefined,
+        );
+        expect(service.balances[network1.chainId]).toEqual(fallbackBalances);
+      });
+
+      it('does not invoke the VM-module fallback when the only errors are rate-limits', async () => {
+        const networkServiceWithMonad = {
+          activeNetworks: {
+            promisify: jest
+              .fn()
+              .mockResolvedValue({ [network1.chainId]: network1 }),
+          },
+          getFavoriteNetworks: () => [],
+        } as any;
+
+        jest
+          .mocked(createGetBalancePayload)
+          .mockResolvedValue([{ data: [], currency: 'usd' }]);
+        jest.mocked(postV1BalanceGetBalances).mockResolvedValue({
+          stream: errorStream({
+            caip2Id: 'eip155:1',
+            id: account1.addressC,
+            error: 'Rate limit exceeded',
+          }) as any,
+        });
+
+        const balancesService = {
+          getBalancesForNetwork: jest.fn(),
+        } as any;
+
+        const service = new BalanceAggregatorService(
+          balancesService,
+          networkServiceWithMonad,
+          lockService,
+          storageService,
+          settingsServiceMock,
+          {
+            featureFlags: {
+              [FeatureGates.BALANCE_SERVICE_INTEGRATION]: true,
+            },
+          } as any,
+          mockSecretsService,
+          addressResolverMock,
+          tokenPricesServiceMock,
+        );
+
+        await service.getBalancesForNetworks({
+          chainIds: [network1.chainId],
+          accounts: [account1],
+          tokenTypes: [TokenType.NATIVE],
+        });
+
+        expect(balancesService.getBalancesForNetwork).not.toHaveBeenCalled();
+      });
+    });
   });
 });
