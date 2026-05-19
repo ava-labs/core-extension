@@ -539,6 +539,7 @@
   "Normal": "보통",
   "Not Found": "찾을 수 없음",
   "Not a valid ERC-20 token address.": "유효한 ERC-20 토큰 주소가 아닙니다.",
+  "Not a valid ERC-20 token on {{networkName}}.": "{{networkName}}의 유효한 ERC-20 토큰이 아닙니다.",
   "Not enough {{symbol}} to cover the operating expenses. <amount /> is required.": "운영 비용을 충당하기에 {{symbol}}이(가) 부족합니다. <amount />이(가) 필요합니다.",
   "Notarization failed. Please reach out to the support team to claim your funds.": "공증에 실패했습니다. 자금을 청구하려면 지원팀에 문의하세요.",
   "Note": "메모",

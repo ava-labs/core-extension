@@ -539,6 +539,7 @@
   "Normal": "Обычный",
   "Not Found": "Не найдено",
   "Not a valid ERC-20 token address.": "Недействительный адрес ERC-20 токена.",
+  "Not a valid ERC-20 token on {{networkName}}.": "Не действительный ERC-20 токен в сети {{networkName}}.",
   "Not enough {{symbol}} to cover the operating expenses. <amount /> is required.": "Недостаточно {{symbol}} для покрытия операционных расходов. Требуется <amount />.",
   "Notarization failed. Please reach out to the support team to claim your funds.": "Нотариальное подтверждение не удалось. Пожалуйста, свяжитесь со службой поддержки, чтобы вернуть средства.",
   "Note": "Примечание",

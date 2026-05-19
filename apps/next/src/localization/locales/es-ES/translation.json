@@ -539,6 +539,7 @@
   "Normal": "Normal",
   "Not Found": "No encontrado",
   "Not a valid ERC-20 token address.": "No es una dirección de token ERC-20 válida.",
+  "Not a valid ERC-20 token on {{networkName}}.": "No es un token ERC-20 válido en {{networkName}}.",
   "Not enough {{symbol}} to cover the operating expenses. <amount /> is required.": "No hay suficiente {{symbol}} para cubrir los gastos operativos. Se requiere <amount />.",
   "Notarization failed. Please reach out to the support team to claim your funds.": "La notarización ha fallado. Por favor, contacta con el equipo de soporte para reclamar tus fondos.",
   "Note": "Nota",
