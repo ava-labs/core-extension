@@ -16,6 +16,13 @@ on:
           - 'false'
           - 'true'
         default: 'false'
+      include-cross-chain-swaps:
+        type: choice
+        description: 'Also run live cross-chain swap tests? (~20 min per pair, real on-chain transactions)'
+        options:
+          - 'false'
+          - 'true'
+        default: 'false'
       send-slack:
         type: choice
         description: 'Send slack notification?'
@@ -300,12 +307,12 @@ jobs:
         env:
           PLAYWRIGHT_SHARD: ${{ matrix.shardIndex }}
           INCLUDE_LIVE_SWAPS: ${{ github.event.inputs.include-live-swaps || 'false' }}
+          INCLUDE_CROSS_CHAIN_SWAPS: ${{ github.event.inputs.include-cross-chain-swaps || 'false' }}
         run: |
-          if [ "$INCLUDE_LIVE_SWAPS" = "true" ]; then
-            GREP_PATTERN="@regression|@swap-live"
-          else
-            GREP_PATTERN="@regression"
-          fi
+          PATTERNS=("@regression")
+          [ "$INCLUDE_LIVE_SWAPS" = "true" ] && PATTERNS+=("@swap-live")
+          [ "$INCLUDE_CROSS_CHAIN_SWAPS" = "true" ] && PATTERNS+=("@swap-cross-chain")
+          GREP_PATTERN=$(IFS='|'; echo "${PATTERNS[*]}")
           echo "Running tests with grep: $GREP_PATTERN"
           xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' \
             npx playwright test --headed \

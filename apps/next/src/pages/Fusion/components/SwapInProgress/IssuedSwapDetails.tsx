@@ -62,7 +62,13 @@ export const IssuedSwapDetails: FC<Props> = ({ transfer, isRead }) => {
   const swappedTokens = useSwappedTokens(transfer);
 
   return (
-    <Stack width="100%" gap={3} flexGrow={1} justifyContent="space-between">
+    <Stack
+      width="100%"
+      gap={3}
+      flexGrow={1}
+      justifyContent="space-between"
+      data-testid="fusion-cross-chain-progress-page"
+    >
       <Stack gap={1}>
         <Card noPadding>
           <Stack divider={<Styled.Divider />}>
@@ -94,6 +100,11 @@ export const IssuedSwapDetails: FC<Props> = ({ transfer, isRead }) => {
           color="primary"
           fullWidth
           onClick={goBack}
+          data-testid={
+            isConcluded
+              ? 'fusion-cross-chain-close-button'
+              : 'fusion-cross-chain-notify-button'
+          }
         >
           {isConcluded ? t('Close') : t('Notify me when it’s done')}
         </Button>

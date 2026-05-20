@@ -216,7 +216,120 @@ export const SWAP_TIMEOUTS = {
   APPROVAL: 30_000,
   TRANSACTION: 60_000,
   TEST: 120_000,
+  /**
+   * Per-test budget for live cross-chain swaps. Bridges (Markr Solana ↔ EVM,
+   * EVM ↔ EVM) can take 5-10 minutes end-to-end, so we allow 20 minutes per
+   * test. Mirrors Core Web's `UNIFIED_CROSS_CHAIN_SWAP_TEST_TIMEOUT_MS`.
+   */
+  CROSS_CHAIN_TEST: 1_200_000,
+  /**
+   * Outer poll for source + target status to reach Complete. Slightly shorter
+   * than `CROSS_CHAIN_TEST` so the test fails on the assertion rather than the
+   * test-level timeout. Mirrors Core Web's `waitForSwapSuccessOrFail` default.
+   */
+  CROSS_CHAIN_SUCCESS: 900_000,
 } as const;
+
+/**
+ * Cross-chain swap pairs covered by the live regression suite. Twelve pairs
+ * mirroring Core Web's `unifiedSwaps.spec.ts` cross-chain set (PR #1655); see
+ * `e2e/tests/swap-cross-chain-live.spec.ts` for the test body.
+ *
+ * Skipped intentionally (Core Web parity):
+ *   - Any `Ethereum-source` pair: long finality + tx times out
+ *   - Any `L2-source` pair: same reason
+ *   - Any subnet/L1 pair (JUICE/BLAZE): no quotes + UI bug (CP-13945)
+ *   - Lombard BTC ↔ BTC.b: 6h SLA, not viable in CI
+ *
+ * Amounts and pair shape are copied verbatim from Core Web; adjust only if a
+ * pair starts failing on liquidity / fee coverage in our test wallet.
+ */
+export const CROSS_CHAIN_SWAP_PAIRS = {
+  AVAX_TO_ETH: {
+    from: SWAP_TOKENS.AVAX,
+    to: SWAP_TOKENS.ETH,
+    amount: '0.03',
+    fixture: 'cross-chain-avax-to-eth',
+    chain: 'avalanche',
+  },
+  AVAX_TO_ETH_BASE: {
+    from: SWAP_TOKENS.AVAX,
+    to: SWAP_TOKENS.ETH_BASE,
+    amount: '0.01',
+    fixture: 'cross-chain-avax-to-eth-base',
+    chain: 'avalanche',
+  },
+  AVAX_TO_SOL: {
+    from: SWAP_TOKENS.AVAX,
+    to: SWAP_TOKENS.SOL,
+    amount: '0.015',
+    fixture: 'cross-chain-avax-to-sol',
+    chain: 'avalanche',
+  },
+  USDC_AVAX_TO_ETH: {
+    from: SWAP_TOKENS.USDC_AVAX,
+    to: SWAP_TOKENS.ETH,
+    amount: '0.05',
+    fixture: 'cross-chain-usdc-avax-to-eth',
+    chain: 'avalanche',
+  },
+  USDC_AVAX_TO_ETH_BASE: {
+    from: SWAP_TOKENS.USDC_AVAX,
+    to: SWAP_TOKENS.ETH_BASE,
+    amount: '0.05',
+    fixture: 'cross-chain-usdc-avax-to-eth-base',
+    chain: 'avalanche',
+  },
+  USDC_AVAX_TO_SOL: {
+    from: SWAP_TOKENS.USDC_AVAX,
+    to: SWAP_TOKENS.SOL,
+    amount: '0.1',
+    fixture: 'cross-chain-usdc-avax-to-sol',
+    chain: 'avalanche',
+  },
+  SOL_TO_AVAX: {
+    from: SWAP_TOKENS.SOL,
+    to: SWAP_TOKENS.AVAX,
+    amount: '0.00015',
+    fixture: 'cross-chain-sol-to-avax',
+    chain: 'solana',
+  },
+  SOL_TO_ETH: {
+    from: SWAP_TOKENS.SOL,
+    to: SWAP_TOKENS.ETH,
+    amount: '0.001',
+    fixture: 'cross-chain-sol-to-eth',
+    chain: 'solana',
+  },
+  SOL_TO_ETH_BASE: {
+    from: SWAP_TOKENS.SOL,
+    to: SWAP_TOKENS.ETH_BASE,
+    amount: '0.0005',
+    fixture: 'cross-chain-sol-to-eth-base',
+    chain: 'solana',
+  },
+  USDC_SOL_TO_AVAX: {
+    from: SWAP_TOKENS.USDC_SOL,
+    to: SWAP_TOKENS.AVAX,
+    amount: '0.05',
+    fixture: 'cross-chain-usdc-sol-to-avax',
+    chain: 'solana',
+  },
+  USDC_SOL_TO_ETH_BASE: {
+    from: SWAP_TOKENS.USDC_SOL,
+    to: SWAP_TOKENS.ETH_BASE,
+    amount: '0.01',
+    fixture: 'cross-chain-usdc-sol-to-eth-base',
+    chain: 'solana',
+  },
+  USDC_SOL_TO_ETH: {
+    from: SWAP_TOKENS.USDC_SOL,
+    to: SWAP_TOKENS.ETH,
+    amount: '0.05',
+    fixture: 'cross-chain-usdc-sol-to-eth',
+    chain: 'solana',
+  },
+} as const satisfies Record<string, SwapPair>;
 
 export const MOCK_RPC_PORT = 18545;
 export const MOCK_RPC_URL = `http://127.0.0.1:${MOCK_RPC_PORT}`;

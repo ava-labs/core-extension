@@ -6,6 +6,7 @@
     "contacts",
     "send",
     "swap",
+    "cross-chain-swap",
     "cross-chain-transfer",
     "stake-delegate",
     "defi",

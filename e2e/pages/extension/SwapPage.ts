@@ -3,12 +3,28 @@ import { expect } from '@playwright/test';
 import { BasePage } from './BasePage';
 import { SWAP_TIMEOUTS } from '../../types/swap';
 
+export type CrossChainSide = 'source' | 'destination';
+
 export class SwapPage extends BasePage {
   readonly fromSection: Locator;
   readonly toSection: Locator;
   readonly fromAmountInput: Locator;
   readonly toAmountInput: Locator;
   readonly swapButton: Locator;
+
+  // Cross-chain progress page (`/fusion-transfer/:id`)
+  readonly crossChainProgressPage: Locator;
+  readonly crossChainNotifyButton: Locator;
+  readonly crossChainCloseButton: Locator;
+  readonly crossChainEtaWarning: Locator;
+  readonly transferSourceCard: Locator;
+  readonly transferDestinationCard: Locator;
+  readonly transferSourceChain: Locator;
+  readonly transferDestinationChain: Locator;
+  readonly transferSourceStatus: Locator;
+  readonly transferDestinationStatus: Locator;
+  readonly transferSourceExplorer: Locator;
+  readonly transferDestinationExplorer: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -22,6 +38,39 @@ export class SwapPage extends BasePage {
       '[data-testid="send-amount-input"] input',
     );
     this.swapButton = page.getByRole('button', { name: 'Swap', exact: true });
+
+    this.crossChainProgressPage = page.getByTestId(
+      'fusion-cross-chain-progress-page',
+    );
+    this.crossChainNotifyButton = page.getByTestId(
+      'fusion-cross-chain-notify-button',
+    );
+    this.crossChainCloseButton = page.getByTestId(
+      'fusion-cross-chain-close-button',
+    );
+    this.crossChainEtaWarning = page.getByTestId(
+      'fusion-cross-chain-eta-warning',
+    );
+    this.transferSourceCard = page.getByTestId('fusion-transfer-source-card');
+    this.transferDestinationCard = page.getByTestId(
+      'fusion-transfer-destination-card',
+    );
+    this.transferSourceChain = page.getByTestId('fusion-transfer-source-chain');
+    this.transferDestinationChain = page.getByTestId(
+      'fusion-transfer-destination-chain',
+    );
+    this.transferSourceStatus = page.getByTestId(
+      'fusion-transfer-source-status',
+    );
+    this.transferDestinationStatus = page.getByTestId(
+      'fusion-transfer-destination-status',
+    );
+    this.transferSourceExplorer = page.getByTestId(
+      'fusion-transfer-source-view-explorer',
+    );
+    this.transferDestinationExplorer = page.getByTestId(
+      'fusion-transfer-destination-view-explorer',
+    );
   }
 
   // ── Navigation ──────────────────────────────────────────────────────
@@ -339,5 +388,123 @@ export class SwapPage extends BasePage {
 
   async getDestTokenName(): Promise<string> {
     return (await this.toSection.locator('h6').first().textContent()) ?? '';
+  }
+
+  // ── Cross-chain progress page (/fusion-transfer/:id) ────────────────
+
+  /**
+   * Wait for the post-submit URL to land on `/fusion-transfer/:id`. Returns
+   * the transfer id parsed from the URL. Cross-chain swaps navigate here
+   * instead of going home; single-chain swaps do not.
+   */
+  async waitForCrossChainProgressPage(timeout = 30_000): Promise<string> {
+    await this.page.waitForURL(/#\/fusion-transfer\//, { timeout });
+    return this.getCrossChainTransferIdFromUrl();
+  }
+
+  getCrossChainTransferIdFromUrl(): string {
+    const match = this.page.url().match(/#\/fusion-transfer\/([^/?#]+)/);
+    if (!match) {
+      throw new Error(
+        `URL is not on a /fusion-transfer/:id page: ${this.page.url()}`,
+      );
+    }
+    return match[1]!;
+  }
+
+  /**
+   * Asserts the source + target cards are rendered with the expected chain
+   * names. Use immediately after `waitForCrossChainProgressPage()`.
+   */
+  async assertSourceAndTargetCardsRendered(args: {
+    sourceChainName: string | RegExp;
+    targetChainName: string | RegExp;
+  }): Promise<void> {
+    await expect(this.transferSourceCard).toBeVisible({ timeout: 10_000 });
+    await expect(this.transferDestinationCard).toBeVisible({ timeout: 10_000 });
+    await expect(this.transferSourceChain).toContainText(args.sourceChainName);
+    await expect(this.transferDestinationChain).toContainText(
+      args.targetChainName,
+    );
+  }
+
+  async clickNotifyMeWhenDone(): Promise<void> {
+    await this.crossChainNotifyButton.waitFor({
+      state: 'visible',
+      timeout: 10_000,
+    });
+    await this.crossChainNotifyButton.click();
+  }
+
+  async clickCloseOnConcludedTransfer(): Promise<void> {
+    await this.crossChainCloseButton.waitFor({
+      state: 'visible',
+      timeout: 10_000,
+    });
+    await this.crossChainCloseButton.click();
+  }
+
+  /**
+   * Long-poll for both source + target status to reach `Complete`. Mirrors
+   * Core Web's `waitForSwapSuccessOrFail`: fast-fail in the first ~3 seconds
+   * if the source side already reports Failed or Refunded, otherwise poll
+   * both sides up to `timeout` (default 15 min).
+   */
+  async waitForCrossChainComplete(
+    timeout = SWAP_TIMEOUTS.CROSS_CHAIN_SUCCESS,
+  ): Promise<void> {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const src = (
+        (await this.transferSourceStatus.textContent().catch(() => '')) ?? ''
+      ).toLowerCase();
+      if (src.includes('failed') || src.includes('refunded')) {
+        throw new Error(
+          `Cross-chain source side concluded early with status: "${src}"`,
+        );
+      }
+      if (attempt < 2) {
+        await this.page.waitForTimeout(1_000);
+      }
+    }
+
+    await expect(this.transferSourceStatus).toContainText(/complete/i, {
+      timeout,
+    });
+    await expect(this.transferDestinationStatus).toContainText(/complete/i, {
+      timeout,
+    });
+  }
+
+  /**
+   * Reads the tx hash from a side's explorer link. Prefers the
+   * `data-tx-hash` attribute, falls back to extracting it from `href` so this
+   * survives a future href shape change without breaking the test.
+   */
+  async getCrossChainTxHash(side: CrossChainSide): Promise<string> {
+    const anchor =
+      side === 'source'
+        ? this.transferSourceExplorer
+        : this.transferDestinationExplorer;
+
+    await anchor.waitFor({ state: 'visible', timeout: 30_000 });
+
+    const hash = await anchor.getAttribute('data-tx-hash');
+    if (hash) {
+      return hash;
+    }
+
+    const href = await anchor.getAttribute('href');
+    if (!href) {
+      throw new Error(
+        `${side} explorer link is missing both data-tx-hash and href`,
+      );
+    }
+    const match = href.match(/(0x[a-fA-F0-9]{64})|([1-9A-HJ-NP-Za-km-z]{43,})/);
+    if (!match) {
+      throw new Error(
+        `Could not extract a tx hash from ${side} explorer href: ${href}`,
+      );
+    }
+    return match[0]!;
   }
 }

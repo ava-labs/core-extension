@@ -19,6 +19,7 @@ type NotificationListItemProps = {
   accessoryType?: 'chevron' | 'none' | 'link';
   onClick?: () => void;
   isUnread?: boolean;
+  'data-testid'?: string;
 };
 
 export const NotificationListItem: FC<NotificationListItemProps> = ({
@@ -30,6 +31,7 @@ export const NotificationListItem: FC<NotificationListItemProps> = ({
   accessoryType = 'chevron',
   onClick,
   isUnread,
+  'data-testid': dataTestId,
 }) => {
   const theme = useTheme();
 
@@ -43,6 +45,7 @@ export const NotificationListItem: FC<NotificationListItemProps> = ({
   return (
     <Box
       onClick={onClick}
+      data-testid={dataTestId}
       sx={{
         cursor: onClick ? 'pointer' : 'default',
         '&:hover': onClick

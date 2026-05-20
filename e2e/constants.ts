@@ -36,6 +36,12 @@ export const TEST_CONFIG = {
 export const TEST_TAGS = {
   SMOKE: '@smoke',
   REGRESSION: '@regression',
+  /**
+   * Live cross-chain swap tests. Runs ~20 min per pair, real on-chain txns.
+   * Excluded from the daily scheduled regression run. Opt in via the
+   * `include-cross-chain-swaps: true` dropdown in the regression workflow.
+   */
+  SWAP_CROSS_CHAIN: '@swap-cross-chain',
 };
 
 /**
