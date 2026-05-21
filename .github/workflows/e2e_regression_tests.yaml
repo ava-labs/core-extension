@@ -309,10 +309,12 @@ jobs:
           INCLUDE_LIVE_SWAPS: ${{ github.event.inputs.include-live-swaps || 'false' }}
           INCLUDE_CROSS_CHAIN_SWAPS: ${{ github.event.inputs.include-cross-chain-swaps || 'false' }}
         run: |
-          PATTERNS=("@regression")
-          [ "$INCLUDE_LIVE_SWAPS" = "true" ] && PATTERNS+=("@swap-live")
-          [ "$INCLUDE_CROSS_CHAIN_SWAPS" = "true" ] && PATTERNS+=("@swap-cross-chain")
-          GREP_PATTERN=$(IFS='|'; echo "${PATTERNS[*]}")
+          # POSIX-compliant string concatenation (no bash arrays). The runner
+          # uses `sh -e` by default in containerised jobs, which doesn't
+          # support `PATTERNS=("...")` / `PATTERNS+=(...)`.
+          GREP_PATTERN="@regression"
+          [ "$INCLUDE_LIVE_SWAPS" = "true" ] && GREP_PATTERN="$GREP_PATTERN|@swap-live"
+          [ "$INCLUDE_CROSS_CHAIN_SWAPS" = "true" ] && GREP_PATTERN="$GREP_PATTERN|@swap-cross-chain"
           echo "Running tests with grep: $GREP_PATTERN"
           xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' \
             npx playwright test --headed \
