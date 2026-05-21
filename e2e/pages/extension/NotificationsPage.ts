@@ -28,12 +28,40 @@ export class NotificationsPage extends BasePage {
   }
 
   /**
-   * Opens the Notifications page by clicking the header bell icon. Waits for
-   * the URL to land on `#/notifications`.
+   * Opens the Notifications page. Prefers the real-user action (click the
+   * header bell), falls back to URL navigation when the bell isn't on the
+   * current page.
+   *
+   * The header bell (`notifications-button`) is only rendered on pages that
+   * mount the global `<Header>` component (Portfolio, some Settings pages,
+   * DeFi protocol details, etc.). Pages that pass `withBackButton` to the
+   * Page component (Fusion swap, Notifications, Send, etc.) replace the
+   * header with `PageTopBar`, which renders only a back arrow + title.
+   *
+   * The test flow can land on any of these pages depending on the path
+   * history takes (e.g., after a retry the user may already be on
+   * `/notifications`). Try every reasonable path so a single helper works
+   * everywhere.
    */
   async openFromHeader(timeout = 10_000): Promise<void> {
-    await this.notificationsButton.waitFor({ state: 'visible', timeout });
-    await this.notificationsButton.click();
+    // Already on Notifications? Nothing to do.
+    if (this.page.url().includes('#/notifications')) {
+      return;
+    }
+
+    const bellVisible = await this.notificationsButton
+      .isVisible({ timeout: 2_000 })
+      .catch(() => false);
+
+    if (bellVisible) {
+      await this.notificationsButton.click();
+    } else {
+      const base = this.page.url().split('#')[0];
+      await this.page.goto(`${base}#/notifications`, {
+        waitUntil: 'domcontentloaded',
+      });
+    }
+
     await this.page.waitForURL(/#\/notifications/, { timeout });
   }
 

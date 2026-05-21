@@ -26,7 +26,10 @@
  */
 
 import { test, expect } from '../fixtures/extension.fixture';
-import { SwapPage } from '../pages/extension/SwapPage';
+import {
+  CrossChainSwapFailedError,
+  SwapPage,
+} from '../pages/extension/SwapPage';
 import { NotificationsPage } from '../pages/extension/NotificationsPage';
 import {
   CROSS_CHAIN_SWAP_PAIRS,
@@ -103,91 +106,212 @@ test.describe('Swap Cross-Chain — Live', () => {
         ],
         tag: '@swap-cross-chain',
       },
-      async ({ unlockedExtensionPage }) => {
-        test.setTimeout(SWAP_TIMEOUTS.CROSS_CHAIN_TEST);
+      async ({ unlockedExtensionPage }, testInfo) => {
+        // Budget covers both attempts when retry-on-revert fires.
+        // (CROSS_CHAIN_TEST = 20 min; double = 40 min upper bound.)
+        test.setTimeout(SWAP_TIMEOUTS.CROSS_CHAIN_TEST * 2);
 
         const swap = new SwapPage(unlockedExtensionPage);
         const notifs = new NotificationsPage(unlockedExtensionPage);
 
-        // ── 1. Quote + submit ───────────────────────────────────────
-        await swap.navigateToSwap({ from: pair.from, to: pair.to });
-        await swap.waitForTokensLoaded();
-        await swap.enterFromAmount(pair.amount);
-        await swap.waitForQuote();
+        /**
+         * Runs the full submit → progress → notify-me → notifications →
+         * back → wait-for-complete → on-chain verify → notifications
+         * round-trip. Throws `CrossChainSwapFailedError` if either side
+         * reports a terminal failure; we catch that one error class and
+         * retry the same pair once (per Markr's revert behaviour — usually
+         * a transient slippage / liquidity issue).
+         */
+        const runCrossChainSwap = async (): Promise<void> => {
+          // ── 1. Quote + submit ───────────────────────────────────────
+          await swap.navigateToSwap({ from: pair.from, to: pair.to });
+          await swap.waitForTokensLoaded();
+          await swap.enterFromAmount(pair.amount);
+          await swap.waitForQuote();
 
-        await expect
-          .poll(() => swap.isSwapButtonEnabled(), { timeout: 30_000 })
-          .toBe(true);
+          // Exchange rate is displayed: "1 {from} = {rate} {to}"
+          // (rendered by ExchangeRate.tsx via i18n key
+          // "1 {{from}} = <rate>{{rate}}</rate> {{to}}"). We don't validate the
+          // rate value — quote drift is real — just the shape.
+          await expect(
+            unlockedExtensionPage.getByText(
+              new RegExp(
+                `1\\s+${pair.from.symbol}\\s*=\\s*[\\d.]+\\s+${pair.to.symbol}`,
+                'i',
+              ),
+            ),
+          ).toBeVisible({ timeout: 10_000 });
 
-        await swap.clickSwap();
-        await swap.handleApprovalFlow();
+          await expect
+            .poll(() => swap.isSwapButtonEnabled(), { timeout: 30_000 })
+            .toBe(true);
 
-        // ── 2. Cross-chain progress page (two-card UI) ─────────────
-        const transferId = await swap.waitForCrossChainProgressPage();
-        await swap.assertSourceAndTargetCardsRendered({
-          sourceChainName: CHAIN_NAME_PATTERN[pair.from.chain],
-          targetChainName: CHAIN_NAME_PATTERN[pair.to.chain],
-        });
+          await swap.clickSwap();
+          await swap.handleApprovalFlow();
 
-        // ── 3. Regression guard: success toast suppressed for cross-chain
-        await expect(swap.getSuccessToast()).toHaveCount(0, {
-          timeout: 2_000,
-        });
+          // ── 2. Cross-chain progress page (two-card UI) ─────────────
+          const transferId = await swap.waitForCrossChainProgressPage();
 
-        // ── 4. Tap "Notify me when it's done" → leaves progress page ─
-        await swap.clickNotifyMeWhenDone();
-        await expect(unlockedExtensionPage).not.toHaveURL(
-          /#\/fusion-transfer\//,
-          { timeout: 5_000 },
-        );
+          // Title — should be "Swap in progress..." while not yet concluded.
+          await expect(swap.progressPageTitle(/swap in progress/i)).toBeVisible(
+            { timeout: 10_000 },
+          );
 
-        // ── 5. Open Notifications via header bell ──────────────────
-        await notifs.openFromHeader();
+          await swap.assertSourceAndTargetCardsRendered({
+            sourceChainName: CHAIN_NAME_PATTERN[pair.from.chain],
+            targetChainName: CHAIN_NAME_PATTERN[pair.to.chain],
+          });
 
-        // In-progress transfer visible on "All" + "Transactions" tabs
-        await notifs.selectTab('All');
-        await notifs.assertInProgressTransferVisible({
-          transferId,
-          sourceSymbol: pair.from.symbol,
-          targetSymbol: pair.to.symbol,
-        });
+          // Token-amount summary at top of the progress page. The destination
+          // (`received`) row should show a positive amount of the target
+          // token. The source (`paid`) row should show a negative amount of
+          // the source token. Intermediate paid rows (Markr USDC pivot, etc.)
+          // exist but we don't assert on them — only the user-visible
+          // endpoints.
+          // chainId disambiguates rows that share a symbol — e.g. a USDC →
+          // SOL swap via Markr renders intermediate USDC on the destination
+          // chain AND the source USDC on the source chain.
+          const receivedAmount = await swap.getSwapSummaryAmountText({
+            type: 'received',
+            tokenSymbol: pair.to.symbol,
+            chainId: pair.to.chainId,
+          });
+          expect(
+            receivedAmount,
+            `Destination summary row should show a positive ${pair.to.symbol} amount`,
+          ).not.toMatch(/^-/);
+          expect(receivedAmount).toMatch(/^[\d.]+/);
 
-        await notifs.selectTab('Transactions');
-        await notifs.assertInProgressTransferVisible({
-          transferId,
-          sourceSymbol: pair.from.symbol,
-          targetSymbol: pair.to.symbol,
-        });
+          const paidAmount = await swap.getSwapSummaryAmountText({
+            type: 'paid',
+            tokenSymbol: pair.from.symbol,
+            chainId: pair.from.chainId,
+          });
+          expect(
+            paidAmount,
+            `Source summary row should show a negative ${pair.from.symbol} amount`,
+          ).toMatch(/^-/);
 
-        // ── 6. Click notification → deeplink back to progress page ─
-        await notifs.clickTransferItem(transferId);
-        await swap.waitForCrossChainProgressPage();
+          // ── 3. Regression guard: success toast suppressed for cross-chain
+          await expect(swap.getSuccessToast()).toHaveCount(0, {
+            timeout: 2_000,
+          });
 
-        // ── 7. Wait for both sides Complete (fast-fail in ~3 s) ────
-        await swap.waitForCrossChainComplete();
+          // ── 4. Tap "Notify me when it's done" → leaves progress page ─
+          await swap.clickNotifyMeWhenDone();
+          await expect(unlockedExtensionPage).not.toHaveURL(
+            /#\/fusion-transfer\//,
+            { timeout: 5_000 },
+          );
 
-        // ── 8. Verify on-chain on both sides ───────────────────────
-        const srcHash = await swap.getCrossChainTxHash('source');
-        const dstHash = await swap.getCrossChainTxHash('destination');
-        await verifyTransactionOnExplorer(
-          srcHash,
-          CHAIN_TO_EXPLORER[pair.from.chain],
-          'Mainnet',
-        );
-        await verifyTransactionOnExplorer(
-          dstHash,
-          CHAIN_TO_EXPLORER[pair.to.chain],
-          'Mainnet',
-        );
+          // ── 5. Open Notifications via header bell ──────────────────
+          await notifs.openFromHeader();
 
-        // ── 9. Notifications: completed-state icon ─────────────────
-        await notifs.openFromHeader();
-        await notifs.selectTab('Transactions');
-        await notifs.assertCompletedTransferVisible({
-          transferId,
-          sourceSymbol: pair.from.symbol,
-          targetSymbol: pair.to.symbol,
-        });
+          // In-progress transfer visible on "All" + "Transactions" tabs
+          await notifs.selectTab('All');
+          await notifs.assertInProgressTransferVisible({
+            transferId,
+            sourceSymbol: pair.from.symbol,
+            targetSymbol: pair.to.symbol,
+          });
+
+          await notifs.selectTab('Transactions');
+          await notifs.assertInProgressTransferVisible({
+            transferId,
+            sourceSymbol: pair.from.symbol,
+            targetSymbol: pair.to.symbol,
+          });
+
+          // ── 6. Click notification → deeplink back to progress page ─
+          await notifs.clickTransferItem(transferId);
+          await swap.waitForCrossChainProgressPage();
+
+          // ── 7. Wait for both sides Complete (fast-fail in ~3 s) ────
+          await swap.waitForCrossChainComplete();
+
+          // Title transitions to "Swap successful!" once the SDK reports
+          // `status: completed`. Catches a regression where the heading
+          // doesn't flip from "Swap in progress..." even after both sides
+          // complete (e.g. `getTransferDetailsTitle` mapping breaks).
+          // Note: we intentionally do NOT assert the header unread badge in
+          // this flow — `IssuedSwapDetails` calls `markAsRead(transfer.id)`
+          // synchronously when the transfer concludes while the user is on
+          // the progress page, so the badge clears before we could observe
+          // it. A dedicated badge test would need to leave the progress page
+          // before completion and poll Notifications externally.
+          await expect(swap.progressPageTitle(/swap successful/i)).toBeVisible({
+            timeout: 10_000,
+          });
+
+          // ── 8. Verify on-chain on both sides ───────────────────────
+          const srcHash = await swap.getCrossChainTxHash('source');
+          const dstHash = await swap.getCrossChainTxHash('destination');
+          await verifyTransactionOnExplorer(
+            srcHash,
+            CHAIN_TO_EXPLORER[pair.from.chain],
+            'Mainnet',
+          );
+          await verifyTransactionOnExplorer(
+            dstHash,
+            CHAIN_TO_EXPLORER[pair.to.chain],
+            'Mainnet',
+          );
+
+          // ── 9. Notifications: completed-state icon ─────────────────
+          // Click "Close" to dismiss the success page (real user action).
+          // `goBack()` pops history back to wherever we came from — in our
+          // flow that's `/notifications` (entered in step 5, transferred to
+          // progress page in step 6). If history put us anywhere else, fall
+          // back to the header bell. Either way, the completed-state icon
+          // should be visible under the "Transactions" tab.
+          await swap.clickCloseOnConcludedTransfer();
+
+          if (!unlockedExtensionPage.url().includes('#/notifications')) {
+            await notifs.openFromHeader();
+          }
+
+          await notifs.selectTab('Transactions');
+          await notifs.assertCompletedTransferVisible({
+            transferId,
+            sourceSymbol: pair.from.symbol,
+            targetSymbol: pair.to.symbol,
+          });
+        };
+
+        // ── Retry loop ──────────────────────────────────────────────
+        // A reverted source tx or refunded bridge typically reflects a
+        // transient liquidity / slippage condition. Retry the SAME pair
+        // once before giving up.
+        const MAX_FAILURE_RETRIES = 1;
+        for (let attempt = 0; attempt <= MAX_FAILURE_RETRIES; attempt += 1) {
+          try {
+            await runCrossChainSwap();
+            break;
+          } catch (err) {
+            if (
+              err instanceof CrossChainSwapFailedError &&
+              attempt < MAX_FAILURE_RETRIES
+            ) {
+              const note =
+                `[retry ${attempt + 1}/${MAX_FAILURE_RETRIES}] ` +
+                `${pair.from.symbol} → ${pair.to.symbol}: ${err.message}. ` +
+                `Dismissing failed page and resubmitting.`;
+              console.warn(note);
+              testInfo.annotations.push({
+                type: 'cross-chain-retry',
+                description: note,
+              });
+
+              // Dismiss the failed-transfer page (Close button is rendered
+              // when status is `failed` / `refunded` — same Conditional
+              // CTA as `Notify me when it's done`). Tolerate failures
+              // here so we still attempt the resubmit.
+              await swap.clickCloseOnConcludedTransfer().catch(() => undefined);
+              continue;
+            }
+            throw err;
+          }
+        }
       },
     );
   }

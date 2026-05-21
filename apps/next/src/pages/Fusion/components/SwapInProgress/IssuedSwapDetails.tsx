@@ -1,7 +1,7 @@
 import { FC, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Button, Collapse, Stack } from '@avalabs/k2-alpine';
+import { Box, Button, Collapse, Stack } from '@avalabs/k2-alpine';
 import { FailedTransfer, Transfer } from '@avalabs/fusion-sdk';
 
 import {
@@ -73,13 +73,19 @@ export const IssuedSwapDetails: FC<Props> = ({ transfer, isRead }) => {
         <Card noPadding>
           <Stack divider={<Styled.Divider />}>
             {swappedTokens.map(({ token, amount, tokenId, type }) => (
-              <TokemAmountInfoBox
+              <Box
                 key={tokenId}
-                token={token}
-                amount={type === 'paid' ? -amount : amount}
-                size={24}
-                badgeSize={14}
-              />
+                data-testid={`fusion-transfer-summary-row-${type}`}
+                data-token-symbol={token?.symbol}
+                data-token-chain-id={token?.coreChainId}
+              >
+                <TokemAmountInfoBox
+                  token={token}
+                  amount={type === 'paid' ? -amount : amount}
+                  size={24}
+                  badgeSize={14}
+                />
+              </Box>
             ))}
           </Stack>
         </Card>

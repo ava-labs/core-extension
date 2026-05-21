@@ -92,9 +92,14 @@ export const ChainStatusInfoBox: FC<Props> = ({ transfer, side }) => {
     network && txHash
       ? getExplorerAddressByNetwork(network, txHash, 'tx')
       : undefined;
+  // The React `Side` type is 'source' | 'target', but our `data-testid`
+  // naming intentionally mirrors Core Web's `fusion-transfer-{source|destination}-*`
+  // so selectors converge across repos. Translate at the test-id boundary
+  // rather than renaming the component prop.
+  const testIdSide = side === 'source' ? 'source' : 'destination';
 
   return (
-    <Card noPadding data-testid={`fusion-transfer-${side}-card`}>
+    <Card noPadding data-testid={`fusion-transfer-${testIdSide}-card`}>
       <Stack divider={<Styled.Divider />}>
         <Styled.StatusDetailRow label={side === 'source' ? t('From') : t('To')}>
           {network && (
@@ -108,7 +113,7 @@ export const ChainStatusInfoBox: FC<Props> = ({ transfer, side }) => {
           <Typography
             variant="body3"
             color="text.secondary"
-            data-testid={`fusion-transfer-${side}-chain`}
+            data-testid={`fusion-transfer-${testIdSide}-chain`}
           >
             {chain.chainName}
           </Typography>
@@ -118,7 +123,7 @@ export const ChainStatusInfoBox: FC<Props> = ({ transfer, side }) => {
           <Typography
             variant="body3"
             color="text.secondary"
-            data-testid={`fusion-transfer-${side}-status`}
+            data-testid={`fusion-transfer-${testIdSide}-status`}
           >
             {status}
           </Typography>
@@ -131,7 +136,7 @@ export const ChainStatusInfoBox: FC<Props> = ({ transfer, side }) => {
               rel="noopener noreferrer"
               variant="body3"
               color="text.secondary"
-              data-testid={`fusion-transfer-${side}-view-explorer`}
+              data-testid={`fusion-transfer-${testIdSide}-view-explorer`}
               data-tx-hash={txHash}
             >
               {t('View on explorer')}

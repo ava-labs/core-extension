@@ -51,6 +51,7 @@ export const HeaderActions: FC<Props> = ({ account }) => {
           )}
           {showUnreadBadge && (
             <Box
+              data-testid="notifications-unread-badge"
               position="absolute"
               top={4}
               right={4}

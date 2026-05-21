@@ -887,6 +887,7 @@
   "Total network fee": "Total network fee",
   "Total network fee = (current base fee + max priority fee) × gas limit. It will never be higher than max base fee × gas limit.": "Total network fee = (current base fee + max priority fee) × gas limit. It will never be higher than max base fee × gas limit.",
   "Total units of gas needed to complete the transaction. Setting it too low may cause the transaction to fail.": "Total units of gas needed to complete the transaction. Setting it too low may cause the transaction to fail.",
+  "Transaction": "Transaction",
   "Transaction failed": "Transaction failed",
   "Transaction failed due to slippage": "Transaction failed due to slippage",
   "Transaction has been blocked": "Transaction has been blocked",
