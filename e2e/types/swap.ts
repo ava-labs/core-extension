@@ -149,10 +149,10 @@ export const SWAP_PAIRS: Record<string, SwapPair> = {
     fixture: 'black-avax',
     chain: 'avalanche',
   },
-  // TODO(SWP-003 mock): the `usdc-black` fixture still contains the legacy
-  // `BLACK → USDC` recording. The mock flow doesn't validate displayed
-  // amounts so the test passes, but the quote shown in the UI is stale. Re-
-  // record with `RECORD_FIXTURES=1` to get a true `USDC → BLACK` quote.
+  // SWP-003 mock: the `usdc-black` fixture is a hand-crafted USDC → BLACK
+  // quote (amount rate ≈ 1 USDC = 154 BLACK, derived from the live
+  // BLACK → USDC fixture). Re-record with `RECORD_FIXTURES=1` if the rate
+  // drifts enough that the displayed quote looks unrealistic in QA.
   USDC_BLACK: {
     from: SWAP_TOKENS.USDC_AVAX,
     to: SWAP_TOKENS.BLACK,
