@@ -67,10 +67,21 @@ export const ConnectKeystoneFlow = () => {
       capture(`KeystoneScanQRCodeSuccess`);
 
       setDerivedKeys(obtainedKeys);
+      setExtendedPublicKeys(obtainedKeys.extendedPublicKeys);
+      setAddressPublicKeys(
+        obtainedKeys.addressPublicKeys.map(({ key }) => key),
+      );
+      setMasterFingerprint(obtainedKeys.masterFingerprint);
 
-      history.replace(BASE_PATH);
+      history.push(`${BASE_PATH}/wallet-details`);
     },
-    [capture, history],
+    [
+      capture,
+      history,
+      setAddressPublicKeys,
+      setExtendedPublicKeys,
+      setMasterFingerprint,
+    ],
   );
 
   const usbConnectorCallbacks: ConnectorCallbacks = useMemo(

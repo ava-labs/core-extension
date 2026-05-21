@@ -72,6 +72,7 @@
   "All networks": "All networks",
   "All types": "All types",
   "Allow Chrome to access your camera to scan the QR code.": "Allow Chrome to access your camera to scan the QR code.",
+  "Use your camera to scan the QR code on your Keystone device.\nThe preview will appear blurred, but scanning will still work normally.": "Use your camera to scan the QR code on your Keystone device.\nThe preview will appear blurred, but scanning will still work normally.",
   "Alternatively, open any authenticator app and enter this code:": "Alternatively, open any authenticator app and enter this code:",
   "Amount": "Amount",
   "Amount higher than balance.": "Amount higher than balance.",
