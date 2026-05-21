@@ -73,7 +73,7 @@ export const ConnectKeystoneFlow = () => {
       );
       setMasterFingerprint(obtainedKeys.masterFingerprint);
 
-      history.push(`${BASE_PATH}/wallet-details`);
+      history.replace(`${BASE_PATH}/wallet-details`);
     },
     [
       capture,
