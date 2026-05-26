@@ -2,14 +2,17 @@ import { isAddress } from 'ethers';
 import { isAddress as isSvmAddress } from '@solana/kit';
 import { stripAddressPrefix } from './stripAddressPrefix';
 import { utils } from '@avalabs/avalanchejs';
-import { isBech32Address } from './address';
+import { isBase58Address, isBech32Address } from './address';
 
 export const isValidAddress = (address: string) => {
   return !!address.length && isAddress(address);
 };
 
 export const isValidBtcAddress = (address: string) => {
-  return !!address.length && isBech32Address(address);
+  return (
+    // We check for bech32 as well as base58 to cover PS2H + P2PKH addresses
+    !!address.length && (isBech32Address(address) || isBase58Address(address))
+  );
 };
 
 export const isValidPvmAddress = (address: string) => {

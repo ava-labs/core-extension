@@ -29,6 +29,8 @@ describe('utils/isAddressValid.ts', () => {
         expected: false,
       },
       { address: 'bc1qnat454n4sf7vshtqvz6wtx2pccfct70dpm2sp5', expected: true },
+      // P2SH address
+      { address: '3P14159f73E4gFr7JterCCQh9QjiTjiZrG', expected: true },
     ];
     it.each(addressEntries)(
       'returns $expected for $address',
