@@ -1,7 +1,7 @@
 import { Contact } from '@avalabs/types';
 import { isContactValid } from './isContactValid';
 import { isAddress } from 'ethers';
-import { isValidXPAddress } from './isAddressValid';
+import { isValidBtcAddress, isValidXPAddress } from './isAddressValid';
 import { isBech32Address } from './address';
 
 jest.mock('ethers', () => ({
@@ -9,7 +9,7 @@ jest.mock('ethers', () => ({
 }));
 
 jest.mock('./address', () => ({
-  isBech32Address: jest.fn(),
+  isValidBtcAddress: jest.fn(),
 }));
 jest.mock('./isAddressValid', () => ({
   isValidXPAddress: jest.fn(),
@@ -32,7 +32,7 @@ describe('src/utils/isContactValid.ts', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     jest.mocked(isAddress).mockImplementation(() => true);
-    jest.mocked(isBech32Address).mockImplementation(() => true);
+    jest.mocked(isValidBtcAddress).mockImplementation(() => true);
     jest.mocked(isValidXPAddress).mockImplementation(() => true);
   });
 

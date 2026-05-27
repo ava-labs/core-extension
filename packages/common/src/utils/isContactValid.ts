@@ -1,8 +1,11 @@
 import type { Contact } from '@avalabs/types';
 import { isAddress } from 'ethers';
-import { isValidSvmAddress, isValidXPAddress } from './isAddressValid';
+import {
+  isValidBtcAddress,
+  isValidSvmAddress,
+  isValidXPAddress,
+} from './isAddressValid';
 import { PartialBy } from '@core/types';
-import { isBech32Address } from './address';
 
 export const isContactValid = (contact: PartialBy<Contact, 'id'>) => {
   if (
@@ -17,7 +20,7 @@ export const isContactValid = (contact: PartialBy<Contact, 'id'>) => {
 
   const isAddressValid =
     (!contact.address || isAddress(contact.address)) &&
-    (!contact.addressBTC || isBech32Address(contact.addressBTC)) &&
+    (!contact.addressBTC || isValidBtcAddress(contact.addressBTC)) &&
     (!contact.addressXP || isValidXPAddress(contact.addressXP)) &&
     (!contact.addressSVM || isValidSvmAddress(contact.addressSVM));
 

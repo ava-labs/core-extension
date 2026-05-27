@@ -10,7 +10,7 @@ export const isValidAddress = (address: string) => {
 
 export const isValidBtcAddress = (address: string) => {
   return (
-    // We check for bech32 as well as base58 to cover PS2H + P2PKH addresses
+    // We check for bech32 as well as base58 to cover P2SH + P2PKH addresses
     !!address.length && (isBech32Address(address) || isBase58Address(address))
   );
 };
