@@ -2,7 +2,6 @@ import { Contact } from '@avalabs/types';
 import { isContactValid } from './isContactValid';
 import { isAddress } from 'ethers';
 import { isValidBtcAddress, isValidXPAddress } from './isAddressValid';
-import { isBech32Address } from './address';
 
 jest.mock('ethers', () => ({
   isAddress: jest.fn(),
@@ -56,7 +55,7 @@ describe('src/utils/isContactValid.ts', () => {
     expect(result).toEqual({ reason: '', valid: true });
   });
   it('should be valid when addressBTC is not valid', async () => {
-    jest.mocked(isBech32Address).mockImplementation(() => false);
+    jest.mocked(isValidBtcAddress).mockImplementation(() => false);
 
     const result = isContactValid(contactBTC);
     expect(result).toEqual({ reason: 'address is invalid', valid: false });
