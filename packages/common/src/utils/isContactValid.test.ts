@@ -7,10 +7,8 @@ jest.mock('ethers', () => ({
   isAddress: jest.fn(),
 }));
 
-jest.mock('./address', () => ({
-  isValidBtcAddress: jest.fn(),
-}));
 jest.mock('./isAddressValid', () => ({
+  isValidBtcAddress: jest.fn(),
   isValidXPAddress: jest.fn(),
 }));
 describe('src/utils/isContactValid.ts', () => {
