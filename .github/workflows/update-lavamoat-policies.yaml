@@ -1,0 +1,179 @@
+name: Update LavaMoat policies
+
+# Comment-driven companion to `validate-lavamoat-policies.yaml`. When a
+# maintainer leaves a `/update-lavamoat-policies` comment on a PR, this
+# workflow looks at the latest `pr-checks` run for the PR's head commit,
+# downloads the `lavamoat-policy-diff` artifact that the validate job
+# uploads on drift, applies it on top of the PR branch, and pushes a
+# commit back.
+#
+# Policy generation itself happens in the validate workflow; this one
+# never runs `yarn build` and never touches secrets — it just replays the
+# diff that CI already produced.
+on:
+  issue_comment:
+    types: [created]
+
+concurrency:
+  group: update-lavamoat-policies-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+jobs:
+  update:
+    name: Update LavaMoat policies
+    # `issue_comment` fires on both issues and PRs; gate on `pull_request`
+    # to skip plain issues, and on the literal command to skip every
+    # other comment on every PR in the repo.
+    if: ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '/update-lavamoat-policies') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      actions: read
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      PR_NUMBER: ${{ github.event.issue.number }}
+      COMMENT_ID: ${{ github.event.comment.id }}
+      ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - name: Acknowledge the command
+        run: |
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/${REPO}/issues/comments/${COMMENT_ID}/reactions" \
+            -f content='+1'
+
+      - name: Fetch PR metadata
+        id: pr
+        run: |
+          INFO=$(gh pr view "${PR_NUMBER}" --repo "${REPO}" --json isCrossRepository,headRefOid,headRefName)
+          {
+            echo "is_cross_repo=$(echo "$INFO" | jq -r '.isCrossRepository')"
+            echo "head_sha=$(echo "$INFO" | jq -r '.headRefOid')"
+            echo "head_branch=$(echo "$INFO" | jq -r '.headRefName')"
+          } >> "$GITHUB_OUTPUT"
+
+      # `secrets.GITHUB_TOKEN` cannot push to forks, so bail out early
+      # with a clear message rather than fail mid-push.
+      - name: Reject cross-repo PRs
+        if: ${{ steps.pr.outputs.is_cross_repo == 'true' }}
+        run: |
+          BODY=$'`/update-lavamoat-policies` cannot be used on cross-repository pull requests because GitHub Actions cannot push to fork branches.\n\nPlease regenerate the policy files locally with `yarn build` and push them to the fork manually.'
+          gh pr comment "${PR_NUMBER}" --repo "${REPO}" --body "$BODY"
+          exit 1
+
+      - name: Find pr-checks run for the PR head commit
+        id: ci-run
+        run: |
+          HEAD_SHA='${{ steps.pr.outputs.head_sha }}'
+          echo "Looking for a completed pr-checks run for ${HEAD_SHA}..."
+          RUNS_JSON=$(gh run list \
+            --workflow=pr-checks.yaml \
+            --repo "${REPO}" \
+            --commit="${HEAD_SHA}" \
+            --limit=5 \
+            --json databaseId,status,conclusion)
+          RUN_ID=$(echo "$RUNS_JSON" | jq -r '[.[] | select(.status == "completed")] | .[0].databaseId // empty')
+          if [ -z "$RUN_ID" ]; then
+            BODY=$'No completed `pr-checks` run was found for this PR head commit. Wait for CI to finish and try `/update-lavamoat-policies` again.'
+            gh pr comment "${PR_NUMBER}" --repo "${REPO}" --body "$BODY"
+            exit 1
+          fi
+          echo "Using pr-checks run ${RUN_ID}"
+          echo "run_id=${RUN_ID}" >> "$GITHUB_OUTPUT"
+
+      - name: Determine validate-lavamoat-policies job status
+        id: validate-status
+        run: |
+          JOBS_JSON=$(gh api \
+            --paginate \
+            "/repos/${REPO}/actions/runs/${{ steps.ci-run.outputs.run_id }}/jobs" \
+            --jq '[.jobs[] | select(.name | contains("Validate LavaMoat policies"))]')
+          JOB_COUNT=$(echo "$JOBS_JSON" | jq 'length')
+          if [ "$JOB_COUNT" -eq 0 ]; then
+            BODY=$'The `pr-checks` run did not include `Validate LavaMoat policies`. Nothing to update.'
+            gh pr comment "${PR_NUMBER}" --repo "${REPO}" --body "$BODY"
+            exit 1
+          fi
+          # If every validate job succeeded there is no artifact to apply.
+          FAILED=$(echo "$JOBS_JSON" | jq '[.[] | select(.conclusion != "success")] | length')
+          echo "failed=${FAILED}" >> "$GITHUB_OUTPUT"
+
+      - name: Post comment (no drift)
+        if: ${{ steps.validate-status.outputs.failed == '0' }}
+        run: |
+          gh pr comment "${PR_NUMBER}" --repo "${REPO}" --body "No LavaMoat policy drift detected on the latest \`pr-checks\` run — nothing to update."
+
+      # Stop the job cleanly when the validate workflow passed — there is
+      # no artifact to download and nothing to commit.
+      - name: Stop if no drift
+        if: ${{ steps.validate-status.outputs.failed == '0' }}
+        run: exit 0
+
+      # Download outside the workspace so the next `actions/checkout` step
+      # doesn't wipe the patch files when it cleans the working directory.
+      - name: Download policy diff artifacts
+        uses: actions/download-artifact@v4
+        with:
+          # Pattern + merge-multiple keeps this forward-compatible with a
+          # future split into one validate job per bundle (each uploading
+          # its own `lavamoat-policy-diff-<bundle>` artifact).
+          pattern: lavamoat-policy-diff*
+          merge-multiple: true
+          path: /tmp/lavamoat-policy-diffs
+          run-id: ${{ steps.ci-run.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify diff artifacts exist
+        id: artifacts
+        run: |
+          if compgen -G '/tmp/lavamoat-policy-diffs/*.patch' > /dev/null; then
+            echo "Found policy diff artifacts:"
+            ls -la /tmp/lavamoat-policy-diffs/
+          else
+            BODY=$'The `validate-lavamoat-policies` job failed but no policy diff artifact was produced (the job may have crashed before uploading). See the [validation run logs]('"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ steps.ci-run.outputs.run_id }}"$').'
+            gh pr comment "${PR_NUMBER}" --repo "${REPO}" --body "$BODY"
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Switch to PR branch
+        run: gh pr checkout "${PR_NUMBER}"
+
+      # The diff is unconditionally produced from the PR head commit, so
+      # `git apply` should land cleanly. If it doesn't, the PR has moved
+      # forward since the validate run and the patch is stale — surface
+      # that to the user instead of trying to force-apply it.
+      - name: Apply policy diff
+        run: |
+          for patch in /tmp/lavamoat-policy-diffs/*.patch; do
+            echo "Applying ${patch}..."
+            git apply "${patch}"
+          done
+
+      - name: Commit and push
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -am "chore: update LavaMoat policies"
+          git push
+
+      - name: Post success comment
+        run: |
+          BODY=$'LavaMoat policies updated. 👀 Please review the diff for suspicious new powers before approving.\n\n🧠 How to read a policy diff: https://lavamoat.github.io/guides/policy-diff/#what-to-look-for-when-reviewing-a-policy-diff'
+          gh pr comment "${PR_NUMBER}" --repo "${REPO}" --body "$BODY"
+
+      - name: Post failure comment
+        if: ${{ failure() && steps.pr.outputs.is_cross_repo != 'true' }}
+        run: |
+          gh pr comment "${PR_NUMBER}" --repo "${REPO}" --body "Policy update failed. [Review the logs or retry the command here](${ACTION_RUN_URL})."

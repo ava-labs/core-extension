@@ -1,0 +1,86 @@
+name: Validate LavaMoat policies
+
+# Reusable workflow that regenerates every `lavamoat/rspack/policy.json`
+# under apps/* and packages/* by running the production build, then
+# compares the working tree against the committed policies. When a diff is
+# found the workflow uploads it as an artifact (so the comment-triggered
+# `update-lavamoat-policies.yaml` workflow can replay it onto the PR
+# branch) and fails the job.
+#
+# This is intentionally `workflow_call`-only — `pr-checks.yaml` is the
+# orchestrator that invokes it on every PR.
+on:
+  workflow_call:
+
+jobs:
+  validate-lavamoat-policies:
+    name: Validate LavaMoat policies
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # `alpha` provides the same secrets `pr-checks.yaml` uses for builds.
+    # LavaMoat inlines `process.env.*` literals it sees in source into the
+    # generated policy, so the env-var set here must match every other
+    # workflow that runs `yarn build`, or the policy will drift on the
+    # env-var diff alone.
+    environment: alpha
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+      - name: Enable corepack
+        run: corepack enable
+      - name: Create env file
+        run: |
+          touch .env.production
+          echo 'POSTHOG_KEY="${{ secrets.POSTHOG_KEY }}"' >> .env.production
+          echo 'GLACIER_URL="${{ secrets.GLACIER_URL }}"' >> .env.production
+          echo 'PROXY_URL="${{ secrets.PROXY_URL }}"' >> .env.production
+          echo 'CORE_EXTENSION_LANDING_URL="${{ secrets.CORE_EXTENSION_LANDING_URL }}"' >> .env.production
+      - name: Install dependencies
+        run: |
+          yarn install
+          yarn allow-scripts
+      - name: Build (regenerates LavaMoat policies)
+        run: yarn build
+      - name: Detect policy drift
+        id: drift
+        # The pathspec matches `policy.json` under any `lavamoat/rspack/`
+        # directory anywhere in the repo, so this still picks up new
+        # bundles (service worker, content script, offscreen, ...) the
+        # moment they wire LavaMoat in — no workflow change required.
+        run: |
+          POLICY_PATHSPEC=':(glob)**/lavamoat/rspack/policy.json'
+          if git diff --exit-code -- "$POLICY_PATHSPEC" > lavamoat-policy-diff.patch; then
+            rm -f lavamoat-policy-diff.patch
+            echo "drifted=false" >> "$GITHUB_OUTPUT"
+            echo "All LavaMoat policies are up to date."
+          else
+            echo "drifted=true" >> "$GITHUB_OUTPUT"
+            echo "::group::Policy diff"
+            cat lavamoat-policy-diff.patch
+            echo "::endgroup::"
+          fi
+      - name: Upload policy diff artifact
+        if: steps.drift.outputs.drifted == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          # Named with a stable prefix so `update-lavamoat-policies.yaml`
+          # can pick it up via a `pattern: lavamoat-policy-diff*` glob and
+          # also tolerate a future split into per-bundle validate jobs
+          # (e.g. `lavamoat-policy-diff-service-worker`).
+          name: lavamoat-policy-diff
+          path: lavamoat-policy-diff.patch
+          retention-days: 7
+          if-no-files-found: error
+      - name: Fail on drift
+        if: steps.drift.outputs.drifted == 'true'
+        run: |
+          echo "::error::LavaMoat policy drift detected. Comment '/update-lavamoat-policies' on the PR to have CI regenerate and commit the updated policy files, or regenerate locally with 'yarn build' and commit the result."
+          exit 1
