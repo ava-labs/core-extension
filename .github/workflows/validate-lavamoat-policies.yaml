@@ -1,20 +1,27 @@
-name: Validate LavaMoat policies
+name: LavaMoat
 
-# Reusable workflow that regenerates every `lavamoat/rspack/policy.json`
-# under apps/* and packages/* by running the production build, then
-# compares the working tree against the committed policies. When a diff is
-# found the workflow uploads it as an artifact (so the comment-triggered
-# `update-lavamoat-policies.yaml` workflow can replay it onto the PR
-# branch) and fails the job.
+# Regenerates every `lavamoat/rspack/policy.json` under apps/* and
+# packages/* by running the production build, then compares the working
+# tree against the committed policies. When a diff is found, uploads it
+# as an artifact (so `update-lavamoat-policies.yaml` can replay it onto
+# the PR branch when a maintainer comments `/update-lavamoat-policies`)
+# and fails the job.
 #
-# This is intentionally `workflow_call`-only — `pr-checks.yaml` is the
-# orchestrator that invokes it on every PR.
+# Triggers:
+#  - `pull_request`: runs on every PR alongside `pr-checks.yaml`.
+#  - `workflow_dispatch`: re-invoked by `update-lavamoat-policies.yaml`
+#    against the PR branch after a signed policy commit lands, so the
+#    `Validate LavaMoat policies` check refreshes against the new HEAD
+#    without needing the rest of `pr-checks.yaml` (lint/typecheck/test)
+#    to run again. `workflow_dispatch` is one of the two events
+#    GITHUB_TOKEN is allowed to fire.
 on:
-  workflow_call:
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   validate-lavamoat-policies:
-    name: Validate LavaMoat policies
+    name: Validate policies
     runs-on: ubuntu-latest
     timeout-minutes: 30
     # `alpha` provides the same secrets `pr-checks.yaml` uses for builds.

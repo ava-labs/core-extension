@@ -2,7 +2,7 @@ name: PR checks
 on: pull_request
 jobs:
   lint:
-    name: Lint
+    name: Lint and build
     runs-on: ubuntu-latest
     environment: alpha
     steps:
@@ -39,12 +39,3 @@ jobs:
           if [[ $(git status --short) == '' ]]; then exit 0; else exit 1; fi
       - name: Test
         run: yarn test
-
-  # Production build + LavaMoat policy drift detection live in their own
-  # reusable workflow. It uploads a `.patch` artifact when policies drift,
-  # which `update-lavamoat-policies.yaml` replays back onto the PR branch
-  # when a maintainer comments `/update-lavamoat-policies`.
-  validate-lavamoat-policies:
-    name: Validate LavaMoat policies
-    uses: ./.github/workflows/validate-lavamoat-policies.yaml
-    secrets: inherit

@@ -1,15 +1,35 @@
-name: Update LavaMoat policies
+name: LavaMoat
 
 # Comment-driven companion to `validate-lavamoat-policies.yaml`. When a
 # maintainer leaves a `/update-lavamoat-policies` comment on a PR, this
-# workflow looks at the latest `pr-checks` run for the PR's head commit,
-# downloads the `lavamoat-policy-diff` artifact that the validate job
-# uploads on drift, applies it on top of the PR branch, and pushes a
-# commit back.
+# workflow looks at the latest `validate-lavamoat-policies` run for the
+# PR's head commit, downloads the `lavamoat-policy-diff` artifact that
+# the validate workflow uploads on drift, applies it on top of the PR
+# branch, and commits the result back through GitHub's GraphQL API.
 #
 # Policy generation itself happens in the validate workflow; this one
 # never runs `yarn build` and never touches secrets — it just replays the
 # diff that CI already produced.
+#
+# Two non-obvious constraints on how the commit lands:
+#  1. The repo requires signed commits, so we *cannot* `git push` — a
+#     plain CI push produces an unsigned commit that branch protection
+#     rejects. Instead we call the `createCommitOnBranch` GraphQL
+#     mutation, which signs the commit on the server with GitHub's
+#     `web-flow` key and shows it as `Verified` (same mechanism
+#     `dependabot[bot]` uses).
+#  2. `GITHUB_TOKEN`-driven pushes deliberately do not re-trigger
+#     workflows, but `workflow_dispatch` IS one of the two documented
+#     exceptions. After committing we fire `gh workflow run` to
+#     dispatch `validate-lavamoat-policies.yaml` against the PR branch
+#     so the `Validate LavaMoat policies` check refreshes against the
+#     new HEAD without any manual intervention. We intentionally do NOT
+#     re-dispatch `pr-checks.yaml` — lint/typecheck/test already passed
+#     on the original PR run for code that hasn't changed (only
+#     policy.json files differ), and re-running them would just burn CI.
+#     If `Lint` is in your branch protection's required-checks list,
+#     the PR will sit waiting for it until you push another commit or
+#     hit "Re-run all jobs" on the original pr-checks run.
 on:
   issue_comment:
     types: [created]
@@ -20,7 +40,7 @@ concurrency:
 
 jobs:
   update:
-    name: Update LavaMoat policies
+    name: Update policies
     # `issue_comment` fires on both issues and PRs; gate on `pull_request`
     # to skip plain issues, and on the literal command to skip every
     # other comment on every PR in the repo.
@@ -31,7 +51,10 @@ jobs:
       contents: write
       pull-requests: write
       issues: write
-      actions: read
+      # `read` is enough to list runs and download artifacts; the bump
+      # to `write` is for the `gh workflow run` re-dispatch at the end
+      # of the job, which calls the `actions:write` REST endpoint.
+      actions: write
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       REPO: ${{ github.repository }}
@@ -67,52 +90,46 @@ jobs:
           gh pr comment "${PR_NUMBER}" --repo "${REPO}" --body "$BODY"
           exit 1
 
-      - name: Find pr-checks run for the PR head commit
+      # The validate workflow is its own top-level workflow now (not a
+      # `workflow_call` from `pr-checks`), so we look at its runs directly
+      # — both the initial `pull_request` run and any subsequent
+      # `workflow_dispatch` re-run land here. `--limit 5` gives us
+      # headroom in case a previous `/update-lavamoat-policies` already
+      # produced a passing dispatched run that we should prefer.
+      - name: Find validate-lavamoat-policies run for the PR head commit
         id: ci-run
         run: |
           HEAD_SHA='${{ steps.pr.outputs.head_sha }}'
-          echo "Looking for a completed pr-checks run for ${HEAD_SHA}..."
-          RUNS_JSON=$(gh run list \
-            --workflow=pr-checks.yaml \
+          echo "Looking for a completed validate-lavamoat-policies run for ${HEAD_SHA}..."
+          RUN=$(gh run list \
+            --workflow=validate-lavamoat-policies.yaml \
             --repo "${REPO}" \
             --commit="${HEAD_SHA}" \
             --limit=5 \
-            --json databaseId,status,conclusion)
-          RUN_ID=$(echo "$RUNS_JSON" | jq -r '[.[] | select(.status == "completed")] | .[0].databaseId // empty')
+            --json databaseId,status,conclusion \
+            --jq '[.[] | select(.status == "completed")] | .[0]')
+          RUN_ID=$(echo "$RUN" | jq -r '.databaseId // empty')
+          CONCLUSION=$(echo "$RUN" | jq -r '.conclusion // empty')
           if [ -z "$RUN_ID" ]; then
-            BODY=$'No completed `pr-checks` run was found for this PR head commit. Wait for CI to finish and try `/update-lavamoat-policies` again.'
+            BODY=$'No completed `validate-lavamoat-policies` run was found for this PR head commit. Wait for CI to finish and try `/update-lavamoat-policies` again.'
             gh pr comment "${PR_NUMBER}" --repo "${REPO}" --body "$BODY"
             exit 1
           fi
-          echo "Using pr-checks run ${RUN_ID}"
-          echo "run_id=${RUN_ID}" >> "$GITHUB_OUTPUT"
-
-      - name: Determine validate-lavamoat-policies job status
-        id: validate-status
-        run: |
-          JOBS_JSON=$(gh api \
-            --paginate \
-            "/repos/${REPO}/actions/runs/${{ steps.ci-run.outputs.run_id }}/jobs" \
-            --jq '[.jobs[] | select(.name | contains("Validate LavaMoat policies"))]')
-          JOB_COUNT=$(echo "$JOBS_JSON" | jq 'length')
-          if [ "$JOB_COUNT" -eq 0 ]; then
-            BODY=$'The `pr-checks` run did not include `Validate LavaMoat policies`. Nothing to update.'
-            gh pr comment "${PR_NUMBER}" --repo "${REPO}" --body "$BODY"
-            exit 1
-          fi
-          # If every validate job succeeded there is no artifact to apply.
-          FAILED=$(echo "$JOBS_JSON" | jq '[.[] | select(.conclusion != "success")] | length')
-          echo "failed=${FAILED}" >> "$GITHUB_OUTPUT"
+          echo "Using validate-lavamoat-policies run ${RUN_ID} (conclusion: ${CONCLUSION})"
+          {
+            echo "run_id=${RUN_ID}"
+            echo "conclusion=${CONCLUSION}"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Post comment (no drift)
-        if: ${{ steps.validate-status.outputs.failed == '0' }}
+        if: ${{ steps.ci-run.outputs.conclusion == 'success' }}
         run: |
-          gh pr comment "${PR_NUMBER}" --repo "${REPO}" --body "No LavaMoat policy drift detected on the latest \`pr-checks\` run — nothing to update."
+          gh pr comment "${PR_NUMBER}" --repo "${REPO}" --body "No LavaMoat policy drift detected on the latest \`validate-lavamoat-policies\` run — nothing to update."
 
       # Stop the job cleanly when the validate workflow passed — there is
       # no artifact to download and nothing to commit.
       - name: Stop if no drift
-        if: ${{ steps.validate-status.outputs.failed == '0' }}
+        if: ${{ steps.ci-run.outputs.conclusion == 'success' }}
         run: exit 0
 
       # Download outside the workspace so the next `actions/checkout` step
@@ -136,15 +153,21 @@ jobs:
             echo "Found policy diff artifacts:"
             ls -la /tmp/lavamoat-policy-diffs/
           else
-            BODY=$'The `validate-lavamoat-policies` job failed but no policy diff artifact was produced (the job may have crashed before uploading). See the [validation run logs]('"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ steps.ci-run.outputs.run_id }}"$').'
+            BODY=$'`validate-lavamoat-policies` failed but no policy diff artifact was produced (the job may have crashed before uploading). See the [validation run logs]('"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ steps.ci-run.outputs.run_id }}"$').'
             gh pr comment "${PR_NUMBER}" --repo "${REPO}" --body "$BODY"
             exit 1
           fi
 
+      # We only need the working tree to apply the patch — we never push
+      # back through git. The commit is created via the
+      # `createCommitOnBranch` GraphQL mutation below so GitHub signs it
+      # with its `web-flow` key and the resulting commit shows up as
+      # `Verified`. The repo's branch protection requires signed commits;
+      # a plain `git push` from CI would produce an unsigned commit and
+      # be rejected.
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
       - name: Switch to PR branch
@@ -154,23 +177,71 @@ jobs:
       # `git apply` should land cleanly. If it doesn't, the PR has moved
       # forward since the validate run and the patch is stale — surface
       # that to the user instead of trying to force-apply it.
-      - name: Apply policy diff
+      - name: Apply policy diff to the working tree
         run: |
           for patch in /tmp/lavamoat-policy-diffs/*.patch; do
             echo "Applying ${patch}..."
             git apply "${patch}"
           done
 
-      - name: Commit and push
+      # `createCommitOnBranch` requires the SHA the branch currently
+      # points to. `git rev-parse HEAD` gives us the SHA we checked out;
+      # if origin moved in the meantime the mutation will reject the call
+      # with an expected-OID mismatch, which is the right behaviour —
+      # better to fail than to silently overwrite newer work.
+      - name: Create signed commit via createCommitOnBranch
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -am "chore: update LavaMoat policies"
-          git push
+          HEAD_OID=$(git rev-parse HEAD)
+          BRANCH='${{ steps.pr.outputs.head_branch }}'
+
+          # `additions` is `[{path, contents: <base64>}, ...]`. We diff
+          # against HEAD (== the SHA we checked out, before `git apply`)
+          # so the list contains exactly the policy files the patch
+          # touched and nothing else.
+          ADDITIONS_JSON=$(
+            git diff --name-only HEAD -- ':(glob)**/lavamoat/rspack/policy.json' |
+              while IFS= read -r file; do
+                jq -n \
+                  --arg path "$file" \
+                  --arg contents "$(base64 < "$file" | tr -d '\n')" \
+                  '{path: $path, contents: $contents}'
+              done | jq -s '.'
+          )
+
+          if [ "$(echo "$ADDITIONS_JSON" | jq 'length')" -eq 0 ]; then
+            echo "::error::Patch applied but no policy.json files changed — refusing to create an empty commit."
+            exit 1
+          fi
+
+          jq -n \
+            --arg repo "$REPO" \
+            --arg branch "$BRANCH" \
+            --arg headOid "$HEAD_OID" \
+            --argjson additions "$ADDITIONS_JSON" \
+            '{
+              query: "mutation($input: CreateCommitOnBranchInput!) { createCommitOnBranch(input: $input) { commit { oid url } } }",
+              variables: {
+                input: {
+                  branch: { repositoryNameWithOwner: $repo, branchName: $branch },
+                  message: { headline: "chore: update LavaMoat policies" },
+                  expectedHeadOid: $headOid,
+                  fileChanges: { additions: $additions }
+                }
+              }
+            }' | gh api graphql --input -
+
+      # `createCommitOnBranch` returns once the commit is on the branch,
+      # so by the time the dispatched run starts `actions/checkout` is
+      # guaranteed to see the new HEAD.
+      - name: Re-dispatch validate-lavamoat-policies against the new HEAD
+        run: |
+          gh workflow run validate-lavamoat-policies.yaml \
+            --repo "${REPO}" \
+            --ref '${{ steps.pr.outputs.head_branch }}'
 
       - name: Post success comment
         run: |
-          BODY=$'LavaMoat policies updated. 👀 Please review the diff for suspicious new powers before approving.\n\n🧠 How to read a policy diff: https://lavamoat.github.io/guides/policy-diff/#what-to-look-for-when-reviewing-a-policy-diff'
+          BODY=$'LavaMoat policies updated in a `Verified` commit, and `validate-lavamoat-policies` has been re-dispatched against the new HEAD — the previously red check should turn green on its own within a few minutes.\n\n👀 Please review the diff for suspicious new powers before approving.\n\n🧠 How to read a policy diff: https://lavamoat.github.io/guides/policy-diff/#what-to-look-for-when-reviewing-a-policy-diff'
           gh pr comment "${PR_NUMBER}" --repo "${REPO}" --body "$BODY"
 
       - name: Post failure comment
