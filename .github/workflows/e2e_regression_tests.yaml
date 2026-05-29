@@ -9,16 +9,24 @@ on:
         description: 'Branch name to checkout for test files'
         required: true
         default: 'main'
+      test-scope:
+        type: choice
+        description: 'What to run? (regression-plus-opt-ins respects the dropdowns below; the other modes ignore them)'
+        options:
+          - 'regression-plus-opt-ins'
+          - 'swap-cross-chain-only'
+          - 'swap-live-only'
+        default: 'regression-plus-opt-ins'
       include-live-swaps:
         type: choice
-        description: 'Also run live swap tests? (executes real on-chain transactions)'
+        description: 'Also run live single-chain swap tests? (real on-chain transactions; ignored unless scope is regression-plus-opt-ins)'
         options:
           - 'false'
           - 'true'
         default: 'false'
       include-cross-chain-swaps:
         type: choice
-        description: 'Also run live cross-chain swap tests? (~20 min per pair, real on-chain transactions)'
+        description: 'Also run live cross-chain swap tests? (~20 min per pair, real on-chain transactions; ignored unless scope is regression-plus-opt-ins)'
         options:
           - 'false'
           - 'true'
@@ -306,16 +314,31 @@ jobs:
         working-directory: e2e
         env:
           PLAYWRIGHT_SHARD: ${{ matrix.shardIndex }}
+          TEST_SCOPE: ${{ github.event.inputs.test-scope || 'regression-plus-opt-ins' }}
           INCLUDE_LIVE_SWAPS: ${{ github.event.inputs.include-live-swaps || 'false' }}
           INCLUDE_CROSS_CHAIN_SWAPS: ${{ github.event.inputs.include-cross-chain-swaps || 'false' }}
         run: |
-          # POSIX-compliant string concatenation (no bash arrays). The runner
-          # uses `sh -e` by default in containerised jobs, which doesn't
-          # support `PATTERNS=("...")` / `PATTERNS+=(...)`.
-          GREP_PATTERN="@regression"
-          [ "$INCLUDE_LIVE_SWAPS" = "true" ] && GREP_PATTERN="$GREP_PATTERN|@swap-live"
-          [ "$INCLUDE_CROSS_CHAIN_SWAPS" = "true" ] && GREP_PATTERN="$GREP_PATTERN|@swap-cross-chain"
-          echo "Running tests with grep: $GREP_PATTERN"
+          # POSIX-compliant grep composition (runs in `sh -e`, no bash arrays).
+          # TEST_SCOPE selects between additive (regression + opt-ins) and
+          # exclusive (single-tag-only) modes:
+          #   regression-plus-opt-ins → @regression baseline, plus the two
+          #                             include-* dropdowns if true (default)
+          #   swap-cross-chain-only   → just @swap-cross-chain (no regression)
+          #   swap-live-only          → just @swap-live (no regression)
+          case "$TEST_SCOPE" in
+            swap-cross-chain-only)
+              GREP_PATTERN="@swap-cross-chain"
+              ;;
+            swap-live-only)
+              GREP_PATTERN="@swap-live"
+              ;;
+            *)
+              GREP_PATTERN="@regression"
+              [ "$INCLUDE_LIVE_SWAPS" = "true" ] && GREP_PATTERN="$GREP_PATTERN|@swap-live"
+              [ "$INCLUDE_CROSS_CHAIN_SWAPS" = "true" ] && GREP_PATTERN="$GREP_PATTERN|@swap-cross-chain"
+              ;;
+          esac
+          echo "Running tests with grep: $GREP_PATTERN  (scope: $TEST_SCOPE)"
           xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' \
             npx playwright test --headed \
             --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} \
