@@ -4792,8 +4792,7 @@
       "packages": {
         "external:../common/node_modules/@avalabs/fusion-sdk/dist/constants.js": true,
         "external:../common/node_modules/@avalabs/fusion-sdk/dist/mod.js": true,
-        "external:../common/src/unifiedTransfer/constants.ts": true,
-        "@rsbuild/plugin-node-polyfill>process": true
+        "external:../common/src/unifiedTransfer/constants.ts": true
       }
     },
     "external:../common/src/utils/accounts/accountTypeGuards.ts": {
@@ -4868,9 +4867,6 @@
       "globals": {
         "process.env.NODE_ENV": true,
         "process.env.RELEASE": true
-      },
-      "packages": {
-        "@rsbuild/plugin-node-polyfill>process": true
       }
     },
     "external:../common/src/utils/errors/errorHelpers.ts": {
@@ -4945,7 +4941,6 @@
     "external:../common/src/utils/isContactValid.ts": {
       "packages": {
         "ethers": true,
-        "external:../common/src/utils/address.ts": true,
         "external:../common/src/utils/isAddressValid.ts": true
       }
     },
