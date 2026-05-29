@@ -218,16 +218,23 @@ export const SWAP_TIMEOUTS = {
   TEST: 120_000,
   /**
    * Per-test budget for live cross-chain swaps. Bridges (Markr Solana ↔ EVM,
-   * EVM ↔ EVM) can take 5-10 minutes end-to-end, so we allow 20 minutes per
-   * test. Mirrors Core Web's `UNIFIED_CROSS_CHAIN_SWAP_TEST_TIMEOUT_MS`.
+   * EVM ↔ EVM) can take 5-10 minutes end-to-end on healthy days, but Markr
+   * occasionally takes 20+ minutes to finalize on Solana destinations. We
+   * size the budget at 35 min so the destination wait (30 min) has comfortable
+   * headroom for setup, quote, approvals, on-chain verification, and the
+   * Notify-me → Notifications round-trip. The retry-on-revert path can still
+   * push a single test up to 70 min, but the retry only fires on terminal
+   * source failures so it's a real bug indicator, not a flake amplifier.
    */
-  CROSS_CHAIN_TEST: 1_200_000,
+  CROSS_CHAIN_TEST: 2_100_000,
   /**
    * Outer poll for source + target status to reach Complete. Slightly shorter
    * than `CROSS_CHAIN_TEST` so the test fails on the assertion rather than the
-   * test-level timeout. Mirrors Core Web's `waitForSwapSuccessOrFail` default.
+   * test-level timeout. Raised from Core Web's 15 min default to 30 min after
+   * observing repeated Markr Solana-destination finalizations stretching past
+   * the 15 min window during high-load periods.
    */
-  CROSS_CHAIN_SUCCESS: 900_000,
+  CROSS_CHAIN_SUCCESS: 1_800_000,
 } as const;
 
 /**
