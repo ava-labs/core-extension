@@ -216,22 +216,33 @@ jobs:
           # The diff is taken against HEAD (== the SHA we checked out,
           # before `git apply`) so the partition contains exactly the
           # policy files the patch touched, nothing else.
-          ADDITIONS_JSON='[]'
-          DELETIONS_JSON='[]'
+          #
+          # Why temp files instead of shell variables: Linux caps a single
+          # argv string at `MAX_ARG_STRLEN` (~128 KB), so passing a
+          # policy.json's base64 payload via `jq --arg contents "$(...)"`
+          # trips `E2BIG` ("Argument list too long") as soon as the file
+          # is larger than that — service-worker's policy.json is ~250 KB
+          # raw / ~330 KB base64, well past the limit. `--rawfile` reads
+          # each file directly from disk, and we accumulate the per-file
+          # JSON objects in a temp file (newline-delimited) so the final
+          # `--slurpfile` doesn't have to round-trip them through argv
+          # either. The mutation body is piped to `gh api graphql` via
+          # stdin, which has no such limit.
+          ADDITIONS_FILE=$(mktemp)
+          DELETIONS_FILE=$(mktemp)
 
           add_file() {
             local path="$1"
-            ADDITIONS_JSON=$(echo "$ADDITIONS_JSON" | jq \
+            jq -n \
               --arg path "$path" \
-              --arg contents "$(base64 < "$path" | tr -d '\n')" \
-              '. + [{path: $path, contents: $contents}]')
+              --rawfile contents "$path" \
+              '{path: $path, contents: ($contents | @base64)}' \
+              >> "$ADDITIONS_FILE"
           }
 
           delete_file() {
             local path="$1"
-            DELETIONS_JSON=$(echo "$DELETIONS_JSON" | jq \
-              --arg path "$path" \
-              '. + [{path: $path}]')
+            jq -n --arg path "$path" '{path: $path}' >> "$DELETIONS_FILE"
           }
 
           while IFS=$'\t' read -r status path1 path2; do
@@ -253,9 +264,14 @@ jobs:
             esac
           done < <(git diff --name-status HEAD -- ':(glob)**/lavamoat/rspack/policy.json')
 
+          # `--slurpfile` reads the temp file as a stream of JSON values
+          # and binds the array to the variable, so an empty file yields
+          # `[]` and N appended objects yield an N-element array — which
+          # is exactly the shape `createCommitOnBranch` expects for
+          # `fileChanges.{additions,deletions}`.
           TOTAL=$(jq -n \
-            --argjson a "$ADDITIONS_JSON" \
-            --argjson d "$DELETIONS_JSON" \
+            --slurpfile a "$ADDITIONS_FILE" \
+            --slurpfile d "$DELETIONS_FILE" \
             '($a | length) + ($d | length)')
           if [ "$TOTAL" -eq 0 ]; then
             echo "::error::Patch applied but no policy.json files changed — refusing to create an empty commit."
@@ -266,8 +282,8 @@ jobs:
             --arg repo "$REPO" \
             --arg branch "$BRANCH" \
             --arg headOid "$HEAD_OID" \
-            --argjson additions "$ADDITIONS_JSON" \
-            --argjson deletions "$DELETIONS_JSON" \
+            --slurpfile additions "$ADDITIONS_FILE" \
+            --slurpfile deletions "$DELETIONS_FILE" \
             '{
               query: "mutation($input: CreateCommitOnBranchInput!) { createCommitOnBranch(input: $input) { commit { oid url } } }",
               variables: {
