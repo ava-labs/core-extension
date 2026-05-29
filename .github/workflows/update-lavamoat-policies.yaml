@@ -1,4 +1,4 @@
-name: LavaMoat
+name: Update LavaMoat policies
 
 # Comment-driven companion to `validate-lavamoat-policies.yaml`. When a
 # maintainer leaves a `/update-lavamoat-policies` comment on a PR, this
@@ -41,10 +41,23 @@ concurrency:
 jobs:
   update:
     name: Update policies
-    # `issue_comment` fires on both issues and PRs; gate on `pull_request`
-    # to skip plain issues, and on the literal command to skip every
-    # other comment on every PR in the repo.
-    if: ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '/update-lavamoat-policies') }}
+    # Gates (all must hold for the workflow to fire):
+    #   1. It's a comment on a PR (not on a plain issue) — `issue_comment`
+    #      fires on both.
+    #   2. The comment body starts with the literal slash command — skips
+    #      every other comment on every PR in the repo.
+    #   3. The comment author has write-equivalent access on the repo.
+    #      Without this last gate, anyone who can comment on a public PR
+    #      could trigger a workflow with `contents: write` and have us
+    #      push a signed commit on their behalf. `author_association`
+    #      is set by GitHub on the event payload and cannot be spoofed
+    #      by the comment author. Accepted roles cover org members, repo
+    #      collaborators, and the org owner — i.e. anyone who already has
+    #      the access to push to the PR branch directly.
+    if: >-
+      ${{ github.event.issue.pull_request
+          && startsWith(github.event.comment.body, '/update-lavamoat-policies')
+          && contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association) }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -194,21 +207,57 @@ jobs:
           HEAD_OID=$(git rev-parse HEAD)
           BRANCH='${{ steps.pr.outputs.head_branch }}'
 
-          # `additions` is `[{path, contents: <base64>}, ...]`. We diff
-          # against HEAD (== the SHA we checked out, before `git apply`)
-          # so the list contains exactly the policy files the patch
-          # touched and nothing else.
-          ADDITIONS_JSON=$(
-            git diff --name-only HEAD -- ':(glob)**/lavamoat/rspack/policy.json' |
-              while IFS= read -r file; do
-                jq -n \
-                  --arg path "$file" \
-                  --arg contents "$(base64 < "$file" | tr -d '\n')" \
-                  '{path: $path, contents: $contents}'
-              done | jq -s '.'
-          )
+          # Walk the diff and partition by file status into the two arrays
+          # `createCommitOnBranch` accepts. Using `--name-status` (vs the
+          # earlier `--name-only`) lets us cope with:
+          #  - bundles being removed (D — a `policy.json` deletion would
+          #    otherwise crash `base64 < $file` because the file is gone),
+          #  - bundles being relocated (R — needs delete-old + add-new).
+          # The diff is taken against HEAD (== the SHA we checked out,
+          # before `git apply`) so the partition contains exactly the
+          # policy files the patch touched, nothing else.
+          ADDITIONS_JSON='[]'
+          DELETIONS_JSON='[]'
 
-          if [ "$(echo "$ADDITIONS_JSON" | jq 'length')" -eq 0 ]; then
+          add_file() {
+            local path="$1"
+            ADDITIONS_JSON=$(echo "$ADDITIONS_JSON" | jq \
+              --arg path "$path" \
+              --arg contents "$(base64 < "$path" | tr -d '\n')" \
+              '. + [{path: $path, contents: $contents}]')
+          }
+
+          delete_file() {
+            local path="$1"
+            DELETIONS_JSON=$(echo "$DELETIONS_JSON" | jq \
+              --arg path "$path" \
+              '. + [{path: $path}]')
+          }
+
+          while IFS=$'\t' read -r status path1 path2; do
+            case "$status" in
+              A|C|M)
+                add_file "$path1"
+                ;;
+              D)
+                delete_file "$path1"
+                ;;
+              R*)
+                # Rename: old path is gone, new path holds the content.
+                delete_file "$path1"
+                add_file "$path2"
+                ;;
+              *)
+                echo "::warning::Unhandled diff status '$status' for '$path1' — skipping"
+                ;;
+            esac
+          done < <(git diff --name-status HEAD -- ':(glob)**/lavamoat/rspack/policy.json')
+
+          TOTAL=$(jq -n \
+            --argjson a "$ADDITIONS_JSON" \
+            --argjson d "$DELETIONS_JSON" \
+            '($a | length) + ($d | length)')
+          if [ "$TOTAL" -eq 0 ]; then
             echo "::error::Patch applied but no policy.json files changed — refusing to create an empty commit."
             exit 1
           fi
@@ -218,6 +267,7 @@ jobs:
             --arg branch "$BRANCH" \
             --arg headOid "$HEAD_OID" \
             --argjson additions "$ADDITIONS_JSON" \
+            --argjson deletions "$DELETIONS_JSON" \
             '{
               query: "mutation($input: CreateCommitOnBranchInput!) { createCommitOnBranch(input: $input) { commit { oid url } } }",
               variables: {
@@ -225,7 +275,7 @@ jobs:
                   branch: { repositoryNameWithOwner: $repo, branchName: $branch },
                   message: { headline: "chore: update LavaMoat policies" },
                   expectedHeadOid: $headOid,
-                  fileChanges: { additions: $additions }
+                  fileChanges: { additions: $additions, deletions: $deletions }
                 }
               }
             }' | gh api graphql --input -

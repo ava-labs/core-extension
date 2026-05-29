@@ -1,4 +1,4 @@
-name: LavaMoat
+name: Validate LavaMoat policies
 
 # Regenerates every `lavamoat/rspack/policy.json` under apps/* and
 # packages/* by running the production build, then compares the working
@@ -91,8 +91,15 @@ jobs:
         run: |
           yarn install
           yarn allow-scripts
+      # Mirrors `main_branch.yaml`'s shipping command so we're regenerating
+      # under the same rsbuild config that produces the alpha bundles.
+      # Functionally identical to `yarn build` today (both alpha and prod
+      # configs use `generateLavaMoatPolicy: true` + `getEnvVars('production')`),
+      # but parity protects us if the two configs ever diverge.
       - name: Build (regenerates LavaMoat policies)
-        run: yarn build
+        run: yarn build:alpha
+        env:
+          NO_SOURCE_MAPS: 'true'
       - name: Detect policy drift
         id: drift
         # The pathspec matches `policy.json` under any `lavamoat/rspack/`
