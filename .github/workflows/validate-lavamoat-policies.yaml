@@ -1,0 +1,137 @@
+name: Validate LavaMoat policies
+
+# Regenerates every `lavamoat/rspack/policy.json` under apps/* and
+# packages/* by running the production build, then compares the working
+# tree against the committed policies. When a diff is found, uploads it
+# as an artifact (so `update-lavamoat-policies.yaml` can replay it onto
+# the PR branch when a maintainer comments `/update-lavamoat-policies`)
+# and fails the job.
+#
+# Triggers:
+#  - `pull_request`: runs on every PR alongside `pr-checks.yaml`.
+#  - `workflow_dispatch`: re-invoked by `update-lavamoat-policies.yaml`
+#    against the PR branch after a signed policy commit lands, so the
+#    `Validate LavaMoat policies` check refreshes against the new HEAD
+#    without needing the rest of `pr-checks.yaml` (lint/typecheck/test)
+#    to run again. `workflow_dispatch` is one of the two events
+#    GITHUB_TOKEN is allowed to fire.
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate-lavamoat-policies:
+    name: Validate policies
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Uses the `alpha` environment so its secret set matches `main_branch.yaml`
+    # — the env vars resolved here MUST mirror the ones the shipping
+    # workflows (`main_branch.yaml`, `create_release.yaml`) use, or the
+    # policy CI validates against will not match the policy enforced in
+    # production. See the `Create env file` step below for the canonical
+    # list and the reasoning.
+    environment: alpha
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+      - name: Enable corepack
+        run: corepack enable
+      # Env vars must be kept in sync with `main_branch.yaml` and
+      # `create_release.yaml` — those are the workflows that actually ship
+      # builds. LavaMoat's policy generator sees the post-codegen source
+      # (after rsbuild's `define` substitution), so any `process.env.X`
+      # that is NOT defined here stays as a literal `process.env.X` lookup
+      # and ends up in `policy.json` as a global allowlist entry. If this
+      # list diverges from the shipping workflows, the policy validated by
+      # CI will not match the policy that runs in production.
+      - name: Create env file
+        run: |
+          touch .env.production
+          echo RELEASE=alpha >> .env.production
+          echo 'POSTHOG_KEY="${{ secrets.POSTHOG_KEY }}"' >> .env.production
+          echo 'POSTHOG_URL="${{ secrets.POSTHOG_URL }}"' >> .env.production
+          echo 'ANALYTICS_ENCRYPTION_KEY="${{ secrets.ANALYTICS_ENCRYPTION_KEY }}"' >> .env.production
+          echo 'ANALYTICS_ENCRYPTION_KEY_ID="${{ secrets.ANALYTICS_ENCRYPTION_KEY_ID }}"' >> .env.production
+          echo 'COVALENT_API_KEY="${{ secrets.COVALENT_API_KEY }}"' >> .env.production
+          echo 'GLACIER_URL="${{ secrets.GLACIER_URL }}"' >> .env.production
+          echo 'PROXY_URL="${{ secrets.PROXY_URL }}"' >> .env.production
+          echo 'CORE_EXTENSION_LANDING_URL="${{ secrets.CORE_EXTENSION_LANDING_URL }}"' >> .env.production
+          echo 'SENTRY_DSN="${{ secrets.SENTRY_DSN }}"' >> .env.production
+          echo 'CORE_WEB_BASE_URL="${{ secrets.CORE_WEB_BASE_URL }}"' >> .env.production
+          echo 'WALLET_CONNECT_PROJECT_ID="${{ secrets.WALLET_CONNECT_PROJECT_ID }}"' >> .env.production
+          echo 'SEEDLESS_URL="${{ secrets.SEEDLESS_URL }}"' >> .env.production
+          echo 'SEEDLESS_ORG_ID="${{ secrets.SEEDLESS_ORG_ID }}"' >> .env.production
+          echo 'GOOGLE_OAUTH_CLIENT_ID="${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}"' >> .env.production
+          echo 'APPLE_OAUTH_CLIENT_ID="${{ secrets.APPLE_OAUTH_CLIENT_ID }}"' >> .env.production
+          echo 'APPLE_OAUTH_REDIRECT_URL="${{ secrets.APPLE_OAUTH_REDIRECT_URL }}"' >> .env.production
+          echo 'CUBESIGNER_ENV="${{ secrets.CUBESIGNER_ENV }}"' >> .env.production
+          echo 'SEEDLESS_FIDO_IDENTITY_URL="${{ secrets.SEEDLESS_FIDO_IDENTITY_URL }}"' >> .env.production
+          echo 'NEWSLETTER_BASE_URL="${{ secrets.NEWSLETTER_BASE_URL }}"' >> .env.production
+          echo 'NEWSLETTER_PORTAL_ID="${{ secrets.NEWSLETTER_PORTAL_ID }}"' >> .env.production
+          echo 'NEWSLETTER_FORM_ID="${{ secrets.NEWSLETTER_FORM_ID }}"' >> .env.production
+          echo 'FIREBASE_CONFIG="${{ secrets.FIREBASE_CONFIG }}"' >> .env.production
+          echo 'ID_SERVICE_URL="${{ secrets.ID_SERVICE_URL }}"' >> .env.production
+          echo 'GASLESS_SERVICE_URL="${{ secrets.GASLESS_SERVICE_URL }}"' >> .env.production
+          echo 'NOTIFICATION_SENDER_SERVICE_URL="${{ secrets.NOTIFICATION_SENDER_SERVICE_URL }}"' >> .env.production
+          echo 'EXTENSION_PUBLIC_KEY="${{ secrets.EXTENSION_PUBLIC_KEY }}"' >> .env.production
+          echo 'BALANCE_SERVICE_URL="${{ secrets.BALANCE_SERVICE_URL }}"' >> .env.production
+          echo 'PROFILE_SERVICE_URL="${{ secrets.PROFILE_SERVICE_URL }}"' >> .env.production
+          echo 'TOKEN_AGGREGATOR_SERVICE_URL="${{ secrets.TOKEN_AGGREGATOR_SERVICE_URL }}"' >> .env.production
+          echo 'MARKR_API_URL="${{ secrets.MARKR_API_URL }}"' >> .env.production
+          echo 'MARKR_API_TOKEN="${{ secrets.MARKR_API_TOKEN }}"' >> .env.production
+      - name: Install dependencies
+        run: |
+          yarn install
+          yarn allow-scripts
+      # Mirrors `main_branch.yaml`'s shipping command so we're regenerating
+      # under the same rsbuild config that produces the alpha bundles.
+      # Functionally identical to `yarn build` today (both alpha and prod
+      # configs use `generateLavaMoatPolicy: true` + `getEnvVars('production')`),
+      # but parity protects us if the two configs ever diverge.
+      - name: Build (regenerates LavaMoat policies)
+        run: yarn build:alpha
+        env:
+          NO_SOURCE_MAPS: 'true'
+      - name: Detect policy drift
+        id: drift
+        # The pathspec matches `policy.json` under any `lavamoat/rspack/`
+        # directory anywhere in the repo, so this still picks up new
+        # bundles (service worker, content script, offscreen, ...) the
+        # moment they wire LavaMoat in — no workflow change required.
+        run: |
+          POLICY_PATHSPEC=':(glob)**/lavamoat/rspack/policy.json'
+          if git diff --exit-code -- "$POLICY_PATHSPEC" > lavamoat-policy-diff.patch; then
+            rm -f lavamoat-policy-diff.patch
+            echo "drifted=false" >> "$GITHUB_OUTPUT"
+            echo "All LavaMoat policies are up to date."
+          else
+            echo "drifted=true" >> "$GITHUB_OUTPUT"
+            echo "::group::Policy diff"
+            cat lavamoat-policy-diff.patch
+            echo "::endgroup::"
+          fi
+      - name: Upload policy diff artifact
+        if: steps.drift.outputs.drifted == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          # Named with a stable prefix so `update-lavamoat-policies.yaml`
+          # can pick it up via a `pattern: lavamoat-policy-diff*` glob and
+          # also tolerate a future split into per-bundle validate jobs
+          # (e.g. `lavamoat-policy-diff-service-worker`).
+          name: lavamoat-policy-diff
+          path: lavamoat-policy-diff.patch
+          retention-days: 7
+          if-no-files-found: error
+      - name: Fail on drift
+        if: steps.drift.outputs.drifted == 'true'
+        run: |
+          echo "::error::LavaMoat policy drift detected. Comment '/update-lavamoat-policies' on the PR to have CI regenerate and commit the updated policy files, or regenerate locally with 'yarn build' and commit the result."
+          exit 1
