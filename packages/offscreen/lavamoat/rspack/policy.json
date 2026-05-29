@@ -1,0 +1,1179 @@
+{
+  "resources": {
+    "@avalabs/core-gasless-sdk": {
+      "globals": {
+        "Buffer.from": true,
+        "fetch": true,
+        "performance.now": true
+      },
+      "packages": {
+        "@noble/hashes": true,
+        "@rsbuild/plugin-node-polyfill>buffer": true,
+        "zod": true
+      }
+    },
+    "@avalabs/vm-module-types": {
+      "packages": {
+        "zod": true
+      }
+    },
+    "@ethersproject/bytes": {
+      "packages": {
+        "@ethersproject/logger": true
+      }
+    },
+    "@ethersproject/logger": {
+      "globals": {
+        "console": true
+      }
+    },
+    "@noble/curves": {
+      "globals": {
+        "TextEncoder": true
+      },
+      "packages": {
+        "@noble/hashes": true
+      }
+    },
+    "@noble/hashes": {
+      "globals": {
+        "TextEncoder": true,
+        "crypto": true
+      }
+    },
+    "@notabene/pii-sdk": {
+      "globals": {
+        "Buffer.from": true
+      },
+      "packages": {
+        "@ethersproject/bytes": true,
+        "@noble/curves": true,
+        "@stablelib/ed25519": true,
+        "axios-oauth-client": true,
+        "axios-token-interceptor": true,
+        "@rsdoctor/rspack-plugin>@rsdoctor/core>axios": true,
+        "base64url": true,
+        "bs58": true,
+        "@rsbuild/plugin-node-polyfill>buffer": true,
+        "did-jwt": true,
+        "semantic-release>lodash": true,
+        "multibase": true,
+        "multicodec": true
+      }
+    },
+    "@stablelib/binary": {
+      "packages": {
+        "@stablelib/int": true
+      }
+    },
+    "@stablelib/chacha": {
+      "packages": {
+        "@stablelib/binary": true,
+        "@stablelib/wipe": true
+      }
+    },
+    "@stablelib/chacha20poly1305": {
+      "packages": {
+        "@stablelib/binary": true,
+        "@stablelib/chacha": true,
+        "@stablelib/constant-time": true,
+        "@stablelib/poly1305": true,
+        "@stablelib/wipe": true
+      }
+    },
+    "@stablelib/ed25519": {
+      "packages": {
+        "@stablelib/random": true,
+        "@stablelib/sha512": true,
+        "@stablelib/wipe": true
+      }
+    },
+    "@stablelib/poly1305": {
+      "packages": {
+        "@stablelib/constant-time": true,
+        "@stablelib/wipe": true
+      }
+    },
+    "@stablelib/random": {
+      "globals": {
+        "crypto": true,
+        "msCrypto": true
+      },
+      "packages": {
+        "@stablelib/binary": true,
+        "@stablelib/wipe": true
+      }
+    },
+    "@stablelib/sha256": {
+      "packages": {
+        "@stablelib/binary": true,
+        "@stablelib/wipe": true
+      }
+    },
+    "@stablelib/sha512": {
+      "packages": {
+        "@stablelib/binary": true,
+        "@stablelib/wipe": true
+      }
+    },
+    "@stablelib/x25519": {
+      "packages": {
+        "@stablelib/random": true,
+        "@stablelib/wipe": true
+      }
+    },
+    "@stablelib/xchacha20": {
+      "packages": {
+        "@stablelib/binary": true,
+        "@stablelib/chacha": true,
+        "@stablelib/wipe": true
+      }
+    },
+    "@stablelib/xchacha20poly1305": {
+      "packages": {
+        "@stablelib/chacha20poly1305": true,
+        "@stablelib/wipe": true,
+        "@stablelib/xchacha20": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>parse-asn1>asn1.js": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>parse-asn1>asn1.js>bn.js": true,
+        "@rsbuild/plugin-node-polyfill>buffer": true,
+        "@rsbuild/plugin-node-polyfill>util>inherits": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic>minimalistic-assert": true,
+        "@rsbuild/plugin-node-polyfill>vm-browserify": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>parse-asn1>asn1.js": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>bn.js": true,
+        "@rsbuild/plugin-node-polyfill>util>inherits": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic>minimalistic-assert": true,
+        "@rsdoctor/rspack-plugin>@rsdoctor/sdk>body-parser>iconv-lite>safer-buffer": true
+      }
+    },
+    "eslint-plugin-react>array-includes>es-abstract>available-typed-arrays": {
+      "packages": {
+        "eslint-plugin-react>array-includes>es-abstract>typed-array-length>possible-typed-array-names": true
+      }
+    },
+    "axios-oauth-client": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>url>qs": true
+      }
+    },
+    "axios-token-interceptor": {
+      "packages": {
+        "lock": true
+      }
+    },
+    "@rsdoctor/rspack-plugin>@rsdoctor/core>axios": {
+      "globals": {
+        "Blob": true,
+        "Buffer.from": true,
+        "FormData": true,
+        "URLSearchParams": true,
+        "WorkerGlobalScope": true,
+        "XMLHttpRequest": true,
+        "btoa": true,
+        "console.warn": true,
+        "document": true,
+        "importScripts": true,
+        "location.href": true,
+        "navigator": true,
+        "setTimeout": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>buffer": true
+      }
+    },
+    "base64url": {
+      "globals": {
+        "Buffer.alloc": true,
+        "Buffer.from": true,
+        "Buffer.isBuffer": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>parse-asn1>asn1.js>bn.js": {
+      "globals": {
+        "Buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>bn.js": {
+      "globals": {
+        "Buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>bn.js": {
+      "globals": {
+        "Buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>diffie-hellman>bn.js": {
+      "globals": {
+        "Buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic>bn.js": {
+      "globals": {
+        "Buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>diffie-hellman>miller-rabin>bn.js": {
+      "globals": {
+        "Buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>bn.js": {
+      "globals": {
+        "Buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic>brorand": {
+      "globals": {
+        "crypto": true,
+        "msCrypto": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>browserify-aes": {
+      "globals": {
+        "Buffer.concat": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>browserify-aes>buffer-xor": true,
+        "@rsbuild/plugin-node-polyfill>buffer": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hash>cipher-base": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>evp_bytestokey": true,
+        "@rsbuild/plugin-node-polyfill>util>inherits": true,
+        "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>browserify-aes": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>browserify-des": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>evp_bytestokey": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>browserify-des": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hash>cipher-base": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>browserify-des>des.js": true,
+        "@rsbuild/plugin-node-polyfill>util>inherits": true,
+        "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>browserify-rsa": {
+      "globals": {
+        "Buffer": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>bn.js": true,
+        "@rsbuild/plugin-node-polyfill>buffer": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>randombytes": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>bn.js": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>browserify-rsa": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hash": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hmac": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic": true,
+        "@rsbuild/plugin-node-polyfill>util>inherits": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>parse-asn1": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>readable-stream": true,
+        "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": true
+      }
+    },
+    "bs58": {
+      "packages": {
+        "base-x": true
+      }
+    },
+    "buffer-equal-constant-time": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>browserify-aes>buffer-xor": {
+      "globals": {
+        "Buffer": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>buffer": {
+      "globals": {
+        "console": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>buffer>base64-js": true,
+        "@rsbuild/plugin-node-polyfill>buffer>ieee754": true
+      }
+    },
+    "eslint-plugin-react>object.values>call-bind>call-bind-apply-helpers": {
+      "packages": {
+        "eslint-plugin-react>es-iterator-helpers>es-errors": true,
+        "eslint-plugin-react>hasown>function-bind": true
+      }
+    },
+    "@rsdoctor/rspack-plugin>@rsdoctor/core>axios>form-data>es-set-tostringtag>get-intrinsic>call-bind-apply-helpers": {
+      "packages": {
+        "eslint-plugin-react>es-iterator-helpers>es-errors": true,
+        "eslint-plugin-react>hasown>function-bind": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>util>is-arguments>call-bind": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>util>is-arguments>call-bind>function-bind": true,
+        "@rsbuild/plugin-node-polyfill>util>is-arguments>call-bind>get-intrinsic": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>util>is-typed-array>call-bind": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>util>is-typed-array>call-bind>function-bind": true,
+        "@rsbuild/plugin-node-polyfill>util>is-typed-array>call-bind>get-intrinsic": true
+      }
+    },
+    "eslint-plugin-react>object.values>call-bind": {
+      "packages": {
+        "eslint-plugin-react>object.values>call-bind>call-bind-apply-helpers": true,
+        "eslint-plugin-react>object.values>call-bind>es-define-property": true,
+        "eslint-plugin-react>object.values>call-bind>set-function-length": true
+      }
+    },
+    "eslint-plugin-react>es-iterator-helpers>internal-slot>side-channel>call-bind": {
+      "packages": {
+        "eslint-plugin-react>es-iterator-helpers>internal-slot>side-channel>call-bind>function-bind": true,
+        "eslint-plugin-react>es-iterator-helpers>internal-slot>side-channel>get-intrinsic": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map>call-bound": {
+      "packages": {
+        "@rsdoctor/rspack-plugin>@rsdoctor/core>axios>form-data>es-set-tostringtag>get-intrinsic>call-bind-apply-helpers": true,
+        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map>call-bound>get-intrinsic": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hash>cipher-base": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>util>inherits": true,
+        "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": true,
+        "@rsbuild/plugin-node-polyfill>stream-browserify": true,
+        "@rsbuild/plugin-node-polyfill>string_decoder": true
+      }
+    },
+    "semantic-release>git-log-parser>through2>readable-stream>core-util-is": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh": {
+      "globals": {
+        "Buffer": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>bn.js": true,
+        "@rsbuild/plugin-node-polyfill>buffer": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hash": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hash>cipher-base": true,
+        "@rsbuild/plugin-node-polyfill>util>inherits": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hash>md5.js": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hash>ripemd160": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>sha.js": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>create-hash": {
+      "globals": {
+        "Buffer": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hmac": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hash>cipher-base": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hash": true,
+        "@rsbuild/plugin-node-polyfill>util>inherits": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hash>ripemd160": true,
+        "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>sha.js": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hash": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hmac": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>diffie-hellman": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>randombytes": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>randomfill": true
+      }
+    },
+    "eslint-plugin-react>object.values>define-properties>define-data-property": {
+      "packages": {
+        "eslint-plugin-react>object.values>call-bind>es-define-property": true,
+        "eslint-plugin-react>es-iterator-helpers>es-errors": true,
+        "eslint-plugin-react>es-iterator-helpers>gopd": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>browserify-des>des.js": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>util>inherits": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic>minimalistic-assert": true
+      }
+    },
+    "did-jwt": {
+      "packages": {
+        "@stablelib/ed25519": true,
+        "@stablelib/random": true,
+        "@stablelib/sha256": true,
+        "@stablelib/x25519": true,
+        "@stablelib/xchacha20poly1305": true,
+        "bech32": true,
+        "canonicalize": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic": true,
+        "js-sha3": true,
+        "multiformats": true,
+        "uint8arrays": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>diffie-hellman": {
+      "globals": {
+        "Buffer": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>diffie-hellman>bn.js": true,
+        "@rsbuild/plugin-node-polyfill>buffer": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>diffie-hellman>miller-rabin": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>randombytes": true
+      }
+    },
+    "@rsdoctor/rspack-plugin>@rsdoctor/core>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto>dunder-proto": {
+      "packages": {
+        "@rsdoctor/rspack-plugin>@rsdoctor/core>axios>form-data>es-set-tostringtag>get-intrinsic>call-bind-apply-helpers": true,
+        "@rsdoctor/rspack-plugin>@rsdoctor/core>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto>dunder-proto>gopd": true
+      }
+    },
+    "ecdsa-sig-formatter": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic>bn.js": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic>brorand": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic>hash.js": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic>hmac-drbg": true,
+        "@rsbuild/plugin-node-polyfill>util>inherits": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic>minimalistic-assert": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic>minimalistic-crypto-utils": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>util>is-typed-array>es-abstract": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>util>is-typed-array>call-bind>get-intrinsic": true
+      }
+    },
+    "eslint-plugin-react>object.values>call-bind>es-define-property": {
+      "packages": {
+        "eslint-plugin-react>array-includes>get-intrinsic": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>events": {
+      "globals": {
+        "console": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>evp_bytestokey": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hash>md5.js": true,
+        "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": true
+      }
+    },
+    "fireblocks-sdk": {
+      "globals": {
+        "URLSearchParams": true
+      },
+      "packages": {
+        "@notabene/pii-sdk": true,
+        "@rsdoctor/rspack-plugin>@rsdoctor/core>axios": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify": true,
+        "jsonwebtoken": true,
+        "@rsbuild/plugin-node-polyfill>os-browserify": true,
+        "platform": true,
+        "@rsbuild/plugin-node-polyfill>url>qs": true,
+        "query-string": true,
+        "@lavamoat/allow-scripts>@npmcli/run-script>node-gyp>request>uuid": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>util>is-typed-array>for-each": {
+      "packages": {
+        "eslint-plugin-react>jsx-ast-utils>array-includes>es-abstract>is-callable": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>to-buffer>typed-array-buffer>is-typed-array>which-typed-array>for-each": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>to-buffer>typed-array-buffer>is-typed-array>which-typed-array>for-each>is-callable": true
+      }
+    },
+    "eslint-plugin-react>array-includes>get-intrinsic": {
+      "globals": {
+        "AggregateError": true,
+        "FinalizationRegistry": true,
+        "WeakRef": true
+      },
+      "packages": {
+        "eslint-plugin-react>es-iterator-helpers>es-errors": true,
+        "eslint-plugin-react>hasown>function-bind": true,
+        "eslint-plugin-react>array-includes>get-intrinsic>has-proto": true,
+        "eslint-plugin-react>es-iterator-helpers>has-symbols": true,
+        "eslint-plugin-react>hasown": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>util>is-arguments>call-bind>get-intrinsic": {
+      "globals": {
+        "AggregateError": true,
+        "FinalizationRegistry": true,
+        "WeakRef": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>util>is-arguments>call-bind>function-bind": true,
+        "eslint-plugin-react>es-iterator-helpers>has-symbols": true,
+        "eslint-plugin-react>array.prototype.flatmap>es-shim-unscopables>has": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>util>is-typed-array>call-bind>get-intrinsic": {
+      "globals": {
+        "AggregateError": true,
+        "FinalizationRegistry": true,
+        "WeakRef": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>util>is-typed-array>call-bind>function-bind": true,
+        "eslint-plugin-react>es-iterator-helpers>has-symbols": true,
+        "eslint-plugin-react>array.prototype.flatmap>es-shim-unscopables>has": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map>call-bound>get-intrinsic": {
+      "globals": {
+        "AggregateError": true,
+        "FinalizationRegistry": true,
+        "Float16Array": true,
+        "WeakRef": true
+      },
+      "packages": {
+        "@rsdoctor/rspack-plugin>@rsdoctor/core>axios>form-data>es-set-tostringtag>get-intrinsic>call-bind-apply-helpers": true,
+        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map>call-bound>get-intrinsic>es-define-property": true,
+        "eslint-plugin-react>es-iterator-helpers>es-errors": true,
+        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map>call-bound>get-intrinsic>es-object-atoms": true,
+        "eslint-plugin-react>hasown>function-bind": true,
+        "@rsdoctor/rspack-plugin>@rsdoctor/core>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto": true,
+        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map>call-bound>get-intrinsic>gopd": true,
+        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map>call-bound>get-intrinsic>has-symbols": true,
+        "eslint-plugin-react>hasown": true,
+        "@rsdoctor/rspack-plugin>@rsdoctor/core>axios>form-data>es-set-tostringtag>get-intrinsic>math-intrinsics": true
+      }
+    },
+    "eslint-plugin-react>es-iterator-helpers>gopd>get-intrinsic": {
+      "globals": {
+        "AggregateError": true,
+        "FinalizationRegistry": true,
+        "WeakRef": true
+      },
+      "packages": {
+        "eslint-plugin-react>es-iterator-helpers>gopd>get-intrinsic>function-bind": true,
+        "eslint-plugin-react>es-iterator-helpers>has-symbols": true,
+        "eslint-plugin-react>array.prototype.flatmap>es-shim-unscopables>has": true
+      }
+    },
+    "eslint-plugin-react>es-iterator-helpers>internal-slot>side-channel>get-intrinsic": {
+      "globals": {
+        "AggregateError": true,
+        "FinalizationRegistry": true,
+        "WeakRef": true
+      },
+      "packages": {
+        "eslint-plugin-react>es-iterator-helpers>internal-slot>side-channel>call-bind>function-bind": true,
+        "eslint-plugin-react>es-iterator-helpers>has-symbols": true,
+        "eslint-plugin-react>array.prototype.flatmap>es-shim-unscopables>has": true
+      }
+    },
+    "@rsdoctor/rspack-plugin>@rsdoctor/core>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto": {
+      "packages": {
+        "@rsdoctor/rspack-plugin>@rsdoctor/core>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto>dunder-proto": true,
+        "eslint-plugin-react>object.values>es-object-atoms": true
+      }
+    },
+    "eslint-plugin-react>es-iterator-helpers>gopd": {
+      "packages": {
+        "eslint-plugin-react>es-iterator-helpers>gopd>get-intrinsic": true
+      }
+    },
+    "eslint-plugin-react>es-iterator-helpers>has-property-descriptors": {
+      "packages": {
+        "eslint-plugin-react>object.values>call-bind>es-define-property": true
+      }
+    },
+    "eslint-plugin-react>array-includes>is-string>has-tostringtag": {
+      "packages": {
+        "eslint-plugin-react>es-iterator-helpers>has-symbols": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>to-buffer>typed-array-buffer>is-typed-array>which-typed-array>has-tostringtag": {
+      "packages": {
+        "eslint-plugin-react>es-iterator-helpers>has-symbols": true
+      }
+    },
+    "eslint-plugin-react>array.prototype.flatmap>es-shim-unscopables>has": {
+      "packages": {
+        "eslint-plugin-react>array.prototype.flatmap>es-shim-unscopables>has>function-bind": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hash>md5.js>hash-base": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>util>inherits": true,
+        "@rsbuild/plugin-node-polyfill>stream-http>readable-stream": true,
+        "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hash>ripemd160>hash-base": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>util>inherits": true,
+        "@rsbuild/plugin-node-polyfill>stream-http>readable-stream": true,
+        "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>ripemd160>hash-base": {
+      "globals": {
+        "Buffer": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>buffer": true,
+        "@rsbuild/plugin-node-polyfill>util>inherits": true,
+        "@rsbuild/plugin-node-polyfill>stream-browserify": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic>hash.js": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>util>inherits": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic>minimalistic-assert": true
+      }
+    },
+    "eslint-plugin-react>hasown": {
+      "packages": {
+        "eslint-plugin-react>hasown>function-bind": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic>hmac-drbg": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic>hash.js": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic>minimalistic-assert": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic>minimalistic-crypto-utils": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>util>is-arguments": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>util>is-arguments>call-bind": true,
+        "eslint-plugin-react>array-includes>is-string>has-tostringtag": true
+      }
+    },
+    "eslint-plugin-react>jsx-ast-utils>array-includes>es-abstract>is-callable": {
+      "globals": {
+        "document": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>to-buffer>typed-array-buffer>is-typed-array>which-typed-array>for-each>is-callable": {
+      "globals": {
+        "document": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>util>is-generator-function": {
+      "packages": {
+        "eslint-plugin-react>array-includes>is-string>has-tostringtag": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>to-buffer>typed-array-buffer>is-typed-array": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>to-buffer>typed-array-buffer>is-typed-array>which-typed-array": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>util>is-typed-array": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>util>is-typed-array>available-typed-arrays": true,
+        "@rsbuild/plugin-node-polyfill>util>is-typed-array>call-bind": true,
+        "@rsbuild/plugin-node-polyfill>util>is-typed-array>es-abstract": true,
+        "@rsbuild/plugin-node-polyfill>util>is-typed-array>for-each": true,
+        "eslint-plugin-react>array-includes>is-string>has-tostringtag": true
+      }
+    },
+    "joi": {
+      "globals": {
+        "TextEncoder": true,
+        "URL": true,
+        "define": true
+      }
+    },
+    "js-sha3": {
+      "globals": {
+        "define": true,
+        "process": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>process": true
+      }
+    },
+    "jsonwebtoken": {
+      "globals": {
+        "Buffer.from": true,
+        "Buffer.isBuffer": true,
+        "process.version": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>buffer": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify": true,
+        "jws": true,
+        "semantic-release>lodash": true,
+        "semantic-release>@semantic-release/npm>npm>ms": true,
+        "@rsbuild/plugin-node-polyfill>process": true,
+        "semantic-release>semver": true
+      }
+    },
+    "jwa": {
+      "packages": {
+        "buffer-equal-constant-time": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify": true,
+        "ecdsa-sig-formatter": true,
+        "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": true,
+        "@rsbuild/plugin-node-polyfill>util": true
+      }
+    },
+    "jws": {
+      "globals": {
+        "process.nextTick": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>buffer": true,
+        "jwa": true,
+        "@rsbuild/plugin-node-polyfill>process": true,
+        "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": true,
+        "@rsbuild/plugin-node-polyfill>stream-browserify": true,
+        "@rsbuild/plugin-node-polyfill>util": true
+      }
+    },
+    "lock": {
+      "globals": {
+        "setImmediate": true,
+        "setTimeout": true
+      }
+    },
+    "semantic-release>lodash": {
+      "globals": {
+        "define": true
+      }
+    },
+    "semantic-release>semver>lru-cache": {
+      "packages": {
+        "semantic-release>semver>lru-cache>yallist": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hash>md5.js": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hash>md5.js>hash-base": true,
+        "@rsbuild/plugin-node-polyfill>util>inherits": true,
+        "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>diffie-hellman>miller-rabin": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>diffie-hellman>miller-rabin>bn.js": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>elliptic>brorand": true
+      }
+    },
+    "multibase": {
+      "globals": {
+        "TextDecoder": true,
+        "TextEncoder": true
+      },
+      "packages": {
+        "@multiformats/base-x": true
+      }
+    },
+    "multicodec": {
+      "packages": {
+        "uint8arrays": true,
+        "varint": true
+      }
+    },
+    "multiformats": {
+      "globals": {
+        "TextDecoder": true,
+        "TextEncoder": true,
+        "console.warn": true,
+        "crypto.subtle.digest": true
+      }
+    },
+    "eslint-plugin-react>es-iterator-helpers>internal-slot>side-channel>object-inspect": {
+      "globals": {
+        "HTMLElement": true,
+        "WeakRef": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>os-browserify": {
+      "globals": {
+        "location": true,
+        "navigator": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>parse-asn1": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>parse-asn1>asn1.js": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>browserify-aes": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>evp_bytestokey": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2": true,
+        "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>parse-asn1": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>parse-asn1>asn1.js": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>browserify-aes": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>evp_bytestokey": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2": true,
+        "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2": {
+      "globals": {
+        "crypto": true,
+        "process": true,
+        "queueMicrotask": true,
+        "setImmediate": true,
+        "setTimeout": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>create-hash": true,
+        "@rsbuild/plugin-node-polyfill>process": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>ripemd160": true,
+        "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>sha.js": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>to-buffer": true
+      }
+    },
+    "platform": {
+      "globals": {
+        "define": true
+      }
+    },
+    "semantic-release>git-log-parser>through2>readable-stream>process-nextick-args": {
+      "globals": {
+        "process": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>process": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>process": {
+      "globals": {
+        "clearTimeout": true,
+        "setTimeout": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>bn.js": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>browserify-rsa": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hash": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>parse-asn1": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>randombytes": true,
+        "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>url>qs": {
+      "packages": {
+        "eslint-plugin-react>es-iterator-helpers>internal-slot>side-channel": true
+      }
+    },
+    "query-string": {
+      "packages": {
+        "decode-uri-component": true,
+        "filter-obj": true,
+        "split-on-first": true,
+        "strict-uri-encode": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>randombytes": {
+      "globals": {
+        "crypto": true,
+        "msCrypto": true,
+        "process.nextTick": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>process": true,
+        "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>randomfill": {
+      "globals": {
+        "crypto": true,
+        "msCrypto": true,
+        "process.browser": true,
+        "process.nextTick": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>process": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>randombytes": true,
+        "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>readable-stream": {
+      "globals": {
+        "process.browser": true,
+        "process.stderr": true,
+        "process.stdout": true,
+        "process.version.slice": true,
+        "setImmediate": true
+      },
+      "packages": {
+        "semantic-release>git-log-parser>through2>readable-stream>core-util-is": true,
+        "@rsbuild/plugin-node-polyfill>events": true,
+        "@rsbuild/plugin-node-polyfill>util>inherits": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>readable-stream>isarray": true,
+        "semantic-release>git-log-parser>through2>readable-stream>process-nextick-args": true,
+        "@rsbuild/plugin-node-polyfill>process": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>readable-stream>safe-buffer": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>readable-stream>string_decoder": true,
+        "@rsbuild/plugin-node-polyfill>stream-http>readable-stream>util-deprecate": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>stream-http>readable-stream": {
+      "globals": {
+        "process.nextTick": true,
+        "process.stderr": true,
+        "process.stdout": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>buffer": true,
+        "@rsbuild/plugin-node-polyfill>events": true,
+        "@rsbuild/plugin-node-polyfill>util>inherits": true,
+        "@rsbuild/plugin-node-polyfill>process": true,
+        "@rsbuild/plugin-node-polyfill>string_decoder": true,
+        "@rsbuild/plugin-node-polyfill>stream-http>readable-stream>util-deprecate": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hash>ripemd160": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>buffer": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>create-hash>ripemd160>hash-base": true,
+        "@rsbuild/plugin-node-polyfill>util>inherits": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>ripemd160": {
+      "globals": {
+        "Buffer": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>buffer": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>ripemd160>hash-base": true,
+        "@rsbuild/plugin-node-polyfill>util>inherits": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>readable-stream>safe-buffer": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>readable-stream>string_decoder>safe-buffer": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>buffer": true
+      }
+    },
+    "@rsdoctor/rspack-plugin>@rsdoctor/sdk>body-parser>iconv-lite>safer-buffer": {
+      "globals": {
+        "process.binding": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>buffer": true,
+        "@rsbuild/plugin-node-polyfill>process": true
+      }
+    },
+    "semantic-release>semver": {
+      "globals": {
+        "console.error": true,
+        "process": true
+      },
+      "packages": {
+        "semantic-release>semver>lru-cache": true,
+        "@rsbuild/plugin-node-polyfill>process": true
+      }
+    },
+    "eslint-plugin-react>object.values>call-bind>set-function-length": {
+      "packages": {
+        "eslint-plugin-react>object.values>define-properties>define-data-property": true,
+        "eslint-plugin-react>es-iterator-helpers>es-errors": true,
+        "eslint-plugin-react>array-includes>get-intrinsic": true,
+        "eslint-plugin-react>es-iterator-helpers>gopd": true,
+        "eslint-plugin-react>es-iterator-helpers>has-property-descriptors": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>sha.js": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>util>inherits": true,
+        "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>to-buffer": true
+      }
+    },
+    "eslint-plugin-react>es-iterator-helpers>internal-slot>side-channel": {
+      "packages": {
+        "eslint-plugin-react>es-iterator-helpers>internal-slot>side-channel>call-bind": true,
+        "eslint-plugin-react>es-iterator-helpers>internal-slot>side-channel>get-intrinsic": true,
+        "eslint-plugin-react>es-iterator-helpers>internal-slot>side-channel>object-inspect": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>stream-browserify": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>events": true,
+        "@rsbuild/plugin-node-polyfill>util>inherits": true,
+        "@rsbuild/plugin-node-polyfill>stream-http>readable-stream": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>string_decoder": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>readable-stream>string_decoder": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>readable-stream>string_decoder>safe-buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>to-buffer": {
+      "packages": {
+        "eslint-plugin-react>es-iterator-helpers>safe-array-concat>isarray": true,
+        "@rsbuild/plugin-node-polyfill>string_decoder>safe-buffer": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>to-buffer>typed-array-buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>to-buffer>typed-array-buffer": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map>call-bound": true,
+        "eslint-plugin-react>es-iterator-helpers>es-errors": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>to-buffer>typed-array-buffer>is-typed-array": true
+      }
+    },
+    "uint8arrays": {
+      "globals": {
+        "Buffer": true,
+        "TextDecoder": true,
+        "TextEncoder": true
+      },
+      "packages": {
+        "multiformats": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>stream-http>readable-stream>util-deprecate": {
+      "globals": {
+        "console.trace": true,
+        "console.warn": true,
+        "localStorage": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>util": {
+      "globals": {
+        "console.error": true,
+        "console.log": true,
+        "console.trace": true,
+        "process": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>util>inherits": true,
+        "@rsbuild/plugin-node-polyfill>util>is-arguments": true,
+        "@rsbuild/plugin-node-polyfill>util>is-generator-function": true,
+        "@rsbuild/plugin-node-polyfill>util>is-typed-array": true,
+        "@rsbuild/plugin-node-polyfill>process": true,
+        "@rsbuild/plugin-node-polyfill>util>which-typed-array": true
+      }
+    },
+    "@lavamoat/allow-scripts>@npmcli/run-script>node-gyp>request>uuid": {
+      "globals": {
+        "crypto": true,
+        "msCrypto": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>vm-browserify": {
+      "globals": {
+        "document.body.appendChild": true,
+        "document.body.removeChild": true,
+        "document.createElement": true
+      }
+    },
+    "webextension-polyfill": {
+      "globals": {
+        "browser": true,
+        "chrome": true,
+        "console.error": true,
+        "console.warn": true,
+        "define": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>to-buffer>typed-array-buffer>is-typed-array>which-typed-array": {
+      "packages": {
+        "eslint-plugin-react>array-includes>es-abstract>available-typed-arrays": true,
+        "eslint-plugin-react>object.values>call-bind": true,
+        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map>call-bound": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>to-buffer>typed-array-buffer>is-typed-array>which-typed-array>for-each": true,
+        "@rsdoctor/rspack-plugin>@rsdoctor/core>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>to-buffer>typed-array-buffer>is-typed-array>which-typed-array>gopd": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>pbkdf2>to-buffer>typed-array-buffer>is-typed-array>which-typed-array>has-tostringtag": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>util>which-typed-array": {
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>util>is-typed-array>available-typed-arrays": true,
+        "@rsbuild/plugin-node-polyfill>util>is-typed-array>call-bind": true,
+        "@rsbuild/plugin-node-polyfill>util>is-typed-array>es-abstract": true,
+        "@rsbuild/plugin-node-polyfill>util>is-typed-array>for-each": true,
+        "eslint-plugin-react>array-includes>is-string>has-tostringtag": true,
+        "@rsbuild/plugin-node-polyfill>util>is-typed-array": true
+      }
+    },
+    "zod": {
+      "globals": {
+        "File": true,
+        "JSONSchema": true,
+        "SuppressedError": true,
+        "URL": true,
+        "__zod_globalRegistry": true,
+        "atob": true,
+        "btoa": true,
+        "coerce": true,
+        "core": true,
+        "iso": true,
+        "locales": true,
+        "navigator": true,
+        "regexes": true,
+        "util": true
+      }
+    }
+  }
+}

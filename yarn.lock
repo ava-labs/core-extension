@@ -2941,6 +2941,7 @@ __metadata:
   resolution: "@core/content-script@workspace:packages/content-script"
   dependencies:
     "@core/common": "workspace:*"
+    "@core/lavamoat-rspack": "workspace:*"
     "@core/messaging": "workspace:*"
     "@rsbuild/core": "npm:1.3.3"
     "@rsbuild/plugin-node-polyfill": "npm:1.3.0"
@@ -3040,6 +3041,7 @@ __metadata:
   dependencies:
     "@avalabs/core-gasless-sdk": "npm:3.1.0-alpha.87"
     "@core/common": "workspace:*"
+    "@core/lavamoat-rspack": "workspace:*"
     "@core/messaging": "workspace:*"
     "@core/types": "workspace:*"
     "@rsbuild/core": "npm:1.3.3"
@@ -3087,6 +3089,7 @@ __metadata:
     "@commitlint/cli": "npm:17.0.3"
     "@commitlint/config-angular": "npm:17.0.3"
     "@commitlint/config-conventional": "npm:17.0.3"
+    "@core/lavamoat-rspack": "workspace:*"
     "@cubist-labs/cubesigner-sdk": "npm:0.3.28"
     "@cubist-labs/cubesigner-sdk-ethers-v6": "npm:0.3.28"
     "@eslint/compat": "npm:1.2.4"
