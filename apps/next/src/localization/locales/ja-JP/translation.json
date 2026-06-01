@@ -886,6 +886,7 @@
   "Total network fee": "総ネットワーク手数料",
   "Total network fee = (current base fee + max priority fee) × gas limit. It will never be higher than max base fee × gas limit.": "総ネットワーク手数料 = (現在のベース手数料 + 最大優先手数料) × ガスリミット。最大ベース手数料 × ガスリミットを超えることはありません。",
   "Total units of gas needed to complete the transaction. Setting it too low may cause the transaction to fail.": "取引を完了するために必要なガスの合計単位。低すぎると取引が失敗する可能性があります。",
+  "Transaction": "トランザクション",
   "Transaction failed": "取引に失敗しました",
   "Transaction failed due to slippage": "スリッページにより取引が失敗しました",
   "Transaction has been blocked": "取引がブロックされました",
