@@ -886,6 +886,7 @@
   "Total network fee": "Toplam ağ ücreti",
   "Total network fee = (current base fee + max priority fee) × gas limit. It will never be higher than max base fee × gas limit.": "Toplam ağ ücreti = (mevcut taban ücreti + maks öncelik ücreti) × gaz limiti. Hiçbir zaman maks taban ücreti × gaz limitinden yüksek olmayacak.",
   "Total units of gas needed to complete the transaction. Setting it too low may cause the transaction to fail.": "İşlemi tamamlamak için gereken toplam gaz birimi. Çok düşük ayarlamak işlemin başarısız olmasına neden olabilir.",
+  "Transaction": "İşlem",
   "Transaction failed": "İşlem başarısız",
   "Transaction failed due to slippage": "Kayma nedeniyle işlem başarısız",
   "Transaction has been blocked": "İşlem engellendi",
