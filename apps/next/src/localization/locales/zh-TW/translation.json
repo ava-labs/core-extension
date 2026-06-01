@@ -886,6 +886,7 @@
   "Total network fee": "網路總費用",
   "Total network fee = (current base fee + max priority fee) × gas limit. It will never be higher than max base fee × gas limit.": "網路總費用 =（目前基礎費用 + 最大優先費用）× Gas 上限。它絕不會高於最大基礎費用 × Gas 上限。",
   "Total units of gas needed to complete the transaction. Setting it too low may cause the transaction to fail.": "完成交易所需的 Gas 總單位數。設定過低可能導致交易失敗。",
+  "Transaction": "交易",
   "Transaction failed": "交易失敗",
   "Transaction failed due to slippage": "交易因滑點而失敗",
   "Transaction has been blocked": "交易已被封鎖",
