@@ -107,6 +107,35 @@ export default ({ generateLavaMoatPolicy }: CommonConfigOptions) =>
               // src="./lockdown"> tag into. Prepend SES lockdown directly to
               // the entry bundle so it executes before any wrapped module.
               inlineLockdown: /backgroundPage\.js$/,
+              // `reflect-metadata` polyfills `Reflect.decorate`, `.metadata`,
+              // `.getMetadata` etc. by calling `Object.defineProperty` on
+              // the real `Reflect`. tsyringe (our DI container) and every
+              // `@injectable` / `@inject` decorator at module top-level
+              // depends on those being installed before any service code
+              // runs. If we let `import 'reflect-metadata'` execute as a
+              // normal wrapped module it lands AFTER `hardenIntrinsics()`
+              // freezes `Reflect`, so the very first `defineProperty` call
+              // throws `TypeError: Cannot define property decorate, object
+              // is not extensible` and the SW bundle never finishes
+              // booting (manifests as extension not booting up at all).
+              //
+              // Registering it as a static shim instead inlines its source
+              // into the `LOCKDOWN_SHIMS` array, which the runtime runs
+              // between `repairIntrinsics()` and `hardenIntrinsics()` —
+              // `Reflect` is still extensible at that point, the polyfill
+              // installs cleanly, and the subsequent harden step freezes
+              // `Reflect` *with* the new properties present.
+              //
+              // `require.resolve` runs in this package's context so we get
+              // service-worker's hoisted copy (not lavamoat-rspack's own
+              // node_modules), matching exactly the copy `init.ts` would
+              // have imported.
+              //
+              // NOTE: Important to note here, this renders `reflect-metadata`
+              // as a possible supply-chain attack vector, but with it being
+              // pinned to version 0.1.13, with no real updates in ~4 years
+              // and no other dependencies, this is considered low risk.
+              staticShims_experimental: [require.resolve('reflect-metadata')],
               // Packages whose code statically appears to mutate JS
               // primordials (e.g. Object.keys, Function.prototype), which
               // SES lockdown freezes. The build will fail if an unlisted
