@@ -886,6 +886,7 @@
   "Total network fee": "Gesamte Netzwerkgebühr",
   "Total network fee = (current base fee + max priority fee) × gas limit. It will never be higher than max base fee × gas limit.": "Gesamte Netzwerkgebühr = (aktuelle Basisgebühr + maximale Prioritätsgebühr) × Gaslimit. Sie wird nie höher als maximale Basisgebühr × Gaslimit sein.",
   "Total units of gas needed to complete the transaction. Setting it too low may cause the transaction to fail.": "Gesamte Gaseinheiten, die zum Abschluss der Transaktion benötigt werden. Zu niedrige Einstellungen können dazu führen, dass die Transaktion fehlschlägt.",
+  "Transaction": "Transaktion",
   "Transaction failed": "Transaktion fehlgeschlagen",
   "Transaction failed due to slippage": "Transaktion aufgrund von Slippage fehlgeschlagen",
   "Transaction has been blocked": "Transaktion wurde gesperrt",
