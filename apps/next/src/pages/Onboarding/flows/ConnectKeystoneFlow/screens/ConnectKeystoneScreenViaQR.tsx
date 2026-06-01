@@ -33,8 +33,10 @@ export const ConnectKeystoneScreenViaQR: FC<
   return (
     <>
       <FullscreenModalTitle>{t('Camera access')}</FullscreenModalTitle>
-      <FullscreenModalDescription>
-        {t('Allow Chrome to access your camera to scan the QR code.')}
+      <FullscreenModalDescription sx={{ whiteSpace: 'pre-line' }}>
+        {t(
+          'Use your camera to scan the QR code on your Keystone device.\nThe preview will appear blurred, but scanning will still work normally.',
+        )}
       </FullscreenModalDescription>
       <FullscreenModalContent sx={{ alignItems: 'center', gap: 3 }}>
         <KeystoneQRConnector

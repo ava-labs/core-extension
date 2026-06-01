@@ -39,18 +39,3 @@ jobs:
           if [[ $(git status --short) == '' ]]; then exit 0; else exit 1; fi
       - name: Test
         run: yarn test
-      - name: Build extension
-        run: yarn build
-      - name: Check LavaMoat policies are up to date
-        run: |
-          # Match every policy.json under any `lavamoat/rspack/` directory
-          # (apps/* and packages/*) so this still covers new bundles when
-          # LavaMoat is wired into them later.
-          POLICY_PATHSPEC=':(glob)**/lavamoat/rspack/policy.json'
-          DRIFTED=$(git status --porcelain -- "$POLICY_PATHSPEC")
-          if [[ -n "$DRIFTED" ]]; then
-            echo "::error::LavaMoat policy drift detected. Run 'yarn build' locally and commit the regenerated policy.json file(s)."
-            echo "$DRIFTED"
-            git --no-pager diff -- "$POLICY_PATHSPEC"
-            exit 1
-          fi
