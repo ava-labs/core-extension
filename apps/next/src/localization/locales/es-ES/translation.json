@@ -886,6 +886,7 @@
   "Total network fee": "Comisión total de red",
   "Total network fee = (current base fee + max priority fee) × gas limit. It will never be higher than max base fee × gas limit.": "Comisión total de red = (comisión base actual + comisión de prioridad máxima) × límite de gas. Nunca será superior a comisión base máxima × límite de gas.",
   "Total units of gas needed to complete the transaction. Setting it too low may cause the transaction to fail.": "Unidades totales de gas necesarias para completar la transacción. Si lo configuras demasiado bajo, la transacción puede fallar.",
+  "Transaction": "Transacción",
   "Transaction failed": "La transacción falló",
   "Transaction failed due to slippage": "La transacción falló por slippage",
   "Transaction has been blocked": "La transacción ha sido bloqueada",
