@@ -886,6 +886,7 @@
   "Total network fee": "총 네트워크 수수료",
   "Total network fee = (current base fee + max priority fee) × gas limit. It will never be higher than max base fee × gas limit.": "총 네트워크 수수료 = (현재 기본 수수료 + 최대 우선순위 수수료) × 가스 한도. 최대 기본 수수료 × 가스 한도보다 높지 않습니다.",
   "Total units of gas needed to complete the transaction. Setting it too low may cause the transaction to fail.": "트랜잭션을 완료하는 데 필요한 총 가스 단위. 너무 낮게 설정하면 트랜잭션이 실패할 수 있습니다.",
+  "Transaction": "트랜잭션",
   "Transaction failed": "트랜잭션 실패",
   "Transaction failed due to slippage": "슬리피지로 인해 트랜잭션이 실패했습니다",
   "Transaction has been blocked": "트랜잭션이 차단되었습니다",
