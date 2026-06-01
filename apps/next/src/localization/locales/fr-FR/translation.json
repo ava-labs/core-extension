@@ -886,6 +886,7 @@
   "Total network fee": "Frais réseau totaux",
   "Total network fee = (current base fee + max priority fee) × gas limit. It will never be higher than max base fee × gas limit.": "Frais réseau totaux = (frais de base actuels + frais de priorité max) × limite de gas. Ils ne dépasseront jamais frais de base max × limite de gas.",
   "Total units of gas needed to complete the transaction. Setting it too low may cause the transaction to fail.": "Nombre total d’unités de gas nécessaires pour compléter la transaction. Un paramétrage trop bas peut entraîner un échec.",
+  "Transaction": "Transaction",
   "Transaction failed": "Transaction échouée",
   "Transaction failed due to slippage": "Transaction échouée en raison du slippage",
   "Transaction has been blocked": "La transaction a été bloquée",
