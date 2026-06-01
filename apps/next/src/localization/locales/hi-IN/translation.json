@@ -886,6 +886,7 @@
   "Total network fee": "कुल नेटवर्क शुल्क",
   "Total network fee = (current base fee + max priority fee) × gas limit. It will never be higher than max base fee × gas limit.": "कुल नेटवर्क शुल्क = (वर्तमान बेस शुल्क + अधिकतम प्राथमिकता शुल्क) × गैस सीमा। यह कभी भी अधिकतम बेस शुल्क × गैस सीमा से अधिक नहीं होगी।",
   "Total units of gas needed to complete the transaction. Setting it too low may cause the transaction to fail.": "ट्रांज़ैक्शन पूर्ण करने के लिए आवश्यक गैस की कुल इकाइयाँ। इसे बहुत कम सेट करने से ट्रांज़ैक्शन विफल हो सकती है।",
+  "Transaction": "ट्रांजेक्शन",
   "Transaction failed": "ट्रांज़ैक्शन विफल",
   "Transaction failed due to slippage": "स्लिपेज के कारण ट्रांज़ैक्शन विफल",
   "Transaction has been blocked": "ट्रांज़ैक्शन अवरुद्ध कर दी गई है",
