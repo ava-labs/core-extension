@@ -886,6 +886,7 @@
   "Total network fee": "Общая сетевая комиссия",
   "Total network fee = (current base fee + max priority fee) × gas limit. It will never be higher than max base fee × gas limit.": "Общая сетевая комиссия = (текущая базовая комиссия + макс. приоритетная комиссия) × лимит газа. Она никогда не будет выше, чем макс. базовая комиссия × лимит газа.",
   "Total units of gas needed to complete the transaction. Setting it too low may cause the transaction to fail.": "Общее количество единиц газа, необходимых для выполнения транзакции. Установка слишком низкого значения может привести к неуспеху транзакции.",
+  "Transaction": "транзакция",
   "Transaction failed": "Транзакция не удалась",
   "Transaction failed due to slippage": "Транзакция не удалась из-за проскальзывания",
   "Transaction has been blocked": "Транзакция заблокирована",
