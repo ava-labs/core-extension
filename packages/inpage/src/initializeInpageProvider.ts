@@ -51,25 +51,35 @@ export function initializeProvider(
   );
   const multiWalletProxy = createMultiWalletProxy(evmProvider);
 
-  globalObject.addEventListener('eip6963:announceProvider', (event: any) => {
-    multiWalletProxy.addProvider(
-      new Proxy(
-        {
-          info: { ...event.detail.info },
-          ...event.detail.provider,
-        },
-        {
-          deleteProperty: () => true,
-          set: () => true,
-        },
-      ),
-    );
-  });
-
   setGlobalProvider(evmProvider, globalObject, multiWalletProxy);
   setAvalancheGlobalProvider(evmProvider, globalObject);
-  announceWalletProvider(evmProvider, globalObject);
-  announceChainAgnosticProvider(chainAgnosticProvider, globalObject);
+
+  // EIP-6963 event dispatch and listener registration is deferred to avoid
+  // triggering a renderer UAF crash in Brave's native js_ethereum_provider
+  // (brave/brave-core#36564).  Brave's C++ code listens for these events,
+  // and when they fire synchronously during document_start the RenderFrame
+  // reference can still be stale.  Deferring to the next task gives the
+  // renderer time to fully initialize.
+  // See: https://github.com/brave/brave-core/pull/36564
+  setTimeout(() => {
+    globalObject.addEventListener('eip6963:announceProvider', (event: any) => {
+      multiWalletProxy.addProvider(
+        new Proxy(
+          {
+            info: { ...event.detail.info },
+            ...event.detail.provider,
+          },
+          {
+            deleteProperty: () => true,
+            set: () => true,
+          },
+        ),
+      );
+    });
+
+    announceWalletProvider(evmProvider, globalObject);
+    announceChainAgnosticProvider(chainAgnosticProvider, globalObject);
+  }, 500);
 
   try {
     initializeSolanaProvider(
