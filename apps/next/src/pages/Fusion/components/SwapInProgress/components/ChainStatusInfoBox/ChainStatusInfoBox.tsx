@@ -3,11 +3,12 @@ import { IconType } from 'react-icons';
 import { useTranslation } from 'react-i18next';
 import { MdCheckCircle, MdErrorOutline, MdReplay } from 'react-icons/md';
 import { Transfer } from '@avalabs/fusion-sdk';
-import { Box, Stack, Typography } from '@avalabs/k2-alpine';
+import { Box, Link, Stack, Typography } from '@avalabs/k2-alpine';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 
 import { useNetworkContext } from '@core/ui';
 import { isFailedTransfer, isRefundedTransfer } from '@core/types';
+import { getExplorerAddressByNetwork } from '@core/common';
 
 import { Card } from '@/components/Card';
 import { AnimatedSyncIcon } from '@/components/AnimatedSyncIcon';
@@ -71,6 +72,13 @@ const StatusIcon: FC<StatusIconProps> = ({ transfer, side }) => {
   );
 };
 
+function getTxHashForSide(transfer: Transfer, side: Side): string | undefined {
+  if (side === 'source') {
+    return 'source' in transfer ? transfer.source?.txHash : undefined;
+  }
+  return 'target' in transfer ? transfer.target?.txHash : undefined;
+}
+
 export const ChainStatusInfoBox: FC<Props> = ({ transfer, side }) => {
   const { t } = useTranslation();
   const { getNetwork } = useNetworkContext();
@@ -79,8 +87,19 @@ export const ChainStatusInfoBox: FC<Props> = ({ transfer, side }) => {
   const network = getNetwork(chain.chainId);
   const status = useTransferStatusForSide(transfer, side);
 
+  const txHash = getTxHashForSide(transfer, side);
+  const explorerUrl =
+    network && txHash
+      ? getExplorerAddressByNetwork(network, txHash, 'tx')
+      : undefined;
+  // The React `Side` type is 'source' | 'target', but our `data-testid`
+  // naming intentionally mirrors Core Web's `fusion-transfer-{source|destination}-*`
+  // so selectors converge across repos. Translate at the test-id boundary
+  // rather than renaming the component prop.
+  const testIdSide = side === 'source' ? 'source' : 'destination';
+
   return (
-    <Card noPadding>
+    <Card noPadding data-testid={`fusion-transfer-${testIdSide}-card`}>
       <Stack divider={<Styled.Divider />}>
         <Styled.StatusDetailRow label={side === 'source' ? t('From') : t('To')}>
           {network && (
@@ -91,16 +110,39 @@ export const ChainStatusInfoBox: FC<Props> = ({ transfer, side }) => {
               />
             </Box>
           )}
-          <Typography variant="body3" color="text.secondary">
+          <Typography
+            variant="body3"
+            color="text.secondary"
+            data-testid={`fusion-transfer-${testIdSide}-chain`}
+          >
             {chain.chainName}
           </Typography>
         </Styled.StatusDetailRow>
         <Styled.StatusDetailRow label={t('Status')}>
           <StatusIcon transfer={transfer} side={side} />
-          <Typography variant="body3" color="text.secondary">
+          <Typography
+            variant="body3"
+            color="text.secondary"
+            data-testid={`fusion-transfer-${testIdSide}-status`}
+          >
             {status}
           </Typography>
         </Styled.StatusDetailRow>
+        {txHash && explorerUrl && (
+          <Styled.StatusDetailRow label={t('Transaction')}>
+            <Link
+              href={explorerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="body3"
+              color="text.secondary"
+              data-testid={`fusion-transfer-${testIdSide}-view-explorer`}
+              data-tx-hash={txHash}
+            >
+              {t('View on explorer')}
+            </Link>
+          </Styled.StatusDetailRow>
+        )}
         {side === 'target' && isRefundedTransfer(transfer) && (
           <Styled.StatusDetailRow label={t('Note')}>
             <Typography variant="body3" color="text.secondary" textAlign="end">

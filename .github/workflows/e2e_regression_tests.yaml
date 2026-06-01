@@ -9,9 +9,31 @@ on:
         description: 'Branch name to checkout for test files'
         required: true
         default: 'main'
+      build-from-branch:
+        type: choice
+        description: 'Build extension from test-branch instead of downloading the latest alpha release? (use when the test branch adds source-side changes the tests depend on, e.g. new data-testids)'
+        options:
+          - 'false'
+          - 'true'
+        default: 'false'
+      test-scope:
+        type: choice
+        description: 'What to run? (regression-plus-opt-ins respects the dropdowns below; the other modes ignore them)'
+        options:
+          - 'regression-plus-opt-ins'
+          - 'swap-cross-chain-only'
+          - 'swap-live-only'
+        default: 'regression-plus-opt-ins'
       include-live-swaps:
         type: choice
-        description: 'Also run live swap tests? (executes real on-chain transactions)'
+        description: 'Also run live single-chain swap tests? (real on-chain transactions; ignored unless scope is regression-plus-opt-ins)'
+        options:
+          - 'false'
+          - 'true'
+        default: 'false'
+      include-cross-chain-swaps:
+        type: choice
+        description: 'Also run live cross-chain swap tests? (~20 min per pair, real on-chain transactions; ignored unless scope is regression-plus-opt-ins)'
         options:
           - 'false'
           - 'true'
@@ -26,8 +48,8 @@ on:
 
 jobs:
   download:
-    name: Download Extension
-    runs-on: ubuntu-latest
+    name: Download or Build Extension
+    runs-on: ubuntu-latest-16-cores-core-extension
     environment: alpha
     env:
       TESTRAIL_EMAIL: ${{ secrets.TESTRAIL_EMAIL }}
@@ -35,9 +57,15 @@ jobs:
     outputs:
       test_run_id: ${{ steps.create-testrail-run.outputs.test_run_id }}
       release_tag: ${{ steps.download-release.outputs.release_tag }}
+      build_source: ${{ steps.identify-source.outputs.build_source }}
 
     steps:
-      - name: Checkout
+      # ── Path A: download the latest alpha release ───────────────────────
+      # Default behaviour for scheduled runs and any workflow_dispatch where
+      # `build-from-branch` is false. Sparse checkout is enough — we only
+      # need to run `gh release download` from this clone.
+      - name: Checkout (download path — sparse)
+        if: ${{ github.event.inputs.build-from-branch != 'true' }}
         uses: actions/checkout@v4
         with:
           sparse-checkout: '.'
@@ -45,6 +73,7 @@ jobs:
 
       - name: Download latest alpha release
         id: download-release
+        if: ${{ github.event.inputs.build-from-branch != 'true' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -65,6 +94,88 @@ jobs:
           echo "Extension unpacked to ./dist"
           ls -la ./dist
 
+      # ── Path B: build the extension from `test-branch` ──────────────────
+      # Used when the test branch adds source-side changes (e.g. new data-
+      # testids) that the tests depend on, before those changes have landed
+      # in main and rolled into the latest alpha release. Mirrors the alpha
+      # build pipeline in `.github/workflows/main_branch.yaml`.
+      - name: Checkout (build path — full)
+        if: ${{ github.event.inputs.build-from-branch == 'true' }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.test-branch || 'main' }}
+          fetch-depth: 0
+
+      - name: Setup Node.js (build path)
+        if: ${{ github.event.inputs.build-from-branch == 'true' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.18.3
+
+      - name: Enable corepack (build path)
+        if: ${{ github.event.inputs.build-from-branch == 'true' }}
+        run: corepack enable
+
+      - name: Create .env.production (build path)
+        if: ${{ github.event.inputs.build-from-branch == 'true' }}
+        run: |
+          touch .env.production
+          echo RELEASE=alpha >> .env.production
+          echo 'POSTHOG_KEY="${{ secrets.POSTHOG_KEY }}"' >> .env.production
+          echo 'POSTHOG_URL="${{ secrets.POSTHOG_URL }}"' >> .env.production
+          echo 'ANALYTICS_ENCRYPTION_KEY="${{ secrets.ANALYTICS_ENCRYPTION_KEY }}"' >> .env.production
+          echo 'ANALYTICS_ENCRYPTION_KEY_ID="${{ secrets.ANALYTICS_ENCRYPTION_KEY_ID }}"' >> .env.production
+          echo 'COVALENT_API_KEY="${{ secrets.COVALENT_API_KEY }}"' >> .env.production
+          echo 'GLACIER_URL="${{ secrets.GLACIER_URL }}"' >> .env.production
+          echo 'PROXY_URL="${{ secrets.PROXY_URL }}"' >> .env.production
+          echo 'CORE_EXTENSION_LANDING_URL="${{ secrets.CORE_EXTENSION_LANDING_URL }}"' >> .env.production
+          echo 'SENTRY_DSN="${{ secrets.SENTRY_DSN }}"' >> .env.production
+          echo 'CORE_WEB_BASE_URL="${{ secrets.CORE_WEB_BASE_URL }}"' >> .env.production
+          echo 'WALLET_CONNECT_PROJECT_ID="${{ secrets.WALLET_CONNECT_PROJECT_ID }}"' >> .env.production
+          echo 'SEEDLESS_URL="${{ secrets.SEEDLESS_URL }}"' >> .env.production
+          echo 'SEEDLESS_ORG_ID="${{ secrets.SEEDLESS_ORG_ID }}"' >> .env.production
+          echo 'GOOGLE_OAUTH_CLIENT_ID="${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}"' >> .env.production
+          echo 'APPLE_OAUTH_CLIENT_ID="${{ secrets.APPLE_OAUTH_CLIENT_ID }}"' >> .env.production
+          echo 'APPLE_OAUTH_REDIRECT_URL="${{ secrets.APPLE_OAUTH_REDIRECT_URL }}"' >> .env.production
+          echo 'CUBESIGNER_ENV="${{ secrets.CUBESIGNER_ENV }}"' >> .env.production
+          echo 'SEEDLESS_FIDO_IDENTITY_URL="${{ secrets.SEEDLESS_FIDO_IDENTITY_URL }}"' >> .env.production
+          echo 'NEWSLETTER_BASE_URL="${{ secrets.NEWSLETTER_BASE_URL }}"' >> .env.production
+          echo 'NEWSLETTER_PORTAL_ID="${{ secrets.NEWSLETTER_PORTAL_ID }}"' >> .env.production
+          echo 'NEWSLETTER_FORM_ID="${{ secrets.NEWSLETTER_FORM_ID }}"' >> .env.production
+          echo 'FIREBASE_CONFIG="${{ secrets.FIREBASE_CONFIG }}"' >> .env.production
+          echo 'ID_SERVICE_URL="${{ secrets.ID_SERVICE_URL }}"' >> .env.production
+          echo 'GASLESS_SERVICE_URL="${{ secrets.GASLESS_SERVICE_URL }}"' >> .env.production
+          echo 'NOTIFICATION_SENDER_SERVICE_URL="${{ secrets.NOTIFICATION_SENDER_SERVICE_URL }}"' >> .env.production
+          echo 'EXTENSION_PUBLIC_KEY="${{ secrets.EXTENSION_PUBLIC_KEY }}"' >> .env.production
+          echo 'BALANCE_SERVICE_URL="${{ secrets.BALANCE_SERVICE_URL }}"' >> .env.production
+          echo 'PROFILE_SERVICE_URL="${{ secrets.PROFILE_SERVICE_URL }}"' >> .env.production
+          echo 'TOKEN_AGGREGATOR_SERVICE_URL="${{ secrets.TOKEN_AGGREGATOR_SERVICE_URL }}"' >> .env.production
+          echo 'MARKR_API_URL="${{ secrets.MARKR_API_URL }}"' >> .env.production
+          echo 'MARKR_API_TOKEN="${{ secrets.MARKR_API_TOKEN }}"' >> .env.production
+
+      - name: Install dependencies (build path)
+        if: ${{ github.event.inputs.build-from-branch == 'true' }}
+        run: |
+          yarn install
+          yarn allow-scripts
+
+      - name: Build extension from test-branch
+        if: ${{ github.event.inputs.build-from-branch == 'true' }}
+        run: |
+          yarn build:alpha
+          echo "Extension built to ./dist from branch: ${{ github.event.inputs.test-branch }}"
+          ls -la ./dist
+
+      # ── Common: upload artifact, identify source, create TestRail run ──
+      - name: Identify build source
+        id: identify-source
+        run: |
+          if [ "${{ github.event.inputs.build-from-branch }}" = "true" ]; then
+            echo "build_source=branch:${{ github.event.inputs.test-branch }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "build_source=release:${{ steps.download-release.outputs.release_tag }}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Upload extension artifact
         uses: actions/upload-artifact@v4
         with:
@@ -78,11 +189,12 @@ jobs:
         id: create-testrail-run
         run: |
           TS=$(date -u +'%Y-%m-%d-%H:%M:%S')
+          SOURCE="${{ steps.identify-source.outputs.build_source }}"
           TEST_RUN_ID=$(trcli -y -h https://avalabs.testrail.io \
             --project "New Gen Core Extension" \
             --username ${{ env.TESTRAIL_EMAIL }} \
             --key ${{ env.TESTRAIL_API_KEY }} \
-            add_run --title "Extension Playwright Regression Run - $TS" \
+            add_run --title "Extension Playwright Regression Run - $TS ($SOURCE)" \
             --run-include-all | grep "run_id:" | awk '{print $2}')
           echo "test_run_id=$TEST_RUN_ID" >> $GITHUB_OUTPUT
 
@@ -299,14 +411,31 @@ jobs:
         working-directory: e2e
         env:
           PLAYWRIGHT_SHARD: ${{ matrix.shardIndex }}
+          TEST_SCOPE: ${{ github.event.inputs.test-scope || 'regression-plus-opt-ins' }}
           INCLUDE_LIVE_SWAPS: ${{ github.event.inputs.include-live-swaps || 'false' }}
+          INCLUDE_CROSS_CHAIN_SWAPS: ${{ github.event.inputs.include-cross-chain-swaps || 'false' }}
         run: |
-          if [ "$INCLUDE_LIVE_SWAPS" = "true" ]; then
-            GREP_PATTERN="@regression|@swap-live"
-          else
-            GREP_PATTERN="@regression"
-          fi
-          echo "Running tests with grep: $GREP_PATTERN"
+          # POSIX-compliant grep composition (runs in `sh -e`, no bash arrays).
+          # TEST_SCOPE selects between additive (regression + opt-ins) and
+          # exclusive (single-tag-only) modes:
+          #   regression-plus-opt-ins → @regression baseline, plus the two
+          #                             include-* dropdowns if true (default)
+          #   swap-cross-chain-only   → just @swap-cross-chain (no regression)
+          #   swap-live-only          → just @swap-live (no regression)
+          case "$TEST_SCOPE" in
+            swap-cross-chain-only)
+              GREP_PATTERN="@swap-cross-chain"
+              ;;
+            swap-live-only)
+              GREP_PATTERN="@swap-live"
+              ;;
+            *)
+              GREP_PATTERN="@regression"
+              [ "$INCLUDE_LIVE_SWAPS" = "true" ] && GREP_PATTERN="$GREP_PATTERN|@swap-live"
+              [ "$INCLUDE_CROSS_CHAIN_SWAPS" = "true" ] && GREP_PATTERN="$GREP_PATTERN|@swap-cross-chain"
+              ;;
+          esac
+          echo "Running tests with grep: $GREP_PATTERN  (scope: $TEST_SCOPE)"
           xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' \
             npx playwright test --headed \
             --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} \

@@ -1,5 +1,5 @@
 import { AnimatedSyncIcon } from '@/components/AnimatedSyncIcon';
-import { useTheme } from '@avalabs/k2-alpine';
+import { Box, useTheme } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import * as Styled from './Styled';
 import { Transfer } from '@avalabs/fusion-sdk';
@@ -38,13 +38,21 @@ export const TransferItem: FC<Props> = ({ transfer, showSeparator }) => {
   const icon = (
     <Styled.Avatar>
       {isTransferInProgress(transfer) ? (
-        <AnimatedSyncIcon size={20} data-active={true} />
+        <Box display="flex" data-testid="notification-transfer-icon-syncing">
+          <AnimatedSyncIcon size={20} data-active={true} />
+        </Box>
       ) : isCompletedTransfer(transfer) ? (
-        <MdCheckCircle size={20} color={theme.palette.success.main} />
+        <Box display="flex" data-testid="notification-transfer-icon-completed">
+          <MdCheckCircle size={20} color={theme.palette.success.main} />
+        </Box>
       ) : isRefundedTransfer(transfer) ? (
-        <MdReplay size={20} color={theme.palette.error.main} />
+        <Box display="flex" data-testid="notification-transfer-icon-refunded">
+          <MdReplay size={20} color={theme.palette.error.main} />
+        </Box>
       ) : (
-        <MdError size={20} color={theme.palette.error.main} />
+        <Box display="flex" data-testid="notification-transfer-icon-failed">
+          <MdError size={20} color={theme.palette.error.main} />
+        </Box>
       )}
     </Styled.Avatar>
   );
@@ -63,6 +71,7 @@ export const TransferItem: FC<Props> = ({ transfer, showSeparator }) => {
       showSeparator={showSeparator}
       accessoryType="chevron"
       onClick={() => push(`/fusion-transfer/${transfer.id}`)}
+      data-testid={`notification-transfer-item-${transfer.id}`}
     />
   );
 };

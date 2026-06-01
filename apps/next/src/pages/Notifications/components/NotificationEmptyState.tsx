@@ -5,7 +5,13 @@ export const NotificationEmptyState = () => {
   const { t } = useTranslation();
 
   return (
-    <Stack alignItems="center" justifyContent="center" flexGrow={1} py={8}>
+    <Stack
+      alignItems="center"
+      justifyContent="center"
+      flexGrow={1}
+      py={8}
+      data-testid="notifications-empty-state"
+    >
       <Typography sx={{ fontSize: 48, lineHeight: '60px', mb: 2 }}>
         🙌
       </Typography>
