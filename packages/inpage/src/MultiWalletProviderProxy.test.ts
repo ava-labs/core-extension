@@ -69,8 +69,8 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
         info: { ...providerInfo, uuid: 'uuid-3' },
       });
 
-      mwpp.addProvider(provider2);
-      mwpp.addProvider(provider3);
+      mwpp.addProvider({ info: provider2.info, provider: provider2 });
+      mwpp.addProvider({ info: provider3.info, provider: provider3 });
 
       expect(mwpp.defaultProvider).toBe(provider);
 
@@ -89,8 +89,8 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
       const provider3 = new EVMProvider({
         info: { ...providerInfo, uuid: 'uuid-2' },
       });
-      mwpp.addProvider(provider2);
-      mwpp.addProvider(provider3);
+      mwpp.addProvider({ info: provider2.info, provider: provider2 });
+      mwpp.addProvider({ info: provider3.info, provider: provider3 });
 
       expect(mwpp.providers.length as any).toBe(2);
       expect((mwpp.providers[0] as any).info.uuid).toBe(EVM_PROVIDER_INFO_UUID);
@@ -111,7 +111,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
       } as any);
 
       const mwpp = new MultiWalletProviderProxy(provider);
-      mwpp.addProvider(provider2);
+      mwpp.addProvider({ info: provider2.info, provider: provider2 });
 
       const requestAccountsCallback = jest.fn();
       mwpp
@@ -179,7 +179,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
         request: jest.fn(),
       } as any);
       const mwpp = new MultiWalletProviderProxy(provider);
-      mwpp.addProvider(provider2);
+      mwpp.addProvider({ info: provider2.info, provider: provider2 });
 
       // user selects core
       provider.request = jest
@@ -238,7 +238,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
         enable: jest.fn().mockResolvedValue(['0x000000']),
       } as any);
       const mwpp = new MultiWalletProviderProxy(provider);
-      mwpp.addProvider(provider2);
+      mwpp.addProvider({ info: provider2.info, provider: provider2 });
 
       // user selects metamask
       provider.request = jest.fn().mockResolvedValue(1);
@@ -282,7 +282,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
         request: jest.fn().mockResolvedValue(['0x000000']),
       } as any);
       const mwpp = new MultiWalletProviderProxy(provider);
-      mwpp.addProvider(provider2);
+      mwpp.addProvider({ info: provider2.info, provider: provider2 });
 
       // user selects metamask
       provider.request = jest.fn().mockResolvedValue(1);
@@ -338,7 +338,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
         request: jest.fn().mockResolvedValue(['0x000000']),
       } as any);
       const mwpp = new MultiWalletProviderProxy(provider);
-      mwpp.addProvider(provider2);
+      mwpp.addProvider({ info: provider2.info, provider: provider2 });
 
       // user selects metamask
       provider.request = jest.fn().mockResolvedValue(1);
@@ -396,7 +396,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
       } as any);
 
       const mwpp = new MultiWalletProviderProxy(provider);
-      mwpp.addProvider(provider2);
+      mwpp.addProvider({ info: provider2.info, provider: provider2 });
 
       const requestPermissionsCallback = jest.fn();
       mwpp
@@ -461,7 +461,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
       } as any);
 
       const mwpp = new MultiWalletProviderProxy(provider);
-      mwpp.addProvider(provider2);
+      mwpp.addProvider({ info: provider2.info, provider: provider2 });
 
       // Start first request - this will trigger wallet selection
       mwpp.request({ method: 'eth_requestAccounts' });
@@ -524,7 +524,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
       } as any);
 
       const mwpp = new MultiWalletProviderProxy(provider);
-      mwpp.addProvider(provider2);
+      mwpp.addProvider({ info: provider2.info, provider: provider2 });
 
       // First request - wallet selection fails, but request still goes through
       await mwpp.request({ method: 'eth_requestAccounts' });
@@ -556,7 +556,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
       };
 
       const mwpp = new MultiWalletProviderProxy(provider);
-      mwpp.addProvider(provider2 as any);
+      mwpp.addProvider({ info: provider2.info, provider: provider2 } as any);
 
       // Subscribe to an event before switching
       const eventCallback = jest.fn();

@@ -52,18 +52,32 @@ export function initializeProvider(
   const multiWalletProxy = createMultiWalletProxy(evmProvider);
 
   globalObject.addEventListener('eip6963:announceProvider', (event: any) => {
-    multiWalletProxy.addProvider(
-      new Proxy(
-        {
-          info: { ...event.detail.info },
-          ...event.detail.provider,
-        },
-        {
-          deleteProperty: () => true,
-          set: () => true,
-        },
-      ),
-    );
+    const detail = event?.detail;
+    if (!detail || typeof detail !== 'object') {
+      return;
+    }
+
+    const rawInfo = detail.info;
+    const provider = detail.provider;
+    if (!rawInfo || !provider) {
+      return;
+    }
+
+    // Read each EIP-6963 info field individually with a type guard.
+    // We never spread or enumerate the foreign provider/info objects so a
+    // hostile Proxy's `ownKeys`/`get` traps cannot stall the renderer here.
+    const info = {
+      uuid: typeof rawInfo.uuid === 'string' ? rawInfo.uuid : '',
+      name: typeof rawInfo.name === 'string' ? rawInfo.name : '',
+      icon: typeof rawInfo.icon === 'string' ? rawInfo.icon : '',
+      rdns: typeof rawInfo.rdns === 'string' ? rawInfo.rdns : '',
+    };
+
+    if (!info.uuid) {
+      return;
+    }
+
+    multiWalletProxy.addProvider({ info, provider });
   });
 
   setGlobalProvider(evmProvider, globalObject, multiWalletProxy);

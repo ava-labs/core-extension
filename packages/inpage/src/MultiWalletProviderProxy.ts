@@ -9,43 +9,50 @@ import type {
   JsonRpcResponse,
 } from '@core/types';
 
+import type { EIP6963ProviderInfo } from './models';
+
 const CONNECT_METHODS = [
   'eth_requestAccounts',
   'wallet_requestAccountPermission',
   'wallet_requestPermissions',
 ] as const as DAppProviderRequest[];
 
+export type ProviderEntry = {
+  info: EIP6963ProviderInfo;
+  provider: EVMProvider;
+};
+
 export class MultiWalletProviderProxy extends EventEmitter {
-  #_providers: EVMProvider[] = [];
+  #_providers: ProviderEntry[] = [];
   #isWalletSelected = false;
   #isWalletSelectionPending = false;
-  #defaultProvider;
+  #defaultEntry: ProviderEntry;
 
-  public get defaultProvider() {
-    return this.#defaultProvider;
+  public get defaultProvider(): EVMProvider {
+    return this.#defaultEntry.provider;
   }
   get providers() {
     // When the user decides to select the providers and there is more than one provider and EVMProvider is selected, we want to trigger the wallet selection. So we replace EVMProvider with this.
     if (this.#_providers.length > 1) {
-      return [...this.#_providers].map((provider) => {
-        if ((provider as EVMProvider)?.isAvalanche) {
+      return this.#_providers.map((entry) => {
+        if (entry.provider?.isAvalanche) {
           return new Proxy(this, {
             get(target, prop) {
               // eslint-disable-next-line no-prototype-builtins
               if (target.hasOwnProperty(prop)) {
                 return target[prop];
                 // eslint-disable-next-line no-prototype-builtins
-              } else if ((provider as EVMProvider).hasOwnProperty(prop)) {
-                return (provider as EVMProvider)[prop];
+              } else if (entry.provider.hasOwnProperty(prop)) {
+                return entry.provider[prop];
               }
             },
           });
         }
-        return provider;
+        return entry.provider;
       });
     }
 
-    return [...this.#_providers];
+    return this.#_providers.map((entry) => entry.provider);
   }
 
   constructor(private coreProvider: EVMProvider) {
@@ -57,23 +64,22 @@ export class MultiWalletProviderProxy extends EventEmitter {
     this.request = this.request.bind(this);
     this._request = this._request.bind(this);
 
-    this.#defaultProvider = coreProvider;
-
-    this.#_providers.push(coreProvider);
+    this.#defaultEntry = { info: coreProvider.info, provider: coreProvider };
+    this.#_providers.push(this.#defaultEntry);
 
     // Listen for new event subscriptions on the multi wallet provider.
     // We subscribe to those events on the currently used provider so
     // that the they can be re-emitted by the proxy.
     this.addListener('newListener', (event) => {
-      this.#defaultProvider.addListener(event, (...args: any) => {
+      this.#defaultEntry.provider.addListener(event, (...args: any) => {
         this.emit(event, ...args);
       });
     });
   }
 
-  public addProvider(providerDetail) {
-    const isProviderAdded = this.#_providers.find((provider) => {
-      return provider.info.uuid === providerDetail.info.uuid;
+  public addProvider(providerDetail: ProviderEntry) {
+    const isProviderAdded = this.#_providers.find((entry) => {
+      return entry.info.uuid === providerDetail.info.uuid;
     });
 
     if (!isProviderAdded) {
@@ -98,11 +104,10 @@ export class MultiWalletProviderProxy extends EventEmitter {
       .request({
         method: 'avalanche_selectWallet',
         params: [
-          // using any since we don't really know what kind of provider they are
-          this.#_providers.map((p: any, i) => {
+          this.#_providers.map((entry, i) => {
             return {
               index: i,
-              info: p.info,
+              info: entry.info,
             };
           }),
         ],
@@ -119,32 +124,30 @@ export class MultiWalletProviderProxy extends EventEmitter {
       return;
     }
 
+    const selectedEntry = this.#_providers[selectedIndex];
+
     if (selectedIndex !== 0) {
       // Migrate event subscription to the new event provider
-      this.#defaultProvider.removeAllListeners();
+      this.#defaultEntry.provider.removeAllListeners();
       this.eventNames().forEach((event) => {
         if (event === 'newListener') {
           return;
         }
 
-        (this.#_providers[selectedIndex] as any)?.addListener?.(
-          event,
-          (...args: any[]) => {
-            this.emit(event as string, ...args);
-          },
-        );
+        selectedEntry?.provider?.addListener?.(event, (...args: any[]) => {
+          this.emit(event as string, ...args);
+        });
       });
     }
 
     // store selection if successful to prevent showing selection popup multiple times
     // some dApps call eth_requestAccounts multiple times
-    if (this.#_providers[selectedIndex]) {
+    if (selectedEntry) {
       this.#isWalletSelected = true;
     }
 
     // set default wallet for this connection
-    this.#defaultProvider =
-      this.#_providers[selectedIndex] || this.#defaultProvider;
+    this.#defaultEntry = selectedEntry || this.#defaultEntry;
 
     this.#isWalletSelectionPending = false;
   }
@@ -165,13 +168,13 @@ export class MultiWalletProviderProxy extends EventEmitter {
     }
 
     // default provider is selected, let call through
-    return this.defaultProvider.request(args);
+    return this.defaultProvider.request(args) as Promise<Maybe<T>>;
   }
 
   async enable(): Promise<string[]> {
     await this.#toggleWalletSelection();
 
-    return this.#defaultProvider.enable();
+    return this.#defaultEntry.provider.enable() as Promise<string[]>;
   }
 
   // implement request to intercept `eth_requestAccounts`
