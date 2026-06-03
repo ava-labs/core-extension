@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   lint:
-    name: Lint and test
+    name: Lint and build
     runs-on: ubuntu-latest
     # NOTE: deliberately no `environment:` block — this job must never
     # see production secrets. If a future step here ever needs one, it
