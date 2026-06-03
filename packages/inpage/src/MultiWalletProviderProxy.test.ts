@@ -567,6 +567,47 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
 
       expect(result).toEqual(['0x000000']);
       expect(mwpp.defaultProvider).toBe(provider2);
+
+      // Subscribing AFTER the switch on a provider without addListener
+      // (and without `on`) must also be a no-op, not a crash.
+      expect(() => mwpp.on('chainChanged', jest.fn())).not.toThrow();
+    });
+
+    it('falls back to `on` for providers that do not expose addListener', async () => {
+      const provider = new EventEmitter() as EVMProvider & EventEmitter;
+      (provider as any).info = providerInfo;
+      (provider as any).isAvalanche = true;
+      (provider as any).removeAllListeners = jest.fn();
+      (provider as any).request = jest.fn().mockResolvedValue(1); // Select provider2
+
+      // Provider that only implements `on` (typical for EIP-1193-only wallets)
+      const provider2Emitter = new EventEmitter();
+      const provider2 = {
+        info: { ...providerInfo, uuid: 'uuid-2' },
+        request: jest.fn().mockResolvedValue(['0x000000']),
+        on: provider2Emitter.on.bind(provider2Emitter),
+        emit: provider2Emitter.emit.bind(provider2Emitter),
+      };
+
+      const mwpp = new MultiWalletProviderProxy(provider);
+      mwpp.addProvider({ info: provider2.info, provider: provider2 } as any);
+
+      // Subscribe BEFORE the switch; the listener should be migrated to provider2
+      const beforeSwitch = jest.fn();
+      mwpp.on('accountsChanged', beforeSwitch);
+
+      await mwpp.request({ method: 'eth_requestAccounts' });
+      expect(mwpp.defaultProvider).toBe(provider2);
+
+      // Subscribe AFTER the switch; relay should attach via `on` fallback
+      const afterSwitch = jest.fn();
+      expect(() => mwpp.on('chainChanged', afterSwitch)).not.toThrow();
+
+      provider2.emit('accountsChanged', ['0xabc']);
+      provider2.emit('chainChanged', { chainId: '0x1' });
+
+      expect(beforeSwitch).toHaveBeenCalledWith(['0xabc']);
+      expect(afterSwitch).toHaveBeenCalledWith({ chainId: '0x1' });
     });
   });
 

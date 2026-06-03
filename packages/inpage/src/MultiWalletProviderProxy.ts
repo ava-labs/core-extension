@@ -22,6 +22,33 @@ export type ProviderEntry = {
   provider: EVMProvider;
 };
 
+// Some external EIP-1193 providers only implement `on` (e.g. when their
+// implementation isn't backed by a Node-style EventEmitter). We prefer
+// `addListener` for parity with our own provider but transparently fall
+// back to `on` so subscriptions don't crash the inpage proxy.
+function subscribeToProviderEvent(
+  provider: unknown,
+  event: string | symbol,
+  listener: (...args: any[]) => void,
+): void {
+  const candidate = provider as
+    | {
+        addListener?: (
+          event: string | symbol,
+          fn: (...args: any[]) => void,
+        ) => unknown;
+        on?: (event: string | symbol, fn: (...args: any[]) => void) => unknown;
+      }
+    | null
+    | undefined;
+
+  if (typeof candidate?.addListener === 'function') {
+    candidate.addListener(event, listener);
+  } else if (typeof candidate?.on === 'function') {
+    candidate.on(event, listener);
+  }
+}
+
 export class MultiWalletProviderProxy extends EventEmitter {
   #_providers: ProviderEntry[] = [];
   #isWalletSelected = false;
@@ -71,9 +98,13 @@ export class MultiWalletProviderProxy extends EventEmitter {
     // We subscribe to those events on the currently used provider so
     // that the they can be re-emitted by the proxy.
     this.addListener('newListener', (event) => {
-      this.#defaultEntry.provider.addListener(event, (...args: any) => {
-        this.emit(event, ...args);
-      });
+      subscribeToProviderEvent(
+        this.#defaultEntry.provider,
+        event,
+        (...args: any[]) => {
+          this.emit(event, ...args);
+        },
+      );
     });
   }
 
@@ -134,9 +165,13 @@ export class MultiWalletProviderProxy extends EventEmitter {
           return;
         }
 
-        selectedEntry?.provider?.addListener?.(event, (...args: any[]) => {
-          this.emit(event as string, ...args);
-        });
+        subscribeToProviderEvent(
+          selectedEntry?.provider,
+          event,
+          (...args: any[]) => {
+            this.emit(event as string, ...args);
+          },
+        );
       });
     }
 

@@ -63,9 +63,12 @@ export function initializeProvider(
       return;
     }
 
-    // Read each EIP-6963 info field individually with a type guard.
-    // We never spread or enumerate the foreign provider/info objects so a
-    // hostile Proxy's `ownKeys`/`get` traps cannot stall the renderer here.
+    // Read only a fixed, known set of EIP-6963 info fields with a type guard.
+    // Individual property reads still go through any `get` trap on a hostile
+    // Proxy, but we avoid spreading/enumerating the foreign info or provider
+    // object - that would invoke `ownKeys` plus a `get` for every key the
+    // foreign object claims to own, which has been observed to stall the
+    // renderer when another wallet's provider is itself a recursive Proxy.
     const info = {
       uuid: typeof rawInfo.uuid === 'string' ? rawInfo.uuid : '',
       name: typeof rawInfo.name === 'string' ? rawInfo.name : '',
