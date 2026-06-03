@@ -1,6 +1,6 @@
 import { Eip1193Provider } from 'ethers';
 
-interface EIP6963ProviderInfo {
+export interface EIP6963ProviderInfo {
   uuid: string;
   name: string;
   icon: string;
