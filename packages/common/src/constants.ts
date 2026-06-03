@@ -35,7 +35,7 @@ const KNOWN_AVACLOUD_DOMAINS = [
   'launchpad.avacloud.io',
 ];
 
-const PLAYGROUND_APP = 'ava-labs.github.io';
+const PLAYGROUND_APP = 'ava-labs.github.io' as const;
 
 export const KNOWN_CORE_DOMAINS = [
   CORE_WEB_DOMAIN,
@@ -49,7 +49,6 @@ export const WHITELISTED_DOMAINS = [
   ...KNOWN_CORE_DOMAINS,
   ...KNOWN_AVACLOUD_DOMAINS,
   ...DAPP_DEV_DOMAINS,
-  PLAYGROUND_APP,
 ];
 
 export const SYNCED_DOMAINS = isProductionBuild()
