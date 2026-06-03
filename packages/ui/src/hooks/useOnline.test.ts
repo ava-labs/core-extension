@@ -11,6 +11,8 @@ const setNavigatorOnline = (value: boolean) => {
 
 describe('hooks/useOnline', () => {
   const originalOnLine = window.navigator.onLine;
+  const originalFetch = global.fetch;
+  const originalProxyUrl = process.env.PROXY_URL;
   let fetchMock: jest.Mock;
 
   beforeEach(() => {
@@ -21,9 +23,11 @@ describe('hooks/useOnline', () => {
   });
 
   afterEach(() => {
-    jest.runOnlyPendingTimers();
+    jest.clearAllTimers();
     jest.useRealTimers();
     setNavigatorOnline(originalOnLine);
+    global.fetch = originalFetch;
+    process.env.PROXY_URL = originalProxyUrl;
     jest.resetAllMocks();
   });
 

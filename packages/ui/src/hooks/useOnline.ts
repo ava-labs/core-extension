@@ -59,8 +59,13 @@ export function useOnline() {
 
   useEffect(() => {
     const abortController = new AbortController();
+    // Verifications can overlap (interval + events). Track the latest call so a
+    // slow probe can't apply a stale result after a newer check already ran.
+    let latestVerifyId = 0;
 
     const verify = async () => {
+      const verifyId = ++latestVerifyId;
+
       // A `true` from the browser is reliable enough to treat as online,
       // and lets us avoid a network request on the happy path.
       if (window.navigator.onLine) {
@@ -75,6 +80,7 @@ export function useOnline() {
       const reachable = await checkReachability(abortController.signal);
       if (
         !abortController.signal.aborted &&
+        verifyId === latestVerifyId &&
         reachable !== isOnlineRef.current
       ) {
         setIsOnline(reachable);
