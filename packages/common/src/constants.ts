@@ -39,6 +39,7 @@ const PLAYGROUD_APP = 'ava-labs.github.io';
 
 export const KNOWN_CORE_DOMAINS = [
   CORE_WEB_DOMAIN,
+  PLAYGROUD_APP,
   ...CORE_WEB_STAGING_DOMAINS,
   ...DAPP_DEV_DOMAINS,
 ] as const;
