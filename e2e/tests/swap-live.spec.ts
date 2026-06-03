@@ -9,7 +9,7 @@
  *   2. Extracts the tx hash from the explorer link's data-tx-hash attribute
  *   3. Verifies the transaction on-chain via RPC / Glacier / Etherscan / Solana RPC
  *
- * Run: npx playwright test swap-live --grep @smoke
+ * Run: npx playwright test swap-live --grep @swap-live
  */
 
 import { test, expect } from '../fixtures/extension.fixture';
@@ -57,10 +57,10 @@ const LIVE_PAIR_IDS = {
 
 test.describe('Swap Live', () => {
   for (const [key, pair] of ALL_PAIRS) {
-    // AVAX_USDC is the canonical live smoke gate; all other live pairs
-    // are gated behind @swap-live (only run on manual workflow dispatch).
-    const tags: string[] =
-      key === 'AVAX_USDC' ? ['@smoke', '@swap-live'] : ['@swap-live'];
+    // All live pairs are gated behind @swap-live (only run on manual
+    // workflow dispatch). AVAX_USDC was previously the @smoke gate but has
+    // been temporarily removed from the smoke suite.
+    const tags: string[] = ['@swap-live'];
 
     test(
       `${pair.from.symbol} → ${pair.to.symbol} (${pair.chain}) (live)`,
