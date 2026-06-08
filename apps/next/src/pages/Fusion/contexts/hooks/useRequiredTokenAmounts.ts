@@ -25,7 +25,9 @@ const getFeeBuffer = (
   }
 
   if (type === 'network-fee') {
-    return 0.6; // 60% buffer for network fees
+    // The SDK already applies `feeUnitsMarginBps` (see `useNativeFeeEstimate`),
+    // so no extra buffer is needed here for non-Bitcoin chains.
+    return 0;
   }
 
   return 0.3; // 30% buffer for additive fees
