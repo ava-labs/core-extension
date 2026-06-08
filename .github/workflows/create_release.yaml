@@ -52,9 +52,13 @@ jobs:
           echo 'TOKEN_AGGREGATOR_SERVICE_URL="${{ secrets.TOKEN_AGGREGATOR_SERVICE_URL }}"' >> .env.production
           echo 'MARKR_API_URL="${{ secrets.MARKR_API_URL }}"' >> .env.production
           echo 'MARKR_API_TOKEN="${{ secrets.MARKR_API_TOKEN }}"' >> .env.production
+      # See `main_branch.yaml` for the rationale on `--check-cache`.
+      # Production builds ship to end users with non-custodial wallet
+      # keys, so the same belt-and-suspenders applies — and arguably
+      # more so here.
       - name: Install dependencies
         run: |
-          yarn install
+          yarn install --check-cache
           yarn allow-scripts
       - name: Build library
         run: yarn build

@@ -87,9 +87,13 @@ jobs:
           echo 'TOKEN_AGGREGATOR_SERVICE_URL="${{ secrets.TOKEN_AGGREGATOR_SERVICE_URL }}"' >> .env.production
           echo 'MARKR_API_URL="${{ secrets.MARKR_API_URL }}"' >> .env.production
           echo 'MARKR_API_TOKEN="${{ secrets.MARKR_API_TOKEN }}"' >> .env.production
+      # Same defense-in-depth as `main_branch.yaml` /
+      # `create_release.yaml`: `--check-cache` re-validates tarball
+      # checksums against the registry so a poisoned local Yarn cache
+      # can't influence the policy that PR CI validates against.
       - name: Install dependencies
         run: |
-          yarn install
+          yarn install --check-cache
           yarn allow-scripts
       # Mirrors `main_branch.yaml`'s shipping command so we're regenerating
       # under the same rsbuild config that produces the alpha bundles.
