@@ -11,9 +11,15 @@ import {
 import { useFusionState } from './contexts/FusionStateContext';
 import { SwapPartnerFee } from './components/SwapPartnerFee';
 import { SwapHelperText } from './components/SwapHelperText';
+import {
+  RecurringRateNotice,
+  RecurringSwapToggleCard,
+} from './components/RecurringSwap';
+import { useIsRecurringSwapsEnabled } from './hooks';
 
 export const SwapContent = () => {
   const { status } = useFusionState();
+  const isRecurringSwapsEnabled = useIsRecurringSwapsEnabled();
 
   switch (status) {
     case 'loading':
@@ -28,6 +34,12 @@ export const SwapContent = () => {
           <Stack gap={1}>
             <SwapAccountSelect />
             <SwapPair />
+            {isRecurringSwapsEnabled && (
+              <>
+                <RecurringRateNotice />
+                <RecurringSwapToggleCard />
+              </>
+            )}
           </Stack>
           <SwapHelperText />
           <SwapSettings />

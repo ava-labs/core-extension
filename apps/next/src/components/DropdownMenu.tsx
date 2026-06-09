@@ -12,6 +12,7 @@ import {
 type DropdownMenuProps = PropsWithChildren<{
   label: string;
   closeOnItemClick?: boolean;
+  dataTestId?: string;
   slotProps?: {
     button?: Omit<ButtonProps, 'ref'>;
     popover?: Omit<PopoverProps, 'open'>;
@@ -36,6 +37,7 @@ export const DropdownMenu: FC<DropdownMenuProps> = ({
   children,
   label,
   closeOnItemClick = true,
+  dataTestId,
   slotProps = defaultSlotProps,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -54,6 +56,7 @@ export const DropdownMenu: FC<DropdownMenuProps> = ({
       <StyledButton
         onClick={handleClick}
         endIcon={<StyledIcon open={open} size={16} />}
+        data-testid={dataTestId}
         {...slotProps?.button}
       >
         {label}
