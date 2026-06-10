@@ -5,9 +5,6 @@ import { FeatureVars } from '@core/types';
 import { useFeatureFlagContext, useNetworkFeeContext } from '@core/ui';
 
 import { EstimatedFeeResult } from '../../types';
-import { applyBuffer } from '../../lib/applyBuffer';
-import { isSolanaToEvm } from '../../lib/isSolanaToEvm';
-import { SOLANA_TO_EVM_NATIVE_FEE_MULTIPLIER } from '../../fusion-config';
 
 export const useNativeFeeEstimate = (
   manager: TransferManager | undefined,
@@ -63,19 +60,7 @@ export const useNativeFeeEstimate = (
           }
         : skipToken,
     retry: false,
-    select: (estimate) => {
-      const totalFee = estimate.totalFee;
-
-      if (selectedQuote && isSolanaToEvm(selectedQuote)) {
-        return applyBuffer(
-          totalFee,
-          selectedQuote.sourceChain.networkToken.decimals,
-          SOLANA_TO_EVM_NATIVE_FEE_MULTIPLIER,
-        );
-      }
-
-      return totalFee;
-    },
+    select: (estimate) => estimate.totalFee,
   });
 
   return {
