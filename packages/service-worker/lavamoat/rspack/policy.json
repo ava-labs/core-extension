@@ -15,6 +15,7 @@
         "@avalabs/core-coingecko-sdk": true,
         "@avalabs/avalanche-module>@avalabs/core-utils-sdk": true,
         "@avalabs/core-wallets-sdk": true,
+        "@avalabs/evm-module>@avalabs/crypto-sdk": true,
         "@avalabs/glacier-sdk": true,
         "@avalabs/vm-module-types": true,
         "@metamask/rpc-errors": true,
@@ -52,6 +53,7 @@
         "@avalabs/core-coingecko-sdk": true,
         "@avalabs/bitcoin-module>@avalabs/core-utils-sdk": true,
         "@avalabs/core-wallets-sdk": true,
+        "@avalabs/evm-module>@avalabs/crypto-sdk": true,
         "@avalabs/vm-module-types": true,
         "@metamask/rpc-errors": true,
         "bitcoinjs-lib": true,
@@ -195,6 +197,30 @@
         "@avalabs/core-wallets-sdk>xss": true
       }
     },
+    "@avalabs/evm-module>@avalabs/crypto-sdk": {
+      "packages": {
+        "@avalabs/crypto-wasm": true
+      }
+    },
+    "@avalabs/crypto-wasm": {
+      "globals": {
+        "FinalizationRegistry": true,
+        "TextDecoder": true,
+        "URL": true,
+        "WebAssembly.RuntimeError": true,
+        "WebAssembly.instantiate": true,
+        "WorkerGlobalScope": true,
+        "XMLHttpRequest": true,
+        "console": true,
+        "fetch": true,
+        "process": true,
+        "setTimeout": true,
+        "window": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>process": true
+      }
+    },
     "@avalabs/evm-module": {
       "globals": {
         "AbortController": true,
@@ -212,6 +238,7 @@
         "@avalabs/core-coingecko-sdk": true,
         "@avalabs/core-utils-sdk": true,
         "@avalabs/core-wallets-sdk": true,
+        "@avalabs/evm-module>@avalabs/crypto-sdk": true,
         "@avalabs/glacier-sdk": true,
         "@avalabs/vm-module-types": true,
         "@avalabs/evm-module>@blockaid/client": true,
@@ -328,6 +355,7 @@
     },
     "@avalabs/svm-module": {
       "globals": {
+        "Buffer.from": true,
         "TextDecoder": true,
         "URL": true,
         "URLSearchParams": true,
@@ -348,6 +376,7 @@
         "@avalabs/core-coingecko-sdk": true,
         "@avalabs/core-utils-sdk": true,
         "@avalabs/core-wallets-sdk": true,
+        "@avalabs/evm-module>@avalabs/crypto-sdk": true,
         "@avalabs/vm-module-types": true,
         "@avalabs/svm-module>@blockaid/client": true,
         "@metamask/rpc-errors": true,
@@ -359,6 +388,7 @@
         "@avalabs/svm-module>@solana/kit>@solana/keys": true,
         "@avalabs/svm-module>@solana/kit": true,
         "@avalabs/svm-module>@solana/kit>@solana/transaction-messages": true,
+        "buffer": true,
         "@rsbuild/plugin-node-polyfill>process": true,
         "@avalabs/svm-module>zod": true
       }
