@@ -59,6 +59,7 @@ export const ConnectSolana: FC<ConnectionStepProps> = ({
       'app-not-installed': t(
         'The Solana app does not appear to be installed on your Ledger. Install it from Ledger Live, then try again.',
       ),
+      'retrieval-failed': t('Open the Solana app on your Ledger device'),
     }),
     [t],
   );
