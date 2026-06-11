@@ -15,6 +15,7 @@ import { formatAmount } from '../../lib/formatAmount';
 import {
   FREQUENCY_UNITS,
   getFrequencyUnitLabel,
+  getFrequencyUnitLabelInline,
 } from '../../lib/formatFrequency';
 import { parseIntegerInput } from '../../lib/parseIntegerInput';
 
@@ -135,7 +136,11 @@ export const RecurringSwapForm = () => {
                 from: sourceSymbol,
                 to: targetSymbol,
                 quantity: frequencyQuantity,
-                unit: unitLabel.toLowerCase(),
+                unit: getFrequencyUnitLabelInline(
+                  frequencyUnit,
+                  frequencyQuantity,
+                  t,
+                ),
                 orders: numberOfOrders,
               },
             )}

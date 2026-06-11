@@ -48,3 +48,27 @@ export const getFrequencyUnitLabel = (
       return isPlural ? t('Months') : t('Month');
   }
 };
+
+// Inline (mid-sentence) variant used by the recurring swap summary. Kept as
+// dedicated translation keys instead of `.toLowerCase()`-ing the label —
+// case transformations on translated strings aren't reliable across locales.
+export const getFrequencyUnitLabelInline = (
+  unit: FrequencyUnit,
+  quantity: number,
+  t: TFunction,
+) => {
+  const isPlural = quantity !== 1;
+
+  switch (unit) {
+    case 'minute':
+      return isPlural ? t('minutes') : t('minute');
+    case 'hour':
+      return isPlural ? t('hours') : t('hour');
+    case 'day':
+      return isPlural ? t('days') : t('day');
+    case 'week':
+      return isPlural ? t('weeks') : t('week');
+    case 'month':
+      return isPlural ? t('months') : t('month');
+  }
+};

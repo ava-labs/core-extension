@@ -56,8 +56,11 @@ export const DropdownMenu: FC<DropdownMenuProps> = ({
       <StyledButton
         onClick={handleClick}
         endIcon={<StyledIcon open={open} size={16} />}
-        data-testid={dataTestId}
         {...slotProps?.button}
+        // Applied after the spread (and only when defined) so the explicit
+        // `dataTestId` prop wins, while still letting `slotProps.button`
+        // supply a `data-testid` as a fallback.
+        {...(dataTestId === undefined ? {} : { 'data-testid': dataTestId })}
       >
         {label}
       </StyledButton>
