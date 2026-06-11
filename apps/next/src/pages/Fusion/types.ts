@@ -66,9 +66,11 @@ export type RequiredTokenAmounts = {
   tokens: RequiredToken[];
 };
 
+// `isRecurring` lives in the URL alongside the other swap query params but is
+// owned by `RecurringSwapState`, not `FusionState`.
 export type QueryState = Omit<
   ReturnType<typeof useSwapQuery>,
-  'update' | 'clear'
+  'update' | 'clear' | 'isRecurring'
 > & {
   updateQuery: ReturnType<typeof useSwapQuery>['update'];
 };

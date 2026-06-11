@@ -12,6 +12,7 @@ import {
 type DropdownMenuProps = PropsWithChildren<{
   label: string;
   closeOnItemClick?: boolean;
+  dataTestId?: string;
   slotProps?: {
     button?: Omit<ButtonProps, 'ref'>;
     popover?: Omit<PopoverProps, 'open'>;
@@ -36,6 +37,7 @@ export const DropdownMenu: FC<DropdownMenuProps> = ({
   children,
   label,
   closeOnItemClick = true,
+  dataTestId,
   slotProps = defaultSlotProps,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -55,6 +57,10 @@ export const DropdownMenu: FC<DropdownMenuProps> = ({
         onClick={handleClick}
         endIcon={<StyledIcon open={open} size={16} />}
         {...slotProps?.button}
+        // Applied after the spread (and only when defined) so the explicit
+        // `dataTestId` prop wins, while still letting `slotProps.button`
+        // supply a `data-testid` as a fallback.
+        {...(dataTestId === undefined ? {} : { 'data-testid': dataTestId })}
       >
         {label}
       </StyledButton>
