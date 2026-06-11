@@ -41,6 +41,7 @@ import {
 import { batchSwapValidator, swapValidator } from './validators';
 import { TransactionStatusEvents } from '../services/transactions/events/transactionStatusEvents';
 import { isUserRejectionError } from '@core/common';
+import { maybeInjectSiweAlert } from './utils/siwe';
 
 // Create and populate the validator registry
 const validatorRegistry = new ValidatorRegistry();
@@ -262,7 +263,17 @@ export class ApprovalController implements BatchApprovalController {
     }
 
     const actionId = crypto.randomUUID();
-    const action = this.#buildAction(params, actionId);
+
+    // Warn the user if a SIWE message's domain does not match the dApp origin
+    const paramsWithSiweCheck = {
+      ...params,
+      displayData: maybeInjectSiweAlert({
+        request: params.request,
+        signingData: params.signingData,
+        displayData: params.displayData,
+      }),
+    };
+    const action = this.#buildAction(paramsWithSiweCheck, actionId);
 
     // Get validator by type from context
     let validator = context?.swapAutoApprove?.validatorType
@@ -271,19 +282,23 @@ export class ApprovalController implements BatchApprovalController {
 
     if (validator) {
       // Verify the validator can actually handle this request
-      if (!validator.canHandle(params)) {
+      if (!validator.canHandle(paramsWithSiweCheck)) {
         validator = undefined;
       }
     }
 
     if (validator) {
-      const validation = validator.validateAction(action, params);
+      const validation = validator.validateAction(action, paramsWithSiweCheck);
 
       // If alert already exists (e.g., Blockaid warning), require manual approval
       const hasExistingAlert = Boolean(action.displayData.alert);
 
       if (validation.isValid && !hasExistingAlert) {
-        return await this.#executeAutoApproval(params, action, network);
+        return await this.#executeAutoApproval(
+          paramsWithSiweCheck,
+          action,
+          network,
+        );
       } else if (validation.requiresManualApproval || hasExistingAlert) {
         // Only set alert if not already populated
         action.displayData.alert ??= {
@@ -308,7 +323,7 @@ export class ApprovalController implements BatchApprovalController {
 
     return new Promise((resolve) => {
       this.#requests.set(actionId, {
-        params,
+        params: paramsWithSiweCheck,
         network,
         resolve,
       });
