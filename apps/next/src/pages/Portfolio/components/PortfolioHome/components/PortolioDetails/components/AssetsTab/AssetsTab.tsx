@@ -26,12 +26,6 @@ import {
   getAvailableNetworksFromAssets,
   sortAssets,
 } from './utils';
-import {
-  useIsRecurringSwapsEnabled,
-  useRecurringSwapOrders,
-} from '@/pages/Fusion/hooks';
-import { RecurringSwapsEntryCard } from '@/pages/Fusion/components/RecurringSwap';
-
 const selectedNetworkStateInitializer = () => new Set<number>();
 
 export const AssetsTab: FC = () => {
@@ -47,8 +41,6 @@ export const AssetsTab: FC = () => {
     selectedNetworkStateInitializer,
   );
   const isMainnet = useIsMainnet();
-  const isRecurringSwapsEnabled = useIsRecurringSwapsEnabled();
-  const { scheduledCount } = useRecurringSwapOrders();
 
   const accountBalance = useBalanceTotalInCurrency(account);
 
@@ -89,9 +81,6 @@ export const AssetsTab: FC = () => {
 
   return (
     <Stack direction="column" gap={1.25} height={1}>
-      {isRecurringSwapsEnabled && scheduledCount > 0 && (
-        <RecurringSwapsEntryCard scheduledCount={scheduledCount} />
-      )}
       <HighlightsBannerCarousel />
       <Stack direction="row" gap={1}>
         <FilterMenu

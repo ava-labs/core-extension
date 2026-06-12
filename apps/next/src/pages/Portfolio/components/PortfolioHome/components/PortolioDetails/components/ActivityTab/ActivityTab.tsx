@@ -10,10 +10,17 @@ import {
 } from './components/TransactionList';
 import { useUrlState } from './hooks/useUrlState';
 import { ActivityFilter } from './types';
+import {
+  useIsRecurringSwapsEnabled,
+  useRecurringSwapOrders,
+} from '@/pages/Fusion/hooks';
+import { RecurringSwapsEntryCard } from '@/pages/Fusion/components/RecurringSwap';
 
 export const ActivityTab: FC = () => {
   const isMainnet = useIsMainnet();
   const urlState = useUrlState();
+  const isRecurringSwapsEnabled = useIsRecurringSwapsEnabled();
+  const { scheduledCount } = useRecurringSwapOrders();
 
   const [filter, setFilter] = useState<ActivityFilter>(
     urlState.filter ?? 'All',
@@ -25,6 +32,9 @@ export const ActivityTab: FC = () => {
 
   return (
     <Stack gap={1.25}>
+      {isRecurringSwapsEnabled && scheduledCount > 0 && (
+        <RecurringSwapsEntryCard scheduledCount={scheduledCount} />
+      )}
       <Stack direction="row" justifyContent="space-between">
         <ActivityFilterSelector
           selected={filter}

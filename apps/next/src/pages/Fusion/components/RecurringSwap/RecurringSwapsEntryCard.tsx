@@ -21,7 +21,7 @@ type RecurringSwapsEntryCardProps = {
   action?: 'manage' | 'navigate';
 };
 
-const ROW_HEIGHT = 40;
+const ROW_HEIGHT = 48;
 
 export const RecurringSwapsEntryCard = ({
   scheduledCount,
@@ -44,8 +44,13 @@ export const RecurringSwapsEntryCard = ({
       sx={{
         width: '100%',
         borderRadius: 2,
-        backgroundColor: 'background.paper',
-        ...(isNavigable && { cursor: 'pointer' }),
+        // The portfolio (navigate) variant sits on a lighter surface and needs
+        // an explicit fill; the swap-form (manage) variant inherits the default
+        // Card background so it matches the surrounding swap cards.
+        ...(isNavigable && {
+          backgroundColor: 'background.paper',
+          cursor: 'pointer',
+        }),
       }}
       data-testid="recurring-swaps-entry"
     >
@@ -72,8 +77,8 @@ export const RecurringSwapsEntryCard = ({
         {action === 'manage' ? (
           <Button
             size="small"
-            variant="text"
-            color="primary"
+            variant="contained"
+            color="secondary"
             onClick={goToRecurringSwaps}
             data-testid="recurring-swaps-manage-button"
           >
