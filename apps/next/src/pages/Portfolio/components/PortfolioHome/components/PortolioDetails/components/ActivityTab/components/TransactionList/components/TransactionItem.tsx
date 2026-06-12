@@ -116,6 +116,7 @@ export const TransactionItem: FC<Props> = ({ transaction }) => {
 
   return (
     <ListItem
+      data-testid="activity-row"
       disablePadding
       disableGutters
       sx={listItemSx}

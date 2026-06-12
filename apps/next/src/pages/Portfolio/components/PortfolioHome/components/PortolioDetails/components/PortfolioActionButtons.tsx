@@ -117,6 +117,7 @@ export const PortfolioActionButtons = ({
       {isBuySupported && (
         <Fade in timeout={getDelay()} easing="ease-out">
           <SquareButton
+            data-testid="buy-nav-button"
             variant="extension"
             icon={<BuyIcon size={ICON_SIZE} />}
             label={t('Buy')}
