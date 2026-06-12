@@ -40,8 +40,14 @@ export const CollectibleListItem: FC<Props> = memo(
     return (
       <ListItem
         key={collectible.uniqueCollectibleId}
+        data-testid="collectible-manage-item"
+        data-collectible-tokenid={collectible.tokenId}
+        data-collectible-name={
+          collectible.name || collectible.collectionName || ''
+        }
         secondaryAction={
           <Switch
+            data-testid="collectible-manage-toggle"
             checked={!isHidden}
             onChange={() => onToggle(collectible)}
             size="small"

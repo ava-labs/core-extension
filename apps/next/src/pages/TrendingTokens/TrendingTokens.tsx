@@ -49,6 +49,7 @@ export const TrendingTokens = () => {
         bgcolor={theme.palette.background.backdrop}
       >
         <Button
+          data-testid="trending-network-avalanche"
           size="xsmall"
           variant="contained"
           color={network == 'avalanche' ? 'primary' : 'secondary'}
@@ -58,6 +59,7 @@ export const TrendingTokens = () => {
         </Button>
         {isFlagEnabled(FeatureGates.SOLANA_SUPPORT) && (
           <Button
+            data-testid="trending-network-solana"
             size="xsmall"
             variant="contained"
             color={network == 'solana' ? 'primary' : 'secondary'}

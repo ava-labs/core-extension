@@ -41,7 +41,10 @@ export const HighlightBannerSlide: FC<HighlightBannerSlideProps> = ({
   };
 
   return (
-    <SlideCard onClick={handleClick}>
+    <SlideCard
+      data-testid={`highlight-banner-${banner.id}`}
+      onClick={handleClick}
+    >
       <Stack
         alignItems="center"
         justifyContent="space-between"
