@@ -2,6 +2,7 @@ import { FC } from 'react';
 import { useHistory } from 'react-router-dom';
 import {
   ArrowRightIcon,
+  Box,
   Stack,
   styled,
   type SxProps,
@@ -47,6 +48,7 @@ export const HighlightBannerSlide: FC<HighlightBannerSlideProps> = ({
         direction="row"
         width="100%"
         gap={1.5}
+        pr={1}
       >
         {banner.icon}
         <Stack flex={1} minWidth={0} gap="1px">
@@ -61,7 +63,9 @@ export const HighlightBannerSlide: FC<HighlightBannerSlideProps> = ({
             {banner.description}
           </Typography>
         </Stack>
-        <ArrowRightIcon size={22} />
+        <Box lineHeight={1} height={22} color="text.secondary">
+          <ArrowRightIcon size={22} />
+        </Box>
       </Stack>
     </SlideCard>
   );
