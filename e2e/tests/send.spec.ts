@@ -477,7 +477,7 @@ test.describe('Send Tests', () => {
       explorerNetwork: 'Avalanche C-Chain',
     },
     {
-      description: 'USDC on Ethereum Sepolia',
+      description: 'an ERC-20 token on Ethereum',
       testrailId: 'SND-025',
       sendData: TEST_SEND.SEPOLIA_USDC,
       explorerNetwork: 'Ethereum',
