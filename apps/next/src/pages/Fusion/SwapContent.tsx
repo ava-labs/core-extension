@@ -13,13 +13,16 @@ import { SwapPartnerFee } from './components/SwapPartnerFee';
 import { SwapHelperText } from './components/SwapHelperText';
 import {
   RecurringRateNotice,
+  RecurringSwapsEntryCard,
   RecurringSwapToggleCard,
 } from './components/RecurringSwap';
-import { useIsRecurringSwapsEnabled } from './hooks';
+import { useIsRecurringSwapsEnabled, useRecurringSwapOrders } from './hooks';
 
 export const SwapContent = () => {
   const { status } = useFusionState();
   const isRecurringSwapsEnabled = useIsRecurringSwapsEnabled();
+  const { scheduledCount } = useRecurringSwapOrders();
+  const hasScheduledSwaps = scheduledCount > 0;
 
   switch (status) {
     case 'loading':
@@ -33,6 +36,12 @@ export const SwapContent = () => {
         <Stack width="100%" flexGrow={1} gap={0.5}>
           <Stack gap={1}>
             <SwapAccountSelect />
+            {isRecurringSwapsEnabled && hasScheduledSwaps && (
+              <RecurringSwapsEntryCard
+                scheduledCount={scheduledCount}
+                action="manage"
+              />
+            )}
             <SwapPair />
             {isRecurringSwapsEnabled && (
               <>

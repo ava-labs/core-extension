@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Trans } from 'react-i18next';
 import { useTrendingTokens } from '@/pages/TrendingTokens/hooks/useTrendingTokens';
-import { ArrowRightIcon, Stack, Typography } from '@avalabs/k2-alpine';
+import { ArrowRightIcon, Box, Stack, Typography } from '@avalabs/k2-alpine';
 import { Card } from '@/components/Card';
 import { useHistory } from 'react-router-dom';
 import { TopThreeLogos } from './TopThreeLogos';
@@ -48,6 +48,7 @@ export const TrendingTokenSlide = () => {
         direction="row"
         width="100%"
         gap={1.5}
+        pr={1}
       >
         <TopThreeLogos
           first={firstToken}
@@ -72,7 +73,9 @@ export const TrendingTokenSlide = () => {
             }}
           />
         </Typography>
-        <ArrowRightIcon size={22} />
+        <Box lineHeight={1} height={22} color="text.secondary">
+          <ArrowRightIcon size={22} />
+        </Box>
       </Stack>
     </Card>
   );
