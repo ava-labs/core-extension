@@ -7,6 +7,7 @@ export const EmptyState: FC = () => {
 
   return (
     <Stack
+      data-testid="activity-empty-state"
       alignItems="center"
       justifyContent="center"
       pt={10}

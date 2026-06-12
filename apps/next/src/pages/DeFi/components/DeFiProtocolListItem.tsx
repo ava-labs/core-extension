@@ -42,8 +42,21 @@ export const DeFiProtocolListItem: FC<DeFiProtocolListItemProps> = ({
     return null;
   }
 
+  const categories = Array.from(
+    new Set(
+      protocol.groups.flatMap((group) => group.items.map((item) => item.name)),
+    ),
+  ).join('|');
+
   return (
-    <ListItemButton onClick={() => history.push(`/defi/${protocol.id}`)}>
+    <ListItemButton
+      onClick={() => history.push(`/defi/${protocol.id}`)}
+      data-testid="defi-protocol-row"
+      data-defi-name={protocol.name}
+      data-defi-network={protocol.chainName ?? ''}
+      data-defi-amount={String(protocol.totalUsdValue)}
+      data-defi-categories={categories}
+    >
       <ListItemStartIcon>
         <DeFiProtocolAvatar protocol={protocol} />
       </ListItemStartIcon>

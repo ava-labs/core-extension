@@ -42,7 +42,7 @@ export const DeFi: FC = () => {
   }
 
   return (
-    <Stack gap={1.25} height={1}>
+    <Stack gap={1.25} height={1} data-testid="defi-tab">
       {isLoading && !hasProtocols && (
         // Only show the full loading screen if we have no data at all
         <Stack width="100%" alignItems="center">
@@ -100,7 +100,7 @@ const FilterMenu: FC<FilterMenuProps> = ({
     <Box id={id}>
       <DropdownMenu label={t('Filter')}>
         <PopoverItem onClick={() => setFilter(null)} selected={filter === null}>
-          {t('All')}
+          <span data-testid="defi-filter-option-all">{t('All')}</span>
         </PopoverItem>
         {protocolTypeNames.map((typeName) => (
           <PopoverItem
@@ -110,7 +110,9 @@ const FilterMenu: FC<FilterMenuProps> = ({
             }}
             selected={filter === typeName}
           >
-            {typeName}
+            <span data-testid={`defi-filter-option-${typeName}`}>
+              {typeName}
+            </span>
           </PopoverItem>
         ))}
       </DropdownMenu>
@@ -144,7 +146,9 @@ const SortMenu: FC<SortMenuProps> = ({ id, sort, setSort }) => {
             onClick={() => setSort(option.value)}
             selected={sort === option.value}
           >
-            {option.label}
+            <span data-testid={`defi-sort-option-${option.value}`}>
+              {option.label}
+            </span>
           </PopoverItem>
         ))}
       </DropdownMenu>

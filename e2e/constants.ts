@@ -26,6 +26,7 @@ export const TEST_CONFIG = {
   snapshots: {
     mainnet: 'mainnetPrimaryExtWallet',
     mainnetMonadNetwork: 'mainnetMonadNetworkExtWallet',
+    mainnetEmpty: 'mainnetEmptyExtWallet',
     testnet: 'testnetPrimaryExtWallet',
   },
 };

@@ -24,7 +24,7 @@ export const ActivityTab: FC = () => {
   );
 
   return (
-    <Stack gap={1.25}>
+    <Stack gap={1.25} data-testid="activity-tab">
       <Stack direction="row" justifyContent="space-between">
         <ActivityFilterSelector
           selected={filter}

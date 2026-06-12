@@ -37,7 +37,7 @@ export const AssetsTab: FC = () => {
   const activeAccount = accounts.active;
 
   return (
-    <Styled.Root>
+    <Styled.Root data-testid="portfolio-empty-state">
       <Stack
         direction="column"
         flexBasis="180px"
@@ -54,7 +54,10 @@ export const AssetsTab: FC = () => {
           </Typography>
         </Box>
         <List disablePadding>
-          <Styled.ListItemButton onClick={navigateToBuyPage}>
+          <Styled.ListItemButton
+            data-testid="empty-state-buy-crypto"
+            onClick={navigateToBuyPage}
+          >
             <Styled.ListItemStartIcon>
               <MdAdd size={19.2} />
             </Styled.ListItemStartIcon>
@@ -71,6 +74,7 @@ export const AssetsTab: FC = () => {
           </Styled.ListItemButton>
           <Styled.Divider variant="inset" />
           <Styled.ListItemButton
+            data-testid="empty-state-receive-crypto"
             onClick={() => {
               capture('TokenReceiveClicked', { addressType: 'C' });
               history.push(`/receive?accId=${activeAccount?.id}`);
