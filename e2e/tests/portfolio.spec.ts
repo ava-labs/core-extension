@@ -272,7 +272,7 @@ test.describe('Portfolio - Highlights & Trending', () => {
   );
 
   test(
-    'As a CORE ext user on the Trending Tokens page, there should be Buy button option for each row and navigate to Swap page when click on it',
+    'As a CORE ext user on the Trending Tokens page, there should be Buy button option for each row and navigate to Swap page when click on',
     {
       tag: ['@regression'],
       annotation: [
@@ -583,7 +583,7 @@ test.describe('Portfolio - Activity', () => {
   );
 
   test(
-    'As a CORE ext user on the activity tab, I see the options in the Filter dropdown for Sent, Received, Swap, Bridge, NFT, Contract Call etc.',
+    'As a CORE ext user on the activity tab, I see the options in the Filter dropdown for Sent, Received, Swap, Bridge, NFT, Contract Call etc',
     {
       tag: ['@smoke', '@regression'],
       annotation: [
@@ -1261,7 +1261,7 @@ test.describe('Portfolio - DeFi', () => {
   }
 
   test(
-    'As a CORE ext user on the defi tab, I can open a protocol details page by clicking on a protocol',
+    "As a CORE ext user on the defi tab, I can open a protocol's details page by clicking on a protocol",
     {
       tag: ['@smoke', '@regression'],
       annotation: [
@@ -1285,7 +1285,7 @@ test.describe('Portfolio - DeFi', () => {
   );
 
   test(
-    'As a CORE ext user on the defi tab, on a protocol details I can see the position breakdown grouped by type (Supplied / Borrowed / Rewards)',
+    "As a CORE ext user on the defi tab, on a protocol's details, I can see the position breakdown grouped by type (Supplied / Borrowed / Rewards)",
     {
       tag: ['@regression'],
       annotation: [
@@ -1318,7 +1318,7 @@ test.describe('Portfolio - DeFi', () => {
   );
 
   test(
-    'As a CORE ext user on the defi tab, I am linked to the correct defi app from the details via the See details button',
+    'As a CORE ext user on the defi tab, I am linked to the correct defi app from the defi details modal via the See details button',
     {
       tag: ['@smoke', '@regression'],
       annotation: [
