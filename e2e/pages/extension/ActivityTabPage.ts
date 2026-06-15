@@ -2,9 +2,13 @@
  * Activity tab - transaction history with a Filter dropdown, a network
  * selector, per-row "View in Explorer" links, and an empty state.
  *
- * Activity history is fetched live and can be slow, so all loads resolve via a
- * poll for a terminal state (spinner gone AND rows or empty state shown) with a
- * generous ceiling - never a fixed sleep.
+ * Activity history is fetched live and can be slow, so normal loads resolve via
+ * a poll for a terminal state (spinner gone AND rows or empty state shown) with
+ * a generous ceiling.
+ *
+ * Note: when retrying through upstream (429) rate limits,
+ * selectNetworkExpectingActivity() uses a bounded cooldown delay between
+ * attempts to avoid hammering the history endpoint.
  */
 import { Page, Locator, BrowserContext, expect } from '@playwright/test';
 import { BasePage } from './BasePage';

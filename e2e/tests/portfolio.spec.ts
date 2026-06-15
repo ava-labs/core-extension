@@ -638,8 +638,6 @@ test.describe('Portfolio - Activity', () => {
       for (const network of ACTIVITY_NETWORKS) {
         const rows = await activity.selectNetworkExpectingActivity(network);
         expect(await activity.currentNetworkLabel()).toContain(network);
-
-        console.log(`[activity] ${network}: rows=${rows}`);
         expect(rows, `${network} should display activity`).toBeGreaterThan(0);
       }
 

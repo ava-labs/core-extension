@@ -81,7 +81,7 @@ export const DeFiProtocolDetails: FC = () => {
         fullWidth
         endIcon={<OutboundIcon size={16} />}
         data-testid="defi-see-details"
-        data-site-url={protocol?.siteUrl ?? ''}
+        data-site-url={protocol?.siteUrl}
       >
         {t('See details in {{protocolName}}', { protocolName: protocol?.name })}
       </Button>

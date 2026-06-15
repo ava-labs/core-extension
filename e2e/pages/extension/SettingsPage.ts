@@ -44,12 +44,11 @@ export class SettingsPage extends BasePage {
   }
 
   /**
-   * Returns to the Portfolio home. Settings' back navigates to `/`.
+   * Returns to the Portfolio home via the page back button (Settings' back
+   * navigates to `/`).
    */
   async goBackToPortfolio(): Promise<void> {
-    await this.page.evaluate(() => {
-      window.location.hash = '#/';
-    });
+    await this.backButton.click();
     await this.page.waitForURL(/#\/(\?|$)/, { timeout: 10_000 });
   }
 }
