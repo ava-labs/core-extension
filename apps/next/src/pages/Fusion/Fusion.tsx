@@ -6,7 +6,11 @@ import { useLiveBalance } from '@core/ui';
 
 import { Page } from '@/components/Page';
 
-import { FusionStateContextProvider, useFusionState } from './contexts';
+import {
+  FusionStateContextProvider,
+  RecurringSwapContextProvider,
+  useFusionState,
+} from './contexts';
 import { SwapContent } from './SwapContent';
 import { SwapProviderNotice } from './components/SwapProviderNotice';
 
@@ -78,9 +82,11 @@ const FusionPage = () => {
 
 export const Fusion = () => {
   return (
-    <FusionStateContextProvider>
-      <FusionPage />
-    </FusionStateContextProvider>
+    <RecurringSwapContextProvider>
+      <FusionStateContextProvider>
+        <FusionPage />
+      </FusionStateContextProvider>
+    </RecurringSwapContextProvider>
   );
 };
 
