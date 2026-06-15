@@ -456,7 +456,8 @@ test.describe('Send Tests', () => {
   const erc20SendCases: Array<{
     description: string;
     testrailId: string;
-    sendData: typeof TEST_SEND.CCHAIN_LINK & {
+    sendData: Omit<typeof TEST_SEND.CCHAIN_LINK, 'chainBadgeAltText'> & {
+      chainBadgeAltText: string | RegExp;
       chainFilterChip?: string | RegExp;
     };
     gasless?: 'on' | 'off';

@@ -179,11 +179,15 @@ export const TEST_SEND = {
    * Uses `testnetPrimaryExtWallet` snapshot (testnet).
    */
   SEPOLIA_USDC: {
+    // Search by symbol ("USDC") so it matches whether the token is named
+    // "USDC" or "USD Coin". Match the network by /Ethereum/i so it works on
+    // both "Ethereum" (mainnet snapshot) and "Ethereum Sepolia" (testnet
+    // snapshot), which differ across alpha/dev builds.
     tokenSymbol: 'USDC',
-    tokenSearchTerm: 'USD Coin',
-    chainBadgeAltText: 'Ethereum Sepolia',
-    chainFilterChip: /Ethereum Sepolia/i,
-    networkLabel: 'Ethereum Sepolia',
+    tokenSearchTerm: 'USDC',
+    chainBadgeAltText: /Ethereum/i,
+    chainFilterChip: /Ethereum/i,
+    networkLabel: 'Ethereum',
     feeSymbol: 'ETH',
     amount: '0.01',
     recipientAccount: 'Account 2',
