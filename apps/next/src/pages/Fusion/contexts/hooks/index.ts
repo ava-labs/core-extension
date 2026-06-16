@@ -9,3 +9,5 @@ export * from './useSwapSourceToken';
 export * from './useSwapTargetTokenList';
 export * from './useSwapTargetToken';
 export * from './useSlippageTolerance';
+export * from './useCreateRecurringSwap';
+export * from './useRecurringEligibility';

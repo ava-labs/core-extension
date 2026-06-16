@@ -333,9 +333,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/fusion-sdk@npm:0.17.0":
-  version: 0.17.0
-  resolution: "@avalabs/fusion-sdk@npm:0.17.0"
+"@avalabs/fusion-sdk@npm:0.0.0-cp-13663-markr-recurring-20260615152624":
+  version: 0.0.0-cp-13663-markr-recurring-20260615152624
+  resolution: "@avalabs/fusion-sdk@npm:0.0.0-cp-13663-markr-recurring-20260615152624"
   dependencies:
     "@bitcoinerlab/secp256k1": "npm:^1.2.0"
     "@layerzerolabs/lz-v2-utilities": "npm:^3.0.17"
@@ -351,7 +351,7 @@ __metadata:
     "@solana/kit": ^5.0.0 || ^6.0.0
     viem: ^2.38.0
     zod: ^4.1.0
-  checksum: 10c0/82d7e5c09126186213bdecea187183d8cd4f4c31ffa9abacbf34809fa4bcc6af27219983b20106283863152b9f6c911956f7b9fca3163b533780ee4609fa280b
+  checksum: 10c0/0e75f006905bf2a0c14d94932099f4441dac96be26ea6a138fa23fa8284abf4599ed353b344a44fa55f804eae889c5f6c846f01158a65872680105da8adba2f3
   languageName: node
   linkType: hard
 
@@ -2807,7 +2807,7 @@ __metadata:
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.87"
-    "@avalabs/fusion-sdk": "npm:0.17.0"
+    "@avalabs/fusion-sdk": "npm:0.0.0-cp-13663-markr-recurring-20260615152624"
     "@avalabs/k2-alpine": "npm:1.266.0"
     "@avalabs/types": "npm:3.1.0-alpha.87"
     "@avalabs/vm-module-types": "npm:3.9.1"
@@ -2927,7 +2927,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core/common@workspace:packages/common"
   dependencies:
-    "@avalabs/fusion-sdk": "npm:0.17.0"
+    "@avalabs/fusion-sdk": "npm:0.0.0-cp-13663-markr-recurring-20260615152624"
     "@eslint/compat": "npm:1.2.4"
     "@eslint/eslintrc": "npm:3.2.0"
     "@eslint/js": "npm:9.16.0"
@@ -3100,7 +3100,7 @@ __metadata:
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/crypto-wasm": "npm:0.3.0"
     "@avalabs/evm-module": "npm:3.9.1"
-    "@avalabs/fusion-sdk": "npm:0.17.0"
+    "@avalabs/fusion-sdk": "npm:0.0.0-cp-13663-markr-recurring-20260615152624"
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/hvm-module": "npm:3.9.1"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
@@ -3247,7 +3247,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core/types@workspace:packages/types"
   dependencies:
-    "@avalabs/fusion-sdk": "npm:0.17.0"
+    "@avalabs/fusion-sdk": "npm:0.0.0-cp-13663-markr-recurring-20260615152624"
     fireblocks-sdk: "npm:5.20.0"
     joi: "npm:17.7.0"
     jose: "npm:4.15.5"
@@ -3269,7 +3269,7 @@ __metadata:
     "@avalabs/core-token-prices-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.87"
-    "@avalabs/fusion-sdk": "npm:0.17.0"
+    "@avalabs/fusion-sdk": "npm:0.0.0-cp-13663-markr-recurring-20260615152624"
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
     "@avalabs/types": "npm:3.1.0-alpha.87"

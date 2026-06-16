@@ -12,20 +12,19 @@ import { Card } from '@/components/Card';
 
 import { useRecurringSwapState } from '../../contexts/RecurringSwapContext';
 import { useFusionState } from '../../contexts/FusionStateContext';
-import { isRecurringSwapEligible } from '../../lib/isRecurringSwapEligible';
 
 import { RecurringSwapForm } from './RecurringSwapForm';
 
 export const RecurringSwapToggleCard = () => {
   const { t } = useTranslation();
-  const { sourceToken, targetToken } = useFusionState();
+  const { recurringEligibility } = useFusionState();
   const { isRecurring, setIsRecurring } = useRecurringSwapState();
 
-  const isEligible = isRecurringSwapEligible({ sourceToken, targetToken });
+  const isEligible = recurringEligibility.isEligible;
 
   // Guard the setter so any path that might call setIsRecurring while the
   // pair is ineligible is a no-op. Consumers of `isRecurring` in FusionState
-  // should still gate on `isRecurringSwapEligible(...)` at the read site —
+  // should still gate on `recurringEligibility.isEligible` at the read site —
   // it is the source of truth for "can this pair be recurring".
   const handleToggleChange = useCallback(
     (_: unknown, checked: boolean) => {

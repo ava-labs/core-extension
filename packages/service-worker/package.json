@@ -32,7 +32,7 @@
     "@avalabs/core-wallets-sdk": "3.1.0-alpha.87",
     "@avalabs/crypto-wasm": "0.3.0",
     "@avalabs/evm-module": "3.9.1",
-    "@avalabs/fusion-sdk": "0.17.0",
+    "@avalabs/fusion-sdk": "0.0.0-cp-13663-markr-recurring-20260615152624",
     "@avalabs/glacier-sdk": "3.1.0-alpha.87",
     "@avalabs/hvm-module": "3.9.1",
     "@avalabs/hw-app-avalanche": "1.1.1",
