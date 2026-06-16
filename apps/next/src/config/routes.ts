@@ -78,3 +78,5 @@ export const getFusionPath = (query?: Partial<FusionQueryTokens>) => {
 
   return `${pathname}?${searchString}`;
 };
+
+export const getRecurringSwapsPath = () => generatePath('/fusion/recurring');
