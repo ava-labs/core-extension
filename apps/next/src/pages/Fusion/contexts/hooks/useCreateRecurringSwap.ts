@@ -16,7 +16,12 @@ import {
   useNetworkFeeContext,
   useSettingsContext,
 } from '@core/ui';
-import { isUserRejectionError, Monitoring, resolve } from '@core/common';
+import {
+  caipToChainId,
+  isUserRejectionError,
+  Monitoring,
+  resolve,
+} from '@core/common';
 
 import { getRecurringSwapsPath } from '@/config/routes';
 
@@ -27,11 +32,7 @@ type UseCreateRecurringSwapProps = {
   fromAddress: string | undefined;
   sourceAsset: Asset | undefined;
   targetAsset: Asset | undefined;
-  /** Source chain — forwarded to the SDK for allowance + gas + dispatch. */
   sourceChain: Chain | undefined;
-  /** Numeric EVM chain id the recurring schedule lives on (C-Chain only today). */
-  sourceChainId: number | undefined;
-  /** Per-order input amount, in `sourceAsset`'s smallest unit. */
   amount: bigint;
   /** Basis points; omit to let Markr apply its recommended slippage. */
   slippageBps?: number;
@@ -49,7 +50,6 @@ export const useCreateRecurringSwap = ({
   sourceAsset,
   targetAsset,
   sourceChain,
-  sourceChainId,
   amount,
   slippageBps,
   gasMarginBps,
@@ -73,24 +73,24 @@ export const useCreateRecurringSwap = ({
       !sourceAsset ||
       !targetAsset ||
       !sourceChain ||
-      sourceChainId === undefined
+      !sourceChain.chainId
     ) {
-      throw new Error('Missing data required to create a recurring swap');
+      return;
     }
-
-    setIsCreatingRecurringSwap(true);
 
     const from = fromAddress as Address;
     const tokenIn = getRecurringTokenAddress(sourceAsset);
     const tokenOut = getRecurringTokenAddress(targetAsset);
 
     if (!tokenIn || !tokenOut) {
-      throw new Error('Unsupported recurring swap asset type');
+      return;
     }
+
+    setIsCreatingRecurringSwap(true);
 
     try {
       const quote = await manager.recurring.quote({
-        chainId: sourceChainId,
+        chainId: caipToChainId(sourceChain.chainId),
         tokenIn,
         tokenInDecimals: sourceAsset.decimals,
         tokenOut,
@@ -118,10 +118,8 @@ export const useCreateRecurringSwap = ({
           : {}),
       };
 
-      // The SDK reads the on-chain allowance against `quote.totalAmountIn`,
-      // signs an `approve` when short, then signs and broadcasts the first
-      // fill — all through the `evmSigner` injected into the manager. We no
-      // longer build, sign, or dispatch any of these transactions ourselves.
+      // The SDK reads the on-chain allowance, signs an approval when needed,
+      // then signs and broadcasts the first fill via the injected evmSigner.
       const { txHash } = await manager.recurring.executeFirstFill({
         quote,
         fromAddress: from,
@@ -131,7 +129,7 @@ export const useCreateRecurringSwap = ({
       });
 
       captureEncrypted('RecurringSwapConfirmed', {
-        chainId: sourceChainId,
+        chainId: caipToChainId(sourceChain.chainId),
         numberOfOrders: quote.numberOfOrders,
         sourceTxHash: txHash,
       });
@@ -141,8 +139,6 @@ export const useCreateRecurringSwap = ({
       onCreated?.();
       replace(getRecurringSwapsPath());
     } catch (err) {
-      setIsCreatingRecurringSwap(false);
-
       if (isUserRejectionError(err)) {
         return;
       }
@@ -155,6 +151,8 @@ export const useCreateRecurringSwap = ({
 
       const { title, hint } = getTranslatedError(err);
       toast.error(title, { description: hint });
+    } finally {
+      setIsCreatingRecurringSwap(false);
     }
   }, [
     manager,
@@ -162,7 +160,6 @@ export const useCreateRecurringSwap = ({
     sourceAsset,
     targetAsset,
     sourceChain,
-    sourceChainId,
     amount,
     slippageBps,
     gasMarginBps,

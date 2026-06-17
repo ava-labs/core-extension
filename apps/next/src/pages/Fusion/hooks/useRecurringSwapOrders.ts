@@ -2,9 +2,6 @@ import { useCallback, useMemo, useState } from 'react';
 
 import type { FrequencyUnit } from '../contexts/RecurringSwapContext';
 
-// Minimal token shape needed to render an order's pair icon and labels. The
-// real Fusion SDK order will carry token address/chain references that we map
-// down to this shape.
 export type RecurringSwapOrderToken = {
   symbol: string;
   coreChainId: number;
@@ -18,14 +15,11 @@ export type RecurringSwapOrder = {
   status: RecurringSwapOrderStatus;
   sourceToken: RecurringSwapOrderToken;
   targetToken: RecurringSwapOrderToken;
-  // Amount swapped on each execution, denominated in the source token.
   amountPerSwap: number;
   frequencyQuantity: number;
   frequencyUnit: FrequencyUnit;
   ordersTotal: number;
   ordersExecuted: number;
-  // Epoch milliseconds for the next scheduled execution, or null once the
-  // schedule has finished / been cancelled.
   nextSwapAt: number | null;
 };
 

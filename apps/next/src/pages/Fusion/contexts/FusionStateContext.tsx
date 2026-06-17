@@ -312,7 +312,6 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       sourceAsset,
       targetAsset,
       sourceChain,
-      sourceChainId: sourceToken?.coreChainId,
       amount: sourceAmountBigInt,
       slippageBps: autoSlippage ? undefined : slippage * 100,
       gasMarginBps: transferMarginBps,

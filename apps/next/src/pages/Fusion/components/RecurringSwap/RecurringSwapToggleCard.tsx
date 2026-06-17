@@ -22,10 +22,7 @@ export const RecurringSwapToggleCard = () => {
 
   const isEligible = recurringEligibility.isEligible;
 
-  // Guard the setter so any path that might call setIsRecurring while the
-  // pair is ineligible is a no-op. Consumers of `isRecurring` in FusionState
-  // should still gate on `recurringEligibility.isEligible` at the read site —
-  // it is the source of truth for "can this pair be recurring".
+  // Ignore toggles for ineligible pairs (e.g. a stale URL state).
   const handleToggleChange = useCallback(
     (_: unknown, checked: boolean) => {
       if (checked && !isEligible) {
