@@ -257,6 +257,7 @@
         "AbortController": true,
         "TextDecoder": true,
         "URL": true,
+        "URLSearchParams": true,
         "clearInterval": true,
         "clearTimeout": true,
         "console.debug": true,
