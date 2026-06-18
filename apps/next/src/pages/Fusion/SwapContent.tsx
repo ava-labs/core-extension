@@ -1,4 +1,4 @@
-import { Stack } from '@avalabs/k2-alpine';
+import { Collapse, Stack } from '@avalabs/k2-alpine';
 
 import { LoadingScreen } from '@/components/LoadingScreen';
 
@@ -12,7 +12,6 @@ import { useFusionState } from './contexts/FusionStateContext';
 import { SwapPartnerFee } from './components/SwapPartnerFee';
 import { SwapHelperText } from './components/SwapHelperText';
 import {
-  RecurringRateNotice,
   RecurringSwapsEntryCard,
   RecurringSwapToggleCard,
 } from './components/RecurringSwap';
@@ -34,23 +33,18 @@ export const SwapContent = () => {
     default:
       return (
         <Stack width="100%" flexGrow={1} gap={0.5}>
-          <Stack gap={1}>
+          <Stack gap={1} mb={1}>
             <SwapAccountSelect />
-            {isRecurringSwapsEnabled && hasScheduledSwaps && (
+            <Collapse in={isRecurringSwapsEnabled && hasScheduledSwaps}>
               <RecurringSwapsEntryCard
                 scheduledCount={scheduledCount}
                 action="manage"
               />
-            )}
+            </Collapse>
             <SwapPair />
-            {isRecurringSwapsEnabled && (
-              <>
-                <RecurringRateNotice />
-                <RecurringSwapToggleCard />
-              </>
-            )}
+            <SwapHelperText />
+            {isRecurringSwapsEnabled && <RecurringSwapToggleCard />}
           </Stack>
-          <SwapHelperText />
           <SwapSettings />
           <SwapPartnerFee />
         </Stack>

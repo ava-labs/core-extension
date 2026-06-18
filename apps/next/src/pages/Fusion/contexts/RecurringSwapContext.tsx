@@ -35,11 +35,6 @@ export const DEFAULT_NUMBER_OF_ORDERS = 4;
 export const MIN_FREQUENCY_QUANTITY = 1;
 export const MIN_NUMBER_OF_ORDERS = 2;
 
-// Spec: minimum 5 minutes between executions. Stored in seconds to match
-// Markr's `/info/chains` minimum-interval format.
-// TODO: This must come from Fusion SDK once available.
-export const MINIMUM_FREQUENCY_SECONDS = 5 * 60;
-
 export const RecurringSwapContextProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {

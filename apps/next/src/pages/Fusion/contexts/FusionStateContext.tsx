@@ -47,12 +47,15 @@ import {
   useSwapTargetTokenList,
   useSwapTargetToken,
   useSlippageTolerance,
+  useCreateRecurringSwap,
+  useRecurringEligibility,
 } from './hooks';
 import { getSwapStatus } from './lib/getSwapStatus';
 import { FusionState } from '../types';
 import { useFusionMinimumTransferAmount } from './hooks/useMinimumTransferAmount';
 import { useRequiredTokenAmounts } from './hooks/useRequiredTokenAmounts';
 import { useMinimalQuote } from './hooks/useMinimalQuote';
+import { useRecurringSwapState } from './RecurringSwapContext';
 
 const FusionStateContext = createContext<FusionState | undefined>(undefined);
 
@@ -111,6 +114,14 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
 
   const { slippage, setSlippage, autoSlippage, setAutoSlippage } =
     useSlippageTolerance();
+
+  const {
+    isRecurring,
+    frequencyUnit,
+    frequencyQuantity,
+    numberOfOrders,
+    resetForm,
+  } = useRecurringSwapState();
 
   const sourceAmountBigInt =
     userAmount && sourceAsset
@@ -284,6 +295,31 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     ],
   );
 
+  const recurringEligibility = useRecurringEligibility({
+    manager,
+    sourceAsset,
+    targetAsset,
+    sourceChainId: sourceToken?.coreChainId,
+    targetChainId: targetToken?.coreChainId,
+    ownerAddress: fromAddress,
+    amount: sourceAmountBigInt,
+  });
+
+  const { createRecurringSwap, isCreatingRecurringSwap } =
+    useCreateRecurringSwap({
+      manager,
+      fromAddress,
+      sourceAsset,
+      targetAsset,
+      sourceChain,
+      amount: sourceAmountBigInt,
+      slippageBps: autoSlippage ? undefined : slippage * 100,
+      gasMarginBps: transferMarginBps,
+      frequency: { unit: frequencyUnit, value: frequencyQuantity },
+      numberOfOrders,
+      onCreated: resetForm,
+    });
+
   const minimalQuote = useMinimalQuote({
     manager,
     fromAddress,
@@ -319,6 +355,8 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     sourceToken,
     minimumTransferAmount,
     currentRequiredTokens,
+    isRecurring,
+    recurringEligibility,
   });
 
   return (
@@ -354,6 +392,9 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         quotesStatus,
         selectQuoteById,
         transfer,
+        createRecurringSwap,
+        isCreatingRecurringSwap,
+        recurringEligibility,
         minimumTransferAmount,
         minimalQuote,
         formError,
