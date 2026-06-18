@@ -18,6 +18,7 @@ import {
   PriceImpactAvailability,
   PriceImpactSeverity,
 } from './hooks/usePriceImpact';
+import type { RecurringEligibility } from './contexts/hooks/useRecurringEligibility';
 
 export type SwappableAssetType =
   | 'evm_native'
@@ -98,6 +99,9 @@ export type FusionState = QueryState & {
   quotes: Quote[];
   selectQuoteById: (quoteId: string | null) => void;
   transfer: (specificQuote?: Quote) => Promise<void>;
+  createRecurringSwap: () => Promise<void>;
+  isCreatingRecurringSwap: boolean;
+  recurringEligibility: RecurringEligibility;
   status: SwapStatus;
   quotesStatus: QuoteStreamingStatus;
   minimalQuote: Quote | null;

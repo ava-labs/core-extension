@@ -2,7 +2,6 @@ import type { TFunction } from 'i18next';
 
 import type { FrequencyUnit } from '../contexts/RecurringSwapContext';
 
-// Canonical ordering of FrequencyUnits — used to render the unit dropdown.
 export const FREQUENCY_UNITS: FrequencyUnit[] = [
   'minute',
   'hour',

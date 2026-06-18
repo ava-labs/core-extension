@@ -11,6 +11,7 @@ import {
   RecurringSwapContextProvider,
   useFusionState,
 } from './contexts';
+import { useRecurringSwapState } from './contexts/RecurringSwapContext';
 import { SwapContent } from './SwapContent';
 import { SwapProviderNotice } from './components/SwapProviderNotice';
 
@@ -25,12 +26,24 @@ const FusionPage = () => {
 
   const { t } = useTranslation();
 
-  const { isConfirming, transfer, status, priceImpactSeverity, formError } =
-    useFusionState();
+  const {
+    isConfirming,
+    transfer,
+    createRecurringSwap,
+    isCreatingRecurringSwap,
+    recurringEligibility,
+    status,
+    priceImpactSeverity,
+    formError,
+  } = useFusionState();
+  const { isRecurring } = useRecurringSwapState();
+
+  const isRecurringMode = isRecurring && recurringEligibility.isEligible;
 
   const isCriticalPriceImpact = priceImpactSeverity === 'critical';
   const isSwapDisabled =
     isConfirming ||
+    isCreatingRecurringSwap ||
     status !== 'ready-to-transfer' ||
     isCriticalPriceImpact ||
     Boolean(formError);
@@ -66,11 +79,13 @@ const FusionPage = () => {
                 size="extension"
                 variant="contained"
                 color="primary"
-                onClick={() => transfer()}
+                onClick={() =>
+                  isRecurringMode ? createRecurringSwap() : transfer()
+                }
                 disabled={isSwapDisabled}
-                loading={isConfirming}
+                loading={isConfirming || isCreatingRecurringSwap}
               >
-                {t('Swap')}
+                {isRecurringMode ? t('Start recurring swap') : t('Swap')}
               </Button>
             </span>
           </Tooltip>

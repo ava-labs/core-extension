@@ -16,7 +16,6 @@ import { formatNextSwap } from '../../lib/formatNextSwap';
 import { getFrequencyUnitLabelInline } from '../../lib/formatFrequency';
 import type { RecurringSwapOrder } from '../../hooks/useRecurringSwapOrders';
 
-import { CancelRecurringOrderDialog } from './CancelRecurringOrderDialog';
 import { RecurringOrderPairIcon } from './RecurringOrderPairIcon';
 
 type RecurringOrderCardProps = {
@@ -51,22 +50,12 @@ export const RecurringOrderCard = ({
 }: RecurringOrderCardProps) => {
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
 
   const toggleExpanded = useCallback(() => {
     setIsExpanded((current) => !current);
   }, []);
 
-  const openCancelDialog = useCallback(() => {
-    setIsCancelDialogOpen(true);
-  }, []);
-
-  const closeCancelDialog = useCallback(() => {
-    setIsCancelDialogOpen(false);
-  }, []);
-
-  const confirmCancel = useCallback(() => {
-    setIsCancelDialogOpen(false);
+  const cancel = useCallback(() => {
     onCancel(order.id);
   }, [onCancel, order.id]);
 
@@ -144,7 +133,7 @@ export const RecurringOrderCard = ({
               size="extension"
               variant="contained"
               color="secondary"
-              onClick={openCancelDialog}
+              onClick={cancel}
               data-testid={`recurring-order-cancel-${order.id}`}
             >
               {t('Cancel')}
@@ -152,12 +141,6 @@ export const RecurringOrderCard = ({
           </Stack>
         </Collapse>
       </Stack>
-
-      <CancelRecurringOrderDialog
-        open={isCancelDialogOpen}
-        onClose={closeCancelDialog}
-        onConfirm={confirmCancel}
-      />
     </Card>
   );
 };
