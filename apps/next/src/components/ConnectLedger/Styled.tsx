@@ -96,7 +96,8 @@ export const LedgerConnectionError = ({
     >
       <Stack gap={1.5} alignItems="center" color="error.main">
         <FiAlertCircle size={32} color="currentColor" />
-        {errorType === 'unable-to-connect' && (
+        {(errorType === 'unable-to-connect' ||
+          errorType === 'retrieval-failed') && (
           <UnableToConnectMessage onTroubleshoot={onTroubleshoot} />
         )}
         {errorType === 'unsupported-version' && <UnsupportedVersionMessage />}

@@ -1,6 +1,13 @@
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { Stack } from '@avalabs/k2-alpine';
-import { ComponentProps, FC, useCallback, useEffect, useState } from 'react';
+import {
+  ComponentProps,
+  FC,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { DerivedAddresses } from '@/pages/Onboarding/components/DerivedAddresses';
@@ -89,16 +96,32 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
     );
   const [keys, setKeys] = useState<PublicKey[]>(EMPTY_KEYS);
   const [isRetrieving, setIsRetrieving] = useState(false);
+  // Identifier for the in-flight fetchKeys attempt. resetFetchState and each
+  // new fetch bump this counter so the .then/.catch/.finally of an obsolete
+  // attempt can detect it is stale and skip its state updates. Otherwise an
+  // old promise can clobber freshly-reset state (e.g. selecting a new
+  // derivation path while the previous fetch is still pending).
+  const attemptIdRef = useRef(0);
+
+  const resetFetchState = useCallback(() => {
+    attemptIdRef.current += 1;
+    setKeys(EMPTY_KEYS);
+  }, []);
 
   const fetchKeys = useCallback(async () => {
+    attemptIdRef.current += 1;
+    const myAttemptId = attemptIdRef.current;
+    const isCurrent = () => attemptIdRef.current === myAttemptId;
     setIsRetrieving(true);
     retrieveKeys(minNumberOfKeys)
       .then((retrievedKeys) => {
+        if (!isCurrent()) return;
         setKeys(retrievedKeys.addressPublicKeys);
         onSuccess(retrievedKeys);
         callbacks?.onConnectionSuccess();
       })
       .catch((err: unknown) => {
+        if (!isCurrent()) return;
         const normalizedError =
           err instanceof Error ? err : new Error(String(err));
         if (!(normalizedError instanceof WalletExistsError)) {
@@ -111,18 +134,28 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
         callbacks?.onConnectionFailed(normalizedError);
       })
       .finally(() => {
+        if (!isCurrent()) return;
         setIsRetrieving(false);
       });
   }, [minNumberOfKeys, retrieveKeys, onSuccess, callbacks]);
 
+  const handleManualRetry = useCallback(() => {
+    resetFetchState();
+    callbacks?.onConnectionRetry();
+    onRetry();
+  }, [resetFetchState, callbacks, onRetry]);
+
   // Attempt to automatically connect as soon as we establish the transport.
+  // A retrieval failure flips status to 'error' inside the hook, so this
+  // effect naturally stops firing. No extra connector-side gating needed
+  // (CP-14241).
   useEffect(() => {
     if (status === 'ready' && !keys.length && !isRetrieving) {
       fetchKeys();
     } else if (status === 'error') {
-      setKeys(EMPTY_KEYS);
+      resetFetchState();
     }
-  }, [fetchKeys, status, keys, isRetrieving]);
+  }, [fetchKeys, status, keys, isRetrieving, resetFetchState]);
 
   useEffect(() => {
     onStatusChange(status);
@@ -147,7 +180,7 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
                 derivationPathSpec={props.derivationPathSpec}
                 onSelect={(_derivationPathSpec) => {
                   props.setDerivationPathSpec(_derivationPathSpec);
-                  setKeys([]);
+                  resetFetchState();
                   onStatusChange('waiting');
                 }}
                 labels={props.overrides?.PathSelector?.labels}
@@ -174,12 +207,7 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
         )}
       </Stack>
       {status === 'needs-user-gesture' && (
-        <Styled.LedgerClickToConnectMessage
-          onConnect={() => {
-            callbacks?.onConnectionRetry();
-            onRetry();
-          }}
-        />
+        <Styled.LedgerClickToConnectMessage onConnect={handleManualRetry} />
       )}
       {status === 'error' && error && (
         <Styled.LedgerConnectionError
@@ -194,12 +222,10 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
                   ? DerivationPath.LedgerLive
                   : DerivationPath.BIP44,
               );
-              setKeys([]);
               onStatusChange('waiting');
             }
 
-            callbacks?.onConnectionRetry();
-            onRetry();
+            handleManualRetry();
           }}
           retryLabel={
             isDuplicatedWalletError

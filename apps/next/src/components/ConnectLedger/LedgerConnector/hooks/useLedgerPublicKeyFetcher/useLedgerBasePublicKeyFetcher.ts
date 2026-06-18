@@ -331,6 +331,16 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
       } catch (err) {
         console.error(err);
         popDeviceSelection();
+        // WalletExistsError sets its own status/error in assertUniqueWallet.
+        // For other failures, surface 'retrieval-failed' on the hook so the
+        // connector stops seeing status='ready' and the auto-fetch effect
+        // doesn't loop. The dedicated error type lets the hook's
+        // auto-connect effect distinguish a retrieval failure (must not
+        // auto-recover) from a transport/app-switch error (which can).
+        if (!(err instanceof WalletExistsError)) {
+          setStatus('error');
+          setError('retrieval-failed');
+        }
         throw err;
       }
     },
@@ -339,9 +349,15 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
 
   // Attempt to automatically connect as soon as we establish the transport.
   useEffect(() => {
-    // If we have a duplicated wallet error, always wait for user action,
-    // do not attempt a reconnection.
-    if (error === 'duplicated-wallet' || status === 'needs-user-gesture') {
+    // If we have a duplicated wallet or retrieval error, always wait for
+    // user action. Returning here prevents the AVALANCHE branch below from
+    // re-flipping status to 'ready' and re-triggering the connector's
+    // auto-fetch.
+    if (
+      error === 'duplicated-wallet' ||
+      error === 'retrieval-failed' ||
+      status === 'needs-user-gesture'
+    ) {
       return;
     }
 

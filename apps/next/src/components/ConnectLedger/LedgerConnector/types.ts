@@ -15,7 +15,8 @@ export type ErrorType =
   | 'no-app'
   | 'device-locked'
   | 'app-not-installed'
-  | 'duplicated-wallet';
+  | 'duplicated-wallet'
+  | 'retrieval-failed';
 export type PublicKey = {
   hasActivity?: boolean;
   key: AddressPublicKeyJson;
