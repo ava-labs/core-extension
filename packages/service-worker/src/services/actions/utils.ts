@@ -19,6 +19,6 @@ export async function filterStaleActions(
     ) {
       return { ...acc, [actionId]: action };
     }
-    return {};
+    return acc;
   }, {});
 }
