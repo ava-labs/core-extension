@@ -1,5 +1,5 @@
 import { ChainId, Network } from '@avalabs/core-chains-sdk';
-import { Stack } from '@avalabs/k2-alpine';
+import { Collapse, Stack } from '@avalabs/k2-alpine';
 import { useIsMainnet } from '@core/ui';
 import { FC, Suspense, useState } from 'react';
 import { ActivityFilterSelector } from './components/ActivityFilterSelector';
@@ -32,9 +32,9 @@ export const ActivityTab: FC = () => {
 
   return (
     <Stack gap={1.25}>
-      {isRecurringSwapsEnabled && scheduledCount > 0 && (
+      <Collapse in={isRecurringSwapsEnabled && scheduledCount > 0}>
         <RecurringSwapsEntryCard scheduledCount={scheduledCount} />
-      )}
+      </Collapse>
       <Stack direction="row" justifyContent="space-between">
         <ActivityFilterSelector
           selected={filter}

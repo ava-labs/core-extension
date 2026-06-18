@@ -1,6 +1,32 @@
 import { useCallback, useMemo, useState } from 'react';
+import { skipToken, useQuery } from '@tanstack/react-query';
+import { truncateAddress } from '@avalabs/k2-alpine';
+import { ChainId } from '@avalabs/core-chains-sdk';
+import { bigIntToString } from '@avalabs/core-utils-sdk';
+import { TokenType } from '@avalabs/vm-module-types';
+import {
+  ERC_ZERO_ADDRESS,
+  RecurringOrderStatus,
+  type RecurringOrder,
+} from '@avalabs/fusion-sdk';
+import type { Address } from 'viem';
+
+import {
+  toast,
+  useAccountsContext,
+  useErrorMessage,
+  useNetworkContext,
+} from '@core/ui';
+import { isUserRejectionError, Monitoring } from '@core/common';
+import type { FungibleTokenBalance } from '@core/types';
+
+import { useAllTokens } from '@/hooks/useAllTokens';
+
+import { useTransferManager } from '../contexts/hooks/useTransferManager';
+import { buildChain } from '../contexts/hooks/useAssetAndChain/lib/buildChain';
 
 import type { FrequencyUnit } from '../contexts/RecurringSwapContext';
+import { useIsRecurringSwapsEnabled } from './useIsRecurringSwapsEnabled';
 
 export type RecurringSwapOrderToken = {
   symbol: string;
@@ -23,82 +49,8 @@ export type RecurringSwapOrder = {
   nextSwapAt: number | null;
 };
 
-// Avalanche C-Chain. The Fusion recurring-swap flow is C-Chain only for now.
-const AVALANCHE_C_CHAIN_ID = 43114;
-
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-// TODO: Replace this placeholder data with the real recurring-orders query
-// once the Fusion SDK exposes it. The hook's public shape (orders + cancel)
-// is intended to stay stable when that wiring lands.
-const MOCK_ORDERS: RecurringSwapOrder[] = [
-  {
-    id: 'mock-order-1',
-    status: 'active',
-    sourceToken: {
-      symbol: 'USDC',
-      coreChainId: AVALANCHE_C_CHAIN_ID,
-      logoUri:
-        'https://images.ctfassets.net/gcj8jwzm6086/29mOyHuS6koJfoF8WNivTy/9c5e4b101e5ab7545f26b541f45b0fe2/usdc.png',
-    },
-    targetToken: {
-      symbol: 'AVAX',
-      coreChainId: AVALANCHE_C_CHAIN_ID,
-      logoUri:
-        'https://images.ctfassets.net/gcj8jwzm6086/5VHupNKwnDYJvqMENeV7iJ/3e4b8ff10b69bfa31e70080a4b142cd0/avalanche-avax-logo.svg',
-    },
-    amountPerSwap: 30,
-    frequencyQuantity: 4,
-    frequencyUnit: 'week',
-    ordersTotal: 4,
-    ordersExecuted: 1,
-    nextSwapAt: Date.now() + 20 * DAY_MS,
-  },
-  {
-    id: 'mock-order-2',
-    status: 'active',
-    sourceToken: {
-      symbol: 'USDC',
-      coreChainId: AVALANCHE_C_CHAIN_ID,
-      logoUri:
-        'https://images.ctfassets.net/gcj8jwzm6086/29mOyHuS6koJfoF8WNivTy/9c5e4b101e5ab7545f26b541f45b0fe2/usdc.png',
-    },
-    targetToken: {
-      symbol: 'BTC.b',
-      coreChainId: AVALANCHE_C_CHAIN_ID,
-      logoUri:
-        'https://images.ctfassets.net/gcj8jwzm6086/aeab859f-78aa-4a05-8f77-b7e3492beb39/12c3dad31c4e71389d11661e4504c34b/43114-0x152b9d0FdC40C096757F570A51E494bd4b943E50.png',
-    },
-    amountPerSwap: 500,
-    frequencyQuantity: 4,
-    frequencyUnit: 'week',
-    ordersTotal: 4,
-    ordersExecuted: 0,
-    nextSwapAt: Date.now() + 2 * DAY_MS,
-  },
-  {
-    id: 'mock-order-3',
-    status: 'active',
-    sourceToken: {
-      symbol: 'USDC',
-      coreChainId: AVALANCHE_C_CHAIN_ID,
-      logoUri:
-        'https://images.ctfassets.net/gcj8jwzm6086/29mOyHuS6koJfoF8WNivTy/9c5e4b101e5ab7545f26b541f45b0fe2/usdc.png',
-    },
-    targetToken: {
-      symbol: 'WETH.e',
-      coreChainId: AVALANCHE_C_CHAIN_ID,
-      logoUri:
-        'https://images.ctfassets.net/gcj8jwzm6086/accf4706-937e-48fd-8e5c-a96321ab827b/620da5219fc362787d4ab93cc3328223/43114-0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB.png',
-    },
-    amountPerSwap: 20,
-    frequencyQuantity: 1,
-    frequencyUnit: 'month',
-    ordersTotal: 6,
-    ordersExecuted: 2,
-    nextSwapAt: Date.now() + 9 * DAY_MS,
-  },
-];
+// Recurring swaps are C-Chain only for now.
+const RECURRING_CHAIN_ID = ChainId.AVALANCHE_MAINNET_ID;
 
 type UseRecurringSwapOrdersResult = {
   orders: RecurringSwapOrder[];
@@ -107,12 +59,187 @@ type UseRecurringSwapOrdersResult = {
   cancelOrder: (id: string) => void;
 };
 
-export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
-  const [orders, setOrders] = useState<RecurringSwapOrder[]>(MOCK_ORDERS);
+const mapStatus = (status: RecurringOrderStatus): RecurringSwapOrderStatus => {
+  switch (status) {
+    case RecurringOrderStatus.Completed:
+      return 'completed';
+    case RecurringOrderStatus.Cancelled:
+      return 'cancelled';
+    // A paused schedule is still on the books, so we surface it as active
+    // until the UI grows a dedicated paused state.
+    case RecurringOrderStatus.Active:
+    case RecurringOrderStatus.Paused:
+    default:
+      return 'active';
+  }
+};
 
-  const cancelOrder = useCallback((id: string) => {
-    setOrders((current) => current.filter((order) => order.id !== id));
-  }, []);
+const toOrderToken = (
+  token: FungibleTokenBalance | undefined,
+  fallbackAddress: string,
+  fallbackChainId: number,
+): RecurringSwapOrderToken =>
+  token
+    ? {
+        symbol: token.symbol,
+        coreChainId: token.coreChainId,
+        logoUri: token.logoUri,
+      }
+    : {
+        symbol: truncateAddress(fallbackAddress),
+        coreChainId: fallbackChainId,
+      };
+
+export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
+  const isRecurringSwapsEnabled = useIsRecurringSwapsEnabled();
+  const { manager } = useTransferManager();
+  const {
+    accounts: { active },
+  } = useAccountsContext();
+  const { getNetwork } = useNetworkContext();
+  const getTranslatedError = useErrorMessage();
+
+  const address = active?.addressC as Address | undefined;
+
+  const networks = useMemo(() => {
+    const network = getNetwork(RECURRING_CHAIN_ID);
+    return network ? [network] : [];
+  }, [getNetwork]);
+
+  const sourceChain = useMemo(
+    () => buildChain(RECURRING_CHAIN_ID, getNetwork),
+    [getNetwork],
+  );
+
+  // Full token list (not just held tokens) so we can resolve the
+  // metadata for an order's target token even when the user doesn't hold it.
+  const tokens = useAllTokens(networks, true);
+
+  const { tokensByAddress, nativeToken } = useMemo(() => {
+    const lookup = new Map<string, FungibleTokenBalance>();
+    let native: FungibleTokenBalance | undefined;
+
+    for (const token of tokens) {
+      if (token.type === TokenType.NATIVE) {
+        native = token;
+      } else if ('address' in token && token.address) {
+        lookup.set(token.address.toLowerCase(), token);
+      }
+    }
+
+    return { tokensByAddress: lookup, nativeToken: native };
+  }, [tokens]);
+
+  const resolveToken = useCallback(
+    (tokenAddress: string): FungibleTokenBalance | undefined =>
+      tokenAddress.toLowerCase() === ERC_ZERO_ADDRESS.toLowerCase()
+        ? nativeToken
+        : tokensByAddress.get(tokenAddress.toLowerCase()),
+    [nativeToken, tokensByAddress],
+  );
+
+  const {
+    data: fetchedOrders = [],
+    status,
+    refetch,
+  } = useQuery({
+    queryKey: ['recurringSwapOrders', address, manager?.id],
+    enabled: isRecurringSwapsEnabled,
+    queryFn:
+      manager && address
+        ? () =>
+            manager.recurring
+              .listOrders({ address, chainId: RECURRING_CHAIN_ID })
+              .then((response) => response.orders)
+        : skipToken,
+  });
+
+  // `pending` covers both the initial fetch and the window before the manager /
+  // address are ready (when the query is still `skipToken`), so consumers don't
+  // briefly see an empty "0 scheduled" list. Background refetches keep the
+  // status at `success`, so they don't flip back to a loading state.
+  const isLoading = isRecurringSwapsEnabled && status === 'pending';
+
+  // Cancellation only flips to `status: 'cancelled'` on the server once Markr
+  // observes the on-chain event, so we hide the order locally for immediate
+  // feedback while the refetched list catches up.
+  const [hiddenOrderIds, setHiddenOrderIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+
+  const cancelOrder = useCallback(
+    async (id: string) => {
+      if (!manager || !address || !sourceChain) {
+        return;
+      }
+
+      try {
+        await manager.recurring.executeCancellation({
+          orderId: id as `0x${string}`,
+          address,
+          sourceChain,
+        });
+
+        setHiddenOrderIds((current) => new Set(current).add(id));
+        refetch();
+      } catch (err) {
+        if (isUserRejectionError(err)) {
+          return;
+        }
+
+        console.error(err);
+        Monitoring.sentryCaptureException(
+          err as Error,
+          Monitoring.SentryExceptionTypes.SWAP,
+        );
+
+        const { title, hint } = getTranslatedError(err);
+        toast.error(title, { description: hint });
+      }
+    },
+    [manager, address, sourceChain, refetch, getTranslatedError],
+  );
+
+  const orders = useMemo<RecurringSwapOrder[]>(
+    () =>
+      fetchedOrders
+        .filter(
+          (order: RecurringOrder) =>
+            !hiddenOrderIds.has(order.orderId) &&
+            order.status !== RecurringOrderStatus.Completed &&
+            order.status !== RecurringOrderStatus.Cancelled,
+        )
+        .map((order: RecurringOrder) => {
+          const sourceTokenBalance = resolveToken(order.tokenIn);
+          const targetTokenBalance = resolveToken(order.tokenOut);
+          const decimals = sourceTokenBalance?.decimals ?? 18;
+
+          return {
+            id: order.orderId,
+            status: mapStatus(order.status),
+            sourceToken: toOrderToken(
+              sourceTokenBalance,
+              order.tokenIn,
+              order.chainId,
+            ),
+            targetToken: toOrderToken(
+              targetTokenBalance,
+              order.tokenOut,
+              order.chainId,
+            ),
+            amountPerSwap: Number(bigIntToString(order.amount, decimals)),
+            frequencyQuantity: order.frequency.value,
+            frequencyUnit: order.frequency.unit,
+            ordersTotal: order.numberOfOrders,
+            ordersExecuted: order.executedOrders,
+            nextSwapAt:
+              order.nextExecutionAt === null
+                ? null
+                : order.nextExecutionAt * 1000,
+          };
+        }),
+    [fetchedOrders, hiddenOrderIds, resolveToken],
+  );
 
   const scheduledCount = useMemo(
     () => orders.filter((order) => order.status === 'active').length,
@@ -122,7 +249,7 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
   return {
     orders,
     scheduledCount,
-    isLoading: false,
+    isLoading,
     cancelOrder,
   };
 };

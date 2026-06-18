@@ -10,7 +10,7 @@ import { NoScrollStack } from '../NoScrollStack';
 import { PageTopBar } from '../PageTopBar';
 
 type PageProps = {
-  title?: string;
+  title?: React.ReactNode;
   titleAction?: React.ReactElement;
   description?: string;
   children: React.ReactNode;

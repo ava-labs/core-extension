@@ -1,4 +1,4 @@
-import { Stack } from '@avalabs/k2-alpine';
+import { Collapse, Stack } from '@avalabs/k2-alpine';
 
 import { LoadingScreen } from '@/components/LoadingScreen';
 
@@ -35,12 +35,12 @@ export const SwapContent = () => {
         <Stack width="100%" flexGrow={1} gap={0.5}>
           <Stack gap={1} mb={1}>
             <SwapAccountSelect />
-            {isRecurringSwapsEnabled && hasScheduledSwaps && (
+            <Collapse in={isRecurringSwapsEnabled && hasScheduledSwaps}>
               <RecurringSwapsEntryCard
                 scheduledCount={scheduledCount}
                 action="manage"
               />
-            )}
+            </Collapse>
             <SwapPair />
             <SwapHelperText />
             {isRecurringSwapsEnabled && <RecurringSwapToggleCard />}
