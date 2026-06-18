@@ -56,13 +56,23 @@ export const LinkDetail = ({ item }: LinkDetailProps) => {
       } as CSSProperties)
     : undefined;
 
+  const safeFaviconUrl = (() => {
+    if (!item.value.icon) return '';
+    try {
+      const { protocol } = new URL(item.value.icon);
+      return protocol === 'https:' || protocol === 'http:' ? item.value.icon : '';
+    } catch {
+      return '';
+    }
+  })();
+
   return (
     <TxDetailsRow label={item.label}>
       <Tooltip title={fullUrl} slotProps={tooltipSlotProps} arrow>
         <UrlContainer>
-          {item.value.icon && (
+          {safeFaviconUrl && (
             <Favicon
-              sx={{ backgroundImage: `url(${item.value.icon})` }}
+              sx={{ backgroundImage: `url(${safeFaviconUrl})` }}
               role="presentation"
             />
           )}

@@ -9,7 +9,18 @@ type NetworkDetailProps = {
   item: NetworkItem;
 };
 
+function safeHttpsUrl(url: string | undefined): string {
+  if (!url) return '';
+  try {
+    const { protocol } = new URL(url);
+    return protocol === 'https:' || protocol === 'http:' ? url : '';
+  } catch {
+    return '';
+  }
+}
+
 export const NetworkDetail = ({ item }: NetworkDetailProps) => {
+  const safeLogoUri = safeHttpsUrl(item.value.logoUri);
   return (
     <TxDetailsRow label={item.label}>
       <Stack direction="row" alignItems="center" gap={1} textAlign="right">
@@ -17,7 +28,7 @@ export const NetworkDetail = ({ item }: NetworkDetailProps) => {
           width={20}
           height={20}
           sx={{
-            backgroundImage: `url(${item.value.logoUri})`,
+            backgroundImage: safeLogoUri ? `url(${safeLogoUri})` : 'none',
             backgroundSize: 'contain',
           }}
         />
