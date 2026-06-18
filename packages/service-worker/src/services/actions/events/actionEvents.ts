@@ -44,10 +44,24 @@ export class ActionEvents implements DAppEventEmitter {
     this.actionService.addListener(
       ActionsEvent.ACTION_UPDATED,
       (actions: Actions) => {
-        this.eventEmitter.emit('update', {
-          name: ActionsEvent.ACTION_UPDATED,
-          value: actions,
-        });
+        const filtered = Object.fromEntries(
+          Object.entries(actions).filter(
+            ([, action]) =>
+              action.tabId === this._connectionInfo?.tabId ||
+              action.site?.tabId === this._connectionInfo?.tabId ||
+              this._connectionInfo?.domain === browser.runtime.id,
+          ),
+        );
+
+        if (
+          this._connectionInfo?.domain === browser.runtime.id ||
+          Object.keys(filtered).length > 0
+        ) {
+          this.eventEmitter.emit('update', {
+            name: ActionsEvent.ACTION_UPDATED,
+            value: filtered,
+          });
+        }
       },
     );
   }
