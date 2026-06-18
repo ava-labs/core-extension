@@ -1058,6 +1058,12 @@ export class WalletService implements OnUnlock {
       return utils.base58check.encode(new Uint8Array(signed));
     }
 
+    ensureMessageIsValid(
+      data.type,
+      data.data as Record<string, unknown>,
+      network.chainId,
+    );
+
     const account =
       await this.accountsService.getAccountFromActiveWalletByAddress(
         data.account,
