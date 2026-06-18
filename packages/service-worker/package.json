@@ -149,7 +149,6 @@
     "eslint-plugin-prettier": "5.2.1",
     "ethers": "6.13.5",
     "file-loader": "6.2.0",
-    "fs": "0.0.1-security",
     "glob": "13.0.0",
     "globals": "15.13.0",
     "husky": "7.0.4",

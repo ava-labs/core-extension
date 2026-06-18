@@ -135,7 +135,6 @@
     "eslint-plugin-react": "7.37.2",
     "eslint-plugin-react-hooks": "5.1.0",
     "file-loader": "6.2.0",
-    "fs": "0.0.1-security",
     "globals": "15.13.0",
     "i18next-scanner": "4.1.1",
     "i18next-scanner-typescript": "1.2.1",
