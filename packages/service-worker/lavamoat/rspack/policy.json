@@ -255,6 +255,7 @@
     "@avalabs/fusion-sdk": {
       "globals": {
         "AbortController": true,
+        "Response": true,
         "TextDecoder": true,
         "URL": true,
         "URLSearchParams": true,
