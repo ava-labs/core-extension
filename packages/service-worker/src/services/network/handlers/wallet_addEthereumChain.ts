@@ -11,7 +11,12 @@ import {
   JsonRpcRequestParams,
   NetworkWithCaipId,
 } from '@core/types';
-import { canSkipApproval, decorateWithCaipId, isValidHttpHeader } from '@core/common';
+import {
+  canSkipApproval,
+  decorateWithCaipId,
+  isDevelopment,
+  isValidHttpHeader,
+} from '@core/common';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
@@ -19,14 +24,18 @@ import { NetworkService } from '../NetworkService';
 function isAllowedRpcUrl(url: string): boolean {
   try {
     const { protocol, hostname } = new URL(url);
-    if (protocol !== 'https:') return false;
+    if (protocol !== 'https:' && !(isDevelopment() && protocol === 'http:'))
+      return false;
+    // Block private/reserved IP ranges in production to prevent SSRF.
+    // In development these are needed for local nodes (e.g. localhost:9650).
     if (
-      hostname === 'localhost' ||
-      hostname === '169.254.169.254' ||
-      /^127\./.test(hostname) ||
-      /^10\./.test(hostname) ||
-      /^192\.168\./.test(hostname) ||
-      /^172\.(1[6-9]|2[0-9]|3[01])\./.test(hostname)
+      !isDevelopment() &&
+      (hostname === 'localhost' ||
+        hostname === '169.254.169.254' ||
+        /^127\./.test(hostname) ||
+        /^10\./.test(hostname) ||
+        /^192\.168\./.test(hostname) ||
+        /^172\.(1[6-9]|2[0-9]|3[01])\./.test(hostname))
     ) {
       return false;
     }
