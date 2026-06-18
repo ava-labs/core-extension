@@ -392,12 +392,13 @@ export class ApprovalController implements BatchApprovalController {
 
     if (validator) {
       const validation = validator.validateAction(action, params);
+      const hasExistingAlert = Boolean(action.displayData.alert);
 
-      if (validation.isValid) {
+      if (validation.isValid && !hasExistingAlert) {
         return await this.#executeBatchAutoApproval(action, network);
-      } else if (validation.requiresManualApproval) {
+      } else if (validation.requiresManualApproval || hasExistingAlert) {
         // Add the validation warning to displayData so it shows in the approval UI
-        action.displayData.alert = {
+        action.displayData.alert ??= {
           type: AlertType.WARNING,
           details: {
             title: 'Manual approval required',

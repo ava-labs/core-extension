@@ -49,6 +49,7 @@ export function SiteMetadataMiddleware(
     // new domain -> new connection
     if (requestData.params.domain !== domainMetadata.domain) {
       error(new Error('Connection and reported domain does not match'));
+      return;
     }
 
     domainMetadata.icon = requestData.params.icon;

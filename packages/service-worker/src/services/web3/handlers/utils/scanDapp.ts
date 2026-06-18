@@ -1,7 +1,9 @@
 import Blockaid from '@blockaid/client';
 import { resolve } from '@avalabs/core-utils-sdk';
 
-export const scanDapp = async (dAppURL: string) => {
+export type DappScanResult = 'malicious' | 'benign' | 'unknown' | 'error';
+
+export const scanDapp = async (dAppURL: string): Promise<DappScanResult> => {
   const baseURL = process.env.PROXY_URL + '/proxy/blockaid/';
 
   const blockaid = new Blockaid({
@@ -10,7 +12,11 @@ export const scanDapp = async (dAppURL: string) => {
   });
   const [response, error] = await resolve(blockaid.site.scan({ url: dAppURL }));
 
-  if (response === null || error || response.status === 'miss') {
+  if (error) {
+    return 'error';
+  }
+
+  if (response === null || response.status === 'miss') {
     return 'unknown';
   }
 

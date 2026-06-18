@@ -12,6 +12,10 @@ import { Middleware } from './models';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import { WHITELISTED_DOMAINS } from '@core/common';
 
+// Only domains in this set permit subdomain-based CORE_METHODS access.
+// Restricts preview-deployment matching to the intended base domains only.
+const PREVIEW_BASE_DOMAINS = new Set(['avalabs.workers.dev']);
+
 const RESTRICTED_METHODS = Object.freeze([] as string[]);
 
 /**
@@ -166,12 +170,16 @@ export function PermissionMiddleware(
     }
 
     if (CORE_METHODS.includes(method)) {
-      const [, ...domainWithoutSubdomain] = domain.split('.'); // support any subdomains of core-web.pages.dev
+      const [, ...rest] = domain.split('.');
+      const base = rest.join('.');
+      // Only allow subdomain matching for domains explicitly designated as
+      // preview-deployment bases (e.g. Core Web Cloudflare Workers previews).
+      const isPreviewSubdomain =
+        PREVIEW_BASE_DOMAINS.has(base) && WHITELISTED_DOMAINS.includes(base);
 
       if (
         context.authenticated === true &&
-        (WHITELISTED_DOMAINS.includes(domain) ||
-          WHITELISTED_DOMAINS.includes(domainWithoutSubdomain.join('.')))
+        (WHITELISTED_DOMAINS.includes(domain) || isPreviewSubdomain)
       ) {
         next();
       } else {

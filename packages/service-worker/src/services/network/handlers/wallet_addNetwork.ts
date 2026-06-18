@@ -100,6 +100,15 @@ export class WalletAddNetworkHandler extends DAppRequestHandler<Params, null> {
     try {
       const { network } = pendingAction.displayData;
 
+      const chainId = Number(network.chainId ?? caipToChainId(network.caipId));
+      const isValid = await this.networkService.isValidRPCUrl(
+        chainId,
+        network.rpcUrl,
+      );
+      if (!isValid) {
+        throw new Error('ChainID does not match the RPC URL');
+      }
+
       const [addedNetwork, err] = await resolve(
         this.networkService.saveCustomNetwork(network),
       );
