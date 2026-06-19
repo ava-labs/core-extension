@@ -85,6 +85,8 @@ export function DAppRequestHandlerMiddleware(
             // This field is for our internal use only (only used with extension's direct connection)
             context: {
               account: context.account,
+              agentIdentity:
+                context.request.params.request.context?.agentIdentity,
             },
           },
           context.network,
