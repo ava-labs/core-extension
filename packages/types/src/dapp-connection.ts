@@ -1,5 +1,5 @@
 import { Maybe } from '@avalabs/core-utils-sdk';
-import { RpcResponse } from '@avalabs/vm-module-types';
+import { AgentIdentity, RpcResponse } from '@avalabs/vm-module-types';
 import type { CurrentAvalancheAccount } from '@avalabs/avalanche-module';
 import { EthereumProviderError } from 'eth-rpc-errors';
 import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
@@ -132,6 +132,8 @@ export type JsonRpcRequestContext = {
    */
   account?: CurrentAvalancheAccount;
 
+  agentIdentity?: AgentIdentity;
+
   /**
    * Whether to suppress the success toast.
    * Useful when the action being performed requires multiple steps
@@ -156,7 +158,7 @@ interface JsonRpcRequestPayloadBase<Method extends string = any> {
   readonly method: Method;
   readonly site?: DomainMetadata;
   readonly tabId?: number;
-  readonly context?: Record<string, unknown>;
+  readonly context?: JsonRpcRequestContext;
 }
 
 interface JsonRpcRequestPayloadWithParams<

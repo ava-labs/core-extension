@@ -6,11 +6,12 @@ import {
   JsonRpcResponse,
   DEFERRED_RESPONSE,
 } from '@core/types';
-import { engine, isSyncDomain, resolve } from '@core/common';
+import { engine, resolve } from '@core/common';
 import { ethErrors } from 'eth-rpc-errors';
 
 import { ModuleManager } from '../../vmModules/ModuleManager';
 import { Middleware } from './models';
+import { getKnownOrWhitelistedContext } from './utils/getKnownOrWhitelistedContext';
 
 export function DAppRequestHandlerMiddleware(
   handlers: DAppRequestHandler[],
@@ -85,10 +86,7 @@ export function DAppRequestHandlerMiddleware(
             // This field is for our internal use only (only used with extension's own & Core Web's connection)
             context: {
               account: context.account,
-              recurringSwaps: isSyncDomain(context.domainMetadata.domain)
-                ? (context.request.params.request.context?.recurringSwaps ??
-                  undefined)
-                : undefined,
+              ...getKnownOrWhitelistedContext(context),
             },
           },
           context.network,
