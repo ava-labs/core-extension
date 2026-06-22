@@ -26,6 +26,7 @@ import {
 import { getRecurringSwapsPath } from '@/config/routes';
 
 import { getRecurringTokenAddress } from '../../lib/getRecurringTokenAddress';
+import type { RecurringSwapsContextRef } from './useSigners';
 
 type UseCreateRecurringSwapProps = {
   manager: TransferManager | undefined;
@@ -40,6 +41,8 @@ type UseCreateRecurringSwapProps = {
   gasMarginBps: number;
   frequency: RecurringFrequency;
   numberOfOrders: number;
+  /** Tags the first-fill signatures with the recurring-swap "schedule" action. */
+  recurringSwapsRef: RecurringSwapsContextRef;
   /** Called once the first-fill transaction is broadcast. */
   onCreated?: () => void;
 };
@@ -55,6 +58,7 @@ export const useCreateRecurringSwap = ({
   gasMarginBps,
   frequency,
   numberOfOrders,
+  recurringSwapsRef,
   onCreated,
 }: UseCreateRecurringSwapProps) => {
   const { t } = useTranslation();
@@ -118,6 +122,12 @@ export const useCreateRecurringSwap = ({
           : {}),
       };
 
+      recurringSwapsRef.current = {
+        action: 'schedule',
+        fromTokenSymbol: sourceAsset.symbol,
+        toTokenSymbol: targetAsset.symbol,
+      };
+
       // The SDK reads the on-chain allowance, signs an approval when needed,
       // then signs and broadcasts the first fill via the injected evmSigner.
       const { txHash } = await manager.recurring.executeFirstFill({
@@ -152,6 +162,7 @@ export const useCreateRecurringSwap = ({
       const { title, hint } = getTranslatedError(err);
       toast.error(title, { description: hint });
     } finally {
+      recurringSwapsRef.current = null;
       setIsCreatingRecurringSwap(false);
     }
   }, [
@@ -165,6 +176,7 @@ export const useCreateRecurringSwap = ({
     gasMarginBps,
     frequency,
     numberOfOrders,
+    recurringSwapsRef,
     getNetworkFee,
     feeSetting,
     captureEncrypted,

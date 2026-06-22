@@ -102,6 +102,8 @@ export type FusionState = QueryState & {
   createRecurringSwap: () => Promise<void>;
   isCreatingRecurringSwap: boolean;
   recurringEligibility: RecurringEligibility;
+  /** Formatted one-time native schedule fee (e.g. "0.3 AVAX") when recurring. */
+  recurringScheduleFee: string | undefined;
   status: SwapStatus;
   quotesStatus: QuoteStreamingStatus;
   minimalQuote: Quote | null;

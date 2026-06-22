@@ -49,6 +49,7 @@ import {
   useSlippageTolerance,
   useCreateRecurringSwap,
   useRecurringEligibility,
+  useRecurringQuote,
 } from './hooks';
 import { getSwapStatus } from './lib/getSwapStatus';
 import { FusionState } from '../types';
@@ -91,7 +92,11 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     selectFeatureFlag(FeatureVars.FUSION_TRANSFER_GAS_MARGIN_BPS),
   );
 
-  const { manager, error: initializationError } = useTransferManager();
+  const {
+    manager,
+    error: initializationError,
+    recurringSwapsRef,
+  } = useTransferManager();
   const supportedChainsMap = useSupportedChainsMap(manager);
   const sourceTokenList = useSwapSourceTokenList(supportedChainsMap);
   const sourceToken = useSwapSourceToken(sourceTokenList, fromId);
@@ -305,6 +310,21 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     amount: sourceAmountBigInt,
   });
 
+  const { scheduleFee: recurringScheduleFee } = useRecurringQuote({
+    manager,
+    sourceAsset,
+    targetAsset,
+    sourceChain,
+    amount: sourceAmountBigInt,
+    slippageBps: autoSlippage ? undefined : slippage * 100,
+    frequency: { unit: frequencyUnit, value: frequencyQuantity },
+    numberOfOrders,
+    enabled:
+      isRecurring &&
+      recurringEligibility.isEligible &&
+      !recurringEligibility.isBelowMinimum,
+  });
+
   const { createRecurringSwap, isCreatingRecurringSwap } =
     useCreateRecurringSwap({
       manager,
@@ -317,6 +337,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       gasMarginBps: transferMarginBps,
       frequency: { unit: frequencyUnit, value: frequencyQuantity },
       numberOfOrders,
+      recurringSwapsRef,
       onCreated: resetForm,
     });
 
@@ -395,6 +416,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         createRecurringSwap,
         isCreatingRecurringSwap,
         recurringEligibility,
+        recurringScheduleFee,
         minimumTransferAmount,
         minimalQuote,
         formError,

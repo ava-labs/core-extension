@@ -13,6 +13,7 @@ import { useIsUsingHardwareWallet } from '@/hooks/useIsUsingHardwareWallet';
 import {
   ActionDetails,
   ActionDrawer,
+  ApprovalContextNote,
   ApprovalScreenTitle,
   HardwareApprovalOverlay,
   MaliciousTxOverlay,
@@ -21,7 +22,12 @@ import {
 } from './components';
 import { TxDataUpdateProvider, useTxDataUpdate } from './contexts';
 import { useApprovalHelpers, useGasless } from './hooks';
-import { hasNoteWarning, hasOverlayWarning } from './lib';
+import {
+  getRecurringSwapsNote,
+  hasNoteWarning,
+  hasOverlayWarning,
+  hasRecurringSwapsContext,
+} from './lib';
 import {
   ActionError,
   CancelActionFn,
@@ -106,6 +112,11 @@ const TransactionApprovalScreenContent: FC<TransactionApprovalScreenProps> = ({
     <Styled.ApprovalScreenPage data-testid="approval-screen">
       <NoScrollStack stackProps={{ sx: { mt: 3 } }}>
         <ApprovalScreenTitle title={action.displayData.title} />
+        {hasRecurringSwapsContext(action.context) && (
+          <ApprovalContextNote
+            {...getRecurringSwapsNote(action.context.recurringSwaps, t)}
+          />
+        )}
         {hasNoteWarning(action) && (
           <NoteWarning alert={action.displayData.alert} />
         )}

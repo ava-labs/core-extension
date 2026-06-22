@@ -97,6 +97,20 @@ type MultiApprovalActionStep = {
   currentSignatureReason: string;
 };
 
+export type RecurringSwapAction = 'schedule' | 'cancel' | 'pause' | 'unpause';
+
+/**
+ * Marks a transaction as part of a recurring-swap flow so approval screens can
+ * recognize it and render dedicated copy/UI for the given `action`.
+ */
+export type RecurringSwapsContext = {
+  action: RecurringSwapAction;
+  /** Source token symbol, used to build the approval copy. */
+  fromTokenSymbol?: string;
+  /** Target token symbol, used to build the approval copy. */
+  toTokenSymbol?: string;
+};
+
 export type JsonRpcRequestContext = {
   tabId?: number;
 
@@ -105,6 +119,12 @@ export type JsonRpcRequestContext = {
    * (which out of how many steps, and why it needs to be done).
    */
   actionStep?: MultiApprovalActionStep;
+
+  /**
+   * Present when the transaction is part of a recurring-swap flow, so approval
+   * screens can detect it and prepare the screen for the specific `action`.
+   */
+  recurringSwaps?: RecurringSwapsContext;
 
   /**
    * When processing avalanche_sendTransaction or avalanche_signTransaction requests,

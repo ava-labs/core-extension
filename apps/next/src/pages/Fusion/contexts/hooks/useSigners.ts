@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, type MutableRefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   BitcoinCaip2ChainId,
@@ -12,11 +12,24 @@ import {
   useSettingsContext,
   useWalletContext,
 } from '@core/ui';
-import { SecretType } from '@core/types';
+import {
+  RecurringSwapsContext,
+  SecretType,
+  UnifiedTransferSigners,
+} from '@core/types';
 
 import { getBtcSigner, getEVMSigner, getSVMSigner } from '../../lib/signers';
 
-export const useSigners = () => {
+export type RecurringSwapsContextRef =
+  MutableRefObject<RecurringSwapsContext | null>;
+
+type UseSignersResult = {
+  signers: UnifiedTransferSigners | null;
+  /** Set before a recurring-swap action so the EVM signer can tag the request. */
+  recurringSwapsRef: RecurringSwapsContextRef;
+};
+
+export const useSigners = (): UseSignersResult => {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
   const { isDeveloperMode } = useNetworkContext();
@@ -24,7 +37,9 @@ export const useSigners = () => {
   const { isFlagEnabled } = useFeatureFlagContext();
   const { walletDetails } = useWalletContext();
 
-  return useMemo(() => {
+  const recurringSwapsRef = useRef<RecurringSwapsContext | null>(null);
+
+  const signers = useMemo(() => {
     if (!walletDetails) {
       return null;
     }
@@ -35,10 +50,17 @@ export const useSigners = () => {
       walletDetails?.type === SecretType.PrivateKey;
 
     return {
-      evm: getEVMSigner(request, t, isFlagEnabled, isAutoSignSupported, {
-        maxBuy,
-        isQuickSwapsEnabled,
-      }),
+      evm: getEVMSigner(
+        request,
+        t,
+        isFlagEnabled,
+        isAutoSignSupported,
+        {
+          maxBuy,
+          isQuickSwapsEnabled,
+        },
+        () => recurringSwapsRef.current ?? undefined,
+      ),
       btc: getBtcSigner(
         request,
         isDeveloperMode
@@ -63,4 +85,6 @@ export const useSigners = () => {
     maxBuy,
     isQuickSwapsEnabled,
   ]);
+
+  return { signers, recurringSwapsRef };
 };

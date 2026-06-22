@@ -8,6 +8,7 @@ import {
 import {
   JsonRpcRequestContext,
   MaxBuyOption,
+  RecurringSwapsContext,
   ValidatorType,
 } from '@core/types';
 import { BASIS_POINTS_DIVISOR } from '@core/common';
@@ -23,6 +24,7 @@ type AppContext = {
 export const buildRequestContext = (
   step: TransferStepDetails,
   appContext?: AppContext,
+  recurringSwaps?: RecurringSwapsContext,
 ): JsonRpcRequestContext => {
   const {
     requiredSignatures,
@@ -48,6 +50,7 @@ export const buildRequestContext = (
       requiredSignatures,
       currentSignatureReason,
     },
+    ...(recurringSwaps ? { recurringSwaps } : {}),
   };
 
   // Calculate minAmountOut
