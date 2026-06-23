@@ -77,8 +77,8 @@ export const RecurringOrderCard = ({
 
   const getPauseLabel = () => {
     if (pendingAction === 'pause') return t('Pausing');
-    if (pendingAction === 'unpause') return t('Unpausing');
-    return isPaused ? t('Unpause') : t('Pause');
+    if (pendingAction === 'unpause') return t('Resuming');
+    return isPaused ? t('Resume') : t('Pause');
   };
 
   const scheduleSummary = t(
