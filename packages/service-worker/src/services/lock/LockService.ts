@@ -2,6 +2,8 @@ import {
   AlarmsEvents,
   LockEvents,
   LockStateChangedEventPayload,
+  SETTINGS_STORAGE_KEY,
+  SettingsState,
 } from '@core/types';
 import EventEmitter from 'events';
 import { singleton } from 'tsyringe';
@@ -9,12 +11,12 @@ import { CallbackManager } from '../../runtime/CallbackManager';
 import { OnAllExtensionClosed } from '../../runtime/lifecycleCallbacks';
 import { StorageService } from '../storage/StorageService';
 
+const DEFAULT_AUTO_LOCK_IN_MINUTES = 20;
+
 @singleton()
 export class LockService implements OnAllExtensionClosed {
   private eventEmitter = new EventEmitter();
   #locked = true;
-
-  #autoLockInMinutes = 30;
 
   public get locked(): boolean {
     return this.#locked;
@@ -37,11 +39,24 @@ export class LockService implements OnAllExtensionClosed {
     });
   }
 
-  onAllExtensionsClosed(): void | Promise<void> {
+  async onAllExtensionsClosed(): Promise<void> {
     if (!this.#locked) {
       chrome.alarms.create(AlarmsEvents.AUTO_LOCK, {
-        periodInMinutes: this.#autoLockInMinutes,
+        delayInMinutes: await this.#getAutoLockInMinutes(),
       });
+    }
+  }
+
+  // Read the auto-lock timeout straight from encrypted storage rather than
+  // depending on SettingsService, which would introduce a circular dependency:
+  // LockService -> SettingsService -> FeatureFlagService -> LockService.
+  async #getAutoLockInMinutes(): Promise<number> {
+    try {
+      const settings =
+        await this.storageService.load<SettingsState>(SETTINGS_STORAGE_KEY);
+      return settings?.autoLockTimer ?? DEFAULT_AUTO_LOCK_IN_MINUTES;
+    } catch {
+      return DEFAULT_AUTO_LOCK_IN_MINUTES;
     }
   }
 
