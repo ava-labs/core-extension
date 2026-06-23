@@ -26,7 +26,7 @@ export const getRecurringSwapsNote = (
       return {
         title: t('Pausing recurring swap'),
         description: t(
-          'Pauses the recurring {{from}} → {{to}} schedule. Existing allowance is preserved — you can unpause later without re-approving. The schedule may still execute one more fill until this transaction confirms on-chain.',
+          'Pauses the recurring {{from}} → {{to}} schedule. Existing allowance is preserved. The schedule may still execute one more fill until this transaction confirms on-chain.',
           { from, to },
         ),
       };

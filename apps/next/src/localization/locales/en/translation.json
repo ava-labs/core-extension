@@ -609,7 +609,7 @@
   "Path": "Path",
   "Pause": "Pause",
   "Paused": "Paused",
-  "Pauses the recurring {{from}} → {{to}} schedule. Existing allowance is preserved — you can unpause later without re-approving. The schedule may still execute one more fill until this transaction confirms on-chain.": "Pauses the recurring {{from}} → {{to}} schedule. Existing allowance is preserved — you can unpause later without re-approving. The schedule may still execute one more fill until this transaction confirms on-chain.",
+  "Pauses the recurring {{from}} → {{to}} schedule. Existing allowance is preserved. The schedule may still execute one more fill until this transaction confirms on-chain.": "Pauses the recurring {{from}} → {{to}} schedule. Existing allowance is preserved. The schedule may still execute one more fill until this transaction confirms on-chain.",
   "Pausing": "Pausing",
   "Pausing recurring swap": "Pausing recurring swap",
   "Pending...": "Pending...",
