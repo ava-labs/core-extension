@@ -92,11 +92,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     selectFeatureFlag(FeatureVars.FUSION_TRANSFER_GAS_MARGIN_BPS),
   );
 
-  const {
-    manager,
-    error: initializationError,
-    recurringSwapsRef,
-  } = useTransferManager();
+  const { manager, error: initializationError } = useTransferManager();
   const supportedChainsMap = useSupportedChainsMap(manager);
   const sourceTokenList = useSwapSourceTokenList(supportedChainsMap);
   const sourceToken = useSwapSourceToken(sourceTokenList, fromId);
@@ -337,7 +333,6 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       gasMarginBps: transferMarginBps,
       frequency: { unit: frequencyUnit, value: frequencyQuantity },
       numberOfOrders,
-      recurringSwapsRef,
       onCreated: resetForm,
     });
 

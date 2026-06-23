@@ -8,7 +8,6 @@ import {
 
 import {
   FeatureGates,
-  RecurringSwapsContext,
   RequestHandlerType,
   SettingsState,
   UnifiedBridgeError,
@@ -40,10 +39,6 @@ export function getEVMSigner(
     maxBuy,
     isQuickSwapsEnabled,
   }: Pick<SettingsState, 'maxBuy' | 'isQuickSwapsEnabled'>,
-  // Lets the caller tag the next signature(s) with the recurring-swap action in
-  // flight (e.g. pausing); read at sign time so a single shared signer can mark
-  // whichever order action is currently being signed.
-  getRecurringSwapsContext?: () => RecurringSwapsContext | undefined,
 ): EvmSignerWithMessage {
   const signBatch: EvmSignerWithMessage['signBatch'] = async (
     transactions,
@@ -64,18 +59,14 @@ export function getEVMSigner(
         },
         {
           scope: chainIdToCaip(Number(batchChainId)),
-          context: buildRequestContext(
-            stepDetails,
-            {
-              maxBuy,
-              isBatch: true,
-              isSwapFeesEnabled: isFlagEnabled(FeatureGates.SWAP_FEES),
-              isQuickSwapsEnabled:
-                isQuickSwapsEnabled && isFlagEnabled(FeatureGates.QUICK_SWAPS),
-              isAutoSignSupported,
-            },
-            getRecurringSwapsContext?.(),
-          ),
+          context: buildRequestContext(stepDetails, {
+            maxBuy,
+            isBatch: true,
+            isSwapFeesEnabled: isFlagEnabled(FeatureGates.SWAP_FEES),
+            isQuickSwapsEnabled:
+              isQuickSwapsEnabled && isFlagEnabled(FeatureGates.QUICK_SWAPS),
+            isAutoSignSupported,
+          }),
         },
       );
 
@@ -113,18 +104,14 @@ export function getEVMSigner(
         },
         {
           scope: chainIdToCaip(Number(chainId)),
-          context: buildRequestContext(
-            stepDetails,
-            {
-              maxBuy,
-              isBatch: false,
-              isSwapFeesEnabled: isFlagEnabled(FeatureGates.SWAP_FEES),
-              isQuickSwapsEnabled:
-                isQuickSwapsEnabled && isFlagEnabled(FeatureGates.QUICK_SWAPS),
-              isAutoSignSupported,
-            },
-            getRecurringSwapsContext?.(),
-          ),
+          context: buildRequestContext(stepDetails, {
+            maxBuy,
+            isBatch: false,
+            isSwapFeesEnabled: isFlagEnabled(FeatureGates.SWAP_FEES),
+            isQuickSwapsEnabled:
+              isQuickSwapsEnabled && isFlagEnabled(FeatureGates.QUICK_SWAPS),
+            isAutoSignSupported,
+          }),
         },
       );
 

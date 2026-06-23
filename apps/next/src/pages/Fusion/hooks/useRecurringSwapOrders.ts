@@ -24,6 +24,7 @@ import { useAllTokens } from '@/hooks/useAllTokens';
 
 import { useTransferManager } from '../contexts/hooks/useTransferManager';
 import { buildChain } from '../contexts/hooks/useAssetAndChain/lib/buildChain';
+import type { RecurringSignerContext } from '../lib/signers';
 
 import type { FrequencyUnit } from '../contexts/RecurringSwapContext';
 import { useIsRecurringSwapsEnabled } from './useIsRecurringSwapsEnabled';
@@ -101,7 +102,7 @@ const toOrderToken = (
 
 export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
   const isRecurringSwapsEnabled = useIsRecurringSwapsEnabled();
-  const { manager, recurringSwapsRef } = useTransferManager();
+  const { manager } = useTransferManager();
   const {
     accounts: { active },
   } = useAccountsContext();
@@ -250,15 +251,16 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
 
       const order = ordersRef.current.find((entry) => entry.id === id);
 
-      recurringSwapsRef.current = {
-        action,
-        fromTokenSymbol: order?.sourceToken.symbol,
-        toTokenSymbol: order?.targetToken.symbol,
-      };
       setPendingActionById((current) => new Map(current).set(id, action));
 
       const orderId = id as `0x${string}`;
-      const params = { orderId, address, sourceChain };
+      // Rides with the request onto `step.signerContext` so the approval screen
+      // can render token symbols (the SDK's synthetic quote ships empty ones).
+      const signerContext: RecurringSignerContext = {
+        fromTokenSymbol: order?.sourceToken.symbol,
+        toTokenSymbol: order?.targetToken.symbol,
+      };
+      const params = { orderId, address, sourceChain, signerContext };
 
       try {
         if (action === 'pause') {
@@ -291,7 +293,6 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
         const { title, hint } = getTranslatedError(err);
         toast.error(title, { description: hint });
       } finally {
-        recurringSwapsRef.current = null;
         setPendingActionById((current) => {
           const next = new Map(current);
           next.delete(id);
@@ -299,14 +300,7 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
         });
       }
     },
-    [
-      manager,
-      address,
-      sourceChain,
-      recurringSwapsRef,
-      refetch,
-      getTranslatedError,
-    ],
+    [manager, address, sourceChain, refetch, getTranslatedError],
   );
 
   const pauseOrder = useCallback(

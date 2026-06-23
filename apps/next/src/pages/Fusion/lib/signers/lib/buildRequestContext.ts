@@ -8,10 +8,11 @@ import {
 import {
   JsonRpcRequestContext,
   MaxBuyOption,
-  RecurringSwapsContext,
   ValidatorType,
 } from '@core/types';
 import { BASIS_POINTS_DIVISOR } from '@core/common';
+
+import { getRecurringSwapsContext } from './recurringSignerContext';
 
 type AppContext = {
   isBatch: boolean;
@@ -24,7 +25,6 @@ type AppContext = {
 export const buildRequestContext = (
   step: TransferStepDetails,
   appContext?: AppContext,
-  recurringSwaps?: RecurringSwapsContext,
 ): JsonRpcRequestContext => {
   const {
     requiredSignatures,
@@ -42,6 +42,8 @@ export const buildRequestContext = (
   const isCrossChainSwap =
     quote.sourceChain.chainId !== quote.targetChain.chainId;
   const isIntermediateTransaction = currentSignature < requiredSignatures;
+
+  const recurringSwaps = getRecurringSwapsContext(step);
 
   const baseContext: JsonRpcRequestContext = {
     surpressSuccessToast: isCrossChainSwap || isIntermediateTransaction,

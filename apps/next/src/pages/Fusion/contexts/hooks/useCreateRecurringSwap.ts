@@ -26,7 +26,7 @@ import {
 import { getRecurringSwapsPath } from '@/config/routes';
 
 import { getRecurringTokenAddress } from '../../lib/getRecurringTokenAddress';
-import type { RecurringSwapsContextRef } from './useSigners';
+import type { RecurringSignerContext } from '../../lib/signers';
 
 type UseCreateRecurringSwapProps = {
   manager: TransferManager | undefined;
@@ -41,8 +41,6 @@ type UseCreateRecurringSwapProps = {
   gasMarginBps: number;
   frequency: RecurringFrequency;
   numberOfOrders: number;
-  /** Tags the first-fill signatures with the recurring-swap "schedule" action. */
-  recurringSwapsRef: RecurringSwapsContextRef;
   /** Called once the first-fill transaction is broadcast. */
   onCreated?: () => void;
 };
@@ -58,7 +56,6 @@ export const useCreateRecurringSwap = ({
   gasMarginBps,
   frequency,
   numberOfOrders,
-  recurringSwapsRef,
   onCreated,
 }: UseCreateRecurringSwapProps) => {
   const { t } = useTranslation();
@@ -122,8 +119,9 @@ export const useCreateRecurringSwap = ({
           : {}),
       };
 
-      recurringSwapsRef.current = {
-        action: 'schedule',
+      // Rides with the request onto `step.signerContext` so the approval screen
+      // can render token symbols (the SDK's synthetic quote ships empty ones).
+      const signerContext: RecurringSignerContext = {
         fromTokenSymbol: sourceAsset.symbol,
         toTokenSymbol: targetAsset.symbol,
       };
@@ -136,6 +134,7 @@ export const useCreateRecurringSwap = ({
         sourceChain,
         gasSettings,
         fallbackToDefaultOnBatchFailure: true,
+        signerContext,
       });
 
       captureEncrypted('RecurringSwapConfirmed', {
@@ -162,7 +161,6 @@ export const useCreateRecurringSwap = ({
       const { title, hint } = getTranslatedError(err);
       toast.error(title, { description: hint });
     } finally {
-      recurringSwapsRef.current = null;
       setIsCreatingRecurringSwap(false);
     }
   }, [
@@ -176,7 +174,6 @@ export const useCreateRecurringSwap = ({
     gasMarginBps,
     frequency,
     numberOfOrders,
-    recurringSwapsRef,
     getNetworkFee,
     feeSetting,
     captureEncrypted,

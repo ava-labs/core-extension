@@ -1,4 +1,4 @@
-import { useMemo, useRef, type MutableRefObject } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   BitcoinCaip2ChainId,
@@ -12,24 +12,11 @@ import {
   useSettingsContext,
   useWalletContext,
 } from '@core/ui';
-import {
-  RecurringSwapsContext,
-  SecretType,
-  UnifiedTransferSigners,
-} from '@core/types';
+import { SecretType } from '@core/types';
 
 import { getBtcSigner, getEVMSigner, getSVMSigner } from '../../lib/signers';
 
-export type RecurringSwapsContextRef =
-  MutableRefObject<RecurringSwapsContext | null>;
-
-type UseSignersResult = {
-  signers: UnifiedTransferSigners | null;
-  /** Set before a recurring-swap action so the EVM signer can tag the request. */
-  recurringSwapsRef: RecurringSwapsContextRef;
-};
-
-export const useSigners = (): UseSignersResult => {
+export const useSigners = () => {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
   const { isDeveloperMode } = useNetworkContext();
@@ -37,9 +24,7 @@ export const useSigners = (): UseSignersResult => {
   const { isFlagEnabled } = useFeatureFlagContext();
   const { walletDetails } = useWalletContext();
 
-  const recurringSwapsRef = useRef<RecurringSwapsContext | null>(null);
-
-  const signers = useMemo(() => {
+  return useMemo(() => {
     if (!walletDetails) {
       return null;
     }
@@ -50,17 +35,10 @@ export const useSigners = (): UseSignersResult => {
       walletDetails?.type === SecretType.PrivateKey;
 
     return {
-      evm: getEVMSigner(
-        request,
-        t,
-        isFlagEnabled,
-        isAutoSignSupported,
-        {
-          maxBuy,
-          isQuickSwapsEnabled,
-        },
-        () => recurringSwapsRef.current ?? undefined,
-      ),
+      evm: getEVMSigner(request, t, isFlagEnabled, isAutoSignSupported, {
+        maxBuy,
+        isQuickSwapsEnabled,
+      }),
       btc: getBtcSigner(
         request,
         isDeveloperMode
@@ -85,6 +63,4 @@ export const useSigners = (): UseSignersResult => {
     maxBuy,
     isQuickSwapsEnabled,
   ]);
-
-  return { signers, recurringSwapsRef };
 };

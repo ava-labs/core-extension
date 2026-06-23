@@ -13,7 +13,7 @@ export const useTransferManager = () => {
   const [manager, setManager] = useState<TransferManager>();
   const [error, setError] = useState(false);
 
-  const { signers, recurringSwapsRef } = useSigners();
+  const signers = useSigners();
   const environment = useTransferEnvironment();
   const enabledServices = getEnabledTransferServices(featureFlags);
   const serviceInitializers = useTransferServiceInitializers(
@@ -56,6 +56,5 @@ export const useTransferManager = () => {
   return {
     manager,
     error,
-    recurringSwapsRef,
   };
 };
