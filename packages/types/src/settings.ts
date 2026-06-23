@@ -67,6 +67,9 @@ export type ViewMode = 'floating' | 'sidebar';
 export type FeeSetting = 'low' | 'medium' | 'high';
 export type MaxBuyOption = '1000' | '5000' | '10000' | '50000' | 'unlimited';
 
+/** Wallet auto-lock timeout, in minutes of inactivity. */
+export type AutoLockTimer = 5 | 10 | 15 | 20 | 30;
+
 export interface SettingsState {
   currency: string;
   customTokens: CustomTokens;
@@ -85,6 +88,7 @@ export interface SettingsState {
   privacyMode: boolean;
   filterSmallUtxos: boolean;
   isBridgeDevEnv: boolean;
+  autoLockTimer: AutoLockTimer;
 }
 
 export const SETTINGS_STORAGE_KEY = 'settings';

@@ -45,6 +45,7 @@ describe('src/services/lock/LockService.ts', () => {
       changePassword: jest.fn().mockResolvedValue(undefined),
       verifyPassword: jest.fn().mockResolvedValue(true),
       clearSessionStorage: jest.fn(),
+      load: jest.fn().mockResolvedValue({ autoLockTimer: 20 }),
     } as unknown as jest.Mocked<StorageService>;
 
     lockService = new LockService(callbackManager, storageService);
@@ -117,19 +118,32 @@ describe('src/services/lock/LockService.ts', () => {
   });
 
   describe('onAllExtensionsClosed', () => {
-    it('creates auto-lock alarm when wallet is unlocked', async () => {
+    it('creates auto-lock alarm using the configured timeout when wallet is unlocked', async () => {
+      storageService.load.mockResolvedValue({ autoLockTimer: 15 } as any);
       await lockService.unlock('password');
 
-      lockService.onAllExtensionsClosed();
+      await lockService.onAllExtensionsClosed();
 
       expect(mockChromeAlarms.create).toHaveBeenCalledWith(
         AlarmsEvents.AUTO_LOCK,
-        { periodInMinutes: 30 },
+        { delayInMinutes: 15 },
       );
     });
 
-    it('does not create alarm when wallet is locked', () => {
-      lockService.onAllExtensionsClosed();
+    it('falls back to the default timeout when settings cannot be read', async () => {
+      storageService.load.mockRejectedValue(new Error('locked'));
+      await lockService.unlock('password');
+
+      await lockService.onAllExtensionsClosed();
+
+      expect(mockChromeAlarms.create).toHaveBeenCalledWith(
+        AlarmsEvents.AUTO_LOCK,
+        { delayInMinutes: 20 },
+      );
+    });
+
+    it('does not create alarm when wallet is locked', async () => {
+      await lockService.onAllExtensionsClosed();
 
       expect(mockChromeAlarms.create).not.toHaveBeenCalled();
     });

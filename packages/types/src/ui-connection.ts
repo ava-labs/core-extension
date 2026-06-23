@@ -94,6 +94,7 @@ export enum ExtensionRequest {
   SETTINGS_SET_PRIVACY_MODE = 'settings_set_privacy_mode',
   SETTINGS_SET_FILTER_SMALL_UTXOS = 'settings_set_filter_small_utxos',
   SETTINGS_SET_BRIDGE_DEV_ENV = 'settings_set_bridge_dev_env',
+  SETTINGS_SET_AUTO_LOCK_TIMER = 'settings_set_auto_lock_timer',
 
   CONTACTS_GET = 'contacts_get',
   CONTACTS_CREATE = 'contacts_create',

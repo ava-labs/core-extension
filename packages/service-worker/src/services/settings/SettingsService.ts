@@ -1,6 +1,7 @@
 import { NetworkContractToken } from '@avalabs/core-chains-sdk';
 import {
   AnalyticsConsent,
+  AutoLockTimer,
   CollectiblesVisibility,
   ColorTheme,
   CURRENCIES,
@@ -44,6 +45,7 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   privacyMode: false,
   filterSmallUtxos: true,
   isBridgeDevEnv: false,
+  autoLockTimer: 20,
 };
 
 @singleton()
@@ -361,6 +363,14 @@ export class SettingsService implements OnStorageReady, OnLock {
     await this.saveSettings({
       ...settings,
       isBridgeDevEnv: enabled,
+    });
+  }
+
+  async setAutoLockTimer(autoLockTimer: AutoLockTimer) {
+    const settings = await this.getSettings();
+    await this.saveSettings({
+      ...settings,
+      autoLockTimer,
     });
   }
 

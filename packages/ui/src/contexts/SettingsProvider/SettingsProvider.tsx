@@ -14,6 +14,7 @@ import type {
   SetFilterSmallUtxosHandler,
   SetLanguageHandler,
   SetMaxBuyHandler,
+  SetAutoLockTimerHandler,
   SetPreferredViewHandler,
   SetPrivacyModeHandler,
   SetShowHighlightBannersHandler,
@@ -25,6 +26,7 @@ import type {
   SetBridgeDevEnvHandler,
 } from '@core/service-worker';
 import {
+  AutoLockTimer,
   ColorTheme,
   ExtensionRequest,
   FeeSetting,
@@ -88,6 +90,7 @@ type SettingsFromProvider = SettingsState & {
   setQuickSwapsEnabled: (enabled: boolean) => Promise<boolean>;
   setFeeSetting: (feeSetting: FeeSetting) => Promise<boolean>;
   setMaxBuy: (maxBuy: MaxBuyOption) => Promise<boolean>;
+  setAutoLockTimer: (autoLockTimer: AutoLockTimer) => Promise<boolean>;
   setPrivacyMode: (enabled: boolean) => Promise<boolean>;
   setFilterSmallUtxos: (filter: boolean) => Promise<boolean>;
   setBridgeDevEnv: (enabled: boolean) => Promise<boolean>;
@@ -313,6 +316,16 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
     [request],
   );
 
+  const setAutoLockTimer = useCallback(
+    (autoLockTimer: AutoLockTimer) => {
+      return request<SetAutoLockTimerHandler>({
+        method: ExtensionRequest.SETTINGS_SET_AUTO_LOCK_TIMER,
+        params: [autoLockTimer],
+      });
+    },
+    [request],
+  );
+
   const setPrivacyMode = useCallback(
     (enabled: boolean) => {
       return request<SetPrivacyModeHandler>({
@@ -369,6 +382,7 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
           setQuickSwapsEnabled,
           setFeeSetting,
           setMaxBuy,
+          setAutoLockTimer,
           setPrivacyMode,
           setFilterSmallUtxos,
           setBridgeDevEnv,

@@ -88,6 +88,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     privacyMode: false,
     filterSmallUtxos: true,
     isBridgeDevEnv: false,
+    autoLockTimer: 20,
   };
   const storedUnencryptedSettings: SettingsState = {
     currency: 'USD',
@@ -107,6 +108,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     privacyMode: false,
     filterSmallUtxos: true,
     isBridgeDevEnv: false,
+    autoLockTimer: 20,
   };
 
   const customToken: NetworkContractToken = {

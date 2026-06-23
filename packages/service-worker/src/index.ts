@@ -119,6 +119,7 @@ export type { SetShowHighlightBannersHandler } from './services/settings/handler
 export type { SetQuickSwapsEnabledHandler } from './services/settings/handlers/setQuickSwapsEnabled';
 export type { SetFeeSettingHandler } from './services/settings/handlers/setFeeSetting';
 export type { SetMaxBuyHandler } from './services/settings/handlers/setMaxBuy';
+export type { SetAutoLockTimerHandler } from './services/settings/handlers/setAutoLockTimer';
 export type { UpdateCollectiblesVisibilityHandler } from './services/settings/handlers/updateCollectiblesVisibility';
 export type { UpdateCurrencyHandler } from './services/settings/handlers/updateCurrencySelection';
 export type { UpdateShowNoBalanceHandler } from './services/settings/handlers/updateShowTokensNoBalance';
