@@ -645,7 +645,11 @@ export class WalletService implements OnUnlock {
     batch: TransactionRequest[],
     network: Network,
     tabId?: number,
+    expectedSignerAddress?: string,
   ) {
+    if (expectedSignerAddress) {
+      await this.#assertSignerIsActiveAccount(expectedSignerAddress);
+    }
     const wallet = await this.getWallet({ network, tabId });
 
     if (!wallet) {
@@ -696,7 +700,15 @@ export class WalletService implements OnUnlock {
     network: Network,
     tabId?: number,
     originalRequestMethod?: string,
+    expectedSignerAddress?: string,
   ): Promise<SigningResult> {
+    const signerAddress =
+      expectedSignerAddress ?? (isSolanaRequest(tx) ? tx.account : undefined);
+
+    if (signerAddress) {
+      await this.#assertSignerIsActiveAccount(signerAddress);
+    }
+
     const getWalletParams: GetWalletParams = isMultiSigAvalancheTxRequest(tx)
       ? {
           network,
@@ -941,6 +953,25 @@ export class WalletService implements OnUnlock {
     return this.#normalizeSigningResult(await wallet.signTransaction(tx));
   }
 
+  // Throws if the active account's address doesn't match the address that was
+  // shown in the approval UI, preventing signing mismatches when the user
+  // switches accounts while an approval window is open.
+  async #assertSignerIsActiveAccount(expectedAddress: string): Promise<void> {
+    const activeAccount = await this.accountsService.getActiveAccount();
+    const lower = expectedAddress.toLowerCase();
+    const matches =
+      activeAccount &&
+      (activeAccount.addressC?.toLowerCase() === lower ||
+        activeAccount.addressBTC?.toLowerCase() === lower ||
+        activeAccount.addressSVM?.toLowerCase() === lower);
+
+    if (!matches) {
+      throw new Error(
+        'The account shown for this request is no longer the active account. Please re-initiate the request.',
+      );
+    }
+  }
+
   /**
    * Wallet implementations may return either a string or a SigningResult object.
    * If the wallet returns a string, we treat it as signed TX.
@@ -1068,6 +1099,12 @@ export class WalletService implements OnUnlock {
       await this.accountsService.getAccountFromActiveWalletByAddress(
         data.account,
       );
+
+    if (!account) {
+      throw new Error(
+        'The account shown for this request is not part of the active wallet. Please re-initiate the request.',
+      );
+    }
 
     const wallet = await this.getWallet({
       accountIndex: isPrimaryAccount(account) ? account.index : undefined,

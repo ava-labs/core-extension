@@ -505,10 +505,14 @@ export class ApprovalController implements BatchApprovalController {
       ({ signingData }) => signingData.data,
     );
 
+    const expectedSignerAddress =
+      action.signingRequests[0]?.signingData.account;
+
     return this.#walletService.signTransactionBatch(
       batch,
       network,
       action.tabId,
+      expectedSignerAddress,
     );
   };
 
@@ -523,6 +527,12 @@ export class ApprovalController implements BatchApprovalController {
       throw new Error('No signing data provided');
     }
 
+    // The `account` field on signing data is the address that was displayed
+    // in the approval UI. We pass it to the wallet service so it can verify
+    // the active account hasn't changed since the user approved the request.
+    const expectedSignerAddress =
+      'account' in signingData ? signingData.account : undefined;
+
     switch (signingData.type) {
       case RpcMethod.BITCOIN_SEND_TRANSACTION:
       case RpcMethod.BITCOIN_SIGN_TRANSACTION:
@@ -532,10 +542,15 @@ export class ApprovalController implements BatchApprovalController {
           signingData.data,
           network,
           action.tabId,
+          undefined,
+          expectedSignerAddress,
         );
 
       case RpcMethod.AVALANCHE_SIGN_TRANSACTION:
       case RpcMethod.AVALANCHE_SEND_TRANSACTION:
+        // Avalanche signing requests embed addresses inside the transaction's
+        // UTXO structure rather than carrying a top-level account field.
+        // Validation is deferred to the UTXO ownership check done by the signer.
         return await this.#walletService.sign(
           signingData,
           network,
@@ -554,9 +569,12 @@ export class ApprovalController implements BatchApprovalController {
           network,
           action.tabId,
         );
+
       case RpcMethod.SOLANA_SIGN_TRANSACTION:
       case RpcMethod.SOLANA_SIGN_AND_SEND_TRANSACTION:
       case RpcMethod.SOLANA_SIGN_MESSAGE:
+        // Solana signing data carries the account address directly; sign()
+        // extracts it from tx.account and validates it internally.
         return await this.#walletService.sign(
           signingData,
           network,
