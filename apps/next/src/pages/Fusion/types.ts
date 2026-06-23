@@ -2,6 +2,7 @@ import {
   BtcSigner,
   EvmSignerWithMessage,
   Quote,
+  RecurringQuoteFee,
   TransferManager,
 } from '@avalabs/fusion-sdk';
 
@@ -102,8 +103,8 @@ export type FusionState = QueryState & {
   createRecurringSwap: () => Promise<void>;
   isCreatingRecurringSwap: boolean;
   recurringEligibility: RecurringEligibility;
-  /** Formatted one-time native schedule fee (e.g. "0.3 AVAX") when recurring. */
-  recurringScheduleFee: string | undefined;
+  /** One-time native schedule fee from the recurring quote, when recurring. */
+  recurringScheduleFee: RecurringQuoteFee | undefined;
   status: SwapStatus;
   quotesStatus: QuoteStreamingStatus;
   minimalQuote: Quote | null;

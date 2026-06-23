@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { bigIntToString } from '@avalabs/core-utils-sdk';
 import {
   type Asset,
   type Chain,
@@ -8,7 +7,6 @@ import {
   type TransferManager,
 } from '@avalabs/fusion-sdk';
 
-import { useNetworkContext } from '@core/ui';
 import { caipToChainId } from '@core/common';
 
 import { MIN_NUMBER_OF_ORDERS } from '../RecurringSwapContext';
@@ -43,8 +41,6 @@ export const useRecurringQuote = ({
   numberOfOrders,
   enabled,
 }: UseRecurringQuoteProps) => {
-  const { getNetwork } = useNetworkContext();
-
   const tokenIn = sourceAsset
     ? getRecurringTokenAddress(sourceAsset)
     : undefined;
@@ -102,19 +98,10 @@ export const useRecurringQuote = ({
     staleTime: 30_000,
   });
 
-  const scheduleFee = useMemo(() => {
-    const fee = recurringQuote?.fees.find((f) => f.type === SCHEDULE_FEE_TYPE);
-    if (!fee) {
-      return undefined;
-    }
-
-    const network = getNetwork(fee.token.chainId);
-    const decimals = network?.networkToken.decimals ?? 18;
-    const symbol = network?.networkToken.symbol ?? '';
-    const amountLabel = bigIntToString(fee.amount, decimals);
-
-    return symbol ? `${amountLabel} ${symbol}` : amountLabel;
-  }, [recurringQuote, getNetwork]);
+  const scheduleFee = useMemo(
+    () => recurringQuote?.fees.find((f) => f.type === SCHEDULE_FEE_TYPE),
+    [recurringQuote],
+  );
 
   return { recurringQuote, scheduleFee };
 };

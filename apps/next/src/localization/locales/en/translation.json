@@ -697,8 +697,6 @@
   "Put your crypto to work.": "Put your crypto to work.",
   "Quick swaps": "Quick swaps",
   "Quote includes a {{coreFee}} Core fee": "Quote includes a {{coreFee}} Core fee",
-  "Quote includes a {{coreFee}} Core fee and a {{scheduleFee}} schedule fee": "Quote includes a {{coreFee}} Core fee and a {{scheduleFee}} schedule fee",
-  "Quote includes a {{scheduleFee}} schedule fee": "Quote includes a {{scheduleFee}} schedule fee",
   "RPC URL": "RPC URL",
   "RPC URL reset successfully": "RPC URL reset successfully",
   "Rate": "Rate",
