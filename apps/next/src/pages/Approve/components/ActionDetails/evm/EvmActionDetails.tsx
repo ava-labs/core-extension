@@ -52,7 +52,9 @@ export const EvmActionDetails = ({
         outs={action.displayData.balanceChange?.outs ?? []}
         isSimulationSuccessful={action.displayData.isSimulationSuccessful}
       />
-      {hasTokenApprovals(action) && <EvmTokenApprovals action={action} />}
+      {hasTokenApprovals(action) && (
+        <EvmTokenApprovals action={action} network={network} />
+      )}
       {action.displayData.details.map((section) => (
         <DetailsSection key={section.title}>
           {section.items.map((item, index) => (
