@@ -28,18 +28,19 @@ import type { RecurringSignerContext } from '../lib/signers';
 
 import type { FrequencyUnit } from '../contexts/RecurringSwapContext';
 import { useIsRecurringSwapsEnabled } from './useIsRecurringSwapsEnabled';
+import {
+  mapStatus,
+  useOptimisticOrderStatuses,
+  type RecurringSwapOrderStatus,
+} from './useOptimisticOrderStatuses';
+
+export type { RecurringSwapOrderStatus };
 
 export type RecurringSwapOrderToken = {
   symbol: string;
   coreChainId: number;
   logoUri?: string;
 };
-
-export type RecurringSwapOrderStatus =
-  | 'active'
-  | 'paused'
-  | 'completed'
-  | 'cancelled';
 
 export type RecurringSwapOrderAction = 'pause' | 'unpause' | 'cancel';
 
@@ -68,20 +69,6 @@ type UseRecurringSwapOrdersResult = {
   pauseOrder: (id: string) => void;
   unpauseOrder: (id: string) => void;
   cancelOrder: (id: string) => void;
-};
-
-const mapStatus = (status: RecurringOrderStatus): RecurringSwapOrderStatus => {
-  switch (status) {
-    case RecurringOrderStatus.Completed:
-      return 'completed';
-    case RecurringOrderStatus.Cancelled:
-      return 'cancelled';
-    case RecurringOrderStatus.Paused:
-      return 'paused';
-    case RecurringOrderStatus.Active:
-    default:
-      return 'active';
-  }
 };
 
 const toOrderToken = (
@@ -176,12 +163,12 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
   const [hiddenOrderIds, setHiddenOrderIds] = useState<Set<string>>(
     () => new Set(),
   );
-  const [optimisticStatusById, setOptimisticStatusById] = useState<
-    Map<string, RecurringSwapOrderStatus>
-  >(() => new Map());
   const [pendingActionById, setPendingActionById] = useState<
     Map<string, RecurringSwapOrderAction>
   >(() => new Map());
+
+  const { optimisticStatusById, setOptimisticStatus } =
+    useOptimisticOrderStatuses(fetchedOrders);
 
   const orders = useMemo<RecurringSwapOrder[]>(
     () =>
@@ -265,14 +252,10 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
       try {
         if (action === 'pause') {
           await manager.recurring.executePause(params);
-          setOptimisticStatusById((current) =>
-            new Map(current).set(id, 'paused'),
-          );
+          setOptimisticStatus(id, 'paused');
         } else if (action === 'unpause') {
           await manager.recurring.executeUnpause(params);
-          setOptimisticStatusById((current) =>
-            new Map(current).set(id, 'active'),
-          );
+          setOptimisticStatus(id, 'active');
         } else {
           await manager.recurring.executeCancellation(params);
           setHiddenOrderIds((current) => new Set(current).add(id));
@@ -300,7 +283,14 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
         });
       }
     },
-    [manager, address, sourceChain, refetch, getTranslatedError],
+    [
+      manager,
+      address,
+      sourceChain,
+      refetch,
+      getTranslatedError,
+      setOptimisticStatus,
+    ],
   );
 
   const pauseOrder = useCallback(
