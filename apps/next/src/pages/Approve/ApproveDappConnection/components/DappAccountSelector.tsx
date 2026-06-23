@@ -77,7 +77,7 @@ export const DappAccountSelector: FC<DappAccountSelectorProps> = ({
         <SizedAvatar size={60} src={action.displayData.dappIcon} />
         <Typography variant="body3" mx={5} textAlign="center">
           <Trans
-            i18nKey="Do you want to allow <b>{{dappUrl}}</b> to access your wallet?"
+            i18nKey="<b>{{dappUrl}}</b> wants to connect. This will allow the site to view your wallet address and balance, and request approval for transactions and message signatures."
             components={{
               b: <b />,
             }}
