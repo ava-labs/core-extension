@@ -1,5 +1,5 @@
 import { Maybe } from '@avalabs/core-utils-sdk';
-import { RpcResponse } from '@avalabs/vm-module-types';
+import { AgentIdentity, RpcResponse } from '@avalabs/vm-module-types';
 import type { CurrentAvalancheAccount } from '@avalabs/avalanche-module';
 import { EthereumProviderError } from 'eth-rpc-errors';
 import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
@@ -111,6 +111,8 @@ export type JsonRpcRequestContext = {
    * this should be populated for the Avalanche Module to properly parse the transaction.
    */
   account?: CurrentAvalancheAccount;
+
+  agentIdentity?: AgentIdentity;
 
   /**
    * Whether to suppress the success toast.
