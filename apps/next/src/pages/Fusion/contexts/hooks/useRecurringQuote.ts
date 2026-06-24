@@ -52,15 +52,7 @@ export const useRecurringQuote = ({
     : undefined;
 
   const canQuote =
-    enabled &&
-    Boolean(manager) &&
-    Boolean(sourceAsset) &&
-    Boolean(targetAsset) &&
-    Boolean(tokenIn) &&
-    Boolean(tokenOut) &&
-    chainId !== undefined &&
-    amount > 0n &&
-    numberOfOrders >= MIN_NUMBER_OF_ORDERS;
+    enabled && amount > 0n && numberOfOrders >= MIN_NUMBER_OF_ORDERS;
 
   const { data: recurringQuote } = useQuery({
     queryKey: [

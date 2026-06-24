@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { RecurringOrderStatus, type RecurringOrder } from '@avalabs/fusion-sdk';
 
 export type RecurringSwapOrderStatus =
@@ -23,6 +23,56 @@ export const mapStatus = (
   }
 };
 
+// Module-level store, shared across every `useRecurringSwapOrders` instance
+// (orders page, swap-screen count, activity tab).
+let optimisticStatusById = new Map<string, RecurringSwapOrderStatus>();
+const listeners = new Set<() => void>();
+
+const emit = () => {
+  listeners.forEach((listener) => listener());
+};
+
+const subscribe = (listener: () => void) => {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+};
+
+const getSnapshot = () => optimisticStatusById;
+
+const setOptimisticStatus = (id: string, status: RecurringSwapOrderStatus) => {
+  optimisticStatusById = new Map(optimisticStatusById).set(id, status);
+  emit();
+};
+
+// Drops the optimistic override once the refetched server data catches up.
+const reconcile = (fetchedOrders: readonly RecurringOrder[]) => {
+  if (optimisticStatusById.size === 0) {
+    return;
+  }
+
+  const serverStatusById = new Map<string, RecurringSwapOrderStatus>(
+    fetchedOrders.map((order) => [order.orderId, mapStatus(order.status)]),
+  );
+
+  let changed = false;
+  const next = new Map(optimisticStatusById);
+
+  for (const [orderId, optimisticStatus] of optimisticStatusById) {
+    const serverStatus = serverStatusById.get(orderId);
+    if (serverStatus === undefined || serverStatus === optimisticStatus) {
+      next.delete(orderId);
+      changed = true;
+    }
+  }
+
+  if (changed) {
+    optimisticStatusById = next;
+    emit();
+  }
+};
+
 type UseOptimisticOrderStatusesResult = {
   optimisticStatusById: Map<string, RecurringSwapOrderStatus>;
   setOptimisticStatus: (id: string, status: RecurringSwapOrderStatus) => void;
@@ -30,49 +80,17 @@ type UseOptimisticOrderStatusesResult = {
 
 /**
  * Holds short-lived optimistic status overrides for recurring orders (e.g. show
- * "paused" immediately after the user pauses, before Markr observes the
- * on-chain event). Each override is dropped once the refetched server data
- * reports the same status (or the order is gone) so it can't mask later real
- * status changes — including actions performed from another device/session.
+ * "paused"/"cancelled" immediately after the user acts, before Markr observes
+ * the on-chain event), shared across all consumers via a module-level store.
  */
 export const useOptimisticOrderStatuses = (
   fetchedOrders: readonly RecurringOrder[],
 ): UseOptimisticOrderStatusesResult => {
-  const [optimisticStatusById, setOptimisticStatusById] = useState<
-    Map<string, RecurringSwapOrderStatus>
-  >(() => new Map());
+  const statusById = useSyncExternalStore(subscribe, getSnapshot);
 
   useEffect(() => {
-    setOptimisticStatusById((current) => {
-      if (current.size === 0) {
-        return current;
-      }
-
-      const serverStatusById = new Map<string, RecurringSwapOrderStatus>(
-        fetchedOrders.map((order) => [order.orderId, mapStatus(order.status)]),
-      );
-
-      let changed = false;
-      const next = new Map(current);
-
-      for (const [orderId, optimisticStatus] of current) {
-        const serverStatus = serverStatusById.get(orderId);
-        if (serverStatus === undefined || serverStatus === optimisticStatus) {
-          next.delete(orderId);
-          changed = true;
-        }
-      }
-
-      return changed ? next : current;
-    });
+    reconcile(fetchedOrders);
   }, [fetchedOrders]);
 
-  const setOptimisticStatus = useCallback(
-    (id: string, status: RecurringSwapOrderStatus) => {
-      setOptimisticStatusById((current) => new Map(current).set(id, status));
-    },
-    [],
-  );
-
-  return { optimisticStatusById, setOptimisticStatus };
+  return { optimisticStatusById: statusById, setOptimisticStatus };
 };

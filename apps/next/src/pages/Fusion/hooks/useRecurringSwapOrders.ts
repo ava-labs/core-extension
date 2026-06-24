@@ -4,11 +4,7 @@ import { truncateAddress } from '@avalabs/k2-alpine';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { TokenType } from '@avalabs/vm-module-types';
-import {
-  ERC_ZERO_ADDRESS,
-  RecurringOrderStatus,
-  type RecurringOrder,
-} from '@avalabs/fusion-sdk';
+import { ERC_ZERO_ADDRESS } from '@avalabs/fusion-sdk';
 import type { Address } from 'viem';
 
 import {
@@ -157,70 +153,63 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
   // status at `success`, so they don't flip back to a loading state.
   const isLoading = isRecurringSwapsEnabled && status === 'pending';
 
-  // Server status only flips once Markr observes the on-chain event, so we keep
-  // local overlays for immediate feedback while the refetched list catches up:
-  // cancelled orders are hidden, paused/unpaused get an optimistic status.
-  const [hiddenOrderIds, setHiddenOrderIds] = useState<Set<string>>(
-    () => new Set(),
-  );
   const [pendingActionById, setPendingActionById] = useState<
     Map<string, RecurringSwapOrderAction>
   >(() => new Map());
 
+  // Server status only flips once Markr observes the on-chain event, so we
+  // overlay an optimistic status for immediate feedback (shared across hook
+  // instances) and drop terminal orders from the list.
   const { optimisticStatusById, setOptimisticStatus } =
     useOptimisticOrderStatuses(fetchedOrders);
 
   const orders = useMemo<RecurringSwapOrder[]>(
     () =>
-      fetchedOrders
-        .filter(
-          (order: RecurringOrder) =>
-            !hiddenOrderIds.has(order.orderId) &&
-            order.status !== RecurringOrderStatus.Completed &&
-            order.status !== RecurringOrderStatus.Cancelled,
-        )
-        .map((order: RecurringOrder) => {
-          const sourceTokenBalance = resolveToken(order.tokenIn);
-          const targetTokenBalance = resolveToken(order.tokenOut);
-          const decimals = sourceTokenBalance?.decimals ?? 18;
+      fetchedOrders.reduce<RecurringSwapOrder[]>((acc, order) => {
+        const effectiveStatus =
+          optimisticStatusById.get(order.orderId) ?? mapStatus(order.status);
 
-          const orderStatus =
-            optimisticStatusById.get(order.orderId) ?? mapStatus(order.status);
-          const isPaused = orderStatus === 'paused';
+        if (
+          effectiveStatus === 'completed' ||
+          effectiveStatus === 'cancelled'
+        ) {
+          return acc;
+        }
 
-          return {
-            id: order.orderId,
-            status: orderStatus,
-            sourceToken: toOrderToken(
-              sourceTokenBalance,
-              order.tokenIn,
-              order.chainId,
-            ),
-            targetToken: toOrderToken(
-              targetTokenBalance,
-              order.tokenOut,
-              order.chainId,
-            ),
-            amountPerSwap: Number(bigIntToString(order.amount, decimals)),
-            frequencyQuantity: order.frequency.value,
-            frequencyUnit: order.frequency.unit,
-            ordersTotal: order.numberOfOrders,
-            ordersExecuted: order.executedOrders,
-            // A paused schedule has no upcoming execution until it resumes.
-            nextSwapAt:
-              isPaused || order.nextExecutionAt === null
-                ? null
-                : order.nextExecutionAt * 1000,
-            pendingAction: pendingActionById.get(order.orderId),
-          };
-        }),
-    [
-      fetchedOrders,
-      hiddenOrderIds,
-      optimisticStatusById,
-      pendingActionById,
-      resolveToken,
-    ],
+        const sourceTokenBalance = resolveToken(order.tokenIn);
+        const targetTokenBalance = resolveToken(order.tokenOut);
+        const decimals = sourceTokenBalance?.decimals ?? 18;
+        const isPaused = effectiveStatus === 'paused';
+
+        acc.push({
+          id: order.orderId,
+          status: effectiveStatus,
+          sourceToken: toOrderToken(
+            sourceTokenBalance,
+            order.tokenIn,
+            order.chainId,
+          ),
+          targetToken: toOrderToken(
+            targetTokenBalance,
+            order.tokenOut,
+            order.chainId,
+          ),
+          amountPerSwap: Number(bigIntToString(order.amount, decimals)),
+          frequencyQuantity: order.frequency.value,
+          frequencyUnit: order.frequency.unit,
+          ordersTotal: order.numberOfOrders,
+          ordersExecuted: order.executedOrders,
+          // A paused schedule has no upcoming execution until it resumes.
+          nextSwapAt:
+            isPaused || order.nextExecutionAt === null
+              ? null
+              : order.nextExecutionAt * 1000,
+          pendingAction: pendingActionById.get(order.orderId),
+        });
+
+        return acc;
+      }, []),
+    [fetchedOrders, optimisticStatusById, pendingActionById, resolveToken],
   );
 
   // Latest orders snapshot for the action callbacks, so building the approval
@@ -258,7 +247,7 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
           setOptimisticStatus(id, 'active');
         } else {
           await manager.recurring.executeCancellation(params);
-          setHiddenOrderIds((current) => new Set(current).add(id));
+          setOptimisticStatus(id, 'cancelled');
         }
 
         refetch();
@@ -267,7 +256,6 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
           return;
         }
 
-        console.error(err);
         Monitoring.sentryCaptureException(
           err as Error,
           Monitoring.SentryExceptionTypes.SWAP,
