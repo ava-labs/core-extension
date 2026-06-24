@@ -771,8 +771,9 @@ test.describe('Portfolio - Collectibles', () => {
       const collectibles = new CollectiblesTabPage(unlockedExtensionPage);
       await collectibles.open();
 
-      // This wallet has no GIFs: confirm the option is selectable and the grid
-      // settles so only GIFs would remain (empty here). No content assertion.
+      // TODO: once the extension correctly renders GIF NFTs (known bug — GIF/
+      // video NFTs are not displayed), extend this to assert GIF NFTs actually
+      // show when the filter is applied.
       await collectibles.selectMediaType('gif');
       await expect
         .poll(async () => {
@@ -800,8 +801,9 @@ test.describe('Portfolio - Collectibles', () => {
       const collectibles = new CollectiblesTabPage(unlockedExtensionPage);
       await collectibles.open();
 
-      // This wallet has no Videos: confirm the option is selectable; no content
-      // assertion (only videos would remain, empty here).
+      // TODO: once the extension correctly renders video NFTs (known bug —
+      // GIF/video NFTs are not displayed), extend this to assert video NFTs
+      // actually show when the filter is applied.
       await collectibles.selectMediaType('video');
       await expect
         .poll(async () => {
