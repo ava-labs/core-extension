@@ -4,6 +4,7 @@ import { Box, CircularProgress, Skeleton } from '@avalabs/k2-alpine';
 /** Centered spinner while activity history is loading (network switch or initial load). */
 export const ActivityHistoryLoadingIndicator = () => (
   <Box
+    data-testid="activity-loading"
     sx={{
       display: 'flex',
       justifyContent: 'center',

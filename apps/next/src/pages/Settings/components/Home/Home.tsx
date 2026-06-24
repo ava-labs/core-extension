@@ -248,6 +248,7 @@ export const SettingsHomePage = () => {
           }}
           secondaryAction={
             <Switch
+              data-testid="settings-show-highlights-toggle"
               size="small"
               checked={showHighlightBanners}
               onChange={(_, newValue) => {

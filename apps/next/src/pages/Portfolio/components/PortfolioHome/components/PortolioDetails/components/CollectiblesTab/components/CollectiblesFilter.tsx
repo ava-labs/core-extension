@@ -29,7 +29,9 @@ export function CollectiblesFilter({
         onClick={clearNetworkFilter}
         selected={selectedNetworks.length === 0}
       >
-        {t('All networks')}
+        <span data-testid="collectibles-filter-option-all-networks">
+          {t('All networks')}
+        </span>
       </PopoverItem>
       {nftEnabledNetworks.map((network) => (
         <PopoverItem
@@ -37,7 +39,11 @@ export function CollectiblesFilter({
           onClick={() => onNetworkChange(network.chainId)}
           selected={selectedNetworks.includes(network.chainId)}
         >
-          {network.chainName}
+          <span
+            data-testid={`collectibles-filter-option-network-${network.chainId}`}
+          >
+            {network.chainName}
+          </span>
         </PopoverItem>
       ))}
       <NetworkDivider />
@@ -45,25 +51,31 @@ export function CollectiblesFilter({
         onClick={() => onTypeChange('all')}
         selected={typeFilter.all}
       >
-        {t('All types')}
+        <span data-testid="collectibles-filter-option-all-types">
+          {t('All types')}
+        </span>
       </PopoverItem>
       <PopoverItem
         onClick={() => onTypeChange('picture')}
         selected={typeFilter.picture && !typeFilter.all}
       >
-        {t('Pictures')}
+        <span data-testid="collectibles-filter-option-picture">
+          {t('Pictures')}
+        </span>
       </PopoverItem>
       <PopoverItem
         onClick={() => onTypeChange('gif')}
         selected={typeFilter.gif && !typeFilter.all}
       >
-        {t('GIFs')}
+        <span data-testid="collectibles-filter-option-gif">{t('GIFs')}</span>
       </PopoverItem>
       <PopoverItem
         onClick={() => onTypeChange('video')}
         selected={typeFilter.video && !typeFilter.all}
       >
-        {t('Videos')}
+        <span data-testid="collectibles-filter-option-video">
+          {t('Videos')}
+        </span>
       </PopoverItem>
     </DropdownMenu>
   );

@@ -19,19 +19,25 @@ export const CollectiblesSort = ({
         onClick={() => setSortOption('name-asc')}
         selected={sortOption === 'name-asc'}
       >
-        {t('Name (A-Z)')}
+        <span data-testid="collectibles-sort-option-name-asc">
+          {t('Name (A-Z)')}
+        </span>
       </PopoverItem>
       <PopoverItem
         onClick={() => setSortOption('name-desc')}
         selected={sortOption === 'name-desc'}
       >
-        {t('Name (Z-A)')}
+        <span data-testid="collectibles-sort-option-name-desc">
+          {t('Name (Z-A)')}
+        </span>
       </PopoverItem>
       <PopoverItem
         onClick={() => setSortOption('date-added')}
         selected={sortOption === 'date-added'}
       >
-        {t('Date added')}
+        <span data-testid="collectibles-sort-option-date-added">
+          {t('Date added')}
+        </span>
       </PopoverItem>
     </DropdownMenu>
   );

@@ -31,7 +31,7 @@ export const ActivityTab: FC = () => {
   );
 
   return (
-    <Stack gap={1.25}>
+    <Stack gap={1.25} data-testid="activity-tab">
       <Collapse in={isRecurringSwapsEnabled && scheduledCount > 0}>
         <RecurringSwapsEntryCard scheduledCount={scheduledCount} />
       </Collapse>
