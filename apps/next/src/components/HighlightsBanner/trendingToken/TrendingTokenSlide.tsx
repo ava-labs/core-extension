@@ -35,6 +35,7 @@ export const TrendingTokenSlide = () => {
 
   return (
     <Card
+      data-testid="trending-token-slide"
       onClick={() => push(`/trending`)}
       sx={{
         cursor: 'pointer',

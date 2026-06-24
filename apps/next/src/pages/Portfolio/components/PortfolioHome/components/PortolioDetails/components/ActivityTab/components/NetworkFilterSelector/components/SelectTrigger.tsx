@@ -16,6 +16,7 @@ export const SelectTrigger: FC<SearchableSelectTriggerProps<Network>> = ({
 }) => (
   <Button
     ref={ref as RefObject<HTMLButtonElement | null>}
+    data-testid="network-filter-selector-trigger"
     size="xsmall"
     variant="contained"
     color="secondary"

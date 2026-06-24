@@ -36,6 +36,31 @@ export const CollectibleCard = memo(function CollectibleCard({
   return (
     <Box
       onClick={onClick}
+      // Grid cells (showTokenId) carry stable, render-time data for tests so
+      // assertions don't depend on async media loading. The Manage-list
+      // thumbnail (showTokenId=false) intentionally omits these.
+      data-testid={showTokenId ? 'collectible-grid-item' : undefined}
+      data-collectible-tokenid={showTokenId ? collectible.tokenId : undefined}
+      data-collectible-coreurl={
+        showTokenId ? collectible.coreCollectibleUrl : undefined
+      }
+      data-collectible-name={
+        showTokenId
+          ? collectible.name || collectible.collectionName || ''
+          : undefined
+      }
+      data-collectible-chainid={
+        showTokenId ? String(collectible.chainId) : undefined
+      }
+      data-collectible-media={
+        showTokenId ? collectible.collectibleTypeMedia : undefined
+      }
+      data-collectible-updatedat={
+        showTokenId ? String(collectible.updatedAt ?? 0) : undefined
+      }
+      data-collectible-haslogo={
+        showTokenId ? String(Boolean(collectible.logoUri)) : undefined
+      }
       sx={{
         cursor: 'pointer',
         borderRadius: 2,
