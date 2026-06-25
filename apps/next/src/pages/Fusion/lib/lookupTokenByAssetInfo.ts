@@ -3,7 +3,7 @@ import { TokenType as VmTokenType } from '@avalabs/vm-module-types';
 
 import { FungibleTokenBalance } from '@core/types';
 
-type AssetLike =
+export type AssetLike =
   | {
       type: TokenType.NATIVE;
     }

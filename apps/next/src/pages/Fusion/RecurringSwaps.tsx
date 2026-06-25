@@ -60,8 +60,14 @@ const RecurringSwapsTitle = ({
 export const RecurringSwaps = () => {
   const { t } = useTranslation();
   const isRecurringSwapsEnabled = useIsRecurringSwapsEnabled();
-  const { orders, scheduledCount, cancelOrder, isLoading } =
-    useRecurringSwapOrders();
+  const {
+    orders,
+    scheduledCount,
+    pauseOrder,
+    unpauseOrder,
+    cancelOrder,
+    isLoading,
+  } = useRecurringSwapOrders();
 
   if (!isRecurringSwapsEnabled) {
     return <Redirect to="/" />;
@@ -89,6 +95,8 @@ export const RecurringSwaps = () => {
             <RecurringOrderCard
               key={order.id}
               order={order}
+              onPause={pauseOrder}
+              onUnpause={unpauseOrder}
               onCancel={cancelOrder}
             />
           ))}

@@ -11,3 +11,4 @@ export * from './useSwapTargetToken';
 export * from './useSlippageTolerance';
 export * from './useCreateRecurringSwap';
 export * from './useRecurringEligibility';
+export * from './useRecurringQuote';

@@ -10,6 +10,7 @@ import { Header } from '@/components/Header';
 import { NoScrollStack } from '@/components/NoScrollStack';
 import { HEADER_HEIGHT } from '@/config';
 import { useIsIntersecting } from '@/hooks/useIsIntersecting';
+import { useApprovalsContext } from '@core/ui';
 
 export const Portfolio: FC = () => {
   const { pathname } = useLocation();
@@ -20,6 +21,7 @@ export const Portfolio: FC = () => {
     pathname.startsWith('/wallet');
 
   const { isIntersecting, ref, isObserving } = useIsIntersecting();
+  const { approval } = useApprovalsContext();
   const theme = useTheme();
   const withConciergePrompt = displayHeader && isObserving && isIntersecting;
 
@@ -34,7 +36,7 @@ export const Portfolio: FC = () => {
           zIndex={theme.zIndex.tooltip}
           id="header-container"
         >
-          <Header withConciergePrompt={withConciergePrompt} />
+          {!approval && <Header withConciergePrompt={withConciergePrompt} />}
         </Stack>
       )}
       <Stack flexGrow={1} data-scroll-container>

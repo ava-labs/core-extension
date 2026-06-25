@@ -49,6 +49,7 @@ import {
   useSlippageTolerance,
   useCreateRecurringSwap,
   useRecurringEligibility,
+  useRecurringQuote,
 } from './hooks';
 import { getSwapStatus } from './lib/getSwapStatus';
 import { FusionState } from '../types';
@@ -305,6 +306,21 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     amount: sourceAmountBigInt,
   });
 
+  const { scheduleFee: recurringScheduleFee } = useRecurringQuote({
+    manager,
+    sourceAsset,
+    targetAsset,
+    sourceChain,
+    amount: sourceAmountBigInt,
+    slippageBps: autoSlippage ? undefined : slippage * 100,
+    frequency: { unit: frequencyUnit, value: frequencyQuantity },
+    numberOfOrders,
+    enabled:
+      isRecurring &&
+      recurringEligibility.isEligible &&
+      !recurringEligibility.isBelowMinimum,
+  });
+
   const { createRecurringSwap, isCreatingRecurringSwap } =
     useCreateRecurringSwap({
       manager,
@@ -395,6 +411,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         createRecurringSwap,
         isCreatingRecurringSwap,
         recurringEligibility,
+        recurringScheduleFee,
         minimumTransferAmount,
         minimalQuote,
         formError,

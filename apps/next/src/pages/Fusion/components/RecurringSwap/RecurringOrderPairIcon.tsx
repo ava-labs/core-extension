@@ -17,7 +17,13 @@ export const RecurringOrderPairIcon = ({
   sourceToken,
   targetToken,
 }: RecurringOrderPairIconProps) => (
-  <Stack direction="row" alignItems="center" gap={1} flexShrink={0}>
+  <Stack
+    direction="row"
+    alignItems="center"
+    justifyContent="center"
+    gap={1}
+    flexShrink={0}
+  >
     <TokenAvatar
       token={sourceToken}
       size={AVATAR_SIZE}

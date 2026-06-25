@@ -20,6 +20,8 @@ import { RecurringOrderPairIcon } from './RecurringOrderPairIcon';
 
 type RecurringOrderCardProps = {
   order: RecurringSwapOrder;
+  onPause: (id: string) => void;
+  onUnpause: (id: string) => void;
   onCancel: (id: string) => void;
 };
 
@@ -46,6 +48,8 @@ const DetailRow = ({ label, value }: DetailRowProps) => (
 
 export const RecurringOrderCard = ({
   order,
+  onPause,
+  onUnpause,
   onCancel,
 }: RecurringOrderCardProps) => {
   const { t } = useTranslation();
@@ -55,9 +59,27 @@ export const RecurringOrderCard = ({
     setIsExpanded((current) => !current);
   }, []);
 
+  const isPaused = order.status === 'paused';
+  const pendingAction = order.pendingAction;
+  const hasPendingAction = pendingAction !== undefined;
+
+  const togglePause = useCallback(() => {
+    if (isPaused) {
+      onUnpause(order.id);
+    } else {
+      onPause(order.id);
+    }
+  }, [isPaused, onPause, onUnpause, order.id]);
+
   const cancel = useCallback(() => {
     onCancel(order.id);
   }, [onCancel, order.id]);
+
+  const getPauseLabel = () => {
+    if (pendingAction === 'pause') return t('Pausing');
+    if (pendingAction === 'unpause') return t('Resuming');
+    return isPaused ? t('Resume') : t('Pause');
+  };
 
   const scheduleSummary = t(
     'Every {{quantity}} {{unit}} · {{count}} orders total',
@@ -85,7 +107,7 @@ export const RecurringOrderCard = ({
           sx={{ cursor: 'pointer' }}
           data-testid={`recurring-order-toggle-${order.id}`}
         >
-          <Stack flexGrow={1} minWidth={0} gap={2}>
+          <Stack flexGrow={1} minWidth={0} gap={2} textAlign="center">
             <RecurringOrderPairIcon
               sourceToken={order.sourceToken}
               targetToken={order.targetToken}
@@ -99,6 +121,11 @@ export const RecurringOrderCard = ({
                 {scheduleSummary}
               </Typography>
             </Stack>
+            {order.status === 'paused' && (
+              <Typography variant="caption" color="text.secondary">
+                {t('Paused')}
+              </Typography>
+            )}
           </Stack>
           <ChevronDownIcon
             size={20}
@@ -122,22 +149,43 @@ export const RecurringOrderCard = ({
                 total: order.ordersTotal,
               })}
             />
-            {order.nextSwapAt !== null && (
-              <DetailRow
-                label={t('Next swap scheduled')}
-                value={formatNextSwap(order.nextSwapAt, t)}
-              />
-            )}
-            <Button
-              fullWidth
-              size="extension"
-              variant="contained"
-              color="secondary"
-              onClick={cancel}
-              data-testid={`recurring-order-cancel-${order.id}`}
-            >
-              {t('Cancel')}
-            </Button>
+            <DetailRow
+              label={t('Next swap scheduled')}
+              value={
+                order.nextSwapAt !== null
+                  ? formatNextSwap(order.nextSwapAt, t)
+                  : '—'
+              }
+            />
+            <Stack direction="row" gap={1}>
+              <Button
+                fullWidth
+                size="extension"
+                variant="contained"
+                color="secondary"
+                loading={
+                  pendingAction === 'pause' || pendingAction === 'unpause'
+                }
+                disabled={hasPendingAction}
+                onClick={togglePause}
+                data-testid={`recurring-order-pause-${order.id}`}
+              >
+                {getPauseLabel()}
+              </Button>
+              <Button
+                fullWidth
+                size="extension"
+                variant="contained"
+                color="secondary"
+                loading={pendingAction === 'cancel'}
+                disabled={hasPendingAction}
+                onClick={cancel}
+                sx={{ color: 'error.main' }}
+                data-testid={`recurring-order-cancel-${order.id}`}
+              >
+                {pendingAction === 'cancel' ? t('Cancelling') : t('Cancel')}
+              </Button>
+            </Stack>
           </Stack>
         </Collapse>
       </Stack>
