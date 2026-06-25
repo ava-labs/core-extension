@@ -55,6 +55,8 @@ export class OnboardingPage extends BasePage {
   readonly seedphraseVerificationButtons: Locator;
   readonly seedphraseWords: Locator;
   readonly verifySeedphraseTitle: Locator;
+  // Language selector (gated behind the LANGUAGES feature flag)
+  readonly languageSelectorTrigger: Locator;
   readonly extensionId: string | null;
 
   constructor(page: Page) {
@@ -160,6 +162,107 @@ export class OnboardingPage extends BasePage {
       name: 'Verify your recovery phrase',
       exact: true,
     });
+    // Language selector
+    this.languageSelectorTrigger = page.locator(
+      '[data-testid="onboarding-language-selector"]',
+    );
+  }
+
+  /**
+   * Static, locale-independent originalName for each language code, as defined
+   * in useLanguage() (packages/ui/src/hooks/useLanguages.ts). The k2-alpine
+   * PopoverItem does not forward data-testid to the DOM, so menu rows are
+   * matched by this name (rendered in parentheses, e.g. "Spanish (Español)").
+   */
+  private static readonly LANGUAGE_ORIGINAL_NAMES: Record<string, string> = {
+    en: 'English',
+    'zh-CN': '简体中文',
+    'zh-TW': '繁體中文',
+    'de-DE': 'Deutsch',
+    'fr-FR': 'Français',
+    'hi-IN': 'हिन्दी',
+    'ja-JP': '日本語',
+    'ko-KR': '한국인',
+    'ru-RU': 'Русский',
+    'es-ES': 'Español',
+    'tr-TR': 'Türkçe',
+  };
+
+  /**
+   * Menu row for a language code. Rows render as <li> elements; the selector
+   * trigger is not inside an <li>, so this never matches the trigger. The
+   * parenthesised originalName is stable across UI languages.
+   */
+  languageMenuItem(code: string): Locator {
+    const name = OnboardingPage.LANGUAGE_ORIGINAL_NAMES[code];
+    return this.page.locator('li').filter({ hasText: `(${name})` });
+  }
+
+  /**
+   * Forces the LANGUAGES feature flag on via the unencrypted storage override
+   * the service worker merges on top of fetched flags
+   * (StorageService.loadUnencrypted reads `result[key].data`, so the value is
+   * wrapped accordingly). This requires POSTHOG_KEY in the build (set in CI and
+   * in local .env files) so the flag-fetch cycle runs and applies the override.
+   *
+   * The flag context is reactive, so once the SW applies the override on its
+   * next fetch cycle (~5s dev / ~30s prod) the onboarding page renders the
+   * selector without a reload. Returns true once the selector appears, or false
+   * if it never does (e.g. no POSTHOG_KEY / offline) so callers can skip.
+   */
+  async enableLanguagesFlag(timeoutMs = 45000): Promise<boolean> {
+    await this.page.evaluate(() => {
+      return new Promise<void>((resolve) => {
+        chrome.storage.local.set(
+          { '__feature-flag-overrides__': { data: { languages: true } } },
+          () => resolve(),
+        );
+      });
+    });
+
+    try {
+      await this.languageSelectorTrigger.waitFor({
+        state: 'visible',
+        timeout: timeoutMs,
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async openLanguageDropdown(): Promise<void> {
+    await this.languageSelectorTrigger.click();
+    // English is always present; wait for it to confirm the popover is open.
+    await this.languageMenuItem('en').waitFor({
+      state: 'visible',
+      timeout: 10000,
+    });
+  }
+
+  async closeLanguageDropdown(): Promise<void> {
+    await this.page.keyboard.press('Escape');
+    await this.languageMenuItem('en')
+      .waitFor({ state: 'hidden', timeout: 10000 })
+      .catch(() => {});
+  }
+
+  /** Selects a language from the (open) dropdown; the popover closes after. */
+  async selectLanguage(code: string): Promise<void> {
+    await this.languageMenuItem(code).getByRole('button').click();
+    await this.languageMenuItem('en')
+      .waitFor({ state: 'hidden', timeout: 10000 })
+      .catch(() => {});
+  }
+
+  /**
+   * Whether a language option is marked selected. The dropdown must be open.
+   * PopoverItem renders the active option with a trailing check icon (an svg);
+   * non-selected rows have text only, so the icon's presence indicates the
+   * active language.
+   */
+  async isLanguageOptionSelected(code: string): Promise<boolean> {
+    return (await this.languageMenuItem(code).locator('svg').count()) > 0;
   }
 
   async isOnOnboardingPage(): Promise<boolean> {

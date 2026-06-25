@@ -63,12 +63,27 @@ export class CollectiblesTabPage extends BasePage {
   }
 
   /** Switches to the Collectibles tab and waits for the grid (or empty state). */
-  async open(timeout = 60_000): Promise<void> {
+  async open(timeout = 90_000): Promise<void> {
     await this.navTab.first().waitFor({ state: 'visible', timeout });
-    await this.navTab.first().click();
-    // Balances may still be loading (PortfolioTabs shows a skeleton LoadingState
-    // until then, so the collectibles tab isn't mounted yet) — allow full time.
-    await this.tab.waitFor({ state: 'visible', timeout });
+    // Balances may still be loading: PortfolioTabs renders a skeleton
+    // LoadingState until then, so the collectibles panel isn't mounted yet and
+    // the tab bar can remount mid-load — dropping an early click. Re-click the
+    // nav tab until the panel actually mounts.
+    await expect
+      .poll(
+        async () => {
+          if (await this.tab.isVisible()) {
+            return true;
+          }
+          await this.navTab
+            .first()
+            .click()
+            .catch(() => {});
+          return this.tab.isVisible();
+        },
+        { timeout, intervals: [500, 1000, 2000] },
+      )
+      .toBe(true);
     await this.waitForGridLoaded(timeout);
   }
 
@@ -242,6 +257,50 @@ export class CollectiblesTabPage extends BasePage {
         .first()
         .getAttribute('data-collectible-tokenid')) ?? ''
     );
+  }
+
+  /**
+   * First grid cell that has a non-empty display name, with its tokenId.
+   *
+   * The Manage list's search filters by name/collectionName/symbol (NOT
+   * tokenId), so searching must use a name to reliably surface a specific row.
+   * Returns null if no visible cell has a name.
+   */
+  async firstNamedGridItem(): Promise<{
+    tokenId: string;
+    name: string;
+  } | null> {
+    return this.gridItems.evaluateAll((els) => {
+      for (const el of els) {
+        const name = (el.getAttribute('data-collectible-name') ?? '').trim();
+        if (name) {
+          return {
+            tokenId: el.getAttribute('data-collectible-tokenid') ?? '',
+            name,
+          };
+        }
+      }
+      return null;
+    });
+  }
+
+  /** First manage-list row that has a non-empty display name, with its tokenId. */
+  async firstNamedManageItem(): Promise<{
+    tokenId: string;
+    name: string;
+  } | null> {
+    return this.manageItems.evaluateAll((els) => {
+      for (const el of els) {
+        const name = (el.getAttribute('data-collectible-name') ?? '').trim();
+        if (name) {
+          return {
+            tokenId: el.getAttribute('data-collectible-tokenid') ?? '',
+            name,
+          };
+        }
+      }
+      return null;
+    });
   }
 
   /** Toggles a manage-list row's show/hide switch by tokenId. */
