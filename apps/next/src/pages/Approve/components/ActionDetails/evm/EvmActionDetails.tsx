@@ -11,6 +11,11 @@ import { TransactionBalanceChange } from '../generic/TransactionBalanceChange';
 import { EvmTokenApprovals } from './EvmTokenApprovals';
 import { EvmNetworkFeeWidget } from './EvmNetworkFeeWidget';
 import { EvmNftDisplay } from './EvmNftDisplay';
+import {
+  TypedDataDetails,
+  getTypedDataFromAction,
+  parseKnownTypedData,
+} from './TypedDataDetails';
 import { isNftTokenType } from '@core/common';
 import { NoScrollStack } from '@/components/NoScrollStack';
 
@@ -22,6 +27,11 @@ export const EvmActionDetails = ({
   action,
   network,
 }: EvmActionDetailsProps) => {
+  // Well-known EIP-712 requests (Permit / Permit2 / Seaport) get a focused,
+  // human-readable summary instead of the flattened raw text the VM module
+  // produces. Unrecognized typed data falls back to that raw rendering.
+  const knownTypedData = parseKnownTypedData(getTypedDataFromAction(action));
+
   // Extract NFTs from balanceChange outs (NFTs being sent/received)
   const nftDiffs =
     action.displayData.balanceChange?.outs.filter((diff) => {
@@ -53,13 +63,17 @@ export const EvmActionDetails = ({
         isSimulationSuccessful={action.displayData.isSimulationSuccessful}
       />
       {hasTokenApprovals(action) && <EvmTokenApprovals action={action} />}
-      {action.displayData.details.map((section) => (
-        <DetailsSection key={section.title}>
-          {section.items.map((item, index) => (
-            <DetailsItem key={index} item={item} network={network} />
-          ))}
-        </DetailsSection>
-      ))}
+      {knownTypedData ? (
+        <TypedDataDetails section={knownTypedData.section} network={network} />
+      ) : (
+        action.displayData.details.map((section) => (
+          <DetailsSection key={section.title}>
+            {section.items.map((item, index) => (
+              <DetailsItem key={index} item={item} network={network} />
+            ))}
+          </DetailsSection>
+        ))
+      )}
       {action.displayData.networkFeeSelector && (
         <EvmNetworkFeeWidget action={action} network={network} />
       )}

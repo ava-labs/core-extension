@@ -1,6 +1,6 @@
 import { FC, useCallback, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { DetailItemType, RpcMethod } from '@avalabs/vm-module-types';
+import { AlertType, DetailItemType, RpcMethod } from '@avalabs/vm-module-types';
 import { Avatar, Stack, Typography } from '@avalabs/k2-alpine';
 import { runtime } from 'webextension-polyfill';
 
@@ -29,6 +29,10 @@ import {
 import { DetailsSection } from './components/ActionDetails/generic/DetailsSection';
 import { NetworkDetail } from './components/ActionDetails/generic/DetailsItem/items/NetworkDetail';
 import { AddressDetail } from './components/ActionDetails/generic/DetailsItem/items/AddressDetail';
+import {
+  getTypedDataFromAction,
+  useTypedDataChainMismatch,
+} from './components/ActionDetails/evm/TypedDataDetails';
 import { getAddressByVMType, trimEndingSlash } from '@core/common';
 import { useIsUsingHardwareWallet } from '@/hooks/useIsUsingHardwareWallet';
 import { useApprovalHelpers } from './hooks';
@@ -56,6 +60,13 @@ export const MessageApprovalScreen: FC<MessageApprovalScreenProps> = ({
   } = useAccountsContext();
 
   const { isUsingHardwareWallet, deviceType } = useIsUsingHardwareWallet();
+
+  // Warn when an EIP-712 request's domain targets a different chain than the
+  // one this message is being signed on.
+  const chainMismatch = useTypedDataChainMismatch(
+    getTypedDataFromAction(action),
+    network,
+  );
 
   const approve = useCallback(
     async () =>
@@ -141,6 +152,18 @@ export const MessageApprovalScreen: FC<MessageApprovalScreenProps> = ({
 
         {hasNoteWarning(action) && (
           <NoteWarning alert={action.displayData.alert} />
+        )}
+
+        {chainMismatch && (
+          <NoteWarning
+            alert={{
+              type: AlertType.WARNING,
+              details: {
+                title: t('Network mismatch'),
+                description: chainMismatch,
+              },
+            }}
+          />
         )}
 
         <Stack flexGrow={1} px={2} gap={1.5}>
