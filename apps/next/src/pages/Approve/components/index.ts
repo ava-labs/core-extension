@@ -1,5 +1,6 @@
 export * from './ActionDetails';
 export * from './ActionDrawer';
+export * from './ApprovalContextNote';
 export * from './ApprovalScreenTitle';
 export * from '../../../components/LoadingScreen';
 export * from './ErrorScreen';

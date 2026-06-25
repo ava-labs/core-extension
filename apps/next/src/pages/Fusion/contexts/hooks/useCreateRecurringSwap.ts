@@ -26,6 +26,7 @@ import {
 import { getRecurringSwapsPath } from '@/config/routes';
 
 import { getRecurringTokenAddress } from '../../lib/getRecurringTokenAddress';
+import type { RecurringSignerContext } from '../../lib/signers';
 
 type UseCreateRecurringSwapProps = {
   manager: TransferManager | undefined;
@@ -118,6 +119,13 @@ export const useCreateRecurringSwap = ({
           : {}),
       };
 
+      // Rides with the request onto `step.signerContext` so the approval screen
+      // can render token symbols (the SDK's synthetic quote ships empty ones).
+      const signerContext: RecurringSignerContext = {
+        fromTokenSymbol: sourceAsset.symbol,
+        toTokenSymbol: targetAsset.symbol,
+      };
+
       // The SDK reads the on-chain allowance, signs an approval when needed,
       // then signs and broadcasts the first fill via the injected evmSigner.
       const { txHash } = await manager.recurring.executeFirstFill({
@@ -126,6 +134,7 @@ export const useCreateRecurringSwap = ({
         sourceChain,
         gasSettings,
         fallbackToDefaultOnBatchFailure: true,
+        signerContext,
       });
 
       captureEncrypted('RecurringSwapConfirmed', {

@@ -12,6 +12,8 @@ import {
 } from '@core/types';
 import { BASIS_POINTS_DIVISOR } from '@core/common';
 
+import { getRecurringSwapsContext } from './recurringSignerContext';
+
 type AppContext = {
   isBatch: boolean;
   isQuickSwapsEnabled: boolean;
@@ -41,6 +43,8 @@ export const buildRequestContext = (
     quote.sourceChain.chainId !== quote.targetChain.chainId;
   const isIntermediateTransaction = currentSignature < requiredSignatures;
 
+  const recurringSwaps = getRecurringSwapsContext(step);
+
   const baseContext: JsonRpcRequestContext = {
     surpressSuccessToast: isCrossChainSwap || isIntermediateTransaction,
     actionStep: {
@@ -48,6 +52,7 @@ export const buildRequestContext = (
       requiredSignatures,
       currentSignatureReason,
     },
+    ...(recurringSwaps ? { recurringSwaps } : {}),
   };
 
   // Calculate minAmountOut
