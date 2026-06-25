@@ -195,6 +195,9 @@ export class OnboardingPage extends BasePage {
    */
   languageMenuItem(code: string): Locator {
     const name = OnboardingPage.LANGUAGE_ORIGINAL_NAMES[code];
+    if (!name) {
+      throw new Error(`Unknown language code: ${code}`);
+    }
     return this.page.locator('li').filter({ hasText: `(${name})` });
   }
 
@@ -211,14 +214,19 @@ export class OnboardingPage extends BasePage {
    * if it never does (e.g. no POSTHOG_KEY / offline) so callers can skip.
    */
   async enableLanguagesFlag(timeoutMs = 45000): Promise<boolean> {
-    await this.page.evaluate(() => {
-      return new Promise<void>((resolve) => {
-        chrome.storage.local.set(
-          { '__feature-flag-overrides__': { data: { languages: true } } },
-          () => resolve(),
-        );
+    try {
+      await this.page.evaluate(() => {
+        return new Promise<void>((resolve) => {
+          chrome.storage.local.set(
+            { '__feature-flag-overrides__': { data: { languages: true } } },
+            () => resolve(),
+          );
+        });
       });
-    });
+    } catch {
+      // chrome/storage APIs unavailable — let the caller skip cleanly.
+      return false;
+    }
 
     try {
       await this.languageSelectorTrigger.waitFor({

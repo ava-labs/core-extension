@@ -273,11 +273,11 @@ export class CollectiblesTabPage extends BasePage {
     return this.gridItems.evaluateAll((els) => {
       for (const el of els) {
         const name = (el.getAttribute('data-collectible-name') ?? '').trim();
-        if (name) {
-          return {
-            tokenId: el.getAttribute('data-collectible-tokenid') ?? '',
-            name,
-          };
+        const tokenId = (
+          el.getAttribute('data-collectible-tokenid') ?? ''
+        ).trim();
+        if (name && tokenId) {
+          return { tokenId, name };
         }
       }
       return null;
@@ -292,11 +292,11 @@ export class CollectiblesTabPage extends BasePage {
     return this.manageItems.evaluateAll((els) => {
       for (const el of els) {
         const name = (el.getAttribute('data-collectible-name') ?? '').trim();
-        if (name) {
-          return {
-            tokenId: el.getAttribute('data-collectible-tokenid') ?? '',
-            name,
-          };
+        const tokenId = (
+          el.getAttribute('data-collectible-tokenid') ?? ''
+        ).trim();
+        if (name && tokenId) {
+          return { tokenId, name };
         }
       }
       return null;
