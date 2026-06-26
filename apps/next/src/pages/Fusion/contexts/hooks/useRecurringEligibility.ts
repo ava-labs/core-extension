@@ -66,14 +66,21 @@ export const useRecurringEligibility = ({
     // Passing `amount` only when > 0 keeps the toggle visible (pair stays
     // eligible) before the user has typed anything, while still flagging a
     // too-small amount once they have.
-    const result = manager.recurring.checkEligibility({
-      fromTokenAddress,
-      toTokenAddress,
-      sourceChainId,
-      targetChainId,
-      ownerAddress: ownerAddress as Address,
-      amount: amount > 0n ? amount : undefined,
-    });
+    // Guarded with try-catch: throws ServiceUnavailableError when the MARKR
+    // service isn't configured (e.g. feature flag off or older SDK version).
+    let result: ReturnType<typeof manager.recurring.checkEligibility>;
+    try {
+      result = manager.recurring.checkEligibility({
+        fromTokenAddress,
+        toTokenAddress,
+        sourceChainId,
+        targetChainId,
+        ownerAddress: ownerAddress as Address,
+        amount: amount > 0n ? amount : undefined,
+      });
+    } catch {
+      return NOT_ELIGIBLE;
+    }
 
     if (result.eligible) {
       return {
