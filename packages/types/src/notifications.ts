@@ -18,6 +18,9 @@ export enum SubscriptionEvents {
   SUBSCRIPTIONS_CHANGED_EVENT = 'SUBSCRIPTIONS_CHANGED_EVENT',
 }
 
+/** FCM `data.type` and notification-center `type` for recurring (DCA) swaps. */
+export const RECURRING_SWAP_NOTIFICATION_TYPE = 'RECURRING_SWAP';
+
 export type NotificationTypes =
   | BalanceNotificationTypes
   | NewsNotificationTypes;
@@ -43,6 +46,10 @@ export type NotificationsNewsSubscriptionStorage = Record<
   NewsNotificationTypes,
   boolean
 >;
+
+export type NotificationsRecurringSwapSubscriptionStorage = {
+  orderIds: string[];
+};
 
 export type NotificationPayload = {
   data: {
