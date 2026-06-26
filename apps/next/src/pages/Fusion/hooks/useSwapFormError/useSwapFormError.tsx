@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import { bigintToBig } from '@avalabs/core-utils-sdk';
 
 import { FusionState } from '../../types';
 
@@ -17,6 +16,7 @@ type UseSwapFormErrorArgs = Pick<
   | 'recurringEligibility'
 > & {
   isRecurring: boolean;
+  recurringQuoteError: Error | null;
 };
 
 export const useSwapFormError = ({
@@ -28,6 +28,7 @@ export const useSwapFormError = ({
   currentRequiredTokens,
   isRecurring,
   recurringEligibility,
+  recurringQuoteError,
 }: UseSwapFormErrorArgs) => {
   const { t } = useTranslation();
 
@@ -42,23 +43,11 @@ export const useSwapFormError = ({
     return '';
   }
 
-  // Recurring swaps enforce a higher per-order minimum than one-shot swaps,
-  // so surface that first when the toggle is on and the amount is too small.
-  if (
-    isRecurring &&
-    recurringEligibility.isBelowMinimum &&
-    recurringEligibility.minimumAmount !== undefined
-  ) {
-    return t(
-      'Amount must be at least {{amount}} {{symbol}} for recurring swaps',
-      {
-        amount: bigintToBig(
-          recurringEligibility.minimumAmount,
-          sourceToken.decimals,
-        ).toFixed(),
-        symbol: sourceToken.symbol,
-      },
-    );
+  // The per-order minimum is enforced server-side at quote time now, so a
+  // too-small (or otherwise un-quotable) recurring amount surfaces as a failed
+  // recurring quote rather than a client-side eligibility flag.
+  if (isRecurring && recurringEligibility.isEligible && recurringQuoteError) {
+    return t("Couldn't get a recurring quote for this amount.");
   }
 
   if (currentRequiredTokens.state === 'loading') {

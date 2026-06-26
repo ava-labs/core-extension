@@ -303,23 +303,20 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     sourceChainId: sourceToken?.coreChainId,
     targetChainId: targetToken?.coreChainId,
     ownerAddress: fromAddress,
-    amount: sourceAmountBigInt,
   });
 
-  const { scheduleFee: recurringScheduleFee } = useRecurringQuote({
-    manager,
-    sourceAsset,
-    targetAsset,
-    sourceChain,
-    amount: sourceAmountBigInt,
-    slippageBps: autoSlippage ? undefined : slippage * 100,
-    frequency: { unit: frequencyUnit, value: frequencyQuantity },
-    numberOfOrders,
-    enabled:
-      isRecurring &&
-      recurringEligibility.isEligible &&
-      !recurringEligibility.isBelowMinimum,
-  });
+  const { scheduleFee: recurringScheduleFee, recurringQuoteError } =
+    useRecurringQuote({
+      manager,
+      sourceAsset,
+      targetAsset,
+      sourceChain,
+      amount: sourceAmountBigInt,
+      slippageBps: autoSlippage ? undefined : slippage * 100,
+      frequency: { unit: frequencyUnit, value: frequencyQuantity },
+      numberOfOrders,
+      enabled: isRecurring && recurringEligibility.isEligible,
+    });
 
   const { createRecurringSwap, isCreatingRecurringSwap } =
     useCreateRecurringSwap({
@@ -373,6 +370,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     currentRequiredTokens,
     isRecurring,
     recurringEligibility,
+    recurringQuoteError,
   });
 
   return (

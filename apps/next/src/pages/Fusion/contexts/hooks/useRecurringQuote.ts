@@ -54,7 +54,7 @@ export const useRecurringQuote = ({
   const canQuote =
     enabled && amount > 0n && numberOfOrders >= MIN_NUMBER_OF_ORDERS;
 
-  const { data: recurringQuote } = useQuery({
+  const { data: recurringQuote, error: recurringQuoteError } = useQuery({
     queryKey: [
       'recurringQuote',
       chainId,
@@ -95,5 +95,5 @@ export const useRecurringQuote = ({
     [recurringQuote],
   );
 
-  return { recurringQuote, scheduleFee };
+  return { recurringQuote, scheduleFee, recurringQuoteError };
 };

@@ -333,9 +333,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/fusion-sdk@npm:0.23.0":
-  version: 0.23.0
-  resolution: "@avalabs/fusion-sdk@npm:0.23.0"
+"@avalabs/fusion-sdk@npm:0.0.0-feat-recurring-native-input-ba-20260625175232":
+  version: 0.0.0-feat-recurring-native-input-ba-20260625175232
+  resolution: "@avalabs/fusion-sdk@npm:0.0.0-feat-recurring-native-input-ba-20260625175232"
   dependencies:
     "@bitcoinerlab/secp256k1": "npm:^1.2.0"
     "@layerzerolabs/lz-v2-utilities": "npm:^3.0.17"
@@ -351,7 +351,7 @@ __metadata:
     "@solana/kit": ^5.0.0 || ^6.0.0
     viem: ^2.38.0
     zod: ^4.1.0
-  checksum: 10c0/a4ebfb857f39d837d8a6bf2c6832ab05f9dc7e4e76c2e34fe978ec2519fc9666565e2baa71235d7ae3de493295f1ea7ae60f98392afb0a8a6863c06ac686011c
+  checksum: 10c0/63cb08a822c3e36cfd4479a4249db2eb0be76d82a288451a5e3133424e4cf85616b2f41c7b06825baa0c0c2104b56a4f5b1955f5e1dfcb3fb779648ca27ea604
   languageName: node
   linkType: hard
 
@@ -2807,7 +2807,7 @@ __metadata:
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.87"
-    "@avalabs/fusion-sdk": "npm:0.23.0"
+    "@avalabs/fusion-sdk": "npm:0.0.0-feat-recurring-native-input-ba-20260625175232"
     "@avalabs/k2-alpine": "npm:1.266.0"
     "@avalabs/types": "npm:3.1.0-alpha.87"
     "@avalabs/vm-module-types": "npm:3.9.3"
@@ -2927,7 +2927,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core/common@workspace:packages/common"
   dependencies:
-    "@avalabs/fusion-sdk": "npm:0.23.0"
+    "@avalabs/fusion-sdk": "npm:0.0.0-feat-recurring-native-input-ba-20260625175232"
     "@eslint/compat": "npm:1.2.4"
     "@eslint/eslintrc": "npm:3.2.0"
     "@eslint/js": "npm:9.16.0"
@@ -3100,7 +3100,7 @@ __metadata:
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/crypto-wasm": "npm:0.3.0"
     "@avalabs/evm-module": "npm:3.9.3"
-    "@avalabs/fusion-sdk": "npm:0.23.0"
+    "@avalabs/fusion-sdk": "npm:0.0.0-feat-recurring-native-input-ba-20260625175232"
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/hvm-module": "npm:3.9.3"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
@@ -3247,7 +3247,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core/types@workspace:packages/types"
   dependencies:
-    "@avalabs/fusion-sdk": "npm:0.23.0"
+    "@avalabs/fusion-sdk": "npm:0.0.0-feat-recurring-native-input-ba-20260625175232"
     fireblocks-sdk: "npm:5.20.0"
     joi: "npm:17.7.0"
     jose: "npm:4.15.5"
@@ -3269,7 +3269,7 @@ __metadata:
     "@avalabs/core-token-prices-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.87"
-    "@avalabs/fusion-sdk": "npm:0.23.0"
+    "@avalabs/fusion-sdk": "npm:0.0.0-feat-recurring-native-input-ba-20260625175232"
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
     "@avalabs/types": "npm:3.1.0-alpha.87"
