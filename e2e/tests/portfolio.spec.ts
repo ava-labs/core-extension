@@ -900,16 +900,19 @@ test.describe('Portfolio - Collectibles', () => {
       const collectibles = new CollectiblesTabPage(unlockedExtensionPage);
       await collectibles.open();
 
-      // Track a specific NFT that's visible at the top of the grid. Tracking one
-      // item (rather than a total count) is robust to virtualization: a hidden
-      // item is removed from the dataset entirely, and a stable sort returns it
-      // to the top when re-shown.
-      const tokenId = await collectibles.firstGridTokenId();
-      expect(tokenId.length).toBeGreaterThan(0);
+      // Track a specific named NFT visible in the grid. Tracking one item
+      // (rather than a total count) is robust to virtualization: a hidden item
+      // is removed from the dataset entirely and returns when re-shown.
+      // We search the Manage list by NAME (not tokenId) because the Manage
+      // list filters by name/collectionName/symbol — searching a tokenId
+      // renders zero rows and the toggle can't be found.
+      const item = await collectibles.firstNamedGridItem();
+      expect(item, 'expected a grid NFT with a searchable name').not.toBeNull();
+      const { tokenId, name } = item!;
 
-      // Disable: hide it via Manage (search so the toggle is rendered).
+      // Disable: hide it via Manage (search by name so the toggle is rendered).
       await collectibles.openManage();
-      await collectibles.searchManage(tokenId);
+      await collectibles.searchManage(name);
       await collectibles.toggleManageItem(tokenId);
       await collectibles.closeManage();
       await expect
@@ -918,7 +921,7 @@ test.describe('Portfolio - Collectibles', () => {
 
       // Enable: re-show it → its cell returns to the grid.
       await collectibles.openManage();
-      await collectibles.searchManage(tokenId);
+      await collectibles.searchManage(name);
       await collectibles.toggleManageItem(tokenId);
       await collectibles.closeManage();
       await expect
@@ -948,9 +951,17 @@ test.describe('Portfolio - Collectibles', () => {
       const total = await collectibles.manageItemCount();
       expect(total).toBeGreaterThan(0);
 
-      // Search by the first row's tokenId → results narrow to matches.
-      const tokenId = await collectibles.firstManageTokenId();
-      await collectibles.searchManage(tokenId);
+      // Search by the first named row's NAME → results narrow to matches.
+      // The Manage list filters by name/collectionName/symbol, so a tokenId
+      // search would render zero rows; using the name keeps the row visible.
+      const item = await collectibles.firstNamedManageItem();
+      expect(
+        item,
+        'expected a manage-list NFT with a searchable name',
+      ).not.toBeNull();
+      const { tokenId, name } = item!;
+
+      await collectibles.searchManage(name);
       await expect
         .poll(() => collectibles.manageItemCount(), { timeout: 10_000 })
         .toBeGreaterThan(0);
