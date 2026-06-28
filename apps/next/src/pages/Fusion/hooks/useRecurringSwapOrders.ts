@@ -24,7 +24,6 @@ import type { RecurringSignerContext } from '../lib/signers';
 
 import type { FrequencyUnit } from '../contexts/RecurringSwapContext';
 import { useIsRecurringSwapsEnabled } from './useIsRecurringSwapsEnabled';
-import { useSubscribeRecurringSwapNotifications } from './useSubscribeRecurringSwapNotifications';
 import {
   mapStatus,
   useOptimisticOrderStatuses,
@@ -58,6 +57,8 @@ export type RecurringSwapOrder = {
 
 // Recurring swaps are C-Chain only for now.
 const RECURRING_CHAIN_ID = ChainId.AVALANCHE_MAINNET_ID;
+
+const RECURRING_SWAP_ORDERS_QUERY_KEY = 'recurringSwapOrders';
 
 type UseRecurringSwapOrdersResult = {
   orders: RecurringSwapOrder[];
@@ -137,7 +138,7 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
     status,
     refetch,
   } = useQuery({
-    queryKey: ['recurringSwapOrders', address, manager?.id],
+    queryKey: [RECURRING_SWAP_ORDERS_QUERY_KEY, address, manager?.id],
     enabled: isRecurringSwapsEnabled,
     queryFn:
       manager && address
@@ -212,16 +213,6 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
       }, []),
     [fetchedOrders, optimisticStatusById, pendingActionById, resolveToken],
   );
-
-  // Subscribe the device to push updates for every order still on the books
-  // (active + paused; terminal orders are already filtered out of `orders`).
-  // The backend upsert is idempotent and the service worker gates it behind the
-  // Balance changes preference, so this is safe to fire whenever the set changes.
-  const activeOrderIds = useMemo(
-    () => orders.map((order) => order.id),
-    [orders],
-  );
-  useSubscribeRecurringSwapNotifications(activeOrderIds);
 
   // Latest orders snapshot for the action callbacks, so building the approval
   // note (token symbols) doesn't churn their identities every render.

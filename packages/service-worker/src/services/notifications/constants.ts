@@ -18,6 +18,16 @@ export const NOTIFICATIONS_NEWS_SUBSCRIPTION_STORAGE_KEY =
   'NOTIFICATIONS_NEWS_SUBSCRIPTION';
 export const NOTIFICATIONS_RECURRING_SWAP_SUBSCRIPTION_STORAGE_KEY =
   'NOTIFICATIONS_RECURRING_SWAP_SUBSCRIPTION';
+export const NOTIFICATIONS_RECURRING_SWAP_DISCOVERY_STORAGE_KEY =
+  'NOTIFICATIONS_RECURRING_SWAP_DISCOVERY';
+
+/**
+ * How long the service worker keeps polling Markr for newly created orders after
+ * a create trigger, to ride out indexing lag before the order is listable.
+ */
+export const RECURRING_SWAP_DISCOVERY_WATCH_WINDOW_MS = 10 * 60 * 1000;
+/** Markr poll cadence while discovery is active (Chrome clamps to >= 1 min). */
+export const RECURRING_SWAP_DISCOVERY_PERIOD_MINUTES = 1;
 
 export const NOTIFICATIONS_CLIENT_ID_DEFAULT_STATE: NotificationsClientIdStorage =
   {

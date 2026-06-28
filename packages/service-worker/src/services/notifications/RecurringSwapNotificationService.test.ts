@@ -2,11 +2,14 @@ import {
   BalanceNotificationTypes,
   RECURRING_SWAP_NOTIFICATION_TYPE,
 } from '@core/types';
+import { RecurringOrderStatus } from '@avalabs/fusion-sdk';
 import { MessagePayload } from 'firebase/messaging';
 import { BalanceNotificationService } from './BalanceNotificationService';
 import { FirebaseService } from '../firebase/FirebaseService';
 import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
+import { AccountsService } from '../accounts/AccountsService';
+import { TransferTrackingService } from '../transferTracking/TransferTrackingService';
 import { RecurringSwapNotificationService } from './RecurringSwapNotificationService';
 import { NOTIFICATIONS_RECURRING_SWAP_SUBSCRIPTION_STORAGE_KEY } from './constants';
 import { sendRequest } from './utils/sendRequest';
@@ -22,12 +25,22 @@ describe('RecurringSwapNotificationService', () => {
   const storageServiceMock = {
     load: jest.fn(),
     save: jest.fn(),
+    loadUnencrypted: jest.fn(),
+    saveUnencrypted: jest.fn(),
   };
   const firebaseServiceMock = {
     addFcmMessageListener: jest.fn(),
   };
   const balanceNotificationServiceMock = {
     getSubscriptions: jest.fn(),
+    addListener: jest.fn(),
+  };
+  const listOrdersMock = jest.fn();
+  const accountsServiceMock = {
+    getActiveAccount: jest.fn(),
+  };
+  const transferTrackingServiceMock = {
+    getManager: jest.fn(),
   };
 
   const createService = (locked: boolean) =>
@@ -36,14 +49,28 @@ describe('RecurringSwapNotificationService', () => {
       firebaseServiceMock as unknown as FirebaseService,
       { locked } as unknown as LockService,
       balanceNotificationServiceMock as unknown as BalanceNotificationService,
+      accountsServiceMock as unknown as AccountsService,
+      transferTrackingServiceMock as unknown as TransferTrackingService,
     );
 
   beforeEach(() => {
     jest.resetAllMocks();
 
+    // Defaults: discovery is a no-op unless a test opts in (disabled + no manager).
+    balanceNotificationServiceMock.getSubscriptions.mockResolvedValue({
+      [BalanceNotificationTypes.BALANCE_CHANGES]: false,
+    });
+    transferTrackingServiceMock.getManager.mockReturnValue(undefined);
+
     global.chrome = {
       notifications: {
         create: jest.fn(),
+      },
+      alarms: {
+        get: jest.fn().mockResolvedValue(undefined),
+        create: jest.fn(),
+        clear: jest.fn().mockResolvedValue(true),
+        onAlarm: { addListener: jest.fn() },
       },
     } as unknown as typeof chrome;
   });
@@ -59,14 +86,17 @@ describe('RecurringSwapNotificationService', () => {
   });
 
   it('shows a native notification from the FCM notification payload', async () => {
+    balanceNotificationServiceMock.getSubscriptions.mockResolvedValue({
+      [BalanceNotificationTypes.BALANCE_CHANGES]: true,
+    });
     const onMessageReceived = jest.fn();
     const service = createService(false);
     await service.init('deviceArn', onMessageReceived);
 
     const listener = jest.mocked(firebaseServiceMock.addFcmMessageListener).mock
-      .calls[0]?.[1] as (payload: MessagePayload) => void;
+      .calls[0]?.[1] as (payload: MessagePayload) => Promise<void>;
 
-    listener({
+    await listener({
       notification: { title: 'Recurring swap executed', body: 'Swap 1 done' },
       data: { type: RECURRING_SWAP_NOTIFICATION_TYPE },
     } as unknown as MessagePayload);
@@ -79,6 +109,48 @@ describe('RecurringSwapNotificationService', () => {
       priority: 2,
     });
     expect(onMessageReceived).toHaveBeenCalled();
+  });
+
+  it('drops the push when Balance changes notifications are disabled', async () => {
+    balanceNotificationServiceMock.getSubscriptions.mockResolvedValue({
+      [BalanceNotificationTypes.BALANCE_CHANGES]: false,
+    });
+    const onMessageReceived = jest.fn();
+    const service = createService(false);
+    await service.init('deviceArn', onMessageReceived);
+
+    const listener = jest.mocked(firebaseServiceMock.addFcmMessageListener).mock
+      .calls[0]?.[1] as (payload: MessagePayload) => Promise<void>;
+
+    await listener({
+      notification: { title: 'Recurring swap executed', body: 'Swap 1 done' },
+      data: { type: RECURRING_SWAP_NOTIFICATION_TYPE },
+    } as unknown as MessagePayload);
+
+    expect(chrome.notifications.create).not.toHaveBeenCalled();
+    expect(onMessageReceived).not.toHaveBeenCalled();
+  });
+
+  it('clears local subscriptions and stops discovery when the toggle is turned off', async () => {
+    balanceNotificationServiceMock.getSubscriptions.mockResolvedValue({
+      [BalanceNotificationTypes.BALANCE_CHANGES]: false,
+    });
+    const service = createService(false);
+    await service.init('deviceArn');
+
+    const onSubscriptionsChanged = jest.mocked(
+      balanceNotificationServiceMock.addListener,
+    ).mock.calls[0]?.[1] as () => Promise<void>;
+
+    await onSubscriptionsChanged();
+
+    expect(chrome.alarms.clear).toHaveBeenCalledWith(
+      'recurring-swap-subscription-discovery',
+    );
+    expect(storageServiceMock.save).toHaveBeenCalledWith(
+      NOTIFICATIONS_RECURRING_SWAP_SUBSCRIPTION_STORAGE_KEY,
+      { orderIds: [] },
+    );
   });
 
   describe('subscribeToOrders', () => {
@@ -142,6 +214,85 @@ describe('RecurringSwapNotificationService', () => {
 
       expect(sendRequest).toHaveBeenCalledTimes(1);
       expect(storageServiceMock.save).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('discoverAndSubscribe', () => {
+    const enableAndMockManager = () => {
+      balanceNotificationServiceMock.getSubscriptions.mockResolvedValue({
+        [BalanceNotificationTypes.BALANCE_CHANGES]: true,
+      });
+      accountsServiceMock.getActiveAccount.mockResolvedValue({
+        addressC: '0xabc',
+      });
+      transferTrackingServiceMock.getManager.mockReturnValue({
+        recurring: { listOrders: listOrdersMock },
+      });
+    };
+
+    it('subscribes active/paused orders and keeps polling while work remains', async () => {
+      enableAndMockManager();
+      storageServiceMock.load.mockResolvedValue({ orderIds: [] });
+      storageServiceMock.loadUnencrypted.mockResolvedValue({ watchUntil: 0 });
+      jest.mocked(sendRequest).mockResolvedValue(undefined);
+      listOrdersMock.mockResolvedValue({
+        orders: [
+          { orderId: ORDER_ID_A, status: RecurringOrderStatus.Active },
+          { orderId: ORDER_ID_B, status: RecurringOrderStatus.Completed },
+        ],
+      });
+
+      const service = createService(false);
+      await service.init('deviceArn');
+      await service.discoverAndSubscribe();
+
+      // Assert discovery subscribed only the active order, not the completed one.
+      expect(sendRequest).toHaveBeenCalledWith({
+        path: 'v1/push/recurring-swaps/subscribe',
+        clientId: 'deviceArn',
+        payload: { orderId: ORDER_ID_A },
+      });
+      expect(sendRequest).not.toHaveBeenCalledWith(
+        expect.objectContaining({ payload: { orderId: ORDER_ID_B } }),
+      );
+    });
+
+    it('stops discovery when there are no active orders and no watch window', async () => {
+      enableAndMockManager();
+      storageServiceMock.load.mockResolvedValue({ orderIds: [] });
+      storageServiceMock.loadUnencrypted.mockResolvedValue({ watchUntil: 0 });
+      listOrdersMock.mockResolvedValue({ orders: [] });
+
+      const service = createService(false);
+      await service.init('deviceArn');
+      await service.discoverAndSubscribe();
+
+      expect(sendRequest).not.toHaveBeenCalled();
+      expect(chrome.alarms.clear).toHaveBeenCalledWith(
+        'recurring-swap-subscription-discovery',
+      );
+    });
+
+    it('opens a watch window and schedules the alarm on requestDiscovery', async () => {
+      enableAndMockManager();
+      storageServiceMock.load.mockResolvedValue({ orderIds: [] });
+      storageServiceMock.loadUnencrypted.mockResolvedValue({
+        watchUntil: Date.now() + 60_000,
+      });
+      listOrdersMock.mockResolvedValue({ orders: [] });
+
+      const service = createService(false);
+      await service.requestDiscovery();
+
+      expect(storageServiceMock.saveUnencrypted).toHaveBeenCalledWith(
+        'NOTIFICATIONS_RECURRING_SWAP_DISCOVERY',
+        expect.objectContaining({ watchUntil: expect.any(Number) }),
+      );
+      // No active orders yet (indexing lag), but the watch window keeps polling.
+      expect(chrome.alarms.create).toHaveBeenCalledWith(
+        'recurring-swap-subscription-discovery',
+        expect.objectContaining({ periodInMinutes: expect.any(Number) }),
+      );
     });
   });
 });

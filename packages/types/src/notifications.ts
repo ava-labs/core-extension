@@ -51,6 +51,11 @@ export type NotificationsRecurringSwapSubscriptionStorage = {
   orderIds: string[];
 };
 
+export type NotificationsRecurringSwapDiscoveryStorage = {
+  /** Epoch ms until which the SW keeps polling Markr for new orders. */
+  watchUntil: number;
+};
+
 export type NotificationPayload = {
   data: {
     title: string;

@@ -12,6 +12,7 @@ import {
 import {
   toast,
   useAnalyticsContext,
+  useConnectionContext,
   useErrorMessage,
   useNetworkFeeContext,
   useSettingsContext,
@@ -22,6 +23,8 @@ import {
   Monitoring,
   resolve,
 } from '@core/common';
+import { ExtensionRequest } from '@core/types';
+import type { DiscoverRecurringSwaps } from '@core/service-worker';
 
 import { getRecurringSwapsPath } from '@/config/routes';
 
@@ -61,6 +64,7 @@ export const useCreateRecurringSwap = ({
   const { t } = useTranslation();
   const { captureEncrypted } = useAnalyticsContext();
   const { replace } = useHistory();
+  const { request } = useConnectionContext();
   const { getNetworkFee } = useNetworkFeeContext();
   const { feeSetting } = useSettingsContext();
   const getTranslatedError = useErrorMessage();
@@ -147,6 +151,16 @@ export const useCreateRecurringSwap = ({
 
       onCreated?.();
       replace(getRecurringSwapsPath());
+
+      // Hand off the order discovery to the service worker.
+      request<DiscoverRecurringSwaps>({
+        method: ExtensionRequest.NOTIFICATION_DISCOVER_RECURRING_SWAPS,
+      }).catch((err) => {
+        Monitoring.sentryCaptureException(
+          err as Error,
+          Monitoring.SentryExceptionTypes.NOTIFICATIONS,
+        );
+      });
     } catch (err) {
       if (isUserRejectionError(err)) {
         return;
@@ -180,6 +194,7 @@ export const useCreateRecurringSwap = ({
     getTranslatedError,
     replace,
     onCreated,
+    request,
     t,
   ]);
 

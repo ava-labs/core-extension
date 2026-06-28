@@ -141,7 +141,7 @@ import { GetNotificationSubscriptions } from '../../services/notifications/handl
 import { MarkAllNotificationsAsRead } from '../../services/notifications/handlers/markAllNotificationsAsRead';
 import { MarkNotificationAsRead } from '../../services/notifications/handlers/markNotificationAsRead';
 import { SubscribeToNotification } from '../../services/notifications/handlers/subscribe';
-import { SubscribeToRecurringSwapNotifications } from '../../services/notifications/handlers/subscribeToRecurringSwaps';
+import { DiscoverRecurringSwaps } from '../../services/notifications/handlers/discoverRecurringSwaps';
 import { UnsubscribeFromNotification } from '../../services/notifications/handlers/unsubscribe';
 import { AppendSolanaPublicKeysHandler } from '../../services/secrets/handlers/appendSolanaPublicKeys';
 import { DeriveMissingKeysHandler } from '../../services/seedless/handlers/deriveMissingKeys';
@@ -462,7 +462,7 @@ import { SetBridgeDevEnvHandler } from '~/services/settings/handlers/setBridgeDe
   },
   {
     token: 'ExtensionRequestHandler',
-    useToken: SubscribeToRecurringSwapNotifications,
+    useToken: DiscoverRecurringSwaps,
   },
   {
     token: 'ExtensionRequestHandler',
