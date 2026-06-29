@@ -1,6 +1,6 @@
 import { TFunction } from 'i18next';
 
-export type RecurringSwapStatusSeverity = 'success' | 'neutral';
+export type RecurringSwapStatusSeverity = 'success' | 'error' | 'neutral';
 
 export type RecurringSwapStatusDisplay = {
   label: string;
@@ -18,6 +18,8 @@ export const getRecurringSwapStatusDisplay = (
   switch ((status ?? '').toLowerCase()) {
     case 'completed':
       return { label: t('Completed'), severity: 'success' };
+    case 'failed':
+      return { label: t('Failed'), severity: 'error' };
     case 'active':
       return { label: t('In progress'), severity: 'neutral' };
     default:
@@ -30,5 +32,6 @@ export const RECURRING_SWAP_SEVERITY_COLOR: Record<
   string
 > = {
   success: 'success.main',
+  error: 'error.main',
   neutral: 'text.secondary',
 };

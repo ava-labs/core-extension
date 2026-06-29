@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Stack, Typography, useTheme } from '@avalabs/k2-alpine';
-import { MdCheckCircle } from 'react-icons/md';
+import { MdCheckCircle, MdErrorOutline } from 'react-icons/md';
 import { AppNotification } from '@core/types';
 
 import { getRecurringSwapsPath } from '@/config/routes';
@@ -14,6 +14,7 @@ import {
   RECURRING_SWAP_SEVERITY_COLOR,
   RecurringSwapStatusSeverity,
 } from '../lib/getRecurringSwapStatus';
+import { getRecurringSwapCopy } from '../lib/getRecurringSwapCopy';
 
 type RecurringSwapItemProps = {
   notification: Extract<AppNotification, { type: 'RECURRING_SWAP' }>;
@@ -25,6 +26,7 @@ const SeverityIcon: Record<
   FC<{ size: number; color: string }> | null
 > = {
   success: MdCheckCircle,
+  error: MdErrorOutline,
   neutral: null,
 };
 
@@ -36,6 +38,7 @@ export const RecurringSwapItem: FC<RecurringSwapItemProps> = ({
   const { push } = useHistory();
   const theme = useTheme();
 
+  const { title, body } = getRecurringSwapCopy(notification, t);
   const status = getRecurringSwapStatusDisplay(notification.data?.status, t);
   const Icon = status ? SeverityIcon[status.severity] : null;
   const colorPath = status
@@ -43,6 +46,7 @@ export const RecurringSwapItem: FC<RecurringSwapItemProps> = ({
     : undefined;
   const iconColorBySeverity: Record<RecurringSwapStatusSeverity, string> = {
     success: theme.palette.success.main,
+    error: theme.palette.error.main,
     neutral: theme.palette.text.secondary,
   };
   const iconColor = status ? iconColorBySeverity[status.severity] : '';
@@ -50,7 +54,7 @@ export const RecurringSwapItem: FC<RecurringSwapItemProps> = ({
   const subtitle = (
     <Stack gap={0.25}>
       <Typography variant="caption" color="text.secondary">
-        {notification.body}
+        {body}
       </Typography>
       {status && (
         <Stack direction="row" alignItems="center" gap={0.5}>
@@ -65,7 +69,7 @@ export const RecurringSwapItem: FC<RecurringSwapItemProps> = ({
 
   return (
     <NotificationListItem
-      title={notification.title}
+      title={title}
       subtitle={subtitle}
       icon={<NotificationIcon notification={notification} />}
       timestamp={notification.timestamp}

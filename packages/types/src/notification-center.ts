@@ -95,11 +95,14 @@ export const NewsMetadataSchema = z.object({
 });
 
 /**
- * Recurring (DCA) swap status reported by the order service.
- * `active` is an in-progress leg; `completed` is terminal. These are the only
- * statuses the backend pushes today.
+ * Recurring (DCA) swap status as reported by the Core notification sender
+ * service in a notification's metadata.
  */
-export const RecurringSwapStatusSchema = z.enum(['active', 'completed']);
+export const RecurringSwapStatusSchema = z.enum([
+  'active',
+  'completed',
+  'failed',
+]);
 
 /**
  * Recurring swap metadata schema.
@@ -118,6 +121,8 @@ export const RecurringSwapMetadataSchema = z.object({
   amountIn: z.string().optional(),
   amountOut: z.string().optional(),
   status: z.union([RecurringSwapStatusSchema, z.string()]).optional(),
+  // Only meaningful on `failed` updates; drives the reason-specific copy.
+  reasonCode: z.coerce.number().optional(),
   url: z.string().optional(),
 });
 
@@ -145,6 +150,7 @@ export const NotificationDataSchema = z
     orderId: z.string().optional(),
     owner: z.string().optional(),
     status: z.string().optional(),
+    reasonCode: z.number().optional(),
     numberOfOrders: z.number().optional(),
     executedOrders: z.number().optional(),
     remainingOrders: z.number().optional(),
