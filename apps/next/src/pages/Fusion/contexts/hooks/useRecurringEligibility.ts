@@ -1,6 +1,10 @@
 import { useMemo } from 'react';
 import { type Address } from 'viem';
-import { type Asset, type TransferManager } from '@avalabs/fusion-sdk';
+import {
+  type Asset,
+  type TransferManager,
+  isServiceUnavailableError,
+} from '@avalabs/fusion-sdk';
 
 import { getRecurringTokenAddress } from '../../lib/getRecurringTokenAddress';
 
@@ -50,8 +54,6 @@ export const useRecurringEligibility = ({
     }
 
     // Pure, no-I/O check against the SDK's cached `/info/chains` metadata.
-    // Guarded with try-catch: throws SERVICE_TYPE_NOT_CONFIGURED when the MARKR
-    // service isn't initialized (e.g. feature flag off or older SDK version).
     let result: ReturnType<typeof manager.recurring.checkEligibility>;
     try {
       result = manager.recurring.checkEligibility({
@@ -61,7 +63,15 @@ export const useRecurringEligibility = ({
         targetChainId,
         ownerAddress: ownerAddress as Address,
       });
-    } catch {
+    } catch (err) {
+      // `manager.recurring` throws ServiceUnavailableError when Markr isn't
+      // initialized (e.g. feature flag off / non-PROD env) — an expected
+      // "ineligible" signal. Any other error is unexpected, so log it rather
+      // than masking a real regression. Either way we return ineligible to
+      // keep this render-time check from crashing the tree.
+      if (!isServiceUnavailableError(err)) {
+        console.error('Unexpected error from recurring.checkEligibility', err);
+      }
       return NOT_ELIGIBLE;
     }
 

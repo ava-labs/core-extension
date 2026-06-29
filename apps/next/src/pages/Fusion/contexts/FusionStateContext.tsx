@@ -141,7 +141,10 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const isAmountHigherThanBalance =
     sourceAmountBigInt > (sourceToken?.balance ?? 0n);
 
+  // Recurring swaps have no per-order minimum (Markr dropped the supported-token
+  // list), so the one-shot minimum must not gate quote fetching when recurring.
   const isAmountLowerThanMinimum =
+    !isRecurring &&
     typeof minimumTransferAmount === 'bigint' &&
     sourceAmountBigInt < minimumTransferAmount;
 
