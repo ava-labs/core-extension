@@ -1,23 +1,16 @@
 import { useMemo } from 'react';
 import { type Address } from 'viem';
-import {
-  type Asset,
-  type TransferManager,
-  RecurringEligibilityReason,
-} from '@avalabs/fusion-sdk';
+import { type Asset, type TransferManager } from '@avalabs/fusion-sdk';
 
 import { getRecurringTokenAddress } from '../../lib/getRecurringTokenAddress';
 
 export type RecurringEligibility = {
   /** Pair-level support (chain + token + EVM address). Controls the toggle. */
   isEligible: boolean;
-  /** Native → wrapped-native (e.g. AVAX → WAVAX): steer to a one-shot wrap. */
-  isNativeToWrappedNative: boolean;
 };
 
 const NOT_ELIGIBLE: RecurringEligibility = {
   isEligible: false,
-  isNativeToWrappedNative: false,
 };
 
 type UseRecurringEligibilityProps = {
@@ -72,15 +65,7 @@ export const useRecurringEligibility = ({
       return NOT_ELIGIBLE;
     }
 
-    if (result.eligible) {
-      return { isEligible: true, isNativeToWrappedNative: false };
-    }
-
-    return {
-      isEligible: false,
-      isNativeToWrappedNative:
-        result.reason === RecurringEligibilityReason.NativeToWrappedNative,
-    };
+    return { isEligible: result.eligible };
   }, [
     manager,
     sourceAsset,

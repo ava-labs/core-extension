@@ -13,11 +13,7 @@ type UseSwapFormErrorArgs = Pick<
   | 'sourceToken'
   | 'minimumTransferAmount'
   | 'currentRequiredTokens'
-  | 'recurringEligibility'
-> & {
-  isRecurring: boolean;
-  recurringQuoteError: Error | null;
-};
+>;
 
 export const useSwapFormError = ({
   debouncedUserAmount,
@@ -26,9 +22,6 @@ export const useSwapFormError = ({
   sourceToken,
   minimumTransferAmount,
   currentRequiredTokens,
-  isRecurring,
-  recurringEligibility,
-  recurringQuoteError,
 }: UseSwapFormErrorArgs) => {
   const { t } = useTranslation();
 
@@ -41,13 +34,6 @@ export const useSwapFormError = ({
   // 2. Do not validate if we don't have all the data.
   if (!sourceToken || !sourceAmountBigInt) {
     return '';
-  }
-
-  // The per-order minimum is enforced server-side at quote time now, so a
-  // too-small (or otherwise un-quotable) recurring amount surfaces as a failed
-  // recurring quote rather than a client-side eligibility flag.
-  if (isRecurring && recurringEligibility.isEligible && recurringQuoteError) {
-    return t("Couldn't get a recurring quote for this amount.");
   }
 
   if (currentRequiredTokens.state === 'loading') {

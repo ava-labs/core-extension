@@ -305,18 +305,17 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     ownerAddress: fromAddress,
   });
 
-  const { scheduleFee: recurringScheduleFee, recurringQuoteError } =
-    useRecurringQuote({
-      manager,
-      sourceAsset,
-      targetAsset,
-      sourceChain,
-      amount: sourceAmountBigInt,
-      slippageBps: autoSlippage ? undefined : slippage * 100,
-      frequency: { unit: frequencyUnit, value: frequencyQuantity },
-      numberOfOrders,
-      enabled: isRecurring && recurringEligibility.isEligible,
-    });
+  const { scheduleFee: recurringScheduleFee } = useRecurringQuote({
+    manager,
+    sourceAsset,
+    targetAsset,
+    sourceChain,
+    amount: sourceAmountBigInt,
+    slippageBps: autoSlippage ? undefined : slippage * 100,
+    frequency: { unit: frequencyUnit, value: frequencyQuantity },
+    numberOfOrders,
+    enabled: isRecurring && recurringEligibility.isEligible,
+  });
 
   const { createRecurringSwap, isCreatingRecurringSwap } =
     useCreateRecurringSwap({
@@ -366,11 +365,10 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     quotes,
     quotesStatus,
     sourceToken,
-    minimumTransferAmount,
+    // Recurring swaps no longer carry a per-order minimum (Markr dropped the
+    // supported-token list), so skip the one-shot minimum check when recurring.
+    minimumTransferAmount: isRecurring ? undefined : minimumTransferAmount,
     currentRequiredTokens,
-    isRecurring,
-    recurringEligibility,
-    recurringQuoteError,
   });
 
   return (

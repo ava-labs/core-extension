@@ -218,7 +218,6 @@
   "Core.app": "Core.app",
   "Could not connect.": "Could not connect.",
   "Could not find the wallet you are looking for. \n Please select a different wallet.": "Could not find the wallet you are looking for. \n Please select a different wallet.",
-  "Couldn't get a recurring quote for this amount.": "Couldn't get a recurring quote for this amount.",
   "Create a name for your wallet": "Create a name for your wallet",
   "Creating Solana addresses...": "Creating Solana addresses...",
   "Currency": "Currency",
