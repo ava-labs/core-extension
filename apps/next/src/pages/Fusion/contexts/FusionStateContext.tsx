@@ -13,7 +13,7 @@ import {
   useSettingsContext,
 } from '@core/ui';
 import { useHistory } from 'react-router-dom';
-import { Quote } from '@avalabs/fusion-sdk';
+import { Quote, ServiceType } from '@avalabs/fusion-sdk';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { useDebouncedValue } from '@tanstack/react-pacer';
 
@@ -136,15 +136,13 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     selectedFromToken: sourceToken,
     selectedToToken: targetToken,
     transferManager: manager,
+    serviceType: isRecurring ? ServiceType.MARKR : undefined,
   });
 
   const isAmountHigherThanBalance =
     sourceAmountBigInt > (sourceToken?.balance ?? 0n);
 
-  // Recurring swaps have no per-order minimum (Markr dropped the supported-token
-  // list), so the one-shot minimum must not gate quote fetching when recurring.
   const isAmountLowerThanMinimum =
-    !isRecurring &&
     typeof minimumTransferAmount === 'bigint' &&
     sourceAmountBigInt < minimumTransferAmount;
 
@@ -368,9 +366,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     quotes,
     quotesStatus,
     sourceToken,
-    // Recurring swaps no longer carry a per-order minimum (Markr dropped the
-    // supported-token list), so skip the one-shot minimum check when recurring.
-    minimumTransferAmount: isRecurring ? undefined : minimumTransferAmount,
+    minimumTransferAmount,
     currentRequiredTokens,
   });
 
