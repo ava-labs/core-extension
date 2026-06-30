@@ -13,7 +13,7 @@ import {
   useSettingsContext,
 } from '@core/ui';
 import { useHistory } from 'react-router-dom';
-import { Quote } from '@avalabs/fusion-sdk';
+import { Quote, ServiceType } from '@avalabs/fusion-sdk';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { useDebouncedValue } from '@tanstack/react-pacer';
 
@@ -136,6 +136,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     selectedFromToken: sourceToken,
     selectedToToken: targetToken,
     transferManager: manager,
+    serviceType: isRecurring ? ServiceType.MARKR : undefined,
   });
 
   const isAmountHigherThanBalance =
@@ -303,7 +304,6 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     sourceChainId: sourceToken?.coreChainId,
     targetChainId: targetToken?.coreChainId,
     ownerAddress: fromAddress,
-    amount: sourceAmountBigInt,
   });
 
   const { scheduleFee: recurringScheduleFee } = useRecurringQuote({
@@ -315,10 +315,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     slippageBps: autoSlippage ? undefined : slippage * 100,
     frequency: { unit: frequencyUnit, value: frequencyQuantity },
     numberOfOrders,
-    enabled:
-      isRecurring &&
-      recurringEligibility.isEligible &&
-      !recurringEligibility.isBelowMinimum,
+    enabled: isRecurring && recurringEligibility.isEligible,
   });
 
   const { createRecurringSwap, isCreatingRecurringSwap } =
@@ -371,8 +368,6 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     sourceToken,
     minimumTransferAmount,
     currentRequiredTokens,
-    isRecurring,
-    recurringEligibility,
   });
 
   return (

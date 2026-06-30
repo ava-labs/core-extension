@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import { bigintToBig } from '@avalabs/core-utils-sdk';
 
 import { FusionState } from '../../types';
 
@@ -14,10 +13,7 @@ type UseSwapFormErrorArgs = Pick<
   | 'sourceToken'
   | 'minimumTransferAmount'
   | 'currentRequiredTokens'
-  | 'recurringEligibility'
-> & {
-  isRecurring: boolean;
-};
+>;
 
 export const useSwapFormError = ({
   debouncedUserAmount,
@@ -26,8 +22,6 @@ export const useSwapFormError = ({
   sourceToken,
   minimumTransferAmount,
   currentRequiredTokens,
-  isRecurring,
-  recurringEligibility,
 }: UseSwapFormErrorArgs) => {
   const { t } = useTranslation();
 
@@ -40,25 +34,6 @@ export const useSwapFormError = ({
   // 2. Do not validate if we don't have all the data.
   if (!sourceToken || !sourceAmountBigInt) {
     return '';
-  }
-
-  // Recurring swaps enforce a higher per-order minimum than one-shot swaps,
-  // so surface that first when the toggle is on and the amount is too small.
-  if (
-    isRecurring &&
-    recurringEligibility.isBelowMinimum &&
-    recurringEligibility.minimumAmount !== undefined
-  ) {
-    return t(
-      'Amount must be at least {{amount}} {{symbol}} for recurring swaps',
-      {
-        amount: bigintToBig(
-          recurringEligibility.minimumAmount,
-          sourceToken.decimals,
-        ).toFixed(),
-        symbol: sourceToken.symbol,
-      },
-    );
   }
 
   if (currentRequiredTokens.state === 'loading') {
