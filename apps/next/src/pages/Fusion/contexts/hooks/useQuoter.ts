@@ -69,8 +69,12 @@ const hasRequiredParams = (
 ): props is RequiredQuoterProps =>
   Object.entries(props).every(
     ([key, value]) =>
-      (OPTIONAL_QUOTER_PROPS as string[]).includes(key) || Boolean(value),
+      (OPTIONAL_QUOTER_PROPS as string[]).includes(key) ||
+      isRequiredParamPresent(value),
   );
+
+const isRequiredParamPresent = (value: unknown) =>
+  value !== undefined && value !== null && value !== '';
 
 const buildQuoter = ({ manager, ...props }: RequiredQuoterProps) =>
   manager.getQuoter({

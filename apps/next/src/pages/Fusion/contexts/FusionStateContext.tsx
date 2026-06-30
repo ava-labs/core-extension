@@ -142,11 +142,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const isAmountHigherThanBalance =
     sourceAmountBigInt > (sourceToken?.balance ?? 0n);
 
-  const isAmountLowerThanMinimum =
-    typeof minimumTransferAmount === 'bigint' &&
-    sourceAmountBigInt < minimumTransferAmount;
-
-  const skipFetching = isAmountHigherThanBalance || isAmountLowerThanMinimum;
+  const skipFetching = isAmountHigherThanBalance;
 
   // Avoid spamming quoters by debouncing the user amount
   const [debouncedUserAmount] = useDebouncedValue(userAmount, {

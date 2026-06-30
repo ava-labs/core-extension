@@ -32,7 +32,7 @@ export const useSwapFormError = ({
   );
 
   // 2. Do not validate if we don't have all the data.
-  if (!sourceToken || !sourceAmountBigInt) {
+  if (!sourceToken || debouncedUserAmount === '') {
     return '';
   }
 

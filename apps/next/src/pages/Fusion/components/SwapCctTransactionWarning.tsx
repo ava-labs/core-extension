@@ -10,11 +10,12 @@ export const SwapCctTransactionWarning = () => {
   const theme = useTheme();
   const { selectedQuote } = useFusionState();
 
-  const isAvalancheCctQuote =
-    selectedQuote?.serviceType === ServiceType.AVALANCHE_CCT;
+  const shouldShowWarning =
+    selectedQuote?.serviceType === ServiceType.AVALANCHE_CCT &&
+    selectedQuote.amountIn > 0n;
 
   return (
-    <Collapse in={isAvalancheCctQuote} mountOnEnter unmountOnExit>
+    <Collapse in={shouldShowWarning} mountOnEnter unmountOnExit>
       <Stack
         direction="row"
         alignItems="flex-start"
