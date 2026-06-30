@@ -1,5 +1,5 @@
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { TransferManager } from '@avalabs/fusion-sdk';
+import { ServiceType, TransferManager } from '@avalabs/fusion-sdk';
 
 import { isNotNullish } from '@core/common';
 import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';
@@ -10,12 +10,14 @@ type UseFusionMinimumTransferAmountParams = {
   selectedFromToken: FungibleTokenBalance | undefined;
   selectedToToken: FungibleTokenBalance | undefined;
   transferManager: TransferManager | undefined;
+  serviceType?: ServiceType;
 };
 
 export const useFusionMinimumTransferAmount = ({
   selectedFromToken,
   selectedToToken,
   transferManager,
+  serviceType,
 }: UseFusionMinimumTransferAmountParams) => {
   const { asset: sourceAsset, chain: sourceChain } =
     useAssetAndChain(selectedFromToken);
@@ -37,28 +39,30 @@ export const useFusionMinimumTransferAmount = ({
       sourceChain &&
       targetAsset &&
       targetChain
-        ? async () => {
-            const minimumAmounts =
-              await transferManager.getMinimumTransferAmount({
-                sourceAsset,
-                sourceChainId: sourceChain.chainId,
-                targetAsset,
-                targetChainId: targetChain.chainId,
-              });
-
-            if (!minimumAmounts) {
-              return null;
-            }
-
-            const amounts = Object.values(minimumAmounts).filter(isNotNullish);
-
-            if (amounts.length === 0) {
-              return null;
-            }
-
-            return amounts.reduce((a, b) => (a < b ? a : b));
-          }
+        ? () =>
+            transferManager.getMinimumTransferAmount({
+              sourceAsset,
+              sourceChainId: sourceChain.chainId,
+              targetAsset,
+              targetChainId: targetChain.chainId,
+            })
         : skipToken,
-    select: (amount) => amount ?? undefined,
+    select: (minimumAmounts) => {
+      if (!minimumAmounts) {
+        return undefined;
+      }
+
+      if (serviceType) {
+        return minimumAmounts[serviceType] ?? undefined;
+      }
+
+      const amounts = Object.values(minimumAmounts).filter(isNotNullish);
+
+      if (amounts.length === 0) {
+        return undefined;
+      }
+
+      return amounts.reduce((a, b) => (a < b ? a : b));
+    },
   });
 };

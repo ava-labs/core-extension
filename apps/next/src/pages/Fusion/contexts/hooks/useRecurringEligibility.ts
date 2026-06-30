@@ -3,7 +3,6 @@ import { type Address } from 'viem';
 import {
   type Asset,
   type TransferManager,
-  RecurringEligibilityReason,
   isServiceUnavailableError,
 } from '@avalabs/fusion-sdk';
 
@@ -12,16 +11,10 @@ import { getRecurringTokenAddress } from '../../lib/getRecurringTokenAddress';
 export type RecurringEligibility = {
   /** Pair-level support (chain + token + EVM address). Controls the toggle. */
   isEligible: boolean;
-  /** A non-zero amount was entered but it's below the per-order minimum. */
-  isBelowMinimum: boolean;
-  /** Per-order minimum (smallest unit), when known. */
-  minimumAmount: bigint | undefined;
 };
 
 const NOT_ELIGIBLE: RecurringEligibility = {
   isEligible: false,
-  isBelowMinimum: false,
-  minimumAmount: undefined,
 };
 
 type UseRecurringEligibilityProps = {
@@ -31,9 +24,6 @@ type UseRecurringEligibilityProps = {
   sourceChainId: number | undefined;
   targetChainId: number | undefined;
   ownerAddress: string | undefined;
-  /** Per-order amount (smallest unit). `0n` skips the minimum check. */
-  amount: bigint;
-  enabled: boolean;
 };
 
 export const useRecurringEligibility = ({
@@ -43,12 +33,9 @@ export const useRecurringEligibility = ({
   sourceChainId,
   targetChainId,
   ownerAddress,
-  amount,
-  enabled,
 }: UseRecurringEligibilityProps): RecurringEligibility =>
   useMemo(() => {
     if (
-      !enabled ||
       !manager ||
       !sourceAsset ||
       !targetAsset ||
@@ -67,51 +54,28 @@ export const useRecurringEligibility = ({
     }
 
     // Pure, no-I/O check against the SDK's cached `/info/chains` metadata.
-    // Passing `amount` only when > 0 keeps the toggle visible (pair stays
-    // eligible) before the user has typed anything, while still flagging a
-    // too-small amount once they have.
-    const result = (() => {
-      try {
-        return manager.recurring.checkEligibility({
-          fromTokenAddress,
-          toTokenAddress,
-          sourceChainId,
-          targetChainId,
-          ownerAddress: ownerAddress as Address,
-          amount: amount > 0n ? amount : undefined,
-        });
-      } catch (err) {
-        if (isServiceUnavailableError(err)) {
-          return undefined;
-        }
-
-        throw err;
+    let result: ReturnType<typeof manager.recurring.checkEligibility>;
+    try {
+      result = manager.recurring.checkEligibility({
+        fromTokenAddress,
+        toTokenAddress,
+        sourceChainId,
+        targetChainId,
+        ownerAddress: ownerAddress as Address,
+      });
+    } catch (err) {
+      // `manager.recurring` throws ServiceUnavailableError when Markr isn't
+      // initialized (e.g. feature flag off / non-PROD env) — an expected
+      // "ineligible" signal. Any other error is unexpected, so log it rather
+      // than masking a real regression. Either way we return ineligible to
+      // keep this render-time check from crashing the tree.
+      if (!isServiceUnavailableError(err)) {
+        console.error('Unexpected error from recurring.checkEligibility', err);
       }
-    })();
-
-    if (!result) {
       return NOT_ELIGIBLE;
     }
 
-    if (result.eligible) {
-      return {
-        isEligible: true,
-        isBelowMinimum: false,
-        minimumAmount: BigInt(result.minimumAmount),
-      };
-    }
-
-    // The pair is supported — only the amount is too low — so keep the form
-    // visible and surface the minimum to the caller.
-    if (result.reason === RecurringEligibilityReason.AmountBelowMinimum) {
-      return {
-        isEligible: true,
-        isBelowMinimum: true,
-        minimumAmount: BigInt(result.minimumAmount),
-      };
-    }
-
-    return NOT_ELIGIBLE;
+    return { isEligible: result.eligible };
   }, [
     manager,
     sourceAsset,
@@ -119,6 +83,4 @@ export const useRecurringEligibility = ({
     sourceChainId,
     targetChainId,
     ownerAddress,
-    amount,
-    enabled,
   ]);

@@ -193,6 +193,7 @@ export enum ExtensionRequest {
   NOTIFICATION_SUBSCRIBE = 'notification_subscribe',
   NOTIFICATION_UNSUBSCRIBE = 'notification_unsubscribe',
   NOTIFICATION_GET_SUBSCRIPTIONS = 'notification_get_subscriptions',
+  NOTIFICATION_DISCOVER_RECURRING_SWAPS = 'notification_discover_recurring_swaps',
 
   NOTIFICATION_CENTER_GET_LIST = 'notification_center_get_list',
   NOTIFICATION_CENTER_MARK_AS_READ = 'notification_center_mark_as_read',

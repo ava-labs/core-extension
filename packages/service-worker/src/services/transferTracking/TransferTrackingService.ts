@@ -66,6 +66,11 @@ export class TransferTrackingService implements OnStorageReady {
     return this.#state;
   }
 
+  /** Read-only Fusion manager (dummy signers), reused for background reads. */
+  getManager(): TransferManager | undefined {
+    return this.#manager;
+  }
+
   constructor(
     private networkService: NetworkService,
     private storageService: StorageService,

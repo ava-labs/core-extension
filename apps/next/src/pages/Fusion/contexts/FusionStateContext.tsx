@@ -9,16 +9,15 @@ import {
 import {
   toast,
   useFeatureFlagContext,
-  useNetworkContext,
   useNetworkFeeContext,
   useSettingsContext,
 } from '@core/ui';
 import { useHistory } from 'react-router-dom';
-import { Quote } from '@avalabs/fusion-sdk';
+import { Quote, ServiceType } from '@avalabs/fusion-sdk';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { useDebouncedValue } from '@tanstack/react-pacer';
 
-import { FeatureVars, isCrossChainTransfer, isEvmNetwork } from '@core/types';
+import { FeatureVars, isCrossChainTransfer } from '@core/types';
 import {
   isUserRejectionError,
   Monitoring,
@@ -71,7 +70,6 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const { trackTransfer } = useTransferTrackingContext();
   const { captureEncrypted } = useAnalyticsContext();
   const { replace } = useHistory();
-  const { getNetwork } = useNetworkContext();
   const { getNetworkFee } = useNetworkFeeContext();
   const getTranslatedError = useErrorMessage();
   const { feeSetting } = useSettingsContext();
@@ -138,6 +136,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     selectedFromToken: sourceToken,
     selectedToToken: targetToken,
     transferManager: manager,
+    serviceType: isRecurring ? ServiceType.MARKR : undefined,
   });
 
   const isAmountHigherThanBalance =
@@ -148,16 +147,6 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     sourceAmountBigInt < minimumTransferAmount;
 
   const skipFetching = isAmountHigherThanBalance || isAmountLowerThanMinimum;
-
-  const sourceNetwork = sourceToken
-    ? getNetwork(sourceToken.coreChainId)
-    : undefined;
-  const targetNetwork = targetToken
-    ? getNetwork(targetToken.coreChainId)
-    : undefined;
-  const isRecurringEligibilityEnabled =
-    Boolean(sourceNetwork && isEvmNetwork(sourceNetwork)) &&
-    Boolean(targetNetwork && isEvmNetwork(targetNetwork));
 
   // Avoid spamming quoters by debouncing the user amount
   const [debouncedUserAmount] = useDebouncedValue(userAmount, {
@@ -315,8 +304,6 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     sourceChainId: sourceToken?.coreChainId,
     targetChainId: targetToken?.coreChainId,
     ownerAddress: fromAddress,
-    amount: sourceAmountBigInt,
-    enabled: isRecurringEligibilityEnabled,
   });
 
   const { scheduleFee: recurringScheduleFee } = useRecurringQuote({
@@ -328,10 +315,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     slippageBps: autoSlippage ? undefined : slippage * 100,
     frequency: { unit: frequencyUnit, value: frequencyQuantity },
     numberOfOrders,
-    enabled:
-      isRecurring &&
-      recurringEligibility.isEligible &&
-      !recurringEligibility.isBelowMinimum,
+    enabled: isRecurring && recurringEligibility.isEligible,
   });
 
   const { createRecurringSwap, isCreatingRecurringSwap } =
@@ -384,8 +368,6 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     sourceToken,
     minimumTransferAmount,
     currentRequiredTokens,
-    isRecurring,
-    recurringEligibility,
   });
 
   return (
