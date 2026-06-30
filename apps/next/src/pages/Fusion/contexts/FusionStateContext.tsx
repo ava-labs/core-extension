@@ -158,9 +158,9 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     leading: false,
   });
   const debouncedSourceAmountBigInt =
-    debouncedUserAmount && sourceAsset
+    debouncedUserAmount !== '' && sourceAsset
       ? stringToBigint(debouncedUserAmount, sourceAsset.decimals)
-      : 0n;
+      : undefined;
 
   const {
     bestQuote,

@@ -17,6 +17,7 @@ export const areTokenListsEqual = (
     prevProps.tokenId !== nextProps.tokenId ||
     prevProps.query !== nextProps.query ||
     prevProps.hint !== nextProps.hint ||
+    prevProps.chainFilterMode !== nextProps.chainFilterMode ||
     prevProps.disabled !== nextProps.disabled ||
     prevProps.onValueChange !== nextProps.onValueChange ||
     prevProps.onQueryChange !== nextProps.onQueryChange

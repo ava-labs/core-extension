@@ -409,22 +409,35 @@ function TokenSelectRaw(props: TokenSelectProps) {
     isAnyAvalancheNetwork,
     chainFilterMode,
   );
-  const filteredTokenList = useFilteredTokenList(
-    tokenList,
-    selectedChainId,
-    isAnyAvalancheNetwork,
-  );
   const chainOptions = useChainOptions(
     availableChainIds,
     hasAvalancheNetworks,
     chainFilterMode,
+  );
+  const isSelectedChainIdAvailable =
+    selectedChainId === null ||
+    chainOptions.some(({ chainId }) => chainId === selectedChainId);
+  const effectiveSelectedChainId = isSelectedChainIdAvailable
+    ? selectedChainId
+    : null;
+
+  useEffect(() => {
+    if (!isSelectedChainIdAvailable) {
+      setSelectedChainId(null);
+    }
+  }, [isSelectedChainIdAvailable]);
+
+  const filteredTokenList = useFilteredTokenList(
+    tokenList,
+    effectiveSelectedChainId,
+    isAnyAvalancheNetwork,
   );
 
   const sharedProps: InternalProps = {
     ...props,
     filteredTokenList,
     chainOptions,
-    selectedChainId,
+    selectedChainId: effectiveSelectedChainId,
     setSelectedChainId,
   };
 
