@@ -10,6 +10,7 @@ import type { Address } from 'viem';
 import {
   toast,
   useAccountsContext,
+  useAnalyticsContext,
   useErrorMessage,
   useNetworkContext,
 } from '@core/ui';
@@ -39,6 +40,12 @@ export type RecurringSwapOrderToken = {
 };
 
 export type RecurringSwapOrderAction = 'pause' | 'unpause' | 'cancel';
+
+const ORDER_ACTION_EVENT_NAME: Record<RecurringSwapOrderAction, string> = {
+  pause: 'RecurringSwapPausedByUser',
+  unpause: 'RecurringSwapResumedByUser',
+  cancel: 'RecurringSwapCancelledByUser',
+};
 
 export type RecurringSwapOrder = {
   id: string;
@@ -92,6 +99,7 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
     accounts: { active },
   } = useAccountsContext();
   const { getNetwork } = useNetworkContext();
+  const { captureEncrypted } = useAnalyticsContext();
   const getTranslatedError = useErrorMessage();
 
   const address = active?.addressC as Address | undefined;
@@ -252,6 +260,11 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
           setOptimisticStatus(id, 'cancelled');
         }
 
+        captureEncrypted(ORDER_ACTION_EVENT_NAME[action], {
+          chainId: RECURRING_CHAIN_ID,
+          orderId: id,
+        });
+
         refetch();
       } catch (err) {
         if (isUserRejectionError(err)) {
@@ -280,6 +293,7 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
       refetch,
       getTranslatedError,
       setOptimisticStatus,
+      captureEncrypted,
     ],
   );
 

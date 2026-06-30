@@ -132,7 +132,7 @@ export const useCreateRecurringSwap = ({
 
       // The SDK reads the on-chain allowance, signs an approval when needed,
       // then signs and broadcasts the first fill via the injected evmSigner.
-      const { txHash } = await manager.recurring.executeFirstFill({
+      await manager.recurring.executeFirstFill({
         quote,
         fromAddress: from,
         sourceChain,
@@ -141,10 +141,14 @@ export const useCreateRecurringSwap = ({
         signerContext,
       });
 
-      captureEncrypted('RecurringSwapConfirmed', {
+      captureEncrypted('RecurringSwapScheduled', {
         chainId: caipToChainId(sourceChain.chainId),
+        scheduleUuid: quote.uuid,
+        fromTokenSymbol: sourceAsset.symbol,
+        toTokenSymbol: targetAsset.symbol,
+        amountPerOrder: quote.amount.toString(),
         numberOfOrders: quote.numberOfOrders,
-        sourceTxHash: txHash,
+        intervalSeconds: quote.intervalSeconds,
       });
 
       toast.success(t('Recurring swap scheduled'));
