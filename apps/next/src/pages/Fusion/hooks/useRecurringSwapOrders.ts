@@ -58,6 +58,8 @@ export type RecurringSwapOrder = {
 // Recurring swaps are C-Chain only for now.
 const RECURRING_CHAIN_ID = ChainId.AVALANCHE_MAINNET_ID;
 
+const RECURRING_SWAP_ORDERS_QUERY_KEY = 'recurringSwapOrders';
+
 type UseRecurringSwapOrdersResult = {
   orders: RecurringSwapOrder[];
   scheduledCount: number;
@@ -136,7 +138,7 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
     status,
     refetch,
   } = useQuery({
-    queryKey: ['recurringSwapOrders', address, manager?.id],
+    queryKey: [RECURRING_SWAP_ORDERS_QUERY_KEY, address, manager?.id],
     enabled: isRecurringSwapsEnabled,
     queryFn:
       manager && address

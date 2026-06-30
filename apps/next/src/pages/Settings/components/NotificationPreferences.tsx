@@ -39,7 +39,7 @@ export const NotificationPreferences = () => {
       {
         type: BalanceNotificationTypes.BALANCE_CHANGES,
         title: t('Balance'),
-        description: t('Wallet balance change alerts'),
+        description: t('Wallet balance change and recurring swap alerts'),
       },
       {
         type: NewsNotificationTypes.PRODUCT_ANNOUNCEMENTS,

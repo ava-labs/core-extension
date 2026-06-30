@@ -7,6 +7,7 @@ import {
   NotificationsBalanceChangesSubscriptionStorage,
   NotificationsClientIdStorage,
   NotificationsNewsSubscriptionStorage,
+  NotificationsRecurringSwapSubscriptionStorage,
   NotificationTypes,
 } from '@core/types';
 
@@ -15,6 +16,18 @@ export const NOTIFICATIONS_BALANCE_CHANGES_SUBSCRIPTION_STORAGE_KEY =
   'NOTIFICATIONS_BALANCE_CHANGES_SUBSCRIPTION';
 export const NOTIFICATIONS_NEWS_SUBSCRIPTION_STORAGE_KEY =
   'NOTIFICATIONS_NEWS_SUBSCRIPTION';
+export const NOTIFICATIONS_RECURRING_SWAP_SUBSCRIPTION_STORAGE_KEY =
+  'NOTIFICATIONS_RECURRING_SWAP_SUBSCRIPTION';
+export const NOTIFICATIONS_RECURRING_SWAP_DISCOVERY_STORAGE_KEY =
+  'NOTIFICATIONS_RECURRING_SWAP_DISCOVERY';
+
+/**
+ * How long the service worker keeps polling Markr for newly created orders after
+ * a create trigger, to ride out indexing lag before the order is listable.
+ */
+export const RECURRING_SWAP_DISCOVERY_WATCH_WINDOW_MS = 10 * 60 * 1000;
+/** Markr poll cadence while discovery is active (Chrome clamps to >= 1 min). */
+export const RECURRING_SWAP_DISCOVERY_PERIOD_MINUTES = 1;
 
 export const NOTIFICATIONS_CLIENT_ID_DEFAULT_STATE: NotificationsClientIdStorage =
   {
@@ -26,6 +39,11 @@ export const NOTIFICATIONS_BALANCE_CHANGES_SUBSCRIPTION_DEFAULT_STATE: Notificat
     isSubscribed: true,
     addresses: [],
     chainIds: [],
+  };
+
+export const NOTIFICATIONS_RECURRING_SWAP_SUBSCRIPTION_DEFAULT_STATE: NotificationsRecurringSwapSubscriptionStorage =
+  {
+    orderIds: [],
   };
 
 export const NOTIFICATIONS_NEWS_SUBSCRIPTION_DEFAULT_STATE: NotificationsNewsSubscriptionStorage =

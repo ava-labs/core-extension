@@ -7,6 +7,7 @@ export const NotificationTypeSchema = z.enum([
   'BALANCE_CHANGES',
   'PRICE_ALERTS',
   'NEWS',
+  'RECURRING_SWAP',
 ]);
 
 /**
@@ -94,6 +95,38 @@ export const NewsMetadataSchema = z.object({
 });
 
 /**
+ * Recurring (DCA) swap status as reported by the Core notification sender
+ * service in a notification's metadata.
+ */
+export const RecurringSwapStatusSchema = z.enum([
+  'active',
+  'completed',
+  'failed',
+]);
+
+/**
+ * Recurring swap metadata schema.
+ * Numeric counts arrive as strings in the FCM payload but as numbers in the
+ * notification-center history, so they're coerced to numbers here.
+ */
+export const RecurringSwapMetadataSchema = z.object({
+  orderId: z.string(),
+  owner: z.string().optional(),
+  chainId: z.coerce.string().optional(),
+  numberOfOrders: z.coerce.number().optional(),
+  executedOrders: z.coerce.number().optional(),
+  remainingOrders: z.coerce.number().optional(),
+  tokenIn: z.string().optional(),
+  tokenOut: z.string().optional(),
+  amountIn: z.string().optional(),
+  amountOut: z.string().optional(),
+  status: z.union([RecurringSwapStatusSchema, z.string()]).optional(),
+  // Only meaningful on `failed` updates; drives the reason-specific copy.
+  reasonCode: z.coerce.number().optional(),
+  url: z.string().optional(),
+});
+
+/**
  * Notification data payload from backend (generic for parsing)
  */
 export const NotificationDataSchema = z
@@ -114,6 +147,17 @@ export const NotificationDataSchema = z
     transfers: z.array(BalanceChangesTransferSchema).optional(),
     priceChangePercent: z.number().optional(),
     currentPrice: z.number().optional(),
+    orderId: z.string().optional(),
+    owner: z.string().optional(),
+    status: z.string().optional(),
+    reasonCode: z.number().optional(),
+    numberOfOrders: z.number().optional(),
+    executedOrders: z.number().optional(),
+    remainingOrders: z.number().optional(),
+    tokenIn: z.string().optional(),
+    tokenOut: z.string().optional(),
+    amountIn: z.string().optional(),
+    amountOut: z.string().optional(),
   })
   .passthrough();
 
@@ -162,6 +206,8 @@ export type BalanceChangesMetadata = z.infer<
 >;
 export type PriceAlertsMetadata = z.infer<typeof PriceAlertsMetadataSchema>;
 export type NewsMetadata = z.infer<typeof NewsMetadataSchema>;
+export type RecurringSwapMetadata = z.infer<typeof RecurringSwapMetadataSchema>;
+export type RecurringSwapStatus = z.infer<typeof RecurringSwapStatusSchema>;
 
 /**
  * Notification categories mapping to UI tabs
@@ -208,6 +254,10 @@ export type BackendNotification =
   | (BaseNotification & {
       type: 'NEWS';
       data?: NewsMetadata;
+    })
+  | (BaseNotification & {
+      type: 'RECURRING_SWAP';
+      data?: RecurringSwapMetadata;
     });
 
 /**
@@ -240,6 +290,18 @@ export function isBalanceChangeNotification(
 }
 
 /**
+ * Type guard for recurring swap notifications
+ */
+export function isRecurringSwapNotification(
+  notification: AppNotification,
+): notification is BaseNotification & {
+  type: 'RECURRING_SWAP';
+  data?: RecurringSwapMetadata;
+} {
+  return notification.type === 'RECURRING_SWAP';
+}
+
+/**
  * Map notification type to category for UI tabs
  */
 export function mapTypeToCategory(
@@ -247,6 +309,7 @@ export function mapTypeToCategory(
 ): NotificationCategory {
   switch (type) {
     case 'BALANCE_CHANGES':
+    case 'RECURRING_SWAP':
       return NotificationCategory.TRANSACTION;
     case 'PRICE_ALERTS':
       return NotificationCategory.PRICE_UPDATE;
@@ -310,6 +373,14 @@ export function transformNotification(
       return {
         ...base,
         type: 'PRICE_ALERTS',
+        data: parsed.success ? parsed.data : undefined,
+      };
+    }
+    case 'RECURRING_SWAP': {
+      const parsed = RecurringSwapMetadataSchema.safeParse(response.metadata);
+      return {
+        ...base,
+        type: 'RECURRING_SWAP',
         data: parsed.success ? parsed.data : undefined,
       };
     }

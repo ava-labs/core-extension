@@ -1,13 +1,20 @@
 import { ComponentType, FC } from 'react';
 import { Box, useTheme, withThemeInvert } from '@avalabs/k2-alpine';
-import { MdCallMade, MdCheck, MdTrendingUp } from 'react-icons/md';
+import {
+  MdCallMade,
+  MdCheck,
+  MdOutlineRotateRight,
+  MdTrendingUp,
+} from 'react-icons/md';
 import { TiArrowShuffle } from 'react-icons/ti';
 import {
   AppNotification,
   BalanceChangeEvent,
   isBalanceChangeNotification,
+  isRecurringSwapNotification,
 } from '@core/types';
 import { useNetworkContext } from '@core/ui';
+
 import CoreLogoDark from '@/images/core.svg';
 import CoreLogoLight from '@/images/core-light.svg';
 import { ChainBadge } from '@/components/ChainBadge';
@@ -15,7 +22,7 @@ import { ChainBadge } from '@/components/ChainBadge';
 const InvertedBox = withThemeInvert(Box);
 
 const ICON_SIZE = 32;
-const CHAIN_BADGE_SIZE = 14;
+const CHAIN_BADGE_SIZE = 16;
 
 const ReceivedIcon: ComponentType<{ size: number; color: string }> = (
   props,
@@ -59,6 +66,8 @@ export const NotificationIcon: FC<NotificationIconProps> = ({
       }
       case 'PRICE_ALERTS':
         return <MdTrendingUp size={16} color={iconColor} />;
+      case 'RECURRING_SWAP':
+        return <MdOutlineRotateRight size={20} color={iconColor} />;
       case 'NEWS':
       default:
         return (
@@ -73,8 +82,11 @@ export const NotificationIcon: FC<NotificationIconProps> = ({
   };
 
   const renderChainBadge = () => {
-    if (!isBalanceChangeNotification(notification)) return null;
-    const chainId = notification.data?.chainId;
+    const chainId =
+      isBalanceChangeNotification(notification) ||
+      isRecurringSwapNotification(notification)
+        ? notification.data?.chainId
+        : undefined;
     if (!chainId) return null;
 
     const network = getNetwork(Number(chainId));

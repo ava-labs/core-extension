@@ -14,6 +14,7 @@ import {
   NOTIFICATIONS_CLIENT_ID_STORAGE_KEY,
 } from './constants';
 import { NewsNotificationService } from './NewsNotificationService';
+import { RecurringSwapNotificationService } from './RecurringSwapNotificationService';
 import { sendRequest } from './utils/sendRequest';
 
 @singleton()
@@ -26,6 +27,7 @@ export class NotificationsService {
     private firebaseService: FirebaseService,
     private balanceNotificationService: BalanceNotificationService,
     private newsNotificationService: NewsNotificationService,
+    private recurringSwapNotificationService: RecurringSwapNotificationService,
   ) {
     this.firebaseService.addFirebaseEventListener(
       FirebaseEvents.FCM_INITIALIZED,
@@ -80,6 +82,7 @@ export class NotificationsService {
     const onPushReceived = () => this.notifyNotificationCenterChanged();
     await this.balanceNotificationService.init(deviceArn, onPushReceived);
     await this.newsNotificationService.init(deviceArn, onPushReceived);
+    await this.recurringSwapNotificationService.init(deviceArn, onPushReceived);
   }
 
   /** Called by `wallet_notifyNotificationCenterChanged` RPC (from Core Web). */
