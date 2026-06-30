@@ -41,6 +41,14 @@ const getNetworkCaipIdForChainAlias = (
   return isTestnet ? AvalancheCaip2ChainId.X_TESTNET : AvalancheCaip2ChainId.X;
 };
 
+const addChainAddressPrefix = (
+  address: string,
+  chainAlias: AvalancheBlockchainAlias,
+) =>
+  address.startsWith(`${chainAlias}-`)
+    ? address
+    : `${chainAlias}-${stripAddressPrefix(address)}`;
+
 const unavailableAvalancheFunctions: AvalancheFunctions = {
   avalancheSendTx: () => {
     throw new Error('Avalanche CCT is not available for the active account.');
@@ -104,7 +112,9 @@ export const useAvalancheFunctions = (): AvalancheFunctions => {
       }
 
       if (chainAlias === 'C') {
-        return active.addressCoreEth ? [active.addressCoreEth] : [];
+        return active.addressCoreEth
+          ? [addChainAddressPrefix(active.addressCoreEth, chainAlias)]
+          : [];
       }
 
       const baseAddress =
@@ -116,7 +126,9 @@ export const useAvalancheFunctions = (): AvalancheFunctions => {
         baseAddress,
         ...addresses.externalAddresses.map(({ address }) => address),
         ...addresses.internalAddresses.map(({ address }) => address),
-      ].filter((address): address is string => Boolean(address));
+      ]
+        .filter((address): address is string => Boolean(address))
+        .map((address) => addChainAddressPrefix(address, chainAlias));
     },
     [active, getXPAddresses],
   );
@@ -136,7 +148,7 @@ export const useAvalancheFunctions = (): AvalancheFunctions => {
         throw new Error(`Missing Avalanche ${chainAlias}-Chain address.`);
       }
 
-      return address;
+      return addChainAddressPrefix(address, chainAlias);
     },
     [active],
   );
@@ -240,7 +252,7 @@ export const useAvalancheFunctions = (): AvalancheFunctions => {
           throw new Error('Unknown Avalanche C-Chain address.');
         }
 
-        return active.addressCoreEth;
+        return addChainAddressPrefix(active.addressCoreEth, 'C');
       },
       getUtxos: async (chainAlias) => {
         const wallet = await getWallet();

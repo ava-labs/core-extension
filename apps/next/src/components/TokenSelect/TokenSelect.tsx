@@ -399,7 +399,7 @@ function TokenSelectWithSeparator({
 }
 
 function TokenSelectRaw(props: TokenSelectProps) {
-  const { tokenList } = props;
+  const { tokenList, chainFilterMode = 'group-avalanche' } = props;
   const [selectedChainId, setSelectedChainId] = useState<
     number | 'avalanche' | null
   >(null);
@@ -407,13 +407,18 @@ function TokenSelectRaw(props: TokenSelectProps) {
   const { availableChainIds, hasAvalancheNetworks } = useChainIds(
     tokenList,
     isAnyAvalancheNetwork,
+    chainFilterMode,
   );
   const filteredTokenList = useFilteredTokenList(
     tokenList,
     selectedChainId,
     isAnyAvalancheNetwork,
   );
-  const chainOptions = useChainOptions(availableChainIds, hasAvalancheNetworks);
+  const chainOptions = useChainOptions(
+    availableChainIds,
+    hasAvalancheNetworks,
+    chainFilterMode,
+  );
 
   const sharedProps: InternalProps = {
     ...props,

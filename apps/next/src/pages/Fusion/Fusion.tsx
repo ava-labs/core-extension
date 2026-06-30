@@ -14,6 +14,7 @@ import {
 import { useRecurringSwapState } from './contexts/RecurringSwapContext';
 import { SwapContent } from './SwapContent';
 import { SwapProviderNotice } from './components/SwapProviderNotice';
+import { SwapCctTransactionWarning } from './components/SwapCctTransactionWarning';
 
 const POLLED_BALANCES = [
   VmTokenType.NATIVE,
@@ -63,6 +64,7 @@ const FusionPage = () => {
           gap={1}
           textAlign="center"
         >
+          <SwapCctTransactionWarning />
           <SwapProviderNotice />
           <Tooltip
             title={
@@ -109,7 +111,7 @@ const SwapActionButtonsContainer = styled(Stack)(({ theme }) => ({
   position: 'sticky',
   bottom: 0,
   zIndex: 100,
-  height: '100px',
+  minHeight: '100px',
   marginLeft: `-${theme.spacing(1.5)}`,
   marginRight: `-${theme.spacing(1.5)}`,
   paddingTop: theme.spacing(1),

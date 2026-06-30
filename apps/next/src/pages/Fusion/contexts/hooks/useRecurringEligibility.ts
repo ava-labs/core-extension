@@ -4,6 +4,7 @@ import {
   type Asset,
   type TransferManager,
   RecurringEligibilityReason,
+  isServiceUnavailableError,
 } from '@avalabs/fusion-sdk';
 
 import { getRecurringTokenAddress } from '../../lib/getRecurringTokenAddress';
@@ -32,6 +33,7 @@ type UseRecurringEligibilityProps = {
   ownerAddress: string | undefined;
   /** Per-order amount (smallest unit). `0n` skips the minimum check. */
   amount: bigint;
+  enabled: boolean;
 };
 
 export const useRecurringEligibility = ({
@@ -42,9 +44,11 @@ export const useRecurringEligibility = ({
   targetChainId,
   ownerAddress,
   amount,
+  enabled,
 }: UseRecurringEligibilityProps): RecurringEligibility =>
   useMemo(() => {
     if (
+      !enabled ||
       !manager ||
       !sourceAsset ||
       !targetAsset ||
@@ -66,14 +70,28 @@ export const useRecurringEligibility = ({
     // Passing `amount` only when > 0 keeps the toggle visible (pair stays
     // eligible) before the user has typed anything, while still flagging a
     // too-small amount once they have.
-    const result = manager.recurring.checkEligibility({
-      fromTokenAddress,
-      toTokenAddress,
-      sourceChainId,
-      targetChainId,
-      ownerAddress: ownerAddress as Address,
-      amount: amount > 0n ? amount : undefined,
-    });
+    const result = (() => {
+      try {
+        return manager.recurring.checkEligibility({
+          fromTokenAddress,
+          toTokenAddress,
+          sourceChainId,
+          targetChainId,
+          ownerAddress: ownerAddress as Address,
+          amount: amount > 0n ? amount : undefined,
+        });
+      } catch (err) {
+        if (isServiceUnavailableError(err)) {
+          return undefined;
+        }
+
+        throw err;
+      }
+    })();
+
+    if (!result) {
+      return NOT_ELIGIBLE;
+    }
 
     if (result.eligible) {
       return {
@@ -102,4 +120,5 @@ export const useRecurringEligibility = ({
     targetChainId,
     ownerAddress,
     amount,
+    enabled,
   ]);
