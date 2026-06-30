@@ -7,6 +7,7 @@ import { TransactionStatusEventsSubscriber } from '~/services/transactions/Trans
 import { GasStationService } from '../services/gasless/GasStationService';
 import { LockService } from '../services/lock/LockService';
 import { NotificationsService } from '../services/notifications/NotificationsService';
+import { RecurringSwapNotificationService } from '../services/notifications/RecurringSwapNotificationService';
 import { OnboardingService } from '../services/onboarding/OnboardingService';
 import { AddressResolver } from '../services/secrets/AddressResolver';
 import { SettingsService } from '../services/settings/SettingsService';
@@ -26,6 +27,7 @@ export class BackgroundRuntime {
     private appCheckService: AppCheckService,
     private gasStationService: GasStationService,
     private notificationsService: NotificationsService,
+    private recurringSwapNotificationService: RecurringSwapNotificationService,
     private settingsService: SettingsService,
     private transferTrackingService: TransferTrackingService,
     // Injected so it is created at startup and subscribes to TransactionStatusEvents
@@ -47,6 +49,7 @@ export class BackgroundRuntime {
 
     this.addressResolver.init(this.moduleManager);
     this.appCheckService.activate();
+    this.recurringSwapNotificationService.activate();
     this.#createOffScreen();
   }
 

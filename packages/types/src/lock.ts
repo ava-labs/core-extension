@@ -11,6 +11,7 @@ export enum LockEvents {
 
 export enum AlarmsEvents {
   AUTO_LOCK = 'auto-lock',
+  RECURRING_SWAP_SUBSCRIPTION_DISCOVERY = 'recurring-swap-subscription-discovery',
 }
 
 export interface LockStateChangedEventPayload {

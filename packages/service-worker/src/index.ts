@@ -76,6 +76,7 @@ export type { GetNotificationSubscriptions } from './services/notifications/hand
 export type { MarkAllNotificationsAsRead } from './services/notifications/handlers/markAllNotificationsAsRead';
 export type { MarkNotificationAsRead } from './services/notifications/handlers/markNotificationAsRead';
 export type { SubscribeToNotification } from './services/notifications/handlers/subscribe';
+export type { DiscoverRecurringSwaps } from './services/notifications/handlers/discoverRecurringSwaps';
 export type { UnsubscribeFromNotification } from './services/notifications/handlers/unsubscribe';
 export type { GetIsOnboardedHandler } from './services/onboarding/handlers/getIsOnBoarded';
 export type { OpenExtensionPopupWindowHandler } from './services/onboarding/handlers/openExtensionPopupWindow';
