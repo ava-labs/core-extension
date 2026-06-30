@@ -1,5 +1,9 @@
-import { createTransferManager, TransferManager } from '@avalabs/fusion-sdk';
-import { useEffect, useState } from 'react';
+import {
+  createTransferManager,
+  type TransferManager,
+  type TransferStepDetails,
+} from '@avalabs/fusion-sdk';
+import { type RefObject, useEffect, useState } from 'react';
 
 import { useFeatureFlagContext } from '@core/ui';
 import { hasAtLeastOneElement, getEnabledTransferServices } from '@core/common';
@@ -8,7 +12,9 @@ import { useSigners } from './useSigners';
 import { useTransferEnvironment } from './useTransferEnvironment';
 import { useTransferServiceInitializers } from './useTransferServiceInitializers';
 
-export const useTransferManager = () => {
+export const useTransferManager = (
+  transferStepRef?: RefObject<TransferStepDetails | undefined>,
+) => {
   const { featureFlags } = useFeatureFlagContext();
   const [manager, setManager] = useState<TransferManager>();
   const [error, setError] = useState(false);
@@ -19,6 +25,7 @@ export const useTransferManager = () => {
   const serviceInitializers = useTransferServiceInitializers(
     enabledServices,
     signers,
+    transferStepRef,
   );
 
   useEffect(() => {

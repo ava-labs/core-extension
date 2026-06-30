@@ -1,8 +1,12 @@
-import { useCallback, useMemo } from 'react';
+import { type RefObject, useCallback, useMemo } from 'react';
 import { utils } from '@avalabs/avalanchejs';
 import { AvalancheCaip2ChainId, ChainId } from '@avalabs/core-chains-sdk';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
-import { AvalancheBlockchainAlias } from '@avalabs/fusion-sdk';
+import {
+  AvalancheBlockchainAlias,
+  ServiceType,
+  type TransferStepDetails,
+} from '@avalabs/fusion-sdk';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import {
   AvalancheFunctions,
@@ -21,6 +25,7 @@ import {
 import { getAvalancheProvider } from '@/lib/getAvalancheProvider';
 
 import { useGetXPAddresses } from '@/hooks/useGetXPAddresses';
+import { buildRequestContext } from '../../lib/signers/lib/buildRequestContext';
 
 const getNetworkCaipIdForChainAlias = (
   chainAlias: AvalancheBlockchainAlias,
@@ -70,7 +75,9 @@ const unavailableAvalancheFunctions: AvalancheFunctions = {
   },
 };
 
-export const useAvalancheFunctions = (): AvalancheFunctions => {
+export const useAvalancheFunctions = (
+  transferStepRef?: RefObject<TransferStepDetails | undefined>,
+): AvalancheFunctions => {
   const {
     accounts: { active },
   } = useAccountsContext();
@@ -224,6 +231,12 @@ export const useAvalancheFunctions = (): AvalancheFunctions => {
             return indices;
           }, [] as number[]);
 
+        const transferStep = transferStepRef?.current;
+        const context =
+          transferStep?.quote.serviceType === ServiceType.AVALANCHE_CCT
+            ? buildRequestContext(transferStep)
+            : undefined;
+
         return request(
           {
             method: RpcMethod.AVALANCHE_SEND_TRANSACTION,
@@ -239,6 +252,7 @@ export const useAvalancheFunctions = (): AvalancheFunctions => {
           },
           {
             scope: getNetworkCaipIdForChainAlias(chainAlias, isTestnet),
+            ...(context ? { context } : {}),
           },
         ) as Promise<string>;
       },
@@ -293,5 +307,6 @@ export const useAvalancheFunctions = (): AvalancheFunctions => {
     isLedgerWallet,
     isTestnet,
     request,
+    transferStepRef,
   ]);
 };
