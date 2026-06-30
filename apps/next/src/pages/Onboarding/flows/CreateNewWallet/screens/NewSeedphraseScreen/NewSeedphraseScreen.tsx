@@ -49,7 +49,7 @@ export const NewSeedphraseScreen: FC<NewSeedphraseScreenProps> = ({
       <FullscreenModalDescription>
         {t(`This phrase is your access key to your wallet.`)}
       </FullscreenModalDescription>
-      <FullscreenModalContent>
+      <FullscreenModalContent sx={{ paddingTop: 2.5 }}>
         <SeedphraseGrid phrase={generatedSeedphrase} />
         <Stack alignItems="center" mt={1.5}>
           <Button
