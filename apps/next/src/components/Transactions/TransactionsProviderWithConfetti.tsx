@@ -11,6 +11,27 @@ import { openNewTab, getExplorerAddressByNetwork } from '@core/common';
 import { NetworkWithCaipId } from '@core/types';
 import { useIsOptimisticConfirmationEnabled } from '@core/ui';
 
+// Confetti is reserved for high-impact successes (swaps, first fill of a new
+// recurring order). Administrative recurring actions — pausing, resuming or
+// cancelling an existing order — are not milestones, so they get a plain
+// success toast only. `schedule` still celebrates: it broadcasts the first fill.
+const isAdministrativeRecurringAction = (
+  context: TransactionStatusCallbackParams['context'],
+): boolean => {
+  const recurringSwaps = context?.recurringSwaps;
+
+  if (
+    !recurringSwaps ||
+    typeof recurringSwaps !== 'object' ||
+    !('action' in recurringSwaps)
+  ) {
+    return false;
+  }
+
+  const { action } = recurringSwaps;
+  return action === 'pause' || action === 'unpause' || action === 'cancel';
+};
+
 export const TransactionStatusProviderWithConfetti = ({
   children,
 }: PropsWithChildren) => {
@@ -19,12 +40,12 @@ export const TransactionStatusProviderWithConfetti = ({
   const shouldUseOptimisticConfirmations = useIsOptimisticConfirmationEnabled();
 
   const handlePending = useCallback(
-    async ({ network }: TransactionStatusCallbackParams) => {
+    async ({ network, context }: TransactionStatusCallbackParams) => {
       history.replace('/');
       const showSuccessOnPending =
         await shouldUseOptimisticConfirmations(network);
 
-      if (showSuccessOnPending) {
+      if (showSuccessOnPending && !isAdministrativeRecurringAction(context)) {
         triggerConfetti();
       }
     },
@@ -32,11 +53,11 @@ export const TransactionStatusProviderWithConfetti = ({
   );
 
   const handleSuccess = useCallback(
-    async ({ network }: TransactionStatusCallbackParams) => {
+    async ({ network, context }: TransactionStatusCallbackParams) => {
       const showSuccessOnPending =
         await shouldUseOptimisticConfirmations(network);
 
-      if (!showSuccessOnPending) {
+      if (!showSuccessOnPending && !isAdministrativeRecurringAction(context)) {
         triggerConfetti();
       }
     },

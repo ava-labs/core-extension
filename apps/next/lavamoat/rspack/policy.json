@@ -382,6 +382,7 @@
         "@avalabs/core-chains-sdk": true,
         "@avalabs/core-utils-sdk": true,
         "@avalabs/core-wallets-sdk": true,
+        "@avalabs/fusion-sdk": true,
         "@core/ui>@avalabs/glacier-sdk": true,
         "@core/ui>@avalabs/hw-app-avalanche": true,
         "@avalabs/k2-alpine": true,
