@@ -410,6 +410,7 @@
         "@core/ui>ledger-bitcoin": true,
         "@core/ui>lodash": true,
         "@core/ui>micro-signals": true,
+        "@rsbuild/plugin-node-polyfill>process": true,
         "react": true,
         "react-i18next": true,
         "@core/ui>react-router-dom": true,

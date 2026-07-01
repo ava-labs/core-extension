@@ -10,10 +10,14 @@ import {
 import { UnifiedTransferSigners } from '@core/types';
 import { MARKR_EVM_PARTNER_ID } from './constants';
 
+export type GetTargetChainAssets =
+  MarkrServiceInitializer['getTargetChainAssets'];
+
 export function getServiceInitializer(
   type: ServiceType,
   btcFunctions: BitcoinFunctions,
   { btc, evm, svm }: UnifiedTransferSigners,
+  getTargetChainAssets?: GetTargetChainAssets,
 ): ServiceInitializer {
   switch (type) {
     case ServiceType.AVALANCHE_EVM:
@@ -31,12 +35,13 @@ export function getServiceInitializer(
         markrApiToken: process.env.MARKR_API_TOKEN,
         markrApiUrl: process.env.MARKR_API_URL,
         markrAppId: MARKR_EVM_PARTNER_ID,
-        async getTargetChainAssets() {
-          return {
-            assets: [],
-            meta: { currentPage: 1, nextPage: undefined, hasMore: false },
-          };
-        },
+        getTargetChainAssets:
+          getTargetChainAssets ??
+          (() =>
+            Promise.resolve({
+              assets: [],
+              meta: { currentPage: 1, nextPage: undefined, hasMore: false },
+            })),
       } satisfies MarkrServiceInitializer;
 
     case ServiceType.LOMBARD_BTCB_TO_BTC:
