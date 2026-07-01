@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { Chain, Asset, TransferManager } from '@avalabs/fusion-sdk';
 
+import { formatAvalancheCctQuoteAddress } from '../../lib/formatAvalancheCctQuoteAddress';
+
 // Extracts keys that are required (not optional) in T
 type RequiredKeys<T> = {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -67,11 +69,25 @@ const hasRequiredParams = (
 ): props is RequiredQuoterProps =>
   Object.entries(props).every(
     ([key, value]) =>
-      (OPTIONAL_QUOTER_PROPS as string[]).includes(key) || Boolean(value),
+      (OPTIONAL_QUOTER_PROPS as string[]).includes(key) ||
+      isRequiredParamPresent(value),
   );
 
+const isRequiredParamPresent = (value: unknown) =>
+  value !== undefined && value !== null && value !== '';
+
 const buildQuoter = ({ manager, ...props }: RequiredQuoterProps) =>
-  manager.getQuoter(props);
+  manager.getQuoter({
+    ...props,
+    fromAddress: formatAvalancheCctQuoteAddress(
+      props.fromAddress,
+      props.sourceChain,
+    ),
+    toAddress: formatAvalancheCctQuoteAddress(
+      props.toAddress,
+      props.targetChain,
+    ),
+  });
 
 const useMemoizedProps = ({
   manager,

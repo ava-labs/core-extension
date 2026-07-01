@@ -8,6 +8,7 @@ import {
 } from '@core/common';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { ChainOption } from './components/ChainFilterChips';
+import { ChainFilterMode } from './types';
 
 /**
  * Helper to check if a chain ID is any Avalanche network (C, X, or P)
@@ -28,10 +29,18 @@ export const useIsAnyAvalancheNetwork = () => {
 export const useChainIds = (
   tokenList: FungibleTokenBalance[],
   isAnyAvalancheNetwork: (chainId: number) => boolean,
+  chainFilterMode: ChainFilterMode,
 ) => {
   return useMemo(() => {
     const chainIds = new Set(tokenList.map((token) => token.coreChainId));
     const allChainIds = Array.from(chainIds);
+
+    if (chainFilterMode === 'avalanche-cct') {
+      return {
+        availableChainIds: allChainIds.toSorted(sortChainIds),
+        hasAvalancheNetworks: false,
+      };
+    }
 
     // Separate Avalanche and non-Avalanche networks
     const avalancheChainIds: number[] = [];
@@ -45,14 +54,11 @@ export const useChainIds = (
       }
     });
 
-    // Sort non-Avalanche chains
-    nonAvalancheChainIds.sort((a, b) => a - b);
-
     return {
-      availableChainIds: nonAvalancheChainIds,
+      availableChainIds: nonAvalancheChainIds.toSorted(sortChainIds),
       hasAvalancheNetworks: avalancheChainIds.length > 0,
     };
-  }, [tokenList, isAnyAvalancheNetwork]);
+  }, [tokenList, isAnyAvalancheNetwork, chainFilterMode]);
 };
 
 /**
@@ -88,6 +94,7 @@ export const useFilteredTokenList = (
 export const useChainOptions = (
   availableChainIds: number[],
   hasAvalancheNetworks: boolean,
+  chainFilterMode: ChainFilterMode,
 ) => {
   const { getNetwork } = useNetworkContext();
 
@@ -108,11 +115,62 @@ export const useChainOptions = (
       const network = getNetwork(chainId);
       options.push({
         chainId,
-        chainName: network?.chainName ?? `Chain ${chainId}`,
+        chainName:
+          chainFilterMode === 'avalanche-cct'
+            ? getChainFilterName(chainId, network?.chainName)
+            : (network?.chainName ?? `Chain ${chainId}`),
         logoUri: network?.logoUri,
       });
     });
 
     return options;
-  }, [availableChainIds, hasAvalancheNetworks, getNetwork]);
+  }, [availableChainIds, hasAvalancheNetworks, getNetwork, chainFilterMode]);
+};
+
+const sortChainIds = (a: number, b: number) => {
+  const aPriority = getAvalancheChainPriority(a);
+  const bPriority = getAvalancheChainPriority(b);
+
+  if (aPriority !== -1 || bPriority !== -1) {
+    if (aPriority === -1) return 1;
+    if (bPriority === -1) return -1;
+    return aPriority - bPriority;
+  }
+
+  return a - b;
+};
+
+const getAvalancheChainPriority = (chainId: number) => {
+  if (isAvalancheChainId(chainId)) {
+    return 0;
+  }
+
+  if (isPchainNetworkId(chainId)) {
+    return 1;
+  }
+
+  if (isXchainNetworkId(chainId)) {
+    return 2;
+  }
+
+  return -1;
+};
+
+const getChainFilterName = (
+  chainId: number,
+  fallbackName = `Chain ${chainId}`,
+) => {
+  if (isAvalancheChainId(chainId)) {
+    return 'C-Chain';
+  }
+
+  if (isPchainNetworkId(chainId)) {
+    return 'P-Chain';
+  }
+
+  if (isXchainNetworkId(chainId)) {
+    return 'X-Chain';
+  }
+
+  return fallbackName;
 };

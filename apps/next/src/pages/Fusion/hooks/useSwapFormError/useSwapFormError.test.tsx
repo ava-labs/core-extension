@@ -57,4 +57,30 @@ describe('useSwapFormError', () => {
 
     expect(result.current).toBe('');
   });
+
+  it('validates an explicit zero amount against the minimum', () => {
+    const { result } = renderHook(() =>
+      useSwapFormError({
+        ...baseArgs,
+        debouncedUserAmount: '0',
+        minimumTransferAmount: 1n,
+      }),
+    );
+
+    expect(result.current).toBe(
+      'Minimum possible amount is {{amount}} {{symbol}}',
+    );
+  });
+
+  it('does not validate an empty amount', () => {
+    const { result } = renderHook(() =>
+      useSwapFormError({
+        ...baseArgs,
+        debouncedUserAmount: '',
+        minimumTransferAmount: 1n,
+      }),
+    );
+
+    expect(result.current).toBe('');
+  });
 });

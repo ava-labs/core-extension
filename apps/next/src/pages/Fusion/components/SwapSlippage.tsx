@@ -14,6 +14,7 @@ import * as Styled from './Styled';
 import { SwapSlippageDetails } from './SwapSlippage/SwapSlippageDetails';
 import { isMarkrQuote } from '../lib/isMarkrQuote';
 import { formatBasisPointsToPercentage } from '../lib/formatBasisPointsToPercentage';
+import { shouldShowSlippageAndPriceImpact } from '../lib/shouldShowSlippageAndPriceImpact';
 
 export const SwapSlippage = () => {
   const { t } = useTranslation();
@@ -22,6 +23,10 @@ export const SwapSlippage = () => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   const isSlippageApplicable = isMarkrQuote(selectedQuote);
+
+  if (!shouldShowSlippageAndPriceImpact(selectedQuote)) {
+    return null;
+  }
 
   // Format display value
   const displayValue = isSlippageApplicable

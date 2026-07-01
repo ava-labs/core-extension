@@ -3,6 +3,7 @@ import {
   FC,
   useCallback,
   useContext,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -13,7 +14,11 @@ import {
   useSettingsContext,
 } from '@core/ui';
 import { useHistory } from 'react-router-dom';
-import { Quote, ServiceType } from '@avalabs/fusion-sdk';
+import {
+  Quote,
+  ServiceType,
+  type TransferStepDetails,
+} from '@avalabs/fusion-sdk';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { useDebouncedValue } from '@tanstack/react-pacer';
 
@@ -92,7 +97,9 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     selectFeatureFlag(FeatureVars.FUSION_TRANSFER_GAS_MARGIN_BPS),
   );
 
-  const { manager, error: initializationError } = useTransferManager();
+  const transferStepRef = useRef<TransferStepDetails | undefined>(undefined);
+  const { manager, error: initializationError } =
+    useTransferManager(transferStepRef);
   const supportedChainsMap = useSupportedChainsMap(manager);
   const sourceTokenList = useSwapSourceTokenList(supportedChainsMap);
   const sourceToken = useSwapSourceToken(sourceTokenList, fromId);
@@ -142,11 +149,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const isAmountHigherThanBalance =
     sourceAmountBigInt > (sourceToken?.balance ?? 0n);
 
-  const isAmountLowerThanMinimum =
-    typeof minimumTransferAmount === 'bigint' &&
-    sourceAmountBigInt < minimumTransferAmount;
-
-  const skipFetching = isAmountHigherThanBalance || isAmountLowerThanMinimum;
+  const skipFetching = isAmountHigherThanBalance;
 
   // Avoid spamming quoters by debouncing the user amount
   const [debouncedUserAmount] = useDebouncedValue(userAmount, {
@@ -155,9 +158,9 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     leading: false,
   });
   const debouncedSourceAmountBigInt =
-    debouncedUserAmount && sourceAsset
+    debouncedUserAmount !== '' && sourceAsset
       ? stringToBigint(debouncedUserAmount, sourceAsset.decimals)
-      : 0n;
+      : undefined;
 
   const {
     bestQuote,
@@ -221,13 +224,19 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
             }
           : undefined;
 
+        transferStepRef.current = undefined;
+
         const transferObject = await manager.transferAsset({
           quote: quoteToUse,
           gasSettings: {
             estimateGasMarginBps: transferMarginBps,
             ...gasSettings,
           },
+          onStepChange: (step) => {
+            transferStepRef.current = step;
+          },
         });
+        transferStepRef.current = undefined;
 
         captureEncrypted('SwapConfirmed', {
           sourceAddress: fromAddress,
@@ -247,6 +256,8 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
             : '/',
         );
       } catch (err) {
+        transferStepRef.current = undefined;
+
         if (isUserRejectionError(err)) {
           setIsConfirming(false);
           return;
