@@ -1,6 +1,7 @@
 import { errorCodes } from 'eth-rpc-errors';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { isHttpError } from '@avalabs/fusion-sdk';
 
 import { isWrappedError } from '@core/common';
 import {
@@ -17,6 +18,38 @@ import {
 type ErrorTranslation = {
   title: string;
   hint?: string;
+};
+
+// Markr (and other Fusion SDK backends) surface validation failures as an
+// `HttpError` whose parsed JSON/text body holds the human-readable reason
+// (e.g. "Minimum execution time between orders is 300 seconds"). The error's
+// own `message` is only the status line ("HTTP 400 Bad Request"), so we dig
+// the actionable copy out of the response body when present.
+const getBackendErrorMessage = (data: unknown): string | undefined => {
+  if (typeof data === 'string') {
+    return data.trim() || undefined;
+  }
+
+  if (data && typeof data === 'object') {
+    const record = data as Record<string, unknown>;
+
+    if (typeof record.message === 'string' && record.message.trim()) {
+      return record.message;
+    }
+
+    if (typeof record.error === 'string' && record.error.trim()) {
+      return record.error;
+    }
+
+    if (record.error && typeof record.error === 'object') {
+      const nested = (record.error as Record<string, unknown>).message;
+      if (typeof nested === 'string' && nested.trim()) {
+        return nested;
+      }
+    }
+  }
+
+  return undefined;
 };
 
 export const useErrorMessage = () => {
@@ -379,6 +412,11 @@ export const useErrorMessage = () => {
 
       if (isWrappedError(error)) {
         message = messages[error.data.reason] ?? messages[CommonError.Unknown];
+      } else if (isHttpError(error)) {
+        const backendMessage = getBackendErrorMessage(error.data);
+        if (backendMessage) {
+          return { title: backendMessage };
+        }
       } else if (
         typeof error === 'object' &&
         error !== null &&

@@ -67,6 +67,11 @@ const RECURRING_CHAIN_ID = ChainId.AVALANCHE_MAINNET_ID;
 
 const RECURRING_SWAP_ORDERS_QUERY_KEY = 'recurringSwapOrders';
 
+// Poll while the orders are on screen so state driven by the backend (executed
+// count, next execution, status flips from pause/resume) refreshes without the
+// user having to close and reopen the page.
+const RECURRING_SWAP_ORDERS_REFETCH_INTERVAL_MS = 15_000;
+
 type UseRecurringSwapOrdersResult = {
   orders: RecurringSwapOrder[];
   scheduledCount: number;
@@ -148,6 +153,8 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
   } = useQuery({
     queryKey: [RECURRING_SWAP_ORDERS_QUERY_KEY, address, manager?.id],
     enabled: isRecurringSwapsEnabled,
+    refetchInterval: RECURRING_SWAP_ORDERS_REFETCH_INTERVAL_MS,
+    refetchOnWindowFocus: true,
     queryFn:
       manager && address
         ? () =>
