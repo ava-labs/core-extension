@@ -22,6 +22,14 @@ export const SwapPair = () => {
     updateQuery,
     sourceTokenList,
     targetTokenList,
+    fetchNextTargetTokenPage,
+    isTargetTokenListLoading,
+    isTargetTokenListFetching,
+    targetChainOptions,
+    selectedTargetChainId,
+    setSelectedTargetChainId,
+    setIsTargetSelectOpen,
+    onTargetTokenChange,
     sourceToken,
     targetToken,
     userAmount,
@@ -101,7 +109,7 @@ export const SwapPair = () => {
           tokensForAccount={targetTokenList}
           onTokenChange={(value) => {
             unpin();
-            updateQuery({ to: value, toQuery: '' });
+            onTargetTokenChange(value);
           }}
           tokenQuery={toQuery}
           onQueryChange={(q) => updateQuery({ toQuery: q })}
@@ -113,6 +121,18 @@ export const SwapPair = () => {
             minimumRequiredTokens.state === 'loading' ||
             (quotesStatus === 'loading' && !selectedQuote)
           }
+          onEndReached={fetchNextTargetTokenPage}
+          defaultChainId="avalanche"
+          externalChainOptions={
+            targetChainOptions.length > 0 ? targetChainOptions : undefined
+          }
+          onChainChange={setSelectedTargetChainId}
+          selectedChainId={selectedTargetChainId}
+          onOpenChange={setIsTargetSelectOpen}
+          isLoadingTokens={
+            isTargetTokenListLoading || isTargetTokenListFetching
+          }
+          selectedTokenFallback={targetToken}
         />
       </Stack>
     </Card>

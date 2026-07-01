@@ -12,12 +12,22 @@ export const areTokenListsEqual = (
   // Compare all props except tokenList
   // IMPORTANT: Also compare callbacks to ensure component re-renders when callbacks change
   // This is critical because callbacks may capture outdated closures (e.g., outdated searchParams)
+  const prevFallbackId = prevProps.selectedTokenFallback
+    ? getUniqueTokenId(prevProps.selectedTokenFallback)
+    : undefined;
+  const nextFallbackId = nextProps.selectedTokenFallback
+    ? getUniqueTokenId(nextProps.selectedTokenFallback)
+    : undefined;
+
   if (
     prevProps.id !== nextProps.id ||
     prevProps.tokenId !== nextProps.tokenId ||
     prevProps.query !== nextProps.query ||
     prevProps.hint !== nextProps.hint ||
     prevProps.disabled !== nextProps.disabled ||
+    prevProps.selectedChainId !== nextProps.selectedChainId ||
+    prevProps.isLoadingTokens !== nextProps.isLoadingTokens ||
+    prevFallbackId !== nextFallbackId ||
     prevProps.onValueChange !== nextProps.onValueChange ||
     prevProps.onQueryChange !== nextProps.onQueryChange
   ) {
