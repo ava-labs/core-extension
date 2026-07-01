@@ -7,8 +7,8 @@ import { applyExponentialBackOffMiddleware } from './utils/exponentialBackOffMid
 import { isProductionBuild } from '@core/common';
 
 const TOKEN_AGGREGATOR_URL = isProductionBuild()
-  ? 'https://core-token-aggregator.avax.network'
-  : 'https://core-token-aggregator.avax-test.network';
+  ? process.env.TOKEN_AGGREGATOR_SERVICE_URL_PROD
+  : process.env.TOKEN_AGGREGATOR_SERVICE_URL_DEV;
 
 const appcheckService = container.resolve(AppCheckService);
 

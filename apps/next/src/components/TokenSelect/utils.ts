@@ -29,7 +29,12 @@ export const areTokenListsEqual = (
     prevProps.isLoadingTokens !== nextProps.isLoadingTokens ||
     prevFallbackId !== nextFallbackId ||
     prevProps.onValueChange !== nextProps.onValueChange ||
-    prevProps.onQueryChange !== nextProps.onQueryChange
+    prevProps.onQueryChange !== nextProps.onQueryChange ||
+    prevProps.onEndReached !== nextProps.onEndReached ||
+    prevProps.externalChainOptions !== nextProps.externalChainOptions ||
+    prevProps.onChainChange !== nextProps.onChainChange ||
+    prevProps.onOpenChange !== nextProps.onOpenChange ||
+    prevProps.defaultChainId !== nextProps.defaultChainId
   ) {
     return false;
   }

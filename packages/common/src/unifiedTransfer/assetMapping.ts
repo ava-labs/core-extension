@@ -11,6 +11,7 @@ export interface ApiToken {
   logoUri: string | null;
   isNative: boolean;
   address: string;
+  isVerified?: boolean | null;
   contractType: 'ERC-20' | 'SPL' | null;
   networkCaip2Id: string;
 }
@@ -29,6 +30,9 @@ export const mapApiTokenToAsset = (
     symbol: token.symbol,
     decimals: resolveDecimals(token),
     logoUri: token.logoUri ?? undefined,
+    extra: {
+      isVerified: token.isVerified ?? null,
+    },
   };
 
   if (token.isNative) {
