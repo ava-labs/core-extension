@@ -13,6 +13,7 @@ import {
   Divider,
   Fade,
   getHexAlpha,
+  CircularProgress,
   SearchInput,
   Stack,
   Typography,
@@ -356,6 +357,7 @@ function TokenSelectWithSeparator({
                   gap={1}
                   color="text.secondary"
                 >
+                  <CircularProgress size={20} />
                   <Typography variant="body2">{t('Loading tokens')}</Typography>
                 </Stack>
               ) : (
