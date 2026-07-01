@@ -34,17 +34,17 @@ const getBackendErrorMessage = (data: unknown): string | undefined => {
     const record = data as Record<string, unknown>;
 
     if (typeof record.message === 'string' && record.message.trim()) {
-      return record.message;
+      return record.message.trim();
     }
 
     if (typeof record.error === 'string' && record.error.trim()) {
-      return record.error;
+      return record.error.trim();
     }
 
     if (record.error && typeof record.error === 'object') {
       const nested = (record.error as Record<string, unknown>).message;
       if (typeof nested === 'string' && nested.trim()) {
-        return nested;
+        return nested.trim();
       }
     }
   }

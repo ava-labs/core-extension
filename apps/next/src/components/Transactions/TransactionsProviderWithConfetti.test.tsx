@@ -1,11 +1,11 @@
 import { render, screen } from '@shared/tests/test-utils';
 import { ChainId, NetworkVMType } from '@avalabs/core-chains-sdk';
-import { NetworkWithCaipId } from '@core/types';
+import { NetworkWithCaipId, RecurringSwapAction } from '@core/types';
 import { TransactionStatusProviderWithConfetti } from './TransactionsProviderWithConfetti';
 import { useIsOptimisticConfirmationEnabled } from '@core/ui';
 
 type CapturedContext = {
-  recurringSwaps?: { action: 'schedule' | 'pause' | 'unpause' | 'cancel' };
+  recurringSwaps?: { action: RecurringSwapAction };
 };
 
 const mockTriggerConfetti = jest.fn();
