@@ -51,22 +51,22 @@ const addChainAddressPrefix = (
     : `${chainAlias}-${stripAddressPrefix(address)}`;
 
 const unavailableAvalancheFunctions: AvalancheFunctions = {
-  avalancheSendTx: () => {
+  avalancheSendTx: async () => {
     throw new Error('Avalanche CCT is not available for the active account.');
   },
-  getAtomicUtxos: () => {
+  getAtomicUtxos: async () => {
     throw new Error('Avalanche CCT is not available for the active account.');
   },
-  getCoreEthAddress: () => {
+  getCoreEthAddress: async () => {
     throw new Error('Avalanche CCT is not available for the active account.');
   },
-  getUtxos: () => {
+  getUtxos: async () => {
     throw new Error('Avalanche CCT is not available for the active account.');
   },
-  getWalletAddressesForChainAlias: () => {
+  getWalletAddressesForChainAlias: async () => {
     throw new Error('Avalanche CCT is not available for the active account.');
   },
-  getWalletChangeAddressForChainAlias: () => {
+  getWalletChangeAddressForChainAlias: async () => {
     throw new Error('Avalanche CCT is not available for the active account.');
   },
 };
