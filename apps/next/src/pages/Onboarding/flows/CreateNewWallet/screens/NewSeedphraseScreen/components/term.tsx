@@ -21,9 +21,11 @@ export const TermsAgreementSection: FC<TermsAgreementSectionProps> = ({
 
   return (
     <Paper
+      elevation={0}
       sx={{
         borderRadius: theme.shape.mediumBorderRadius,
         p: 1.75,
+        backgroundColor: 'background.navBarItem',
       }}
     >
       <Stack direction="row" columnGap={1}>
@@ -33,7 +35,7 @@ export const TermsAgreementSection: FC<TermsAgreementSectionProps> = ({
             onChange(e.target.checked);
           }}
         />
-        <Typography variant="body2" minHeight={24}>
+        <Typography variant="body2" minHeight={24} fontWeight={500}>
           <Trans i18nKey="I understand losing this phrase will result in lost funds.<br/>I have stored it in a secure place." />
         </Typography>
       </Stack>

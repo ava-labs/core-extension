@@ -1,16 +1,26 @@
 import { render, screen } from '@shared/tests/test-utils';
 import { ChainId, NetworkVMType } from '@avalabs/core-chains-sdk';
-import { NetworkWithCaipId } from '@core/types';
+import { NetworkWithCaipId, RecurringSwapAction } from '@core/types';
 import { TransactionStatusProviderWithConfetti } from './TransactionsProviderWithConfetti';
 import { useIsOptimisticConfirmationEnabled } from '@core/ui';
+
+type CapturedContext = {
+  recurringSwaps?: { action: RecurringSwapAction };
+};
 
 const mockTriggerConfetti = jest.fn();
 const mockHistoryReplace = jest.fn();
 let capturedOnPending:
-  | ((params: { network?: NetworkWithCaipId }) => void)
+  | ((params: {
+      network?: NetworkWithCaipId;
+      context?: CapturedContext;
+    }) => void)
   | undefined;
 let capturedOnSuccess:
-  | ((params: { network?: NetworkWithCaipId }) => void)
+  | ((params: {
+      network?: NetworkWithCaipId;
+      context?: CapturedContext;
+    }) => void)
   | undefined;
 
 jest.mock('@/components/Confetti', () => ({
@@ -33,8 +43,14 @@ jest.mock('@core/ui', () => ({
     onSuccess,
   }: {
     children: React.ReactNode;
-    onPending?: (params: { network?: NetworkWithCaipId }) => Promise<void>;
-    onSuccess?: (params: { network?: NetworkWithCaipId }) => Promise<void>;
+    onPending?: (params: {
+      network?: NetworkWithCaipId;
+      context?: CapturedContext;
+    }) => Promise<void>;
+    onSuccess?: (params: {
+      network?: NetworkWithCaipId;
+      context?: CapturedContext;
+    }) => Promise<void>;
   }) => {
     capturedOnPending = onPending;
     capturedOnSuccess = onSuccess;
@@ -266,6 +282,71 @@ describe('TransactionStatusProviderWithConfetti', () => {
 
     it('triggers confetti when network is undefined (non-Avalanche default)', async () => {
       await capturedOnSuccess?.({ network: undefined });
+
+      expect(mockTriggerConfetti).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('administrative recurring-swap actions', () => {
+    it.each(['pause', 'unpause', 'cancel'] as const)(
+      'does not trigger confetti on pending for a %s action',
+      async (action) => {
+        jest
+          .mocked(useIsOptimisticConfirmationEnabled)
+          .mockReturnValue(() => Promise.resolve(true));
+
+        render(
+          <TransactionStatusProviderWithConfetti>
+            <div>Test</div>
+          </TransactionStatusProviderWithConfetti>,
+        );
+
+        await capturedOnPending?.({
+          network: createMockNetwork(ChainId.AVALANCHE_MAINNET_ID),
+          context: { recurringSwaps: { action } },
+        });
+
+        expect(mockTriggerConfetti).not.toHaveBeenCalled();
+      },
+    );
+
+    it.each(['pause', 'unpause', 'cancel'] as const)(
+      'does not trigger confetti on success for a %s action',
+      async (action) => {
+        jest
+          .mocked(useIsOptimisticConfirmationEnabled)
+          .mockReturnValue(() => Promise.resolve(false));
+
+        render(
+          <TransactionStatusProviderWithConfetti>
+            <div>Test</div>
+          </TransactionStatusProviderWithConfetti>,
+        );
+
+        await capturedOnSuccess?.({
+          network: createMockNetwork(ChainId.ETHEREUM_HOMESTEAD),
+          context: { recurringSwaps: { action } },
+        });
+
+        expect(mockTriggerConfetti).not.toHaveBeenCalled();
+      },
+    );
+
+    it('still triggers confetti for a schedule action (first fill)', async () => {
+      jest
+        .mocked(useIsOptimisticConfirmationEnabled)
+        .mockReturnValue(() => Promise.resolve(false));
+
+      render(
+        <TransactionStatusProviderWithConfetti>
+          <div>Test</div>
+        </TransactionStatusProviderWithConfetti>,
+      );
+
+      await capturedOnSuccess?.({
+        network: createMockNetwork(ChainId.ETHEREUM_HOMESTEAD),
+        context: { recurringSwaps: { action: 'schedule' } },
+      });
 
       expect(mockTriggerConfetti).toHaveBeenCalledTimes(1);
     });
