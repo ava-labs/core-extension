@@ -11,7 +11,11 @@ import {
   RecurringSwapContextProvider,
   useFusionState,
 } from './contexts';
-import { useRecurringSwapState } from './contexts/RecurringSwapContext';
+import {
+  isNumberOfOrdersAboveMax,
+  isNumberOfOrdersBelowMin,
+  useRecurringSwapState,
+} from './contexts/RecurringSwapContext';
 import { SwapContent } from './SwapContent';
 import { SwapProviderNotice } from './components/SwapProviderNotice';
 
@@ -36,9 +40,14 @@ const FusionPage = () => {
     priceImpactSeverity,
     formError,
   } = useFusionState();
-  const { isRecurring } = useRecurringSwapState();
+  const { isRecurring, numberOfOrders } = useRecurringSwapState();
 
   const isRecurringMode = isRecurring && recurringEligibility.isEligible;
+
+  const hasInvalidNumberOfOrders =
+    isRecurringMode &&
+    (isNumberOfOrdersAboveMax(numberOfOrders) ||
+      isNumberOfOrdersBelowMin(numberOfOrders));
 
   const isCriticalPriceImpact = priceImpactSeverity === 'critical';
   const isSwapDisabled =
@@ -46,6 +55,7 @@ const FusionPage = () => {
     isCreatingRecurringSwap ||
     status !== 'ready-to-transfer' ||
     isCriticalPriceImpact ||
+    hasInvalidNumberOfOrders ||
     Boolean(formError);
 
   return (
