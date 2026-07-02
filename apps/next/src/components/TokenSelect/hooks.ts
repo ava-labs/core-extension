@@ -9,6 +9,7 @@ import {
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { ChainOption } from './components/ChainFilterChips';
 import { ChainFilterMode } from './types';
+import { getChainFilterName, sortChainIds } from './utils';
 
 /**
  * Helper to check if a chain ID is any Avalanche network (C, X, or P)
@@ -125,52 +126,4 @@ export const useChainOptions = (
 
     return options;
   }, [availableChainIds, hasAvalancheNetworks, getNetwork, chainFilterMode]);
-};
-
-const sortChainIds = (a: number, b: number) => {
-  const aPriority = getAvalancheChainPriority(a);
-  const bPriority = getAvalancheChainPriority(b);
-
-  if (aPriority !== -1 || bPriority !== -1) {
-    if (aPriority === -1) return 1;
-    if (bPriority === -1) return -1;
-    return aPriority - bPriority;
-  }
-
-  return a - b;
-};
-
-const getAvalancheChainPriority = (chainId: number) => {
-  if (isAvalancheChainId(chainId)) {
-    return 0;
-  }
-
-  if (isPchainNetworkId(chainId)) {
-    return 1;
-  }
-
-  if (isXchainNetworkId(chainId)) {
-    return 2;
-  }
-
-  return -1;
-};
-
-const getChainFilterName = (
-  chainId: number,
-  fallbackName = `Chain ${chainId}`,
-) => {
-  if (isAvalancheChainId(chainId)) {
-    return 'C-Chain';
-  }
-
-  if (isPchainNetworkId(chainId)) {
-    return 'P-Chain';
-  }
-
-  if (isXchainNetworkId(chainId)) {
-    return 'X-Chain';
-  }
-
-  return fallbackName;
 };
