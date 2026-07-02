@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { utils } from '@avalabs/avalanchejs';
 import { AvalancheCaip2ChainId, ChainId } from '@avalabs/core-chains-sdk';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
-import { AvalancheBlockchainAlias, ServiceType } from '@avalabs/fusion-sdk';
+import { AvalancheBlockchainAlias } from '@avalabs/fusion-sdk';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import {
   AvalancheFunctions,
@@ -225,10 +225,7 @@ export const useAvalancheFunctions = (): AvalancheFunctions => {
             return indices;
           }, [] as number[]);
 
-        const context =
-          transferStep?.quote.serviceType === ServiceType.AVALANCHE_CCT
-            ? buildRequestContext(transferStep)
-            : undefined;
+        const context = buildRequestContext(transferStep);
 
         return request(
           {
