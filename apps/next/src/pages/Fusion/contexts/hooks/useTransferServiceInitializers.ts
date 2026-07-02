@@ -2,9 +2,9 @@ import { useCallback, useMemo } from 'react';
 import { ServiceType } from '@avalabs/fusion-sdk';
 
 import { useConnectionContext, useNetworkContext } from '@core/ui';
-import { getServiceInitializer, GetTargetChainAssets } from '@core/common';
-import { ExtensionRequest, UnifiedTransferSigners } from '@core/types';
-import { GetMarkrTargetChainAssetsHandler } from '~/services/tokens/handlers/getMarkrTargetChainAssets';
+import { getServiceInitializer, type GetTargetChainAssets } from '@core/common';
+import { ExtensionRequest, type UnifiedTransferSigners } from '@core/types';
+import type { GetMarkrTargetChainAssetsHandler } from '@core/service-worker';
 
 export const useTransferServiceInitializers = (
   services: ServiceType[],
