@@ -1,12 +1,8 @@
-import { type RefObject, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { utils } from '@avalabs/avalanchejs';
 import { AvalancheCaip2ChainId, ChainId } from '@avalabs/core-chains-sdk';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
-import {
-  AvalancheBlockchainAlias,
-  ServiceType,
-  type TransferStepDetails,
-} from '@avalabs/fusion-sdk';
+import { AvalancheBlockchainAlias, ServiceType } from '@avalabs/fusion-sdk';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import {
   AvalancheFunctions,
@@ -75,9 +71,7 @@ const unavailableAvalancheFunctions: AvalancheFunctions = {
   },
 };
 
-export const useAvalancheFunctions = (
-  transferStepRef?: RefObject<TransferStepDetails | undefined>,
-): AvalancheFunctions => {
+export const useAvalancheFunctions = (): AvalancheFunctions => {
   const {
     accounts: { active },
   } = useAccountsContext();
@@ -207,7 +201,7 @@ export const useAvalancheFunctions = (
     }
 
     return {
-      avalancheSendTx: async ({ chainAlias, unsignedTx }) => {
+      avalancheSendTx: async ({ chainAlias, unsignedTx }, transferStep) => {
         const manager = utils.getManagerForVM(unsignedTx.getVM());
         const [codec] = manager.getCodecFromBuffer(unsignedTx.toBytes());
         const utxos = 'utxos' in unsignedTx ? unsignedTx.utxos : [];
@@ -231,7 +225,6 @@ export const useAvalancheFunctions = (
             return indices;
           }, [] as number[]);
 
-        const transferStep = transferStepRef?.current;
         const context =
           transferStep?.quote.serviceType === ServiceType.AVALANCHE_CCT
             ? buildRequestContext(transferStep)
@@ -307,6 +300,5 @@ export const useAvalancheFunctions = (
     isLedgerWallet,
     isTestnet,
     request,
-    transferStepRef,
   ]);
 };

@@ -3,7 +3,6 @@ import {
   FC,
   useCallback,
   useContext,
-  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -14,11 +13,7 @@ import {
   useSettingsContext,
 } from '@core/ui';
 import { useHistory } from 'react-router-dom';
-import {
-  Quote,
-  ServiceType,
-  type TransferStepDetails,
-} from '@avalabs/fusion-sdk';
+import { Quote, ServiceType } from '@avalabs/fusion-sdk';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { useDebouncedValue } from '@tanstack/react-pacer';
 
@@ -97,9 +92,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     selectFeatureFlag(FeatureVars.FUSION_TRANSFER_GAS_MARGIN_BPS),
   );
 
-  const transferStepRef = useRef<TransferStepDetails | undefined>(undefined);
-  const { manager, error: initializationError } =
-    useTransferManager(transferStepRef);
+  const { manager, error: initializationError } = useTransferManager();
   const supportedChainsMap = useSupportedChainsMap(manager);
   const sourceTokenList = useSwapSourceTokenList(supportedChainsMap);
   const sourceToken = useSwapSourceToken(sourceTokenList, fromId);
@@ -224,19 +217,13 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
             }
           : undefined;
 
-        transferStepRef.current = undefined;
-
         const transferObject = await manager.transferAsset({
           quote: quoteToUse,
           gasSettings: {
             estimateGasMarginBps: transferMarginBps,
             ...gasSettings,
           },
-          onStepChange: (step) => {
-            transferStepRef.current = step;
-          },
         });
-        transferStepRef.current = undefined;
 
         captureEncrypted('SwapConfirmed', {
           sourceAddress: fromAddress,
@@ -256,8 +243,6 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
             : '/',
         );
       } catch (err) {
-        transferStepRef.current = undefined;
-
         if (isUserRejectionError(err)) {
           setIsConfirming(false);
           return;
