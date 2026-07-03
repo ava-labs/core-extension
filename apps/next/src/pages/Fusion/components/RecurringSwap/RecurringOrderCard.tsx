@@ -13,7 +13,10 @@ import { Card } from '@/components/Card';
 
 import { formatAmount } from '../../lib/formatAmount';
 import { formatNextSwap } from '../../lib/formatNextSwap';
-import { getFrequencyUnitLabelInline } from '../../lib/formatFrequency';
+import {
+  getRecurringOrderExecutedLabel,
+  getRecurringOrderScheduleLabel,
+} from '../../lib/recurringOrderLabels';
 import type { RecurringSwapOrder } from '../../hooks/useRecurringSwapOrders';
 
 import { RecurringOrderPairIcon } from './RecurringOrderPairIcon';
@@ -81,18 +84,7 @@ export const RecurringOrderCard = ({
     return isPaused ? t('Resume') : t('Pause');
   };
 
-  const scheduleSummary = t(
-    'Every {{quantity}} {{unit}} · {{count}} orders total',
-    {
-      quantity: order.frequencyQuantity,
-      unit: getFrequencyUnitLabelInline(
-        order.frequencyUnit,
-        order.frequencyQuantity,
-        t,
-      ),
-      count: order.ordersTotal,
-    },
-  );
+  const scheduleSummary = getRecurringOrderScheduleLabel(order, t);
 
   return (
     <Card noPadding data-testid={`recurring-order-card-${order.id}`}>
@@ -144,10 +136,7 @@ export const RecurringOrderCard = ({
           <Stack px={2} py={1.5} gap={1.5}>
             <DetailRow
               label={t('Orders executed')}
-              value={t('{{executed}} of {{total}}', {
-                executed: order.ordersExecuted,
-                total: order.ordersTotal,
-              })}
+              value={getRecurringOrderExecutedLabel(order, t)}
             />
             <DetailRow
               label={t('Next swap scheduled')}

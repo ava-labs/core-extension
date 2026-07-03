@@ -3,7 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { FusionState } from '../../types';
 
 import { safeParseUserAmount } from './lib/safeParseUserAmount';
-import { validateSwapAmount } from './lib/validateSwapAmount';
+import {
+  RecurringSwapValidation,
+  validateSwapAmount,
+} from './lib/validateSwapAmount';
 
 type UseSwapFormErrorArgs = Pick<
   FusionState,
@@ -13,7 +16,9 @@ type UseSwapFormErrorArgs = Pick<
   | 'sourceToken'
   | 'minimumTransferAmount'
   | 'currentRequiredTokens'
->;
+> & {
+  recurring?: RecurringSwapValidation;
+};
 
 export const useSwapFormError = ({
   debouncedUserAmount,
@@ -22,6 +27,7 @@ export const useSwapFormError = ({
   sourceToken,
   minimumTransferAmount,
   currentRequiredTokens,
+  recurring,
 }: UseSwapFormErrorArgs) => {
   const { t } = useTranslation();
 
@@ -45,6 +51,7 @@ export const useSwapFormError = ({
     minimumTransferAmount,
     sourceToken,
     requiredTokens: currentRequiredTokens,
+    recurring,
   });
 
   if (userQuoteAmountError) {

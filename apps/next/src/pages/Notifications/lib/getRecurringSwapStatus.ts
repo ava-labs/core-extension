@@ -20,8 +20,6 @@ export const getRecurringSwapStatusDisplay = (
       return { label: t('Completed'), severity: 'success' };
     case 'failed':
       return { label: t('Failed'), severity: 'error' };
-    case 'active':
-      return { label: t('In progress'), severity: 'neutral' };
     default:
       return null;
   }

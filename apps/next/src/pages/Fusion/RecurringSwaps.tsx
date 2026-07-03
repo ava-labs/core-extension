@@ -90,7 +90,7 @@ export const RecurringSwaps = () => {
           </Typography>
         </Stack>
       ) : (
-        <Stack width="100%" gap={1}>
+        <Stack width="100%" gap={1} pb={2}>
           {orders.map((order) => (
             <RecurringOrderCard
               key={order.id}

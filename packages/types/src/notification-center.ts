@@ -118,6 +118,8 @@ export const RecurringSwapMetadataSchema = z.object({
   remainingOrders: z.coerce.number().optional(),
   tokenIn: z.string().optional(),
   tokenOut: z.string().optional(),
+  tokenInSymbol: z.string().optional(),
+  tokenOutSymbol: z.string().optional(),
   amountIn: z.string().optional(),
   amountOut: z.string().optional(),
   status: z.union([RecurringSwapStatusSchema, z.string()]).optional(),
@@ -156,6 +158,8 @@ export const NotificationDataSchema = z
     remainingOrders: z.number().optional(),
     tokenIn: z.string().optional(),
     tokenOut: z.string().optional(),
+    tokenInSymbol: z.string().optional(),
+    tokenOutSymbol: z.string().optional(),
     amountIn: z.string().optional(),
     amountOut: z.string().optional(),
   })
