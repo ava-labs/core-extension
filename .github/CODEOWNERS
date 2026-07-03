@@ -3,3 +3,8 @@
 # @ava-labs/core-web-ext team will be requested for
 # review when someone opens a pull request.
 * @ava-labs/core-web-ext
+
+# The @ava-labs/core-qa team owns the end-to-end tests and can
+# update files in the e2e directory without approval from the
+# default codeowners.
+/e2e/ @ava-labs/core-qa @ava-labs/core-web-ext
