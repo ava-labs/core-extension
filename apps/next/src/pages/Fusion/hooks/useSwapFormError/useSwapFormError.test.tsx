@@ -69,7 +69,12 @@ describe('useSwapFormError', () => {
         ...baseArgs,
         debouncedUserAmount: '1',
         sourceToken: smallBalanceToken,
-        recurring: { numberOfOrders: 4, scheduleFeeNativeAmount: 0n },
+        recurring: {
+          numberOfOrders: 4,
+          scheduleFeeNativeAmount: 0n,
+          isFrequencyBelowMinimum: false,
+          minFrequencyMinutes: 5,
+        },
       }),
     );
 
@@ -82,7 +87,12 @@ describe('useSwapFormError', () => {
       useSwapFormError({
         ...baseArgs,
         debouncedUserAmount: '1',
-        recurring: { numberOfOrders: 4, scheduleFeeNativeAmount: 0n },
+        recurring: {
+          numberOfOrders: 4,
+          scheduleFeeNativeAmount: 0n,
+          isFrequencyBelowMinimum: false,
+          minFrequencyMinutes: 5,
+        },
       }),
     );
 
@@ -102,10 +112,64 @@ describe('useSwapFormError', () => {
         debouncedUserAmount: '1',
         sourceToken: tightBalanceToken,
         // 4 AVAX spend fits the 4 AVAX balance, but the schedule fee pushes it over.
-        recurring: { numberOfOrders: 4, scheduleFeeNativeAmount: ONE_AVAX },
+        recurring: {
+          numberOfOrders: 4,
+          scheduleFeeNativeAmount: ONE_AVAX,
+          isFrequencyBelowMinimum: false,
+          minFrequencyMinutes: 5,
+        },
       }),
     );
 
     expect(result.current).toBe('Insufficient funds');
+  });
+
+  it('flags a frequency below the minimum interval', () => {
+    const { result } = renderHook(() =>
+      useSwapFormError({
+        ...baseArgs,
+        recurring: {
+          numberOfOrders: 4,
+          scheduleFeeNativeAmount: 0n,
+          isFrequencyBelowMinimum: true,
+          minFrequencyMinutes: 5,
+        },
+      }),
+    );
+
+    expect(result.current).toBe('Minimum interval is {{minutes}} minutes');
+  });
+
+  it('uses the singular copy when the minimum is a single minute', () => {
+    const { result } = renderHook(() =>
+      useSwapFormError({
+        ...baseArgs,
+        recurring: {
+          numberOfOrders: 4,
+          scheduleFeeNativeAmount: 0n,
+          isFrequencyBelowMinimum: true,
+          minFrequencyMinutes: 1,
+        },
+      }),
+    );
+
+    expect(result.current).toBe('Minimum interval is {{minutes}} minute');
+  });
+
+  it('flags the frequency error even before a valid amount is entered', () => {
+    const { result } = renderHook(() =>
+      useSwapFormError({
+        ...baseArgs,
+        debouncedUserAmount: '',
+        recurring: {
+          numberOfOrders: 4,
+          scheduleFeeNativeAmount: 0n,
+          isFrequencyBelowMinimum: true,
+          minFrequencyMinutes: 5,
+        },
+      }),
+    );
+
+    expect(result.current).toBe('Minimum interval is {{minutes}} minutes');
   });
 });

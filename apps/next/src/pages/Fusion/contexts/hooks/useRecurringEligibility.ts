@@ -11,6 +11,7 @@ import { getRecurringTokenAddress } from '../../lib/getRecurringTokenAddress';
 export type RecurringEligibility = {
   /** Pair-level support (chain + token + EVM address). Controls the toggle. */
   isEligible: boolean;
+  minFrequencySeconds?: number;
 };
 
 const NOT_ELIGIBLE: RecurringEligibility = {
@@ -55,6 +56,7 @@ export const useRecurringEligibility = ({
 
     // Pure, no-I/O check against the SDK's cached `/info/chains` metadata.
     let result: ReturnType<typeof manager.recurring.checkEligibility>;
+    let minFrequencySeconds: number | undefined;
     try {
       result = manager.recurring.checkEligibility({
         fromTokenAddress,
@@ -63,6 +65,9 @@ export const useRecurringEligibility = ({
         targetChainId,
         ownerAddress: ownerAddress as Address,
       });
+      minFrequencySeconds = manager.recurring
+        .getRecurringChainInfo()
+        .get(sourceChainId)?.minFrequencySeconds;
     } catch (err) {
       // `manager.recurring` throws ServiceUnavailableError when Markr isn't
       // initialized (e.g. feature flag off / non-PROD env) — an expected
@@ -75,7 +80,7 @@ export const useRecurringEligibility = ({
       return NOT_ELIGIBLE;
     }
 
-    return { isEligible: result.eligible };
+    return { isEligible: result.eligible, minFrequencySeconds };
   }, [
     manager,
     sourceAsset,

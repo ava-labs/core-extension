@@ -510,6 +510,8 @@
   "Max priority fee cannot be negative": "Max priority fee cannot be negative",
   "Maximum available amount after fees is ~{{maxAmount}}.": "Maximum available amount after fees is ~{{maxAmount}}.",
   "Minimum amount is {{minimum}}.": "Minimum amount is {{minimum}}.",
+  "Minimum interval is {{minutes}} minute": "Minimum interval is {{minutes}} minute",
+  "Minimum interval is {{minutes}} minutes": "Minimum interval is {{minutes}} minutes",
   "Minimum possible amount is {{amount}} {{symbol}}": "Minimum possible amount is {{amount}} {{symbol}}",
   "Minute": "Minute",
   "Minutes": "Minutes",

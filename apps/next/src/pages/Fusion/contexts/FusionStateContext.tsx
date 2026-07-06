@@ -38,6 +38,11 @@ import { useSwapFormError, useSwapQuery } from '../hooks';
 import { usePriceImpact } from '../hooks/usePriceImpact';
 import { shouldRetryWithNextQuote } from '../lib/swapErrors';
 import {
+  MIN_FREQUENCY_INTERVAL_SECONDS,
+  getMinFrequencyMinutes,
+  isFrequencyBelowMinimum,
+} from '../lib/formatFrequency';
+import {
   useUserAddresses,
   useTransferManager,
   useAssetAndChain,
@@ -364,6 +369,9 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
 
   const isRecurringSubmission = isRecurring && recurringEligibility.isEligible;
 
+  const minFrequencySeconds =
+    recurringEligibility.minFrequencySeconds ?? MIN_FREQUENCY_INTERVAL_SECONDS;
+
   const recurringScheduleFeeNativeAmount = useMemo(() => {
     if (!isRecurringSubmission || !recurringScheduleFee) {
       return 0n;
@@ -385,6 +393,12 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       ? {
           numberOfOrders,
           scheduleFeeNativeAmount: recurringScheduleFeeNativeAmount,
+          isFrequencyBelowMinimum: isFrequencyBelowMinimum(
+            frequencyQuantity,
+            frequencyUnit,
+            minFrequencySeconds,
+          ),
+          minFrequencyMinutes: getMinFrequencyMinutes(minFrequencySeconds),
         }
       : undefined,
   });

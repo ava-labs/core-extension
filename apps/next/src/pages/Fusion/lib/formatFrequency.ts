@@ -27,6 +27,18 @@ export const getFrequencyInSeconds = (
   return quantity * SECONDS_IN_UNIT[unit];
 };
 
+export const MIN_FREQUENCY_INTERVAL_SECONDS = 5 * 60;
+
+export const isFrequencyBelowMinimum = (
+  quantity: number,
+  unit: FrequencyUnit,
+  minSeconds: number = MIN_FREQUENCY_INTERVAL_SECONDS,
+) => getFrequencyInSeconds(quantity, unit) < minSeconds;
+
+export const getMinFrequencyMinutes = (
+  minSeconds: number = MIN_FREQUENCY_INTERVAL_SECONDS,
+) => Math.ceil(minSeconds / 60);
+
 export const getFrequencyUnitLabel = (
   unit: FrequencyUnit,
   quantity: number,

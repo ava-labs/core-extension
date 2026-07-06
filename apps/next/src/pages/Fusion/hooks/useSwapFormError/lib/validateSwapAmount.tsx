@@ -23,6 +23,8 @@ const collapsedTokenAmountProps: Omit<
 export type RecurringSwapValidation = {
   numberOfOrders: number;
   scheduleFeeNativeAmount: bigint;
+  isFrequencyBelowMinimum: boolean;
+  minFrequencyMinutes: number;
 };
 
 export const validateSwapAmount = (

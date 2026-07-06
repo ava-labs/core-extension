@@ -90,6 +90,16 @@ export const RecurringSwapForm = () => {
           <DropdownMenu
             label={unitLabel}
             dataTestId="recurring-swap-frequency-unit"
+            slotProps={{
+              button: {
+                variant: 'contained',
+                size: 'xsmall',
+                color: 'secondary',
+                sx: {
+                  px: 1,
+                },
+              },
+            }}
           >
             {FREQUENCY_UNITS.map((unit) => (
               <PopoverItem
