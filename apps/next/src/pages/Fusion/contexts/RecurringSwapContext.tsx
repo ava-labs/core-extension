@@ -34,6 +34,16 @@ export const DEFAULT_NUMBER_OF_ORDERS = 4;
 
 export const MIN_FREQUENCY_QUANTITY = 1;
 export const MIN_NUMBER_OF_ORDERS = 2;
+// Markr rejects schedules with more than 365 orders server-side (its
+// `numberOfOrders` accepts an integer in [2, 365]), so we guard the upper bound
+// in the UI before the user attempts the swap.
+export const MAX_NUMBER_OF_ORDERS = 365;
+
+export const isNumberOfOrdersAboveMax = (numberOfOrders: number): boolean =>
+  numberOfOrders > MAX_NUMBER_OF_ORDERS;
+
+export const isNumberOfOrdersBelowMin = (numberOfOrders: number): boolean =>
+  numberOfOrders < MIN_NUMBER_OF_ORDERS;
 
 export const RecurringSwapContextProvider: FC<{ children: ReactNode }> = ({
   children,

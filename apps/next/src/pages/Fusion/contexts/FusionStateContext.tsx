@@ -3,6 +3,7 @@ import {
   FC,
   useCallback,
   useContext,
+  useMemo,
   useState,
   type ReactNode,
 } from 'react';
@@ -13,7 +14,7 @@ import {
   useSettingsContext,
 } from '@core/ui';
 import { useHistory } from 'react-router-dom';
-import { Quote, ServiceType } from '@avalabs/fusion-sdk';
+import { ERC_ZERO_ADDRESS, Quote, ServiceType } from '@avalabs/fusion-sdk';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { useDebouncedValue } from '@tanstack/react-pacer';
 
@@ -371,6 +372,18 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const minimumRequiredTokens = useRequiredTokenAmounts(manager, minimalQuote);
   const currentRequiredTokens = useRequiredTokenAmounts(manager, selectedQuote);
 
+  const isRecurringSubmission = isRecurring && recurringEligibility.isEligible;
+
+  const recurringScheduleFeeNativeAmount = useMemo(() => {
+    if (!isRecurringSubmission || !recurringScheduleFee) {
+      return 0n;
+    }
+    const isNativeFee =
+      recurringScheduleFee.token.address.toLowerCase() ===
+      ERC_ZERO_ADDRESS.toLowerCase();
+    return isNativeFee ? recurringScheduleFee.amount : 0n;
+  }, [isRecurringSubmission, recurringScheduleFee]);
+
   const formError = useSwapFormError({
     debouncedUserAmount,
     quotes,
@@ -378,6 +391,12 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     sourceToken,
     minimumTransferAmount,
     currentRequiredTokens,
+    recurring: isRecurringSubmission
+      ? {
+          numberOfOrders,
+          scheduleFeeNativeAmount: recurringScheduleFeeNativeAmount,
+        }
+      : undefined,
   });
 
   return (

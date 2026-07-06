@@ -83,4 +83,55 @@ describe('useSwapFormError', () => {
 
     expect(result.current).toBe('');
   });
+
+  it('flags when the full scheduled spend exceeds the balance', () => {
+    const smallBalanceToken = {
+      ...sourceToken,
+      balance: 3n * ONE_AVAX,
+    } as FungibleTokenBalance;
+
+    const { result } = renderHook(() =>
+      useSwapFormError({
+        ...baseArgs,
+        debouncedUserAmount: '1',
+        sourceToken: smallBalanceToken,
+        recurring: { numberOfOrders: 4, scheduleFeeNativeAmount: 0n },
+      }),
+    );
+
+    // 1 AVAX × 4 orders = 4 AVAX > 3 AVAX balance.
+    expect(result.current).toBe('Insufficient funds');
+  });
+
+  it('allows a scheduled spend that fits within the balance', () => {
+    const { result } = renderHook(() =>
+      useSwapFormError({
+        ...baseArgs,
+        debouncedUserAmount: '1',
+        recurring: { numberOfOrders: 4, scheduleFeeNativeAmount: 0n },
+      }),
+    );
+
+    // 1 AVAX × 4 orders = 4 AVAX, well within the 1000 AVAX balance.
+    expect(result.current).toBe('');
+  });
+
+  it('reserves the native schedule fee from a native source budget', () => {
+    const tightBalanceToken = {
+      ...sourceToken,
+      balance: 4n * ONE_AVAX,
+    } as FungibleTokenBalance;
+
+    const { result } = renderHook(() =>
+      useSwapFormError({
+        ...baseArgs,
+        debouncedUserAmount: '1',
+        sourceToken: tightBalanceToken,
+        // 4 AVAX spend fits the 4 AVAX balance, but the schedule fee pushes it over.
+        recurring: { numberOfOrders: 4, scheduleFeeNativeAmount: ONE_AVAX },
+      }),
+    );
+
+    expect(result.current).toBe('Insufficient funds');
+  });
 });

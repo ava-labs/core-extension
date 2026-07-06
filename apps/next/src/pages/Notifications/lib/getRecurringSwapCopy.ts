@@ -32,18 +32,39 @@ const getFailedBody = (
   return t('Your recurring swap failed. Remaining swaps have been cancelled');
 };
 
+const getSuccessBody = (
+  notification: RecurringSwapNotification,
+  t: TFunction,
+): string => {
+  const { executedOrders, remainingOrders, tokenInSymbol, tokenOutSymbol } =
+    notification.data ?? {};
+
+  // Fall back to the backend-provided body when the metadata is incomplete.
+  if (
+    executedOrders === undefined ||
+    remainingOrders === undefined ||
+    !tokenInSymbol ||
+    !tokenOutSymbol
+  ) {
+    return notification.body;
+  }
+
+  return t(
+    'Swap {{index}} of {{fromTokenSymbol}} to {{toTokenSymbol}} complete - {{remaining}} scheduled swaps remaining',
+    {
+      index: executedOrders,
+      fromTokenSymbol: tokenInSymbol,
+      toTokenSymbol: tokenOutSymbol,
+      remaining: remainingOrders,
+    },
+  );
+};
+
 export const getRecurringSwapCopy = (
   notification: RecurringSwapNotification,
   t: TFunction,
 ): RecurringSwapCopy => {
   const status = notification.data?.status?.toLowerCase();
-
-  if (status === 'completed') {
-    return {
-      title: t('Recurring swap completed'),
-      body: t('Final transaction of your recurring order has been completed.'),
-    };
-  }
 
   if (status === 'failed') {
     return {
@@ -53,7 +74,7 @@ export const getRecurringSwapCopy = (
   }
 
   return {
-    title: notification.title,
-    body: notification.body,
+    title: t('Recurring swap executed'),
+    body: getSuccessBody(notification, t),
   };
 };

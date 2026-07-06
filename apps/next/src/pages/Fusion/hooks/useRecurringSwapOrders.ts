@@ -10,6 +10,7 @@ import type { Address } from 'viem';
 import {
   toast,
   useAccountsContext,
+  useAnalyticsContext,
   useErrorMessage,
   useNetworkContext,
 } from '@core/ui';
@@ -40,6 +41,12 @@ export type RecurringSwapOrderToken = {
 
 export type RecurringSwapOrderAction = 'pause' | 'unpause' | 'cancel';
 
+const ORDER_ACTION_EVENT_NAME: Record<RecurringSwapOrderAction, string> = {
+  pause: 'RecurringSwapPausedByUser',
+  unpause: 'RecurringSwapResumedByUser',
+  cancel: 'RecurringSwapCancelledByUser',
+};
+
 export type RecurringSwapOrder = {
   id: string;
   status: RecurringSwapOrderStatus;
@@ -59,6 +66,11 @@ export type RecurringSwapOrder = {
 const RECURRING_CHAIN_ID = ChainId.AVALANCHE_MAINNET_ID;
 
 const RECURRING_SWAP_ORDERS_QUERY_KEY = 'recurringSwapOrders';
+
+// Poll while the orders are on screen so state driven by the backend (executed
+// count, next execution, status flips from pause/resume) refreshes without the
+// user having to close and reopen the page.
+const RECURRING_SWAP_ORDERS_REFETCH_INTERVAL_MS = 15_000;
 
 type UseRecurringSwapOrdersResult = {
   orders: RecurringSwapOrder[];
@@ -92,6 +104,7 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
     accounts: { active },
   } = useAccountsContext();
   const { getNetwork } = useNetworkContext();
+  const { captureEncrypted } = useAnalyticsContext();
   const getTranslatedError = useErrorMessage();
 
   const address = active?.addressC as Address | undefined;
@@ -140,6 +153,8 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
   } = useQuery({
     queryKey: [RECURRING_SWAP_ORDERS_QUERY_KEY, address, manager?.id],
     enabled: isRecurringSwapsEnabled,
+    refetchInterval: RECURRING_SWAP_ORDERS_REFETCH_INTERVAL_MS,
+    refetchOnWindowFocus: true,
     queryFn:
       manager && address
         ? () =>
@@ -252,6 +267,11 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
           setOptimisticStatus(id, 'cancelled');
         }
 
+        captureEncrypted(ORDER_ACTION_EVENT_NAME[action], {
+          chainId: RECURRING_CHAIN_ID,
+          orderId: id,
+        });
+
         refetch();
       } catch (err) {
         if (isUserRejectionError(err)) {
@@ -280,6 +300,7 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
       refetch,
       getTranslatedError,
       setOptimisticStatus,
+      captureEncrypted,
     ],
   );
 
