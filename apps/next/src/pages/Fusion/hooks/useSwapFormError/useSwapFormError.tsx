@@ -31,6 +31,17 @@ export const useSwapFormError = ({
 }: UseSwapFormErrorArgs) => {
   const { t } = useTranslation();
 
+  if (recurring?.isFrequencyBelowMinimum) {
+    const { minFrequencyMinutes } = recurring;
+    return minFrequencyMinutes === 1
+      ? t('Minimum interval is {{minutes}} minute', {
+          minutes: minFrequencyMinutes,
+        })
+      : t('Minimum interval is {{minutes}} minutes', {
+          minutes: minFrequencyMinutes,
+        });
+  }
+
   // 1. Parse the user amount
   const sourceAmountBigInt = safeParseUserAmount(
     debouncedUserAmount,
