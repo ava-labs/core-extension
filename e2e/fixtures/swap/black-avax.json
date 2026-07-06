@@ -28,7 +28,7 @@
         "logo_url": "https://markr-token-images.s3.eu-central-1.amazonaws.com/aggregators/yak_128.png"
       },
       "chainId": 43114,
-      "tokenIn": "0xcd94a87696FAC69Edae3a70fE5725307Ae1c43f6",
+      "tokenIn": "0xcd94a87696fac69edae3a70fe5725307ae1c43f6",
       "tokenOut": "0x0000000000000000000000000000000000000000",
       "amountIn": "50000000000000000000",
       "amountOut": "21645643710964019",
@@ -46,7 +46,7 @@
         "logo_url": "https://markr-token-images.s3.eu-central-1.amazonaws.com/aggregators/velora_128.png"
       },
       "chainId": 43114,
-      "tokenIn": "0xcd94a87696FAC69Edae3a70fE5725307Ae1c43f6",
+      "tokenIn": "0xcd94a87696fac69edae3a70fe5725307ae1c43f6",
       "tokenOut": "0x0000000000000000000000000000000000000000",
       "amountIn": "50000000000000000000",
       "amountOut": "21696478030709412",
@@ -64,7 +64,7 @@
         "logo_url": "https://markr-token-images.s3.eu-central-1.amazonaws.com/aggregators/kyber_128.png"
       },
       "chainId": 43114,
-      "tokenIn": "0xcd94a87696FAC69Edae3a70fE5725307Ae1c43f6",
+      "tokenIn": "0xcd94a87696fac69edae3a70fe5725307ae1c43f6",
       "tokenOut": "0x0000000000000000000000000000000000000000",
       "amountIn": "50000000000000000000",
       "amountOut": "21667432935145094",
