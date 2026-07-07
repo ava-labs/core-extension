@@ -1,5 +1,7 @@
 import { FungibleTokenBalance } from '@core/types';
 
+export type ChainFilterMode = 'group-avalanche' | 'avalanche-cct';
+
 export type TokenSelectProps = {
   id: string;
   tokenId: string;
@@ -9,4 +11,5 @@ export type TokenSelectProps = {
   onQueryChange: (query: string) => void;
   hint?: string;
   disabled?: boolean;
+  chainFilterMode?: ChainFilterMode;
 };

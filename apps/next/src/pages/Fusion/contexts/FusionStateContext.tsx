@@ -63,6 +63,7 @@ import { useFusionMinimumTransferAmount } from './hooks/useMinimumTransferAmount
 import { useRequiredTokenAmounts } from './hooks/useRequiredTokenAmounts';
 import { useMinimalQuote } from './hooks/useMinimalQuote';
 import { useRecurringSwapState } from './RecurringSwapContext';
+import { isAvalancheCctRoute } from '../lib/isAvalancheCctRoute';
 
 const FusionStateContext = createContext<FusionState | undefined>(undefined);
 
@@ -148,11 +149,20 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const isAmountHigherThanBalance =
     sourceAmountBigInt > (sourceToken?.balance ?? 0n);
 
-  const isAmountLowerThanMinimum =
+  const isAmountBelowMinimumTransferAmount =
     typeof minimumTransferAmount === 'bigint' &&
     sourceAmountBigInt < minimumTransferAmount;
+  const shouldAllowBelowMinimumQuote =
+    isAvalancheCctRoute({
+      sourceAsset,
+      sourceChain,
+      targetAsset,
+      targetChain,
+    }) && !isRecurring;
 
-  const skipFetching = isAmountHigherThanBalance || isAmountLowerThanMinimum;
+  const skipFetching =
+    isAmountHigherThanBalance ||
+    (isAmountBelowMinimumTransferAmount && !shouldAllowBelowMinimumQuote);
 
   // Avoid spamming quoters by debouncing the user amount
   const [debouncedUserAmount] = useDebouncedValue(userAmount, {
@@ -161,9 +171,9 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     leading: false,
   });
   const debouncedSourceAmountBigInt =
-    debouncedUserAmount && sourceAsset
+    debouncedUserAmount !== '' && sourceAsset
       ? stringToBigint(debouncedUserAmount, sourceAsset.decimals)
-      : 0n;
+      : undefined;
 
   const {
     bestQuote,

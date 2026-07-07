@@ -54,6 +54,7 @@ describe('src/services/transferTracking/TransferTrackingService', () => {
       [FeatureGates.FUSION_FEATURE]: true,
       [FeatureGates.FUSION_MARKR]: true,
       [FeatureGates.FUSION_AVALANCHE_EVM]: true,
+      [FeatureGates.FUSION_AVALANCHE_CCT]: true,
       [FeatureGates.FUSION_LOMBARD_BTC_TO_AVA]: true,
       [FeatureGates.FUSION_LOMBARD_AVA_TO_BTC]: true,
     },
@@ -163,6 +164,7 @@ describe('src/services/transferTracking/TransferTrackingService', () => {
       [FeatureGates.FUSION_FEATURE]: true,
       [FeatureGates.FUSION_MARKR]: true,
       [FeatureGates.FUSION_AVALANCHE_EVM]: true,
+      [FeatureGates.FUSION_AVALANCHE_CCT]: true,
       [FeatureGates.FUSION_LOMBARD_BTC_TO_AVA]: true,
       [FeatureGates.FUSION_LOMBARD_AVA_TO_BTC]: true,
       [FeatureGates.CORE_ASSISTANT]: false,
@@ -176,12 +178,26 @@ describe('src/services/transferTracking/TransferTrackingService', () => {
       [FeatureGates.FUSION_FEATURE]: true,
       [FeatureGates.FUSION_MARKR]: false,
       [FeatureGates.FUSION_AVALANCHE_EVM]: true,
+      [FeatureGates.FUSION_AVALANCHE_CCT]: true,
       [FeatureGates.FUSION_LOMBARD_BTC_TO_AVA]: true,
       [FeatureGates.FUSION_LOMBARD_AVA_TO_BTC]: true,
     });
 
     await new Promise(process.nextTick); // Await getEnabledTransferServices() call
     expect(createTransferManager).toHaveBeenCalledTimes(2);
+
+    // Toggle Avalanche CCT, which must also recreate the tracking manager.
+    mockFeatureFlagChanges({
+      [FeatureGates.FUSION_FEATURE]: true,
+      [FeatureGates.FUSION_MARKR]: false,
+      [FeatureGates.FUSION_AVALANCHE_EVM]: true,
+      [FeatureGates.FUSION_AVALANCHE_CCT]: false,
+      [FeatureGates.FUSION_LOMBARD_BTC_TO_AVA]: true,
+      [FeatureGates.FUSION_LOMBARD_AVA_TO_BTC]: true,
+    });
+
+    await new Promise(process.nextTick); // Await getEnabledTransferServices() call
+    expect(createTransferManager).toHaveBeenCalledTimes(3);
   });
 
   it('starts tracking incomplete transfers after instantiation', async () => {
