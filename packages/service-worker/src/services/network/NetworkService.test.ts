@@ -1053,6 +1053,151 @@ describe('background/services/network/NetworkService', () => {
     });
   });
 
+  describe('#filterBasedOnFeatureFlags (via activeNetworks signal)', () => {
+    it('hides Hyperliquid networks when hyperliquid-feature is disabled', async () => {
+      const hyperliquidFeatureFlagsServiceMock =
+        jest.mocked<FeatureFlagService>({
+          featureFlags: {
+            [FeatureGates.HYPERLIQUID_FEATURE]: false,
+          },
+          addListener: jest.fn(),
+        } as any);
+
+      const networkService = new NetworkService(
+        storageServiceMock,
+        hyperliquidFeatureFlagsServiceMock,
+        glacierServiceMock,
+      );
+      jest.spyOn(networkService, 'isMainnet').mockReturnValue(true);
+
+      const hyperEvmNetwork = mockNetwork(NetworkVMType.EVM, false, {
+        chainId: 999,
+        chainName: 'HyperEVM',
+      });
+      const hyperCoreNetwork = mockNetwork(NetworkVMType.EVM, false, {
+        chainId: 1337,
+        chainName: 'HyperCore',
+      });
+
+      // eslint-disable-next-line
+      // @ts-expect-error
+      networkService._allNetworks.dispatch({
+        [ethMainnet.chainId]: ethMainnet,
+        [hyperEvmNetwork.chainId]: hyperEvmNetwork,
+        [hyperCoreNetwork.chainId]: hyperCoreNetwork,
+      });
+
+      const activeNetworks = await networkService.activeNetworks.promisify();
+
+      expect(await activeNetworks[ethMainnet.chainId]).toBeDefined();
+      expect(await activeNetworks[hyperEvmNetwork.chainId]).toBeUndefined();
+      expect(await activeNetworks[hyperCoreNetwork.chainId]).toBeUndefined();
+    });
+
+    it('does not hide non-Hyperliquid networks that share HyperCore chain id', async () => {
+      const hyperliquidFeatureFlagsServiceMock =
+        jest.mocked<FeatureFlagService>({
+          featureFlags: {
+            [FeatureGates.HYPERLIQUID_FEATURE]: false,
+          },
+          addListener: jest.fn(),
+        } as any);
+
+      const networkService = new NetworkService(
+        storageServiceMock,
+        hyperliquidFeatureFlagsServiceMock,
+        glacierServiceMock,
+      );
+      jest.spyOn(networkService, 'isMainnet').mockReturnValue(true);
+
+      const localNetwork = mockNetwork(NetworkVMType.EVM, false, {
+        chainId: 1337,
+        chainName: 'Local Devnet',
+      });
+
+      // eslint-disable-next-line
+      // @ts-expect-error
+      networkService._allNetworks.dispatch({
+        [localNetwork.chainId]: localNetwork,
+      });
+
+      const activeNetworks = await networkService.activeNetworks.promisify();
+
+      expect(await activeNetworks[localNetwork.chainId]).toBeDefined();
+    });
+
+    it('does not hide custom Hyperliquid networks when hyperliquid-feature is disabled', async () => {
+      const hyperliquidFeatureFlagsServiceMock =
+        jest.mocked<FeatureFlagService>({
+          featureFlags: {
+            [FeatureGates.HYPERLIQUID_FEATURE]: false,
+          },
+          addListener: jest.fn(),
+        } as any);
+
+      const networkService = new NetworkService(
+        storageServiceMock,
+        hyperliquidFeatureFlagsServiceMock,
+        glacierServiceMock,
+      );
+      jest.spyOn(networkService, 'isMainnet').mockReturnValue(true);
+
+      const customHyperEvmNetwork = mockNetwork(NetworkVMType.EVM, false, {
+        chainId: 999,
+        chainName: 'HyperEVM',
+      });
+
+      // eslint-disable-next-line
+      // @ts-expect-error
+      networkService._customNetworks = {
+        [customHyperEvmNetwork.chainId]: customHyperEvmNetwork,
+      };
+
+      // eslint-disable-next-line
+      // @ts-expect-error
+      networkService._allNetworks.dispatch({
+        [customHyperEvmNetwork.chainId]: customHyperEvmNetwork,
+      });
+
+      const activeNetworks = await networkService.activeNetworks.promisify();
+
+      expect(await activeNetworks[customHyperEvmNetwork.chainId]).toBeDefined();
+    });
+
+    it('shows Hyperliquid networks when hyperliquid-feature is enabled', async () => {
+      const hyperliquidFeatureFlagsServiceMock =
+        jest.mocked<FeatureFlagService>({
+          featureFlags: {
+            [FeatureGates.HYPERLIQUID_FEATURE]: true,
+          },
+          addListener: jest.fn(),
+        } as any);
+
+      const networkService = new NetworkService(
+        storageServiceMock,
+        hyperliquidFeatureFlagsServiceMock,
+        glacierServiceMock,
+      );
+      jest.spyOn(networkService, 'isMainnet').mockReturnValue(true);
+
+      const hyperEvmNetwork = mockNetwork(NetworkVMType.EVM, false, {
+        chainId: 999,
+        chainName: 'HyperEVM',
+      });
+
+      // eslint-disable-next-line
+      // @ts-expect-error
+      networkService._allNetworks.dispatch({
+        [ethMainnet.chainId]: ethMainnet,
+        [hyperEvmNetwork.chainId]: hyperEvmNetwork,
+      });
+
+      const activeNetworks = await networkService.activeNetworks.promisify();
+
+      expect(await activeNetworks[hyperEvmNetwork.chainId]).toBeDefined();
+    });
+  });
+
   describe('Avalanche Devnet Mode', () => {
     const ethSepolia = mockNetwork(NetworkVMType.EVM, true, {
       chainId: 11155111,
