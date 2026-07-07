@@ -3,7 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { FusionState } from '../../types';
 
 import { safeParseUserAmount } from './lib/safeParseUserAmount';
-import { validateSwapAmount } from './lib/validateSwapAmount';
+import {
+  RecurringSwapValidation,
+  validateSwapAmount,
+} from './lib/validateSwapAmount';
 
 type UseSwapFormErrorArgs = Pick<
   FusionState,
@@ -13,7 +16,9 @@ type UseSwapFormErrorArgs = Pick<
   | 'sourceToken'
   | 'minimumTransferAmount'
   | 'currentRequiredTokens'
->;
+> & {
+  recurring?: RecurringSwapValidation;
+};
 
 export const useSwapFormError = ({
   debouncedUserAmount,
@@ -22,8 +27,20 @@ export const useSwapFormError = ({
   sourceToken,
   minimumTransferAmount,
   currentRequiredTokens,
+  recurring,
 }: UseSwapFormErrorArgs) => {
   const { t } = useTranslation();
+
+  if (recurring?.isFrequencyBelowMinimum) {
+    const { minFrequencyMinutes } = recurring;
+    return minFrequencyMinutes === 1
+      ? t('Minimum interval is {{minutes}} minute', {
+          minutes: minFrequencyMinutes,
+        })
+      : t('Minimum interval is {{minutes}} minutes', {
+          minutes: minFrequencyMinutes,
+        });
+  }
 
   // 1. Parse the user amount
   const sourceAmountBigInt = safeParseUserAmount(
@@ -32,7 +49,7 @@ export const useSwapFormError = ({
   );
 
   // 2. Do not validate if we don't have all the data.
-  if (!sourceToken || !sourceAmountBigInt) {
+  if (!sourceToken || debouncedUserAmount === '') {
     return '';
   }
 
@@ -45,6 +62,7 @@ export const useSwapFormError = ({
     minimumTransferAmount,
     sourceToken,
     requiredTokens: currentRequiredTokens,
+    recurring,
   });
 
   if (userQuoteAmountError) {

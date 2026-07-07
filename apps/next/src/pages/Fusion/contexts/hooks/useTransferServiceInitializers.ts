@@ -4,6 +4,8 @@ import { ServiceType } from '@avalabs/fusion-sdk';
 import { useConnectionContext, useNetworkContext } from '@core/ui';
 import { getServiceInitializer, type GetTargetChainAssets } from '@core/common';
 import { ExtensionRequest, type UnifiedTransferSigners } from '@core/types';
+
+import { useAvalancheFunctions } from './useAvalancheFunctions';
 import type { GetMarkrTargetChainAssetsHandler } from '@core/service-worker';
 
 export const useTransferServiceInitializers = (
@@ -11,6 +13,7 @@ export const useTransferServiceInitializers = (
   signers: UnifiedTransferSigners | null,
 ) => {
   const { bitcoinProvider } = useNetworkContext();
+  const avalancheFunctions = useAvalancheFunctions();
   const { request } = useConnectionContext();
 
   const getTargetChainAssets = useCallback<GetTargetChainAssets>(
@@ -33,8 +36,15 @@ export const useTransferServiceInitializers = (
         service,
         bitcoinProvider,
         signers,
+        avalancheFunctions,
         getTargetChainAssets,
       ),
     );
-  }, [bitcoinProvider, services, signers, getTargetChainAssets]);
+  }, [
+    avalancheFunctions,
+    bitcoinProvider,
+    services,
+    signers,
+    getTargetChainAssets,
+  ]);
 };

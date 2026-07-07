@@ -1,4 +1,6 @@
 import { FungibleTokenBalance } from '@core/types';
+
+export type ChainFilterMode = 'group-avalanche' | 'avalanche-cct';
 import { type ChainOption } from './components/ChainFilterChips';
 
 export type TokenSelectProps = {
@@ -10,6 +12,7 @@ export type TokenSelectProps = {
   onQueryChange: (query: string) => void;
   hint?: string;
   disabled?: boolean;
+  chainFilterMode?: ChainFilterMode;
   onEndReached?: () => void;
   defaultChainId?: number | 'avalanche' | null;
   externalChainOptions?: ChainOption[];

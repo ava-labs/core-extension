@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { Divider, Stack } from '@avalabs/k2-alpine';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 
-import { getUniqueTokenId } from '@core/types';
+import { FeatureGates, getUniqueTokenId } from '@core/types';
+import { useFeatureFlagContext } from '@core/ui';
 
 import { Card } from '@/components/Card';
 import { TokenAmountInput } from '@/components/TokenAmountInput';
@@ -14,6 +15,7 @@ import { usePinnedMaxAmount } from '../hooks/usePinnedMaxAmount';
 
 export const SwapPair = () => {
   const { t } = useTranslation();
+  const { isFlagEnabled } = useFeatureFlagContext();
   const {
     fromId: queryFromId,
     fromQuery,
@@ -42,6 +44,12 @@ export const SwapPair = () => {
 
   const fromTokenId = sourceToken ? getUniqueTokenId(sourceToken) : queryFromId;
   const toTokenId = targetToken ? getUniqueTokenId(targetToken) : queryToId;
+  const isAvalancheCctEnabled = isFlagEnabled(
+    FeatureGates.FUSION_AVALANCHE_CCT,
+  );
+  const chainFilterMode = isAvalancheCctEnabled
+    ? 'avalanche-cct'
+    : 'group-avalanche';
 
   const { maxAmount, pin, unpin } = usePinnedMaxAmount(
     sourceToken,
@@ -100,6 +108,7 @@ export const SwapPair = () => {
           onAmountChange={onAmountChange}
           tokenHint={sourceToken ? t('You pay') : undefined}
           withPresetButtons={minimumRequiredTokens.state === 'complete'}
+          chainFilterMode={chainFilterMode}
         />
         <Divider sx={{ mx: 2 }} />
         <TokenAmountInput
@@ -121,6 +130,7 @@ export const SwapPair = () => {
             minimumRequiredTokens.state === 'loading' ||
             (quotesStatus === 'loading' && !selectedQuote)
           }
+          chainFilterMode={chainFilterMode}
           onEndReached={fetchNextTargetTokenPage}
           defaultChainId="avalanche"
           externalChainOptions={

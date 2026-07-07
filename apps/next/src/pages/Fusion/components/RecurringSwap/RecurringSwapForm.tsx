@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Divider, PopoverItem, Stack, Typography } from '@avalabs/k2-alpine';
 
@@ -6,8 +7,11 @@ import { DropdownMenu } from '@/components/DropdownMenu';
 import * as Styled from '../Styled';
 
 import {
+  MAX_NUMBER_OF_ORDERS,
   MIN_FREQUENCY_QUANTITY,
   MIN_NUMBER_OF_ORDERS,
+  isNumberOfOrdersAboveMax,
+  isNumberOfOrdersBelowMin,
   useRecurringSwapState,
 } from '../../contexts/RecurringSwapContext';
 import { useFusionState } from '../../contexts/FusionStateContext';
@@ -39,6 +43,24 @@ export const RecurringSwapForm = () => {
   const totalSpend = perSwapAmount * numberOfOrders;
   const unitLabel = getFrequencyUnitLabel(frequencyUnit, frequencyQuantity, t);
 
+  const numberOfOrdersAboveMax = isNumberOfOrdersAboveMax(numberOfOrders);
+  const numberOfOrdersBelowMin = isNumberOfOrdersBelowMin(numberOfOrders);
+
+  const handleNumberOfOrdersChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const raw = event.target.value;
+      if (raw === '') {
+        return;
+      }
+      const parsed = parseInt(raw, 10);
+      if (Number.isNaN(parsed) || parsed < 1) {
+        return;
+      }
+      setNumberOfOrders(parsed);
+    },
+    [setNumberOfOrders],
+  );
+
   return (
     <Stack width="100%" px={2} divider={<Divider />}>
       <Styled.SettingRow
@@ -68,6 +90,16 @@ export const RecurringSwapForm = () => {
           <DropdownMenu
             label={unitLabel}
             dataTestId="recurring-swap-frequency-unit"
+            slotProps={{
+              button: {
+                variant: 'contained',
+                size: 'xsmall',
+                color: 'secondary',
+                sx: {
+                  px: 1,
+                },
+              },
+            }}
           >
             {FREQUENCY_UNITS.map((unit) => (
               <PopoverItem
@@ -94,12 +126,9 @@ export const RecurringSwapForm = () => {
             type="number"
             inputMode="numeric"
             min={MIN_NUMBER_OF_ORDERS}
+            max={MAX_NUMBER_OF_ORDERS}
             value={numberOfOrders}
-            onChange={(event) =>
-              setNumberOfOrders(
-                parseIntegerInput(event.target.value, MIN_NUMBER_OF_ORDERS),
-              )
-            }
+            onChange={handleNumberOfOrdersChange}
             style={{ width: 56 }}
             aria-label={t('Number of orders')}
             data-testid="recurring-swap-orders"
@@ -109,6 +138,32 @@ export const RecurringSwapForm = () => {
           </Typography>
         </Stack>
       </Styled.SettingRow>
+
+      {numberOfOrdersAboveMax && (
+        <Typography
+          variant="caption2"
+          color="error.main"
+          alignSelf="flex-end"
+          data-testid="recurring-swap-orders-error"
+        >
+          {t('You can schedule up to {{max}} orders', {
+            max: MAX_NUMBER_OF_ORDERS,
+          })}
+        </Typography>
+      )}
+
+      {numberOfOrdersBelowMin && (
+        <Typography
+          variant="caption2"
+          color="error.main"
+          alignSelf="flex-end"
+          data-testid="recurring-swap-orders-error"
+        >
+          {t('You must schedule at least {{min}} orders', {
+            min: MIN_NUMBER_OF_ORDERS,
+          })}
+        </Typography>
+      )}
 
       <Stack pb={1}>
         <Styled.SettingRow title={t('Summary')}>

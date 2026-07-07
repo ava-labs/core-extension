@@ -25,6 +25,7 @@ import {
 import { useConvertedCurrencyFormatter } from '@core/ui';
 
 import { TokenSelect } from '@/components/TokenSelect';
+import { ChainFilterMode } from '@/components/TokenSelect/types';
 import { type ChainOption } from '@/components/TokenSelect/components/ChainFilterChips';
 import { getAvailableBalance } from '@/lib/getAvailableBalance';
 
@@ -50,6 +51,7 @@ type TokenAmountInputProps = {
   onFocus?: FocusEventHandler;
   onBlur?: FocusEventHandler;
   disabled?: boolean;
+  chainFilterMode?: ChainFilterMode;
   onEndReached?: () => void;
   defaultChainId?: number | 'avalanche' | null;
   externalChainOptions?: ChainOption[];
@@ -100,6 +102,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   onFocus,
   onBlur,
   disabled,
+  chainFilterMode,
   onEndReached,
   defaultChainId,
   externalChainOptions,
@@ -225,6 +228,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
           onQueryChange={onQueryChange}
           hint={tokenHint}
           disabled={disabled}
+          chainFilterMode={chainFilterMode}
           onEndReached={onEndReached}
           defaultChainId={defaultChainId}
           externalChainOptions={externalChainOptions}

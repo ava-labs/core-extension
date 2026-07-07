@@ -3,6 +3,7 @@ import {
   FC,
   useCallback,
   useContext,
+  useMemo,
   useEffect,
   useLayoutEffect,
   useState,
@@ -15,7 +16,7 @@ import {
   useSettingsContext,
 } from '@core/ui';
 import { useHistory } from 'react-router-dom';
-import { Quote, ServiceType } from '@avalabs/fusion-sdk';
+import { ERC_ZERO_ADDRESS, Quote, ServiceType } from '@avalabs/fusion-sdk';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { useDebouncedValue } from '@tanstack/react-pacer';
 
@@ -44,6 +45,11 @@ import { useSwapFormError, useSwapQuery } from '../hooks';
 import { usePriceImpact } from '../hooks/usePriceImpact';
 import { shouldRetryWithNextQuote } from '../lib/swapErrors';
 import {
+  MIN_FREQUENCY_INTERVAL_SECONDS,
+  getMinFrequencyMinutes,
+  isFrequencyBelowMinimum,
+} from '../lib/formatFrequency';
+import {
   useUserAddresses,
   useTransferManager,
   useAssetAndChain,
@@ -64,6 +70,7 @@ import { useFusionMinimumTransferAmount } from './hooks/useMinimumTransferAmount
 import { useRequiredTokenAmounts } from './hooks/useRequiredTokenAmounts';
 import { useMinimalQuote } from './hooks/useMinimalQuote';
 import { useRecurringSwapState } from './RecurringSwapContext';
+import { isAvalancheCctRoute } from '../lib/isAvalancheCctRoute';
 
 const FusionStateContext = createContext<FusionState | undefined>(undefined);
 
@@ -311,11 +318,20 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const isAmountHigherThanBalance =
     sourceAmountBigInt > (sourceToken?.balance ?? 0n);
 
-  const isAmountLowerThanMinimum =
+  const isAmountBelowMinimumTransferAmount =
     typeof minimumTransferAmount === 'bigint' &&
     sourceAmountBigInt < minimumTransferAmount;
+  const shouldAllowBelowMinimumQuote =
+    isAvalancheCctRoute({
+      sourceAsset,
+      sourceChain,
+      targetAsset,
+      targetChain,
+    }) && !isRecurring;
 
-  const skipFetching = isAmountHigherThanBalance || isAmountLowerThanMinimum;
+  const skipFetching =
+    isAmountHigherThanBalance ||
+    (isAmountBelowMinimumTransferAmount && !shouldAllowBelowMinimumQuote);
 
   // Avoid spamming quoters by debouncing the user amount
   const [debouncedUserAmount] = useDebouncedValue(userAmount, {
@@ -324,9 +340,9 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     leading: false,
   });
   const debouncedSourceAmountBigInt =
-    debouncedUserAmount && sourceAsset
+    debouncedUserAmount !== '' && sourceAsset
       ? stringToBigint(debouncedUserAmount, sourceAsset.decimals)
-      : 0n;
+      : undefined;
 
   const {
     bestQuote,
@@ -535,6 +551,21 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const minimumRequiredTokens = useRequiredTokenAmounts(manager, minimalQuote);
   const currentRequiredTokens = useRequiredTokenAmounts(manager, selectedQuote);
 
+  const isRecurringSubmission = isRecurring && recurringEligibility.isEligible;
+
+  const minFrequencySeconds =
+    recurringEligibility.minFrequencySeconds ?? MIN_FREQUENCY_INTERVAL_SECONDS;
+
+  const recurringScheduleFeeNativeAmount = useMemo(() => {
+    if (!isRecurringSubmission || !recurringScheduleFee) {
+      return 0n;
+    }
+    const isNativeFee =
+      recurringScheduleFee.token.address.toLowerCase() ===
+      ERC_ZERO_ADDRESS.toLowerCase();
+    return isNativeFee ? recurringScheduleFee.amount : 0n;
+  }, [isRecurringSubmission, recurringScheduleFee]);
+
   const formError = useSwapFormError({
     debouncedUserAmount,
     quotes,
@@ -542,6 +573,18 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     sourceToken,
     minimumTransferAmount,
     currentRequiredTokens,
+    recurring: isRecurringSubmission
+      ? {
+          numberOfOrders,
+          scheduleFeeNativeAmount: recurringScheduleFeeNativeAmount,
+          isFrequencyBelowMinimum: isFrequencyBelowMinimum(
+            frequencyQuantity,
+            frequencyUnit,
+            minFrequencySeconds,
+          ),
+          minFrequencyMinutes: getMinFrequencyMinutes(minFrequencySeconds),
+        }
+      : undefined,
   });
 
   return (

@@ -452,6 +452,7 @@ function TokenSelectWithSeparator({
 function TokenSelectRaw(props: TokenSelectProps) {
   const {
     tokenList,
+    chainFilterMode = 'group-avalanche',
     defaultChainId = null,
     externalChainOptions,
     onChainChange,
@@ -470,15 +471,42 @@ function TokenSelectRaw(props: TokenSelectProps) {
   const { availableChainIds, hasAvalancheNetworks } = useChainIds(
     tokenList,
     isAnyAvalancheNetwork,
+    chainFilterMode,
   );
+  const chainOptions = useChainOptions(
+    availableChainIds,
+    hasAvalancheNetworks,
+    chainFilterMode,
+  );
+  // When external chain options are provided (e.g. swap target), validate
+  // against those — not the internally derived list which is empty while the
+  // bridgeable token list is loading and would wrongly trigger a chain reset.
+  const chainOptionsForValidation = externalChainOptions ?? chainOptions;
+  const isSelectedChainIdAvailable =
+    selectedChainId === null ||
+    chainOptionsForValidation.some(
+      ({ chainId }) => chainId === selectedChainId,
+    );
+  const effectiveSelectedChainId = isSelectedChainIdAvailable
+    ? selectedChainId
+    : null;
+
+  useEffect(() => {
+    if (!isSelectedChainIdAvailable) {
+      setInternalChainId(null);
+      onChainChange?.(null);
+    }
+  }, [isSelectedChainIdAvailable, onChainChange]);
+
   const filteredTokenList = useFilteredTokenList(
     tokenList,
-    selectedChainId,
+    effectiveSelectedChainId,
     isAnyAvalancheNetwork,
   );
   const derivedChainOptions = useChainOptions(
     availableChainIds,
     hasAvalancheNetworks,
+    chainFilterMode,
   );
 
   const handleChainSelect = (chainId: number | 'avalanche' | null) => {
@@ -492,7 +520,7 @@ function TokenSelectRaw(props: TokenSelectProps) {
     ...props,
     filteredTokenList,
     chainOptions: externalChainOptions ?? derivedChainOptions,
-    selectedChainId,
+    selectedChainId: effectiveSelectedChainId,
     setSelectedChainId: handleChainSelect,
     showAllNetworksChip: !externalChainOptions,
   };
