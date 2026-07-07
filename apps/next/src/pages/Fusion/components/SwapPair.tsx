@@ -43,7 +43,9 @@ export const SwapPair = () => {
   } = useFusionState();
 
   const fromTokenId = sourceToken ? getUniqueTokenId(sourceToken) : queryFromId;
-  const toTokenId = targetToken ? getUniqueTokenId(targetToken) : queryToId;
+  const targetTokenId = targetToken ? getUniqueTokenId(targetToken) : queryToId;
+  const isTargetSameAsSource = targetTokenId === fromTokenId;
+  const toTokenId = isTargetSameAsSource ? '' : targetTokenId;
   const isAvalancheCctEnabled = isFlagEnabled(
     FeatureGates.FUSION_AVALANCHE_CCT,
   );
@@ -142,7 +144,7 @@ export const SwapPair = () => {
           isLoadingTokens={
             isTargetTokenListLoading || isTargetTokenListFetching
           }
-          selectedTokenFallback={targetToken}
+          selectedTokenFallback={isTargetSameAsSource ? undefined : targetToken}
         />
       </Stack>
     </Card>

@@ -263,6 +263,13 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   // Called only when the user explicitly picks a token — commits its chain.
   const onTargetTokenChange = useCallback(
     (tokenId: string) => {
+      if (tokenId === sourceTokenId) {
+        setTargetToken(undefined);
+        setTargetTokenSourceTokenId(undefined);
+        updateQuery({ to: tokenId, toQuery: '' });
+        return;
+      }
+
       // Set the token immediately so shouldKeepExplicitSelection can protect it
       // if it's an unverified token absent from the default (un-searched) list.
       const token = targetTokenList.find(

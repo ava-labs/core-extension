@@ -15,6 +15,8 @@ import {
 } from '@core/ui';
 import {
   isAvalancheChainId,
+  isPchainNetworkId,
+  isXchainNetworkId,
   isChainSupportedByWalletOrAccount,
 } from '@core/common';
 import {
@@ -28,6 +30,7 @@ import { getNativeAssetType } from '@/hooks/useAllTokens/lib/getNativeAssetType'
 import { useTokensForAccount } from '@/hooks/useTokensForAccount';
 import { type ChainOption } from '@/components/TokenSelect/components/ChainFilterChips';
 import { buildAsset } from './useAssetAndChain/lib/buildAsset';
+import { ChainId } from '@avalabs/core-chains-sdk';
 
 type BridgeableAssetsResult = Awaited<
   ReturnType<TransferManager['getBridgeableAssets']>
@@ -61,14 +64,19 @@ const getHasMore = (
 const mapBridgeableAsset = (
   asset: BridgeableUiAsset,
   network: NetworkWithCaipId,
+  cChainAvaxLogoUri: string | undefined,
 ): FungibleTokenBalance | undefined => {
   const isVerified =
     (asset.extras?.isVerified as boolean | null | undefined) ?? null;
+  const logoUri =
+    isPchainNetworkId(network.chainId) || isXchainNetworkId(network.chainId)
+      ? cChainAvaxLogoUri
+      : (asset.logoUri ?? undefined);
   const base = {
     name: asset.name,
     symbol: asset.symbol,
     decimals: asset.decimals,
-    logoUri: asset.logoUri ?? undefined,
+    logoUri,
     balance: 0n,
     balanceDisplayValue: '0',
     reputation: null,
@@ -332,10 +340,13 @@ export const useBridgeableTargetTokenList = (
     const network = getNetwork(selectedTargetCaipId);
     if (!network) return [];
 
+    const cChainAvaxLogoUri = getNetwork(ChainId.AVALANCHE_MAINNET_ID)
+      ?.networkToken.logoUri;
+
     const all: FungibleTokenBalance[] = [];
     for (const page of data?.pages ?? []) {
       for (const asset of page.assets) {
-        const token = mapBridgeableAsset(asset, network);
+        const token = mapBridgeableAsset(asset, network, cChainAvaxLogoUri);
         if (!token) continue;
 
         let lookupKey: string;
