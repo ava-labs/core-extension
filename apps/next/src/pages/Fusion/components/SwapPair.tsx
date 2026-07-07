@@ -20,9 +20,10 @@ import { calculateNativeFee } from '../lib/calculateNativeFee';
 import { usePinnedMaxAmount } from '../hooks/usePinnedMaxAmount';
 
 const NATIVE_AVAX_ASSET_ID = 'NATIVE-avax';
+const DEFAULT_CORE_WEB_BASE_URL = 'https://core.app';
 
 const getCoreWebSwapUrl = (fromChain: string, toChain?: string) => {
-  const url = new URL('/swap', CORE_WEB_BASE_URL);
+  const url = new URL('/swap', CORE_WEB_BASE_URL || DEFAULT_CORE_WEB_BASE_URL);
   const params = new URLSearchParams({
     from: NATIVE_AVAX_ASSET_ID,
     fromChain,
@@ -140,7 +141,7 @@ export const SwapPair = () => {
                 color="secondary"
                 data-testid="fusion-select-utxos"
                 onClick={() => {
-                  window.open(selectUtxosUrl, '_blank', 'noreferrer');
+                  window.open(selectUtxosUrl, '_blank', 'noopener,noreferrer');
                 }}
                 size="xsmall"
                 variant="contained"
