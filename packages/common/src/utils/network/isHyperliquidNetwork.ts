@@ -14,12 +14,14 @@ export function isHyperliquidNetwork(network?: Network) {
     return false;
   }
 
+  // HyperCore is not an EVM chain and has no canonical chain id (Fusion/Relay use a
+  // synthetic eip155:1337 at the SDK boundary, which collides with local devnets).
   if (network.chainName === HYPERCORE_CHAIN_NAME) {
     return true;
   }
 
   return (
-    network.chainId === HYPEREVM_CHAIN_ID ||
+    isHyperliquidChainId(network.chainId) ||
     network.chainName === HYPEREVM_CHAIN_NAME
   );
 }
