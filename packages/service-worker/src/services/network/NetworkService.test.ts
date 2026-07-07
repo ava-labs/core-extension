@@ -1075,7 +1075,7 @@ describe('background/services/network/NetworkService', () => {
         chainName: 'HyperEVM',
       });
       const hyperCoreNetwork = mockNetwork(NetworkVMType.EVM, false, {
-        chainId: 1337,
+        chainId: 42,
         chainName: 'HyperCore',
       });
 
@@ -1094,7 +1094,7 @@ describe('background/services/network/NetworkService', () => {
       expect(await activeNetworks[hyperCoreNetwork.chainId]).toBeUndefined();
     });
 
-    it('does not hide non-Hyperliquid networks that share HyperCore chain id', async () => {
+    it('does not filter networks by chain id alone', async () => {
       const hyperliquidFeatureFlagsServiceMock =
         jest.mocked<FeatureFlagService>({
           featureFlags: {

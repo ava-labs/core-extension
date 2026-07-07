@@ -1,6 +1,5 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import {
-  HYPERCORE_CHAIN_ID,
   HYPEREVM_CHAIN_ID,
   isHyperliquidChainId,
   isHyperliquidNetwork,
@@ -32,26 +31,36 @@ describe('isHyperliquidNetwork', () => {
       isHyperliquidNetwork({
         ...baseNetwork,
         chainId: HYPEREVM_CHAIN_ID,
+        chainName: 'Some EVM Network',
+      }),
+    ).toBe(true);
+  });
+
+  it('identifies HyperEVM by chain name', () => {
+    expect(
+      isHyperliquidNetwork({
+        ...baseNetwork,
+        chainId: 1,
         chainName: 'HyperEVM',
       }),
     ).toBe(true);
   });
 
-  it('identifies HyperCore by chain name', () => {
+  it('identifies HyperCore by chain name only', () => {
     expect(
       isHyperliquidNetwork({
         ...baseNetwork,
-        chainId: HYPERCORE_CHAIN_ID,
+        chainId: 42,
         chainName: 'HyperCore',
       }),
     ).toBe(true);
   });
 
-  it('does not treat arbitrary chain id 1337 as Hyperliquid', () => {
+  it('does not treat arbitrary networks as Hyperliquid', () => {
     expect(
       isHyperliquidNetwork({
         ...baseNetwork,
-        chainId: HYPERCORE_CHAIN_ID,
+        chainId: 1337,
         chainName: 'Local Devnet',
       }),
     ).toBe(false);
@@ -61,6 +70,6 @@ describe('isHyperliquidNetwork', () => {
 describe('isHyperliquidChainId', () => {
   it('returns true only for HyperEVM chain id', () => {
     expect(isHyperliquidChainId(HYPEREVM_CHAIN_ID)).toBe(true);
-    expect(isHyperliquidChainId(HYPERCORE_CHAIN_ID)).toBe(false);
+    expect(isHyperliquidChainId(1337)).toBe(false);
   });
 });
