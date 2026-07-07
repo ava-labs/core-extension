@@ -1,5 +1,58 @@
+import {
+  isAvalancheChainId,
+  isPchainNetworkId,
+  isXchainNetworkId,
+} from '@core/common';
 import { getUniqueTokenId } from '@core/types';
 import type { TokenSelectProps } from './types';
+
+export const sortChainIds = (a: number, b: number) => {
+  const aPriority = getAvalancheChainPriority(a);
+  const bPriority = getAvalancheChainPriority(b);
+
+  if (aPriority !== -1 || bPriority !== -1) {
+    if (aPriority === -1) return 1;
+    if (bPriority === -1) return -1;
+    return aPriority - bPriority;
+  }
+
+  return a - b;
+};
+
+export const getAvalancheChainPriority = (chainId: number) => {
+  if (isAvalancheChainId(chainId)) {
+    return 0;
+  }
+
+  if (isPchainNetworkId(chainId)) {
+    return 1;
+  }
+
+  if (isXchainNetworkId(chainId)) {
+    return 2;
+  }
+
+  return -1;
+};
+
+export const getChainFilterName = (
+  chainId: number,
+  fallbackName = `Chain ${chainId}`,
+) => {
+  if (isAvalancheChainId(chainId)) {
+    return 'C-Chain';
+  }
+
+  if (isPchainNetworkId(chainId)) {
+    return 'P-Chain';
+  }
+
+  if (isXchainNetworkId(chainId)) {
+    return 'X-Chain';
+  }
+
+  return fallbackName;
+};
 
 /**
  * Custom comparison function to prevent rerenders when tokenList reference changes
@@ -17,6 +70,7 @@ export const areTokenListsEqual = (
     prevProps.tokenId !== nextProps.tokenId ||
     prevProps.query !== nextProps.query ||
     prevProps.hint !== nextProps.hint ||
+    prevProps.chainFilterMode !== nextProps.chainFilterMode ||
     prevProps.disabled !== nextProps.disabled ||
     prevProps.onValueChange !== nextProps.onValueChange ||
     prevProps.onQueryChange !== nextProps.onQueryChange

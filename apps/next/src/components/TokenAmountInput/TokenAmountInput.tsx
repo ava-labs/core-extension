@@ -25,6 +25,7 @@ import {
 import { useConvertedCurrencyFormatter } from '@core/ui';
 
 import { TokenSelect } from '@/components/TokenSelect';
+import { ChainFilterMode } from '@/components/TokenSelect/types';
 import { getAvailableBalance } from '@/lib/getAvailableBalance';
 
 import { AmountPresetButton, InvisibleAmountInput } from './components';
@@ -49,6 +50,7 @@ type TokenAmountInputProps = {
   onFocus?: FocusEventHandler;
   onBlur?: FocusEventHandler;
   disabled?: boolean;
+  chainFilterMode?: ChainFilterMode;
 } & AmountInputProps;
 
 type AmountInputProps =
@@ -91,6 +93,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   onFocus,
   onBlur,
   disabled,
+  chainFilterMode,
 }) => {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -206,6 +209,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
           onQueryChange={onQueryChange}
           hint={tokenHint}
           disabled={disabled}
+          chainFilterMode={chainFilterMode}
         />
         <Grow in={Boolean(token)} mountOnEnter unmountOnExit>
           <InvisibleAmountInput

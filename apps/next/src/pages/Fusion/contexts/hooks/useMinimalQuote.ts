@@ -37,7 +37,7 @@ export const useMinimalQuote = ({
     !sourceChain ||
     !targetAsset ||
     !targetChain ||
-    !minimumTransferAmount ||
+    typeof minimumTransferAmount !== 'bigint' ||
     !sourceToken;
 
   // FIXME: There seems to be a problem when we're using the actual minimum transfer amount,
@@ -45,7 +45,7 @@ export const useMinimalQuote = ({
   // This workaround won't always work, but seems enough as a temporary fix.
   const halfOfBalance = sourceToken ? sourceToken.balance / 2n : 0n;
   const simulatedTransferAmount =
-    sourceToken && minimumTransferAmount
+    sourceToken && typeof minimumTransferAmount === 'bigint'
       ? halfOfBalance > minimumTransferAmount
         ? halfOfBalance
         : minimumTransferAmount

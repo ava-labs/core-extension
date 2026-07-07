@@ -27,6 +27,10 @@ const getEnabledTransferServicesRaw = (
     enabled.push(ServiceType.LOMBARD_BTCB_TO_BTC);
   }
 
+  if (featureFlags[FeatureGates.FUSION_AVALANCHE_CCT]) {
+    enabled.push(ServiceType.AVALANCHE_CCT);
+  }
+
   return enabled;
 };
 

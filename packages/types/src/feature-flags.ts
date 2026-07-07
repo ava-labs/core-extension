@@ -51,6 +51,7 @@ export enum FeatureGates {
   FUSION_LOMBARD_BTC_TO_AVA = 'fusion-lombard-btc-to-ava',
   FUSION_LOMBARD_AVA_TO_BTC = 'fusion-lombard-ava-to-btc',
   FUSION_RECURRING_SWAPS = 'fusion-recurring-swaps',
+  FUSION_AVALANCHE_CCT = 'fusion-avalanche-cct',
 }
 
 export enum FeatureVars {

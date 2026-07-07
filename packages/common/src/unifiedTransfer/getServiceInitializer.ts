@@ -1,4 +1,5 @@
 import {
+  AvalancheCctInitializer,
   BitcoinFunctions,
   EvmServiceInitializer,
   LombardServiceInitializer,
@@ -10,12 +11,22 @@ import {
 import { UnifiedTransferSigners } from '@core/types';
 import { MARKR_EVM_PARTNER_ID } from './constants';
 
+export type AvalancheFunctions = Omit<AvalancheCctInitializer, 'type'>;
+
 export function getServiceInitializer(
   type: ServiceType,
   btcFunctions: BitcoinFunctions,
   { btc, evm, svm }: UnifiedTransferSigners,
+  avalancheFunctions: AvalancheFunctions,
 ): ServiceInitializer {
   switch (type) {
+    case ServiceType.AVALANCHE_CCT: {
+      return {
+        type,
+        ...avalancheFunctions,
+      } satisfies AvalancheCctInitializer;
+    }
+
     case ServiceType.AVALANCHE_EVM:
     case ServiceType.WRAP_UNWRAP:
       return {
