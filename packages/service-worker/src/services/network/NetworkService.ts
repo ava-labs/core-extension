@@ -50,7 +50,7 @@ import {
   getProviderForNetwork,
   isSyncDomain,
 } from '@core/common';
-import { isSolanaNetwork } from '@core/common';
+import { isSolanaNetwork, isHyperliquidNetwork } from '@core/common';
 import { GlacierService } from '../glacier/GlacierService';
 import {
   BASE_NETWORK_CONFIG_BY_TYPE,
@@ -167,7 +167,10 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   #getTrackedFeatureFlags(flags: FeatureFlags): Partial<FeatureFlags> {
-    const trackedFlags = [FeatureGates.SOLANA_SUPPORT];
+    const trackedFlags = [
+      FeatureGates.SOLANA_SUPPORT,
+      FeatureGates.HYPERLIQUID_FEATURE,
+    ];
 
     return Object.fromEntries(
       Object.entries(flags).filter(([flag]) =>
@@ -833,8 +836,15 @@ export class NetworkService implements OnLock, OnStorageReady {
     return Object.values(chainList ?? {})
       .filter(
         (network) =>
-          !isSolanaNetwork(network) ||
-          this.featureFlagService.featureFlags[FeatureGates.SOLANA_SUPPORT],
+          (!isSolanaNetwork(network) ||
+            this.featureFlagService.featureFlags[
+              FeatureGates.SOLANA_SUPPORT
+            ]) &&
+          (!isHyperliquidNetwork(network) ||
+            this.featureFlagService.featureFlags[
+              FeatureGates.HYPERLIQUID_FEATURE
+            ] ||
+            Boolean(this._customNetworks[network.chainId])),
       )
       .reduce(
         (acc, network) => ({
