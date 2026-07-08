@@ -58,6 +58,7 @@ import {
   getXPExplorerUrl,
   LOGO_BY_ALIAS,
 } from './avalanche-config';
+import { HYPERCORE_NETWORK, HYPEREVM_NETWORK } from './hyperliquid-config';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -487,6 +488,8 @@ export class NetworkService implements OnLock, OnStorageReady {
           [ChainId.AVALANCHE_TEST_X]: this._getXchainNetwork('testnet'),
           [ChainId.AVALANCHE_DEVNET_P]: this._getPchainNetwork('devnet'),
           [ChainId.AVALANCHE_DEVNET_X]: this._getXchainNetwork('devnet'),
+          [HYPEREVM_NETWORK.chainId]: HYPEREVM_NETWORK,
+          [HYPERCORE_NETWORK.chainId]: HYPERCORE_NETWORK,
         };
       } else {
         attempt += 1;
