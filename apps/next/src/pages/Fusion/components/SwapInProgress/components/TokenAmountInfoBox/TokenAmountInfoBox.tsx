@@ -18,7 +18,7 @@ type Props = {
   badgeSize: number;
 };
 
-export const TokemAmountInfoBox: FC<Props> = ({
+export const TokenAmountInfoBox: FC<Props> = ({
   amount,
   token,
   size,

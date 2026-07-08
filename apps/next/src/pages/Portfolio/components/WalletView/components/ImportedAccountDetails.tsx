@@ -7,7 +7,7 @@ import { WalletBalance } from './WalletBalance';
 import { useTranslation } from 'react-i18next';
 import { ImportedAccount } from '@core/types';
 import { Stack } from '@avalabs/k2-alpine';
-import { PortfolioActionButtons } from '../../PortfolioHome/components/PortolioDetails/components/PortfolioActionButtons';
+import { PortfolioActionButtons } from '../../PortfolioHome/components/PortfolioDetails/components/PortfolioActionButtons';
 import { WalletAccountsCard } from './WalletAccountsCard';
 import { getNetworkCount } from '../utils/networkCount';
 

@@ -1,8 +1,8 @@
 import { ComponentType, FC } from 'react';
 import { AssetsTab } from './components/AssetsTab';
 import { TokenType } from '@avalabs/vm-module-types';
-import { CollectiblesTab } from '../PortolioDetails/components/CollectiblesTab';
-import { DeFiTab } from '../PortolioDetails/components/DeFiTab';
+import { CollectiblesTab } from '../PortfolioDetails/components/CollectiblesTab';
+import { DeFiTab } from '../PortfolioDetails/components/DeFiTab';
 import { TabName } from '../../types';
 import { useLiveBalance } from '@core/ui';
 

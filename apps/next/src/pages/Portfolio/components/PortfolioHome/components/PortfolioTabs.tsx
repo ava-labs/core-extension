@@ -18,7 +18,7 @@ import { TabsContainer, TabBar } from '../styled';
 import { TabName } from '../types';
 import { EmptyState } from './EmptyState';
 import { LoadingState } from './LoadingState';
-import { PortfolioDetails } from './PortolioDetails';
+import { PortfolioDetails } from './PortfolioDetails';
 
 export const PortfolioTabs: FC = () => {
   const { t } = useTranslation();

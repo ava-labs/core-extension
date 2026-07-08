@@ -1,6 +1,6 @@
 import { Stack } from '@avalabs/k2-alpine';
 import { WalletBalance } from './WalletBalance';
-import { PortfolioActionButtons } from '../../PortfolioHome/components/PortolioDetails/components/PortfolioActionButtons';
+import { PortfolioActionButtons } from '../../PortfolioHome/components/PortfolioDetails/components/PortfolioActionButtons';
 import { WalletAccountsCard } from './WalletAccountsCard';
 import { getAccountAvatars } from '../utils/accountAvatars';
 import { useMemo } from 'react';

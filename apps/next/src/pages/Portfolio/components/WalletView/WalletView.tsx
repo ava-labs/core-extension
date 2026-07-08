@@ -2,7 +2,7 @@ import { LoadingScreen } from '@/components/LoadingScreen';
 import { isImportedAccount } from '@core/common';
 import { useAccountsContext, useWalletContext } from '@core/ui';
 import { useParams } from 'react-router-dom';
-import { ImportedAccountDetails } from './components/ImportedAccoutDetails';
+import { ImportedAccountDetails } from './components/ImportedAccountDetails';
 import { WalletDetails } from './components/WalletDetails';
 
 const WalletViewContent = () => {

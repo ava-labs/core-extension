@@ -5,7 +5,7 @@ import { AddCustomToken } from './components/AddCustomToken/AddCustomToken';
 import { ManageTokens } from './components/ManageTokens';
 import { PortfolioHome } from './components/PortfolioHome';
 import { WalletView } from './components/WalletView/WalletView';
-import { TokenDetails } from './components/PortfolioHome/components/PortolioDetails/components/TokenDetails';
+import { TokenDetails } from './components/PortfolioHome/components/PortfolioDetails/components/TokenDetails';
 import { Header } from '@/components/Header';
 import { NoScrollStack } from '@/components/NoScrollStack';
 import { HEADER_HEIGHT } from '@/config';

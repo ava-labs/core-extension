@@ -17,7 +17,7 @@ import { useConfettiContext } from '@/components/Confetti';
 import { SwapEstimatedTimeWarning } from '../SwapEstimatedTimeWarning';
 import { useSwappedTokens } from './hooks';
 import {
-  TokemAmountInfoBox,
+  TokenAmountInfoBox,
   TransactionFailure,
   Styled,
   ChainStatusInfoBox,
@@ -79,7 +79,7 @@ export const IssuedSwapDetails: FC<Props> = ({ transfer, isRead }) => {
                 data-token-symbol={token?.symbol}
                 data-token-chain-id={token?.coreChainId}
               >
-                <TokemAmountInfoBox
+                <TokenAmountInfoBox
                   token={token}
                   amount={type === 'paid' ? -amount : amount}
                   size={24}

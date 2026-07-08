@@ -7,14 +7,14 @@ import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';
 import { lookupTokenByAssetInfo } from '../../../lib/lookupTokenByAssetInfo';
 import { useTransferTokensLookup } from '../../../hooks/useTransferTokensLookup';
 
-type TokemAmountInfo = {
+type TokenAmountInfo = {
   token: FungibleTokenBalance;
   tokenId: string;
   amount: bigint;
   type: 'paid' | 'received';
 };
 
-export const useSwappedTokens = (transfer: Transfer): TokemAmountInfo[] => {
+export const useSwappedTokens = (transfer: Transfer): TokenAmountInfo[] => {
   const tokensByChainId = useTransferTokensLookup(transfer);
 
   return useMemo(() => {
@@ -22,7 +22,7 @@ export const useSwappedTokens = (transfer: Transfer): TokemAmountInfo[] => {
       tokensByChainId[transfer.sourceChain.chainId] ?? [],
       transfer.sourceAsset,
     );
-    const input: TokemAmountInfo | undefined = inputToken
+    const input: TokenAmountInfo | undefined = inputToken
       ? {
           type: 'paid',
           token: inputToken,
@@ -36,7 +36,7 @@ export const useSwappedTokens = (transfer: Transfer): TokemAmountInfo[] => {
       transfer.targetAsset,
     );
 
-    const output: TokemAmountInfo | undefined = outputToken
+    const output: TokenAmountInfo | undefined = outputToken
       ? {
           type: 'received',
           token: outputToken,
@@ -45,7 +45,7 @@ export const useSwappedTokens = (transfer: Transfer): TokemAmountInfo[] => {
         }
       : undefined;
 
-    const fees: (TokemAmountInfo | undefined)[] = transfer.fees.map((fee) => {
+    const fees: (TokenAmountInfo | undefined)[] = transfer.fees.map((fee) => {
       const token = lookupTokenByAssetInfo(
         tokensByChainId[fee.chainId] ?? [],
         fee.token,
@@ -75,14 +75,14 @@ export const useSwappedTokens = (transfer: Transfer): TokemAmountInfo[] => {
           lookup.set(info.tokenId, info);
         }
         return lookup;
-      }, new Map<string, TokemAmountInfo>())
+      }, new Map<string, TokenAmountInfo>())
       .values()
       .toArray()
       .toSorted(paidFirst);
   }, [transfer, tokensByChainId]);
 };
 
-const paidFirst = (a: TokemAmountInfo, b: TokemAmountInfo) => {
+const paidFirst = (a: TokenAmountInfo, b: TokenAmountInfo) => {
   if (a.type === 'paid') return -1;
   if (b.type === 'paid') return 1;
   return 0;
