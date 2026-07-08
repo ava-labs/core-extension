@@ -4,11 +4,8 @@ import { createClient as createV1ProfileApiClient } from '~/api-clients/profile-
 import { createClient as createTokenAggregatorApiClientV1 } from '~/api-clients/token-aggregator/client';
 import { AppCheckService } from '~/services/appcheck/AppCheckService';
 import { applyExponentialBackOffMiddleware } from './utils/exponentialBackOffMiddleware';
-import { isProductionBuild } from '@core/common';
 
-const TOKEN_AGGREGATOR_URL = isProductionBuild()
-  ? process.env.TOKEN_AGGREGATOR_SERVICE_URL_PROD
-  : process.env.TOKEN_AGGREGATOR_SERVICE_URL_DEV;
+const TOKEN_AGGREGATOR_URL = process.env.TOKEN_AGGREGATOR_SERVICE_URL;
 
 const appcheckService = container.resolve(AppCheckService);
 
