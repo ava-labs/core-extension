@@ -10,13 +10,26 @@ export function isHyperliquidChainId(chainId: number) {
   return chainId === HYPEREVM_CHAIN_ID;
 }
 
+// HyperCore is a synthetic, display-only network: it is modeled as EVM for
+// reuse but has no RPC and no send/receive/swap/dApp actions, so EVM code paths
+// must guard against it. Matched by name because it has no canonical chain id.
+export function isHypercoreNetwork(network?: Network) {
+  if (!network) {
+    return false;
+  }
+
+  return (
+    network.chainName === HYPERCORE_CHAIN_NAME ||
+    network.chainId === HYPERCORE_CHAIN_ID
+  );
+}
+
 export function isHyperliquidNetwork(network?: Network) {
   if (!network) {
     return false;
   }
 
-  // HyperCore is matched by name because it has no canonical chain id.
-  if (network.chainName === HYPERCORE_CHAIN_NAME) {
+  if (isHypercoreNetwork(network)) {
     return true;
   }
 

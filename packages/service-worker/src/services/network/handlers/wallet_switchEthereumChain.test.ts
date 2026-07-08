@@ -3,7 +3,7 @@ import { buildRpcCall } from '@shared/tests/test-utils';
 import { DAppProviderRequest, DEFERRED_RESPONSE } from '@core/types';
 import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { ethErrors } from 'eth-rpc-errors';
-import { canSkipApproval } from '@core/common';
+import { canSkipApproval, isHypercoreNetwork } from '@core/common';
 import { openApprovalWindow } from '~/runtime/openApprovalWindow';
 
 jest.mock('~/runtime/openApprovalWindow');
@@ -117,6 +117,24 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
       expect(result).toEqual({
         ...switchChainRequest,
         result: null,
+      });
+
+      expect(openApprovalWindow).toHaveBeenCalledTimes(0);
+    });
+
+    it('rejects switching to HyperCore (display-only)', async () => {
+      jest.mocked(isHypercoreNetwork).mockReturnValue(true);
+
+      const result = await handler.handleAuthenticated(
+        buildRpcCall(switchChainRequest),
+      );
+
+      expect(result).toEqual({
+        ...switchChainRequest,
+        error: ethErrors.provider.custom({
+          code: 4901,
+          message: `Chain ID "0xa869" is not available for dApp connections.`,
+        }),
       });
 
       expect(openApprovalWindow).toHaveBeenCalledTimes(0);
