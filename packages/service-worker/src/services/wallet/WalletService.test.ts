@@ -1,7 +1,8 @@
 import { BaseWallet, HDNodeWallet, SigningKey, Wallet } from 'ethers';
 
 import { WalletService } from './WalletService';
-import { AddressPublicKeyJson, MessageType } from '@core/types';
+import { AddressPublicKeyJson } from '@core/types';
+import { RpcMethod } from '@avalabs/vm-module-types';
 import { NetworkService } from '../network/NetworkService';
 import { LedgerService } from '../ledger/LedgerService';
 import {
@@ -35,7 +36,6 @@ import {
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import { LedgerTransport } from '../ledger/LedgerTransport';
 import getDerivationPath from './utils/getDerivationPath';
-import ensureMessageFormatIsValid from './utils/ensureMessageFormatIsValid';
 import { KeystoneService } from '../keystone/KeystoneService';
 import { BitcoinKeystoneWallet } from '../keystone/BitcoinKeystoneWallet';
 import { KeystoneWallet } from '../keystone/KeystoneWallet';
@@ -44,8 +44,7 @@ import { WalletPolicy } from 'ledger-bitcoin';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { WalletConnectStorage } from '../walletConnect/WalletConnectStorage';
 import { WalletConnectSigner } from '../walletConnect/WalletConnectSigner';
-import { Action, ActionStatus } from '@core/types';
-import { UnsignedTx } from '@avalabs/avalanchejs';
+import { UnsignedTx, utils } from '@avalabs/avalanchejs';
 import { FireblocksService } from '../fireblocks/FireblocksService';
 import { SecretsService } from '../secrets/SecretsService';
 import { Transaction } from 'bitcoinjs-lib';
@@ -71,7 +70,6 @@ jest.mock('../secrets/AddressResolver');
 jest.mock('../ledger/LedgerService');
 jest.mock('../keystone/KeystoneService');
 jest.mock('./utils/prepareBtcTxForLedger');
-jest.mock('./utils/ensureMessageFormatIsValid');
 jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('@noble/curves/ed25519', () => {
   return {
@@ -155,6 +153,10 @@ describe('background/services/wallet/WalletService.ts', () => {
   let secretsService: jest.Mocked<SecretsService>;
   const accountsService: jest.Mocked<AccountsService> = {
     getActiveAccount: async () => ({
+      type: AccountType.PRIMARY,
+      index: 0,
+    }),
+    getAccountFromActiveWalletByAddress: jest.fn().mockResolvedValue({
       type: AccountType.PRIMARY,
       index: 0,
     }),
@@ -1126,31 +1128,22 @@ describe('background/services/wallet/WalletService.ts', () => {
     });
   });
 
-  describe('signMessage', () => {
+  describe('signGenericMessage', () => {
     const buffer = Buffer;
     const bufferInstance = {
       fill: jest.fn(),
     };
+    const tabId = 951;
+    const testAccount = '0x1234567890123456789012345678901234567890';
     const activeNetworkMock = {
       chainId: 1,
     } as any;
 
-    const action: Action = {
-      request: {
-        id: '1',
-        method: 'method' as any,
-        params: [],
-      },
-      time: 123,
-      status: ActionStatus.SUBMITTING,
-      displayData: { messageParams: { data: {} } },
-      actionId: 'action ID',
+    const ethSignMessage = {
+      type: RpcMethod.ETH_SIGN,
+      data: {},
+      account: testAccount,
     } as any;
-
-    const undefinedDataAction: Action = {
-      ...action,
-      displayData: { messageParams: { data: undefined } },
-    };
 
     beforeEach(() => {
       // eslint-disable-next-line no-global-assign
@@ -1166,9 +1159,6 @@ describe('background/services/wallet/WalletService.ts', () => {
         };
       });
       Object.assign(walletMock, { _signingKey: signingKeyMock });
-      jest
-        .spyOn(networkService, 'getNetwork')
-        .mockResolvedValue(activeNetworkMock);
     });
     afterEach(() => {
       // eslint-disable-next-line no-global-assign
@@ -1184,7 +1174,11 @@ describe('background/services/wallet/WalletService.ts', () => {
         .spyOn(walletService as any, 'getWallet')
         .mockReturnValue(walletConnectSignerMock);
 
-      await walletService.signMessage(MessageType.ETH_SIGN, action);
+      await walletService.signGenericMessage(
+        ethSignMessage,
+        activeNetworkMock,
+        tabId,
+      );
       expect(walletConnectSignerMock.signMessage).toHaveBeenCalledTimes(1);
     });
 
@@ -1197,7 +1191,7 @@ describe('background/services/wallet/WalletService.ts', () => {
         .spyOn(walletService as any, 'getWallet')
         .mockReturnValue(seedlessWalletMock);
 
-      await walletService.signMessage(MessageType.ETH_SIGN, action);
+      await walletService.signGenericMessage(ethSignMessage, activeNetworkMock);
       expect(seedlessWalletMock.signMessage).toHaveBeenCalledTimes(1);
     });
 
@@ -1214,16 +1208,27 @@ describe('background/services/wallet/WalletService.ts', () => {
         .mockReturnValue(evmLedgerSignerMock);
 
       await expect(
-        walletService.signMessage(MessageType.ETH_SIGN, {
-          ...action,
-          displayData: { messageParams: { data: 'data' } } as any,
-        }),
+        walletService.signGenericMessage(
+          {
+            type: RpcMethod.ETH_SIGN,
+            data: 'data',
+            account: testAccount,
+          },
+          activeNetworkMock,
+        ),
       ).resolves.toBe('0x00001');
       expect(evmLedgerSignerMock.signMessage).toHaveBeenCalledTimes(1);
       expect(evmLedgerSignerMock.signMessage).toHaveBeenCalledWith('data');
 
       await expect(
-        walletService.signMessage(MessageType.PERSONAL_SIGN, action),
+        walletService.signGenericMessage(
+          {
+            type: RpcMethod.PERSONAL_SIGN,
+            data: {},
+            account: testAccount,
+          } as any,
+          activeNetworkMock,
+        ),
       ).resolves.toBe('0x00002');
       expect(evmLedgerSignerMock.signMessage).toHaveBeenCalledTimes(2);
       expect(evmLedgerSignerMock.signMessage).toHaveBeenNthCalledWith(2, {});
@@ -1241,62 +1246,51 @@ describe('background/services/wallet/WalletService.ts', () => {
         .mockReturnValue(evmLedgerSignerMock);
 
       await expect(
-        walletService.signMessage(MessageType.SIGN_TYPED_DATA_V4, {
-          ...action,
-          displayData: {
-            messageParams: {
-              data: {
-                domain: { name: 'domain' },
-                types: { types: 'types' },
-                message: { message: 'message' },
+        walletService.signGenericMessage(
+          {
+            type: RpcMethod.SIGN_TYPED_DATA_V4,
+            data: {
+              domain: { name: 'domain', version: '1', chainId: 1 },
+              types: {
+                EIP712Domain: [{ name: 'name', type: 'string' }],
+                Mail: [{ name: 'contents', type: 'string' }],
               },
+              primaryType: 'Mail',
+              message: { contents: 'message' },
             },
+            account: testAccount,
           } as any,
-        }),
+          activeNetworkMock,
+        ),
       ).resolves.toBe('0x00001');
       expect(evmLedgerSignerMock.signTypedData).toHaveBeenCalledTimes(1);
       expect(evmLedgerSignerMock.signTypedData).toHaveBeenCalledWith(
-        { name: 'domain' },
-        { types: 'types' },
-        { message: 'message' },
+        { name: 'domain', version: '1', chainId: 1 },
+        {
+          EIP712Domain: [{ name: 'name', type: 'string' }],
+          Mail: [{ name: 'contents', type: 'string' }],
+        },
+        { contents: 'message' },
       );
     });
 
     it('should call Buffer.fill after signing', async () => {
       jest.spyOn(walletService as any, 'getWallet').mockReturnValue(walletMock);
 
-      await walletService.signMessage(MessageType.ETH_SIGN, action);
+      await walletService.signGenericMessage(ethSignMessage, activeNetworkMock);
       expect(Buffer.from).toHaveBeenCalledTimes(1);
       expect(Buffer.from).toHaveBeenCalledWith(privateKeyMock, 'hex');
       expect(bufferInstance.fill).toHaveBeenCalledTimes(1);
       expect(bufferInstance.fill).toHaveBeenCalledWith(0);
     });
 
-    it('should call Buffer.fill before throwing an exception when type is not supported', async () => {
-      jest.spyOn(walletService as any, 'getWallet').mockReturnValue(walletMock);
-
-      try {
-        await walletService.signMessage('test' as MessageType, action);
-      } catch (_err) {
-        expect(Buffer.from).toHaveBeenCalledTimes(1);
-        expect(Buffer.from).toHaveBeenCalledWith(privateKeyMock, 'hex');
-        expect(bufferInstance.fill).toHaveBeenCalledTimes(1);
-        expect(bufferInstance.fill).toHaveBeenCalledWith(0);
-      }
-    });
-
-    it('should call personalSign when MessageType is ETH_SIGN', async () => {
+    it('should call personalSign when RpcMethod is ETH_SIGN', async () => {
       jest.spyOn(walletService as any, 'getWallet').mockReturnValue(walletMock);
       const mockedHash = 'mockedHash';
       (personalSign as jest.Mock).mockReturnValue(mockedHash);
-      const result = await walletService.signMessage(
-        MessageType.ETH_SIGN,
-        action,
-      );
-      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
-        MessageType.ETH_SIGN,
-        {},
-        activeNetworkMock.chainId,
+      const result = await walletService.signGenericMessage(
+        ethSignMessage,
+        activeNetworkMock,
       );
       expect(personalSign).toHaveBeenCalledTimes(1);
       expect(personalSign).toHaveBeenCalledWith({
@@ -1308,18 +1302,17 @@ describe('background/services/wallet/WalletService.ts', () => {
       expect(result).toEqual(mockedHash);
     });
 
-    it('should call personalSign when MessageType is PERSONAL_SIGN', async () => {
+    it('should call personalSign when RpcMethod is PERSONAL_SIGN', async () => {
       jest.spyOn(walletService as any, 'getWallet').mockReturnValue(walletMock);
       const mockedHash = 'mockedHash';
       (personalSign as jest.Mock).mockReturnValue(mockedHash);
-      const result = await walletService.signMessage(
-        MessageType.PERSONAL_SIGN,
-        action,
-      );
-      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
-        MessageType.PERSONAL_SIGN,
-        {},
-        activeNetworkMock.chainId,
+      const result = await walletService.signGenericMessage(
+        {
+          type: RpcMethod.PERSONAL_SIGN,
+          data: {},
+          account: testAccount,
+        } as any,
+        activeNetworkMock,
       );
       expect(personalSign).toHaveBeenCalledTimes(1);
       expect(personalSign).toHaveBeenCalledWith({
@@ -1331,18 +1324,17 @@ describe('background/services/wallet/WalletService.ts', () => {
       expect(result).toEqual(mockedHash);
     });
 
-    it('should call signTypedData when MessageType is SIGN_TYPED_DATA', async () => {
+    it('should call signTypedData when RpcMethod is SIGN_TYPED_DATA', async () => {
       jest.spyOn(walletService as any, 'getWallet').mockReturnValue(walletMock);
       const mockedHash = 'mockedHash';
       (signTypedData as jest.Mock).mockReturnValue(mockedHash);
-      const result = await walletService.signMessage(
-        MessageType.SIGN_TYPED_DATA,
-        action,
-      );
-      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
-        MessageType.SIGN_TYPED_DATA,
-        {},
-        activeNetworkMock.chainId,
+      const result = await walletService.signGenericMessage(
+        {
+          type: RpcMethod.SIGN_TYPED_DATA,
+          data: {},
+          account: testAccount,
+        } as any,
+        activeNetworkMock,
       );
       expect(signTypedData).toHaveBeenCalledTimes(1);
       expect(signTypedData).toHaveBeenCalledWith({
@@ -1355,18 +1347,17 @@ describe('background/services/wallet/WalletService.ts', () => {
       expect(result).toEqual(mockedHash);
     });
 
-    it('should call signTypedData when MessageType is SIGN_TYPED_DATA_V1', async () => {
+    it('should call signTypedData when RpcMethod is SIGN_TYPED_DATA_V1', async () => {
       jest.spyOn(walletService as any, 'getWallet').mockReturnValue(walletMock);
       const mockedHash = 'mockedHash';
       (signTypedData as jest.Mock).mockReturnValue(mockedHash);
-      const result = await walletService.signMessage(
-        MessageType.SIGN_TYPED_DATA_V1,
-        action,
-      );
-      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
-        MessageType.SIGN_TYPED_DATA_V1,
-        {},
-        activeNetworkMock.chainId,
+      const result = await walletService.signGenericMessage(
+        {
+          type: RpcMethod.SIGN_TYPED_DATA_V1,
+          data: {},
+          account: testAccount,
+        } as any,
+        activeNetworkMock,
       );
       expect(signTypedData).toHaveBeenCalledTimes(1);
       expect(signTypedData).toHaveBeenCalledWith({
@@ -1379,18 +1370,17 @@ describe('background/services/wallet/WalletService.ts', () => {
       expect(result).toEqual(mockedHash);
     });
 
-    it('should call signTypedData when MessageType is SIGN_TYPED_DATA_V3', async () => {
+    it('should call signTypedData when RpcMethod is SIGN_TYPED_DATA_V3', async () => {
       jest.spyOn(walletService as any, 'getWallet').mockReturnValue(walletMock);
       const mockedHash = 'mockedHash';
       (signTypedData as jest.Mock).mockReturnValue(mockedHash);
-      const result = await walletService.signMessage(
-        MessageType.SIGN_TYPED_DATA_V3,
-        action,
-      );
-      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
-        MessageType.SIGN_TYPED_DATA_V3,
-        {},
-        activeNetworkMock.chainId,
+      const result = await walletService.signGenericMessage(
+        {
+          type: RpcMethod.SIGN_TYPED_DATA_V3,
+          data: {},
+          account: testAccount,
+        } as any,
+        activeNetworkMock,
       );
       expect(signTypedData).toHaveBeenCalledTimes(1);
       expect(signTypedData).toHaveBeenCalledWith({
@@ -1403,18 +1393,17 @@ describe('background/services/wallet/WalletService.ts', () => {
       expect(result).toEqual(mockedHash);
     });
 
-    it('should call signTypedData when MessageType is SIGN_TYPED_DATA_V4', async () => {
+    it('should call signTypedData when RpcMethod is SIGN_TYPED_DATA_V4', async () => {
       jest.spyOn(walletService as any, 'getWallet').mockReturnValue(walletMock);
       const mockedHash = 'mockedHash';
       (signTypedData as jest.Mock).mockReturnValue(mockedHash);
-      const result = await walletService.signMessage(
-        MessageType.SIGN_TYPED_DATA_V4,
-        action,
-      );
-      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
-        MessageType.SIGN_TYPED_DATA_V4,
-        {},
-        activeNetworkMock.chainId,
+      const result = await walletService.signGenericMessage(
+        {
+          type: RpcMethod.SIGN_TYPED_DATA_V4,
+          data: {},
+          account: testAccount,
+        } as any,
+        activeNetworkMock,
       );
       expect(signTypedData).toHaveBeenCalledTimes(1);
       expect(signTypedData).toHaveBeenCalledWith({
@@ -1427,106 +1416,27 @@ describe('background/services/wallet/WalletService.ts', () => {
       expect(result).toEqual(mockedHash);
     });
 
-    it('should throw an exception when the message is invalid', async () => {
-      const errorMessage = 'message is invalid';
-      jest.spyOn(walletService as any, 'getWallet').mockReturnValue(walletMock);
-      (ensureMessageFormatIsValid as jest.Mock).mockImplementationOnce(() => {
-        throw new Error(errorMessage);
-      });
-      await expect(
-        walletService.signMessage(MessageType.ETH_SIGN, action),
-      ).rejects.toThrow(errorMessage);
-      expect(Buffer.from).not.toHaveBeenCalled();
-    });
-
-    it('should throw an exception when there is no active network', async () => {
-      jest.spyOn(networkService, 'getNetwork').mockResolvedValue(undefined);
-      jest.spyOn(walletService as any, 'getWallet').mockReturnValue(walletMock);
-      await expect(
-        walletService.signMessage(MessageType.ETH_SIGN, action),
-      ).rejects.toThrow('no active network found');
-      expect(Buffer.from).not.toHaveBeenCalled();
-    });
-
-    it('should throw an exception when MessageType is unknown', async () => {
-      jest.spyOn(walletService as any, 'getWallet').mockReturnValue(walletMock);
-      const mockedHash = 'mockedHash';
-      (personalSign as jest.Mock).mockReturnValue(mockedHash);
-      try {
-        await walletService.signMessage('unknown' as MessageType, action);
-        fail('should have thrown an exception');
-      } catch (error) {
-        expect(error).toEqual(new Error('unknown method'));
-        expect(bufferInstance.fill).toHaveBeenCalledTimes(1);
-        expect(bufferInstance.fill).toHaveBeenCalledWith(0);
-      }
-    });
-
-    it('should throw an exception when data param is falsy', async () => {
-      jest.spyOn(walletService as any, 'getWallet').mockReturnValue(walletMock);
-      const mockedHash = 'mockedHash';
-      (personalSign as jest.Mock).mockReturnValue(mockedHash);
-      try {
-        await walletService.signMessage(
-          MessageType.ETH_SIGN,
-          undefinedDataAction,
-        );
-        fail('should have thrown an exception');
-      } catch (error) {
-        expect(error).toEqual(new Error('no message to sign'));
-        expect(bufferInstance.fill).toHaveBeenCalledTimes(1);
-        expect(bufferInstance.fill).toHaveBeenCalledWith(0);
-      }
-    });
-
     it('should throw an exception when wallet is not available', async () => {
       jest.spyOn(walletService as any, 'getWallet').mockReturnValue(undefined);
-      const mockedHash = 'mockedHash';
-      (personalSign as jest.Mock).mockReturnValue(mockedHash);
-      try {
-        await walletService.signMessage(
-          MessageType.ETH_SIGN,
-          undefinedDataAction,
-        );
-        fail('should have thrown an exception');
-      } catch (error) {
-        expect(error).toEqual(new Error('wallet undefined in sign tx'));
-        expect(Buffer.from).not.toHaveBeenCalled();
-      }
+
+      await expect(
+        walletService.signGenericMessage(ethSignMessage, activeNetworkMock),
+      ).rejects.toThrow('This function is not supported by your wallet');
+      expect(Buffer.from).not.toHaveBeenCalled();
     });
 
     it('should throw an exception when wallet is not supported', async () => {
       jest
         .spyOn(walletService as any, 'getWallet')
         .mockReturnValue({ NotWallet: 'notWallet' });
-      const mockedHash = 'mockedHash';
-      (personalSign as jest.Mock).mockReturnValue(mockedHash);
-      try {
-        await walletService.signMessage(
-          MessageType.ETH_SIGN,
-          undefinedDataAction,
-        );
-        fail('should have thrown an exception');
-      } catch (error) {
-        expect(error).toEqual(
-          new Error(`this function is not supported on your wallet`),
-        );
-        expect(Buffer.from).not.toHaveBeenCalled();
-      }
+
+      await expect(
+        walletService.signGenericMessage(ethSignMessage, activeNetworkMock),
+      ).rejects.toThrow('This function is not supported by your wallet');
+      expect(Buffer.from).not.toHaveBeenCalled();
     });
 
-    it('should use the accountIndex to getWallet if available', async () => {
-      const actionWithAccountIndex: Action = {
-        request: {
-          id: '1',
-          params: [],
-          method: 'method' as any,
-        },
-        time: 123,
-        status: ActionStatus.SUBMITTING,
-        displayData: { messageParams: { data: 'test', accountIndex: 1 } },
-        actionId: 'action ID',
-      } as any;
+    it('should use the accountIndex to getWallet for Avalanche messages', async () => {
       const getWalletSpy = jest
         .spyOn(walletService as any, 'getWallet')
         .mockReturnValue(simpleSignerMock);
@@ -1536,26 +1446,26 @@ describe('background/services/wallet/WalletService.ts', () => {
           decorateWithCaipId(AVALANCHE_XP_TEST_NETWORK),
         );
 
-      const mockedHash = 'mockedHash';
+      const signedBytes = Uint8Array.from([1, 2, 3]);
       simpleSignerMock.signMessage = jest
         .fn()
-        .mockResolvedValueOnce(mockedHash);
+        .mockResolvedValueOnce(signedBytes);
 
-      const result = await walletService.signMessage(
-        MessageType.AVALANCHE_SIGN,
-        actionWithAccountIndex,
+      const result = await walletService.signGenericMessage(
+        {
+          type: RpcMethod.AVALANCHE_SIGN_MESSAGE,
+          data: 'test',
+          accountIndex: 1,
+        },
+        activeNetworkMock,
       );
 
-      expect(getWalletSpy).toHaveBeenCalledTimes(2);
-      expect(getWalletSpy).toHaveBeenNthCalledWith(1, {
-        accountIndex: 1,
-        network: { chainId: 1 },
-      });
-      expect(getWalletSpy).toHaveBeenNthCalledWith(2, {
+      expect(getWalletSpy).toHaveBeenCalledTimes(1);
+      expect(getWalletSpy).toHaveBeenCalledWith({
         network: AVALANCHE_XP_TEST_NETWORK,
         accountIndex: 1,
       });
-      expect(result).toEqual(mockedHash);
+      expect(result).toEqual(utils.base58check.encode(signedBytes));
     });
   });
 

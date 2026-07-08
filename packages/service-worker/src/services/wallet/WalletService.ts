@@ -36,7 +36,6 @@ import {
 import {
   Account,
   AccountWithSeedlessSecrets,
-  Action,
   AddPrimaryWalletSecrets,
   CommonError,
   FIREBLOCKS_REQUEST_EXPIRY,
@@ -54,7 +53,6 @@ import {
   SecretsError,
   SecretType,
   SigningResult,
-  SignMessageData,
   SignTransactionRequest,
   SUPPORTED_PRIMARY_SECRET_TYPES,
   WalletDetails,
@@ -100,7 +98,6 @@ import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { WalletConnectSigner } from '../walletConnect/WalletConnectSigner';
 import { HVMWallet } from './HVMWallet';
-import ensureMessageIsValid from './utils/ensureMessageFormatIsValid';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import { isTypedData } from '@avalabs/evm-module';
 import { isPersonalSign } from './utils/isPersonalSignRequest';
@@ -1191,116 +1188,6 @@ export class WalletService implements OnUnlock {
     }
 
     return await wallet.signMessage({ message, chain: 'X' });
-  }
-  /**
-   * Sign EVM messages
-   * @deprecated Use signGenericMessage instead
-   * @param messageType
-   * @param data
-   */
-  async signMessage(messageType: MessageType, action: Action<SignMessageData>) {
-    const network = await this.networkService.getNetwork(action.scope);
-
-    if (!network) {
-      throw new Error(`no active network found`);
-    }
-
-    const wallet = await this.getWallet({
-      accountIndex: action.displayData.messageParams.accountIndex,
-      network,
-    });
-
-    const data = action.displayData?.messageParams?.data;
-
-    ensureMessageIsValid(messageType, data, network.chainId);
-
-    if (wallet instanceof WalletConnectSigner) {
-      return await wallet.signMessage(messageType, action.params);
-    }
-
-    if (wallet instanceof SeedlessWallet) {
-      return wallet.signMessage(messageType, action.displayData?.messageParams);
-    }
-
-    if (wallet instanceof KeystoneWallet) {
-      return wallet.signMessage(messageType, action.displayData?.messageParams);
-    }
-
-    if (wallet instanceof LedgerSigner) {
-      await this.#ensureEvmLedgerAppOpenForSigning(network);
-
-      if (
-        [
-          MessageType.SIGN_TYPED_DATA,
-          MessageType.SIGN_TYPED_DATA_V1,
-          MessageType.SIGN_TYPED_DATA_V3,
-          MessageType.SIGN_TYPED_DATA_V4,
-        ].includes(messageType)
-      ) {
-        return wallet.signTypedData(data.domain, data.types, data.message);
-      } else if (
-        [MessageType.ETH_SIGN, MessageType.PERSONAL_SIGN].includes(messageType)
-      ) {
-        const dataToSign = isHexString(data) ? utils.hexToBuffer(data) : data;
-
-        return wallet.signMessage(dataToSign);
-      } else {
-        throw new Error(`this function is not supported on your wallet`);
-      }
-    }
-
-    if (messageType === MessageType.AVALANCHE_SIGN) {
-      return this.signMessageAvalanche(action.displayData?.messageParams);
-    }
-
-    if (!wallet || !(wallet instanceof BaseWallet)) {
-      throw new Error(
-        wallet
-          ? `this function is not supported on your wallet`
-          : 'wallet undefined in sign tx',
-      );
-    }
-
-    const privateKey = wallet.privateKey.toLowerCase().startsWith('0x')
-      ? wallet.privateKey.slice(2)
-      : wallet.privateKey;
-
-    const key = Buffer.from(privateKey, 'hex');
-
-    try {
-      if (data) {
-        switch (messageType) {
-          case MessageType.ETH_SIGN:
-          case MessageType.PERSONAL_SIGN:
-            return personalSign({ privateKey: key, data });
-          case MessageType.SIGN_TYPED_DATA:
-          case MessageType.SIGN_TYPED_DATA_V1:
-            return signTypedData({
-              privateKey: key,
-              data,
-              version: SignTypedDataVersion.V1,
-            });
-          case MessageType.SIGN_TYPED_DATA_V3:
-            return signTypedData({
-              privateKey: key,
-              data,
-              version: SignTypedDataVersion.V3,
-            });
-          case MessageType.SIGN_TYPED_DATA_V4:
-            return signTypedData({
-              privateKey: key,
-              data,
-              version: SignTypedDataVersion.V4,
-            });
-          default:
-            throw new Error('unknown method');
-        }
-      } else {
-        throw new Error('no message to sign');
-      }
-    } finally {
-      key.fill(0);
-    }
   }
 
   addListener(event: WalletEvents, callback: (data: unknown) => void) {
