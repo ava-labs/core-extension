@@ -6,16 +6,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Core Extension is a non-custodial browser extension for Chromium browsers built using Manifest V3. It enables users to seamlessly and securely interact with Web3 applications powered by Avalanche, supporting Bitcoin, Ethereum, and Solana networks.
 
-The project uses a monorepo structure with yarn workspaces and contains two main applications:
+The project uses a monorepo structure with yarn workspaces. The extension UI lives in:
 
-- **Next**: The next-generation version (React 19, modern architecture) in `apps/next/`
+- **Next** (`apps/next/`): React 19 frontend for onboarding, the main interface, and approval windows
 
 ## Essential Commands
 
 ### Development
 
 ```bash
-# Start development (defaults to legacy)
+# Start development
 yarn dev
 yarn start
 
@@ -68,7 +68,7 @@ Built with Rsbuild (Rspack-based) instead of Webpack. Each package has its own b
 The extension follows the standard Manifest V3 architecture with 4 isolated components:
 
 1. **Service Worker** (`packages/service-worker/`): Background script handling business logic, network communication, transaction signing, and encrypted storage
-2. **Frontend** (`apps/legacy/` or `apps/next/`): React UI for onboarding, main interface, and approval windows
+2. **Frontend** (`apps/next/`): React UI for onboarding, main interface, and approval windows
 3. **Content Script** (`packages/content-script/`): Bridge between service worker and injected provider
 4. **Injected Provider** (`packages/inpage/`): EIP-1193 compliant provider injected into web pages for dApp communication
 
@@ -108,7 +108,7 @@ The service worker uses dependency injection (TSyringe) with service-oriented ar
 
 ### Extension Entry Points
 
-The frontend supports multiple contexts determined by `isSpecificContextContainer.ts`:
+The frontend supports multiple contexts determined by `isSpecificContextContainer` from `@core/ui` (`packages/ui/src/utils/isSpecificContextContainer.ts`):
 
 - **POPUP**: Main extension UI (browser icon click)
 - **CONFIRM**: Approval windows for dApp interactions
