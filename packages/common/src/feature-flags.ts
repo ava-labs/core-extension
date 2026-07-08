@@ -62,6 +62,7 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.FUSION_LOMBARD_AVA_TO_BTC]: false,
   [FeatureGates.FUSION_RECURRING_SWAPS]: false,
   [FeatureGates.FUSION_AVALANCHE_CCT]: false,
+  [FeatureGates.HYPERLIQUID_FEATURE]: false,
   [FeatureVars.SAE_OVERRIDE]: 'auto', // auto, enabled, disabled
 };
 
@@ -126,6 +127,7 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.FUSION_LOMBARD_AVA_TO_BTC]: true,
   [FeatureGates.FUSION_RECURRING_SWAPS]: true,
   [FeatureGates.FUSION_AVALANCHE_CCT]: true,
+  [FeatureGates.HYPERLIQUID_FEATURE]: false,
   [FeatureVars.SAE_OVERRIDE]: 'auto', // auto, enabled, disabled
 };
 

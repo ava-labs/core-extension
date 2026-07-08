@@ -71,6 +71,7 @@ export * from './network/isAvalancheXchainNetwork';
 export * from './network/isBitcoinNetwork';
 export * from './network/isEthereumNetwork';
 export * from './network/isSolanaNetwork';
+export * from './network/isHyperliquidNetwork';
 export * from './network/isValidHttpHeader';
 export * from './newsletter';
 export * from './nfts/getSmallImageForNFT';
