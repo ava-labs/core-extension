@@ -32,11 +32,3 @@ export const convertStreamToArray = async (
 
   return { balances, errors };
 };
-
-export const normalizeXPAddress = (address: string) => {
-  const withoutPrefix = address.split('-').at(1);
-  if (!withoutPrefix) {
-    throw new Error('Invalid X/P address');
-  }
-  return withoutPrefix;
-};

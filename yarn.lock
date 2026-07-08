@@ -3250,7 +3250,6 @@ __metadata:
     "@avalabs/fusion-sdk": "npm:0.26.0"
     fireblocks-sdk: "npm:5.20.0"
     joi: "npm:17.7.0"
-    jose: "npm:4.15.5"
   languageName: unknown
   linkType: soft
 
