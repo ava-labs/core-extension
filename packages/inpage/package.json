@@ -14,8 +14,8 @@
     "typecheck": "yarn tsc --skipLibCheck --noEmit"
   },
   "dependencies": {
-    "@avalabs/evm-module": "3.9.3",
-    "@avalabs/svm-module": "3.9.3",
+    "@avalabs/evm-module": "0.0.0-fix-custom-tokens-balances-for-20260709075511",
+    "@avalabs/svm-module": "0.0.0-fix-custom-tokens-balances-for-20260709075511",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/types": "workspace:*",
