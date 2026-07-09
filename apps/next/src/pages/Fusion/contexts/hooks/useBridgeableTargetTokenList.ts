@@ -114,6 +114,19 @@ const mapBridgeableAsset = (
   return undefined;
 };
 
+const sortTokensByBalance = (
+  tokenA: FungibleTokenBalance,
+  tokenB: FungibleTokenBalance,
+) =>
+  Number(tokenB.balance > 0n) - Number(tokenA.balance > 0n) ||
+  (tokenB.balanceInCurrency ?? 0) - (tokenA.balanceInCurrency ?? 0) ||
+  (tokenA.balance === tokenB.balance
+    ? 0
+    : tokenA.balance > tokenB.balance
+      ? -1
+      : 1) ||
+  tokenA.name.localeCompare(tokenB.name);
+
 const toEffectiveSearch = (
   search: string | undefined,
 ): { type: 'address' | 'keyword'; value: string } | undefined => {
@@ -379,7 +392,10 @@ export const useBridgeableTargetTokenList = (
     const verified = all.filter((t) => t.isVerified !== false);
     const unverified = all.filter((t) => t.isVerified === false);
 
-    return [...verified, ...unverified];
+    return [
+      ...verified.toSorted(sortTokensByBalance),
+      ...unverified.toSorted(sortTokensByBalance),
+    ];
   }, [data, selectedTargetCaipId, getNetwork, userBalanceMap]);
 
   if (data !== undefined) hasEverHadData.current = true;

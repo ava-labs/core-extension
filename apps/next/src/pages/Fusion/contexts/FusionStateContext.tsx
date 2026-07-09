@@ -141,6 +141,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const {
     tokens: targetTokenList,
     fetchNextPage: fetchNextTargetTokenPage,
+    hasNextPage: hasNextTargetTokenPage,
     isLoading: isTargetTokenListLoading,
     isFetching: isTargetTokenListFetching,
     targetChainOptions,
@@ -194,17 +195,35 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       if (shouldKeepExplicitTarget) {
         return;
       }
+      if (hasNextTargetTokenPage) {
+        return;
+      }
+      const [onlyTargetToken] = targetTokenList;
+      if (
+        toId &&
+        targetTokenList.length === 1 &&
+        onlyTargetToken &&
+        getUniqueTokenId(onlyTargetToken) !== sourceTokenId
+      ) {
+        setTargetToken(onlyTargetToken);
+        setTargetTokenSourceTokenId(sourceTokenId);
+        updateQuery({ to: getUniqueTokenId(onlyTargetToken) });
+        return;
+      }
       setTargetToken(undefined);
     }
   }, [
     candidateTargetToken,
     isTargetSelectOpen,
     isTargetTokenListFetching,
+    hasNextTargetTokenPage,
     toId,
     targetToken,
     sourceTokenId,
     targetTokenSourceTokenId,
     shouldKeepExplicitTarget,
+    targetTokenList,
+    updateQuery,
   ]);
 
   // Persist an auto-selected target (default / single option) into the query id
