@@ -9,6 +9,7 @@ import {
 import {
   FC,
   FocusEventHandler,
+  ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -51,6 +52,7 @@ type TokenAmountInputProps = {
   onBlur?: FocusEventHandler;
   disabled?: boolean;
   chainFilterMode?: ChainFilterMode;
+  presetButtonsStartSlot?: ReactNode;
 } & AmountInputProps;
 
 type AmountInputProps =
@@ -94,6 +96,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   onBlur,
   disabled,
   chainFilterMode,
+  presetButtonsStartSlot,
 }) => {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -246,7 +249,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
         <Stack
           direction="row"
           width="100%"
-          justifyContent="end"
+          justifyContent={presetButtonsStartSlot ? 'space-between' : 'end'}
           alignItems="center"
           gap={1}
           onFocus={onFocus}
@@ -256,25 +259,28 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
             transition: theme.transitions.create('opacity'),
           }}
         >
-          <AmountPresetButton
-            onClick={() => handlePresetClick(25)}
-            disabled={arePresetButtonsDisabled}
-          >
-            {t('25%')}
-          </AmountPresetButton>
-          <AmountPresetButton
-            onClick={() => handlePresetClick(50)}
-            disabled={arePresetButtonsDisabled}
-          >
-            {t('50%')}
-          </AmountPresetButton>
-          <AmountPresetButton
-            data-testid="amount-preset-max"
-            onClick={() => handlePresetClick(100)}
-            disabled={arePresetButtonsDisabled}
-          >
-            {t('Max')}
-          </AmountPresetButton>
+          {presetButtonsStartSlot}
+          <Stack direction="row" alignItems="center" gap={1}>
+            <AmountPresetButton
+              onClick={() => handlePresetClick(25)}
+              disabled={arePresetButtonsDisabled}
+            >
+              {t('25%')}
+            </AmountPresetButton>
+            <AmountPresetButton
+              onClick={() => handlePresetClick(50)}
+              disabled={arePresetButtonsDisabled}
+            >
+              {t('50%')}
+            </AmountPresetButton>
+            <AmountPresetButton
+              data-testid="amount-preset-max"
+              onClick={() => handlePresetClick(100)}
+              disabled={arePresetButtonsDisabled}
+            >
+              {t('Max')}
+            </AmountPresetButton>
+          </Stack>
         </Stack>
       </Collapse>
     </Stack>
