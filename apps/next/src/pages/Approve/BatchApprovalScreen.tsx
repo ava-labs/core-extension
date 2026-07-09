@@ -157,6 +157,7 @@ const BatchApprovalContent: FC<BatchApprovalContentProps> = ({
               }
               updateAction={updateAction}
               error={error}
+              disableGasless
             />
           )}
         </Stack>
