@@ -281,6 +281,95 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     }
   }
 
+  /**
+   * The Core Balance API only returns balances for tokens it indexes. Custom
+   * tokens the user added manually may not be indexed, so their balances are
+   * absent from the response even on supported chains. For those tokens we
+   * fall back to the VM module, querying the chain directly (RPC) for just the
+   * missing custom tokens.
+   */
+  async #fetchMissingCustomTokenBalances({
+    chainIds,
+    accounts,
+    currentBalances,
+    excludedChainIds,
+    tokenTypes,
+  }: {
+    chainIds: number[];
+    accounts: Account[];
+    currentBalances: Balances;
+    excludedChainIds: Set<number>;
+    tokenTypes: TokenType[];
+  }): Promise<Balances> {
+    if (!tokenTypes.includes(TokenType.ERC20)) {
+      return {};
+    }
+
+    const settings = await this.settingsService.getSettings();
+
+    const networks = Object.values(
+      await this.networkService.activeNetworks.promisify(),
+    ).filter(
+      (network) =>
+        chainIds.includes(network.chainId) &&
+        !excludedChainIds.has(network.chainId),
+    );
+
+    if (networks.length === 0) {
+      return {};
+    }
+
+    const priceChangesData =
+      await this.tokenPricesService.getPriceChangesData();
+
+    const results = await Promise.allSettled(
+      networks.map(async (network) => {
+        const customTokensForChain = Object.values(
+          settings.customTokens?.[network.chainId] ?? {},
+        );
+
+        if (customTokensForChain.length === 0) {
+          return null;
+        }
+
+        const presentTokenKeys = new Set<string>();
+        for (const accountBalances of Object.values(
+          currentBalances[network.chainId] ?? {},
+        )) {
+          for (const tokenKey of Object.keys(accountBalances)) {
+            presentTokenKeys.add(tokenKey.toLowerCase());
+          }
+        }
+
+        const missingCustomTokens = customTokensForChain.filter(
+          (token) => !presentTokenKeys.has(token.address.toLowerCase()),
+        );
+
+        if (missingCustomTokens.length === 0) {
+          return null;
+        }
+
+        const networkBalances =
+          await this.balancesService.getBalancesForNetwork(
+            network,
+            accounts,
+            [TokenType.ERC20],
+            priceChangesData,
+            { customTokens: missingCustomTokens, customTokensOnly: true },
+          );
+
+        return { chainId: network.chainId, networkBalances };
+      }),
+    );
+
+    return results.filter(isFulfilled).reduce<Balances>((acc, { value }) => {
+      if (value) {
+        acc[value.chainId] = value.networkBalances;
+      }
+      return acc;
+    }, {});
+  }
+
   async #getTokenBalances({
     chainIds,
     accounts,
@@ -390,8 +479,33 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
         const atomicBalanceObject =
           convertBalanceResponseToAtomicCacheBalanceObject(balances);
 
+        // Chains that errored are already fully re-fetched (all tokens,
+        // including custom ones) by `#fallbackOnBalanceServiceErrors`, so we
+        // skip them here to avoid duplicate work.
+        const erroredChainIds = new Set<number>();
+        for (const { caip2Id } of errors) {
+          try {
+            erroredChainIds.add(caipToChainId(caip2Id));
+          } catch {
+            /* ignore chains we can't map (e.g. CoreEth) */
+          }
+        }
+
+        const missingCustomTokenBalances =
+          await this.#fetchMissingCustomTokenBalances({
+            chainIds,
+            accounts,
+            currentBalances: balanceObject,
+            excludedChainIds: erroredChainIds,
+            tokenTypes,
+          });
+
         // Apply local dust filtering to ensure consistency regardless of API behavior
-        const mergedTokens = merge(balanceObject, fallbackBalanceResponse);
+        const mergedTokens = merge(
+          balanceObject,
+          fallbackBalanceResponse,
+          missingCustomTokenBalances,
+        );
         const filteredTokens = settings.filterSmallUtxos
           ? this.#filterDustUtxosFromBalances(mergedTokens)
           : mergedTokens;
