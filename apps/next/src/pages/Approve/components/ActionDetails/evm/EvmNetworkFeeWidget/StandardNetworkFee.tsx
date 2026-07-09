@@ -1,7 +1,9 @@
+import { useEffect } from 'react';
 import { DisplayData } from '@avalabs/vm-module-types';
 import { Stack } from '@avalabs/k2-alpine';
 
 import { Action, EvmNetwork } from '@core/types';
+import { useNetworkFeeContext } from '@core/ui';
 
 import { DetailsSection } from '../../generic/DetailsSection';
 
@@ -19,6 +21,14 @@ export const StandardNetworkFee = ({
 }: StandardNetworkFeeProps) => {
   const feeResult = useEvmTransactionFee({ action, network });
   const { isLoading, nativeToken, hasEnoughForNetworkFee } = feeResult;
+
+  // Gasless state lives in the shared NetworkFeeContext and persists across
+  // approval screens, so clear any inherited eligibility/phase/toggle to keep
+  // gasless fully disabled here.
+  const { setGaslessDefaultValues } = useNetworkFeeContext();
+  useEffect(() => {
+    setGaslessDefaultValues();
+  }, [setGaslessDefaultValues]);
 
   return (
     <Stack gap={1}>
