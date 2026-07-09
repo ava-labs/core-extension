@@ -1,6 +1,6 @@
 import { DisplayData, RpcMethod } from '@avalabs/vm-module-types';
 import { caipToChainId } from '@core/common';
-import { Action, GaslessPhase } from '@core/types';
+import { Action, GaslessPhase, isBatchApprovalAction } from '@core/types';
 import { toast, useAnalyticsContext, useNetworkFeeContext } from '@core/ui';
 import { isUndefined } from 'lodash';
 import { useCallback, useEffect, useMemo } from 'react';
@@ -22,9 +22,11 @@ export const useGasless: UseGasless = ({ action }) => {
   } = useNetworkFeeContext();
   const { captureEncrypted } = useAnalyticsContext();
 
+  const isBatchApproval = isBatchApprovalAction(action);
+
   const eligibilityParams = useMemo(
-    () => (action ? getEligibilityParams(action) : null),
-    [action],
+    () => (action && !isBatchApproval ? getEligibilityParams(action) : null),
+    [action, isBatchApproval],
   );
 
   // First check if the action is elligible for gasless
@@ -36,10 +38,19 @@ export const useGasless: UseGasless = ({ action }) => {
 
   // If we're eligible, fetch the gasless challenge
   useEffect(() => {
-    if (isGaslessEligible && gaslessPhase === GaslessPhase.NOT_READY) {
+    if (
+      !isBatchApproval &&
+      isGaslessEligible &&
+      gaslessPhase === GaslessPhase.NOT_READY
+    ) {
       fetchAndSolveGaslessChallange();
     }
-  }, [isGaslessEligible, fetchAndSolveGaslessChallange, gaslessPhase]);
+  }, [
+    isGaslessEligible,
+    fetchAndSolveGaslessChallange,
+    gaslessPhase,
+    isBatchApproval,
+  ]);
 
   // Capture analytics for gasless funding errors
   useEffect(() => {
@@ -51,7 +62,7 @@ export const useGasless: UseGasless = ({ action }) => {
   // Wrapper around the approval screen's approve callback so we don't pollute it with gasless funding logic
   const tryFunding = useCallback(
     async (approveCallback: () => void) => {
-      if (isGaslessOn && isGaslessEligible) {
+      if (!isBatchApproval && isGaslessOn && isGaslessEligible) {
         try {
           const fundedTxHex = await gaslessFundTx(action?.signingData);
 
@@ -70,6 +81,7 @@ export const useGasless: UseGasless = ({ action }) => {
       setGaslessDefaultValues();
     },
     [
+      isBatchApproval,
       isGaslessOn,
       isGaslessEligible,
       gaslessFundTx,
@@ -81,7 +93,7 @@ export const useGasless: UseGasless = ({ action }) => {
   );
 
   return {
-    isGaslessOn,
+    isGaslessOn: isGaslessOn && !isBatchApproval,
     setIsGaslessOn,
     gaslessFundTx,
     fundTxHex,
@@ -89,7 +101,7 @@ export const useGasless: UseGasless = ({ action }) => {
     gaslessPhase,
     setGaslessEligibility,
     fetchAndSolveGaslessChallange,
-    isGaslessEligible,
+    isGaslessEligible: isGaslessEligible && !isBatchApproval,
     tryFunding,
   };
 };
@@ -101,7 +113,8 @@ const getEligibilityParams = (
     !action ||
     !action.scope ||
     !action.scope.startsWith('eip155:') ||
-    !action.signingData
+    !action.signingData ||
+    isBatchApprovalAction(action)
   ) {
     return null;
   }

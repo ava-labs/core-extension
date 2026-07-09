@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { RpcMethod } from '@avalabs/vm-module-types';
-import { Action, ActionType, GaslessPhase } from '@core/types';
+import { Action, ActionType, GaslessPhase, MultiTxAction } from '@core/types';
 import { useAnalyticsContext, useNetworkFeeContext, toast } from '@core/ui';
 import { DisplayData } from '@avalabs/vm-module-types';
 import { useGasless } from './useGasless';
@@ -42,6 +42,24 @@ const mockAction: Action<DisplayData> = {
     data: { from: '0x123', nonce: 1 },
     account: '0x123',
   },
+};
+
+const mockBatchAction: MultiTxAction = {
+  id: 'test-batch-action-id',
+  method: RpcMethod.ETH_SEND_TRANSACTION,
+  type: ActionType.Batch,
+  scope: 'eip155:43114',
+  displayData: {} as DisplayData,
+  signingRequests: [
+    {
+      displayData: {} as DisplayData,
+      signingData: {
+        type: RpcMethod.ETH_SEND_TRANSACTION,
+        data: { from: '0x123', nonce: 1 },
+        account: '0x123',
+      },
+    },
+  ],
 };
 
 describe('useGasless', () => {
@@ -400,6 +418,86 @@ describe('useGasless', () => {
       expect(result.current).toHaveProperty('isGaslessEligible');
       expect(result.current).toHaveProperty('tryFunding');
       expect(typeof result.current.tryFunding).toBe('function');
+    });
+  });
+
+  describe('batch approval', () => {
+    const renderWithBatchAction = () =>
+      renderHook(() =>
+        useGasless({
+          action: mockBatchAction as unknown as Action<DisplayData>,
+        }),
+      );
+
+    it('does not call setGaslessEligibility for batch approval actions', () => {
+      const setGaslessEligibility = jest.fn();
+      jest.mocked(useNetworkFeeContext).mockReturnValue({
+        ...defaultNetworkFeeContext,
+        setGaslessEligibility,
+      });
+
+      renderWithBatchAction();
+
+      expect(setGaslessEligibility).not.toHaveBeenCalled();
+    });
+
+    it('does not call fetchAndSolveGaslessChallange for batch approval actions', () => {
+      const fetchAndSolveGaslessChallange = jest.fn();
+      jest.mocked(useNetworkFeeContext).mockReturnValue({
+        ...defaultNetworkFeeContext,
+        isGaslessEligible: true,
+        gaslessPhase: GaslessPhase.NOT_READY,
+        fetchAndSolveGaslessChallange,
+      });
+
+      renderWithBatchAction();
+
+      expect(fetchAndSolveGaslessChallange).not.toHaveBeenCalled();
+    });
+
+    it('reports isGaslessOn as false for batch approval actions', () => {
+      jest.mocked(useNetworkFeeContext).mockReturnValue({
+        ...defaultNetworkFeeContext,
+        isGaslessOn: true,
+      });
+
+      const { result } = renderWithBatchAction();
+
+      expect(result.current.isGaslessOn).toBe(false);
+    });
+
+    it('reports isGaslessEligible as false for batch approval actions', () => {
+      jest.mocked(useNetworkFeeContext).mockReturnValue({
+        ...defaultNetworkFeeContext,
+        isGaslessEligible: true,
+      });
+
+      const { result } = renderWithBatchAction();
+
+      expect(result.current.isGaslessEligible).toBe(false);
+    });
+
+    it('skips gasless funding for batch approval actions but still runs the approve callback', async () => {
+      const gaslessFundTx = jest.fn();
+      const setGaslessDefaultValues = jest.fn();
+      jest.mocked(useNetworkFeeContext).mockReturnValue({
+        ...defaultNetworkFeeContext,
+        isGaslessOn: true,
+        isGaslessEligible: true,
+        gaslessFundTx,
+        setGaslessDefaultValues,
+      });
+
+      const { result } = renderWithBatchAction();
+      const approveCallback = jest.fn();
+
+      await act(async () => {
+        await result.current.tryFunding(approveCallback);
+      });
+
+      expect(gaslessFundTx).not.toHaveBeenCalled();
+      expect(approveCallback).toHaveBeenCalledTimes(1);
+      expect(setGaslessDefaultValues).toHaveBeenCalled();
     });
   });
 });
