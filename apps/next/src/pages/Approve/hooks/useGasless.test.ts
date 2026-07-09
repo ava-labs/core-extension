@@ -6,7 +6,7 @@ import { useAnalyticsContext, useNetworkFeeContext, toast } from '@core/ui';
 import { DisplayData } from '@avalabs/vm-module-types';
 import { useGasless } from './useGasless';
 
-// Polymarket onramp contract on Polygon (see isPolymarketTransaction.ts).
+// Polymarket onramp contract on Polygon (see isPolymarketContract.ts).
 const POLYMARKET_TO = '0x93070a847efEf7F70739046A929D47a521F5B8ee';
 
 jest.mock('react-i18next', () => ({
