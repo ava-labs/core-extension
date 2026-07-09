@@ -254,6 +254,31 @@ describe('useGasless', () => {
       expect(setGaslessEligibility).not.toHaveBeenCalled();
     });
 
+    it('resets gasless state for non-eligible actions to avoid leaking eligibility from a previous action', () => {
+      const setGaslessDefaultValues = jest.fn();
+      jest.mocked(useNetworkFeeContext).mockReturnValue({
+        ...defaultNetworkFeeContext,
+        setGaslessDefaultValues,
+      });
+
+      const nonPolymarketAction: Action<DisplayData> = {
+        ...mockAction,
+        signingData: {
+          type: RpcMethod.ETH_SEND_TRANSACTION,
+          data: {
+            from: '0x123',
+            nonce: 1,
+            to: '0x1111111111111111111111111111111111111111',
+          },
+          account: '0x123',
+        },
+      };
+
+      renderHook(() => useGasless({ action: nonPolymarketAction }));
+
+      expect(setGaslessDefaultValues).toHaveBeenCalled();
+    });
+
     it('does not call setGaslessEligibility for non-eip155 actions', () => {
       const setGaslessEligibility = jest.fn();
       jest.mocked(useNetworkFeeContext).mockReturnValue({
