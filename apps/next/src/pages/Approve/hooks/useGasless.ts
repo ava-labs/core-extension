@@ -5,7 +5,10 @@ import { toast, useAnalyticsContext, useNetworkFeeContext } from '@core/ui';
 import { isUndefined } from 'lodash';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { isPolymarketContract } from '../lib/isPolymarketContract';
 import { GaslessEligibilityParams, UseGasless } from './types';
+
+const POLYGON_CHAIN_ID = 137;
 
 export const useGasless: UseGasless = ({ action }) => {
   const { t } = useTranslation();
@@ -109,16 +112,25 @@ const getEligibilityParams = (
   const { signingData } = action;
   const evmChainId = caipToChainId(action.scope);
 
-  if (signingData?.type === RpcMethod.ETH_SEND_TRANSACTION) {
-    const fromAddress = isUndefined(signingData?.data.from)
-      ? undefined
-      : String(signingData?.data.from);
-    const nonce = isUndefined(signingData?.data.nonce)
-      ? undefined
-      : Number(signingData?.data.nonce);
-
-    return [evmChainId, fromAddress, nonce];
+  if (signingData?.type !== RpcMethod.ETH_SEND_TRANSACTION) {
+    return null;
   }
 
-  return [evmChainId, undefined, undefined];
+  const to = isUndefined(signingData?.data.to)
+    ? undefined
+    : String(signingData?.data.to);
+
+  // On Polygon, gas is only sponsored for Polymarket transactions
+  if (evmChainId === POLYGON_CHAIN_ID && !isPolymarketContract(to)) {
+    return null;
+  }
+
+  const fromAddress = isUndefined(signingData?.data.from)
+    ? undefined
+    : String(signingData?.data.from);
+  const nonce = isUndefined(signingData?.data.nonce)
+    ? undefined
+    : Number(signingData?.data.nonce);
+
+  return [evmChainId, fromAddress, nonce];
 };

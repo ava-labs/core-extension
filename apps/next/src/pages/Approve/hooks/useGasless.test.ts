@@ -1,9 +1,13 @@
 import { renderHook, act } from '@testing-library/react';
 import { RpcMethod } from '@avalabs/vm-module-types';
+import { caipToChainId } from '@core/common';
 import { Action, ActionType, GaslessPhase } from '@core/types';
 import { useAnalyticsContext, useNetworkFeeContext, toast } from '@core/ui';
 import { DisplayData } from '@avalabs/vm-module-types';
 import { useGasless } from './useGasless';
+
+// Polymarket onramp contract on Polygon (see isPolymarketTransaction.ts).
+const POLYMARKET_TO = '0x93070a847efEf7F70739046A929D47a521F5B8ee';
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -12,7 +16,7 @@ jest.mock('react-i18next', () => ({
 jest.mock('@core/ui');
 jest.mock('@core/common', () => ({
   ...jest.requireActual('@core/common'),
-  caipToChainId: jest.fn().mockReturnValue(43114),
+  caipToChainId: jest.fn().mockReturnValue(137),
 }));
 
 const mockCaptureEncrypted = jest.fn();
@@ -35,11 +39,11 @@ const mockAction: Action<DisplayData> = {
   id: 'test-action-id',
   method: RpcMethod.ETH_SEND_TRANSACTION,
   type: ActionType.Single,
-  scope: 'eip155:43114',
+  scope: 'eip155:137',
   displayData: {} as DisplayData,
   signingData: {
     type: RpcMethod.ETH_SEND_TRANSACTION,
-    data: { from: '0x123', nonce: 1 },
+    data: { from: '0x123', nonce: 1, to: POLYMARKET_TO },
     account: '0x123',
   },
 };
@@ -47,6 +51,7 @@ const mockAction: Action<DisplayData> = {
 describe('useGasless', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.mocked(caipToChainId).mockReturnValue(137);
     jest.mocked(useAnalyticsContext).mockReturnValue({
       captureEncrypted: mockCaptureEncrypted,
       capture: jest.fn(),
@@ -212,7 +217,7 @@ describe('useGasless', () => {
   });
 
   describe('eligibility', () => {
-    it('calls setGaslessEligibility for eip155 actions', () => {
+    it('calls setGaslessEligibility for Polymarket transactions', () => {
       const setGaslessEligibility = jest.fn();
       jest.mocked(useNetworkFeeContext).mockReturnValue({
         ...defaultNetworkFeeContext,
@@ -221,7 +226,32 @@ describe('useGasless', () => {
 
       renderHook(() => useGasless({ action: mockAction }));
 
-      expect(setGaslessEligibility).toHaveBeenCalledWith(43114, '0x123', 1);
+      expect(setGaslessEligibility).toHaveBeenCalledWith(137, '0x123', 1);
+    });
+
+    it('does not call setGaslessEligibility for non-Polymarket destinations', () => {
+      const setGaslessEligibility = jest.fn();
+      jest.mocked(useNetworkFeeContext).mockReturnValue({
+        ...defaultNetworkFeeContext,
+        setGaslessEligibility,
+      });
+
+      const nonPolymarketAction: Action<DisplayData> = {
+        ...mockAction,
+        signingData: {
+          type: RpcMethod.ETH_SEND_TRANSACTION,
+          data: {
+            from: '0x123',
+            nonce: 1,
+            to: '0x1111111111111111111111111111111111111111',
+          },
+          account: '0x123',
+        },
+      };
+
+      renderHook(() => useGasless({ action: nonPolymarketAction }));
+
+      expect(setGaslessEligibility).not.toHaveBeenCalled();
     });
 
     it('does not call setGaslessEligibility for non-eip155 actions', () => {
@@ -286,7 +316,7 @@ describe('useGasless', () => {
       expect(setGaslessEligibility).not.toHaveBeenCalled();
     });
 
-    it('passes undefined for from and nonce when they are missing from ETH_SEND_TRANSACTION', () => {
+    it('passes undefined for from and nonce when they are missing from a Polymarket ETH_SEND_TRANSACTION', () => {
       const setGaslessEligibility = jest.fn();
       jest.mocked(useNetworkFeeContext).mockReturnValue({
         ...defaultNetworkFeeContext,
@@ -297,7 +327,7 @@ describe('useGasless', () => {
         ...mockAction,
         signingData: {
           type: RpcMethod.ETH_SEND_TRANSACTION,
-          data: {},
+          data: { to: POLYMARKET_TO },
           account: '0x123',
         },
       };
@@ -305,13 +335,13 @@ describe('useGasless', () => {
       renderHook(() => useGasless({ action: actionWithoutFromNonce }));
 
       expect(setGaslessEligibility).toHaveBeenCalledWith(
-        43114,
+        137,
         undefined,
         undefined,
       );
     });
 
-    it('passes chainId with undefined from/nonce for non-ETH_SEND_TRANSACTION types', () => {
+    it('does not call setGaslessEligibility for non-ETH_SEND_TRANSACTION types', () => {
       const setGaslessEligibility = jest.fn();
       jest.mocked(useNetworkFeeContext).mockReturnValue({
         ...defaultNetworkFeeContext,
@@ -329,11 +359,7 @@ describe('useGasless', () => {
 
       renderHook(() => useGasless({ action: personalSignAction }));
 
-      expect(setGaslessEligibility).toHaveBeenCalledWith(
-        43114,
-        undefined,
-        undefined,
-      );
+      expect(setGaslessEligibility).not.toHaveBeenCalled();
     });
   });
 
