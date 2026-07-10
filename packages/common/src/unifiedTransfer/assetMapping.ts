@@ -30,7 +30,7 @@ export const mapApiTokenToAsset = (
     symbol: token.symbol,
     decimals: resolveDecimals(token),
     logoUri: token.logoUri ?? undefined,
-    extra: {
+    extras: {
       isVerified: token.isVerified ?? null,
     },
   };
