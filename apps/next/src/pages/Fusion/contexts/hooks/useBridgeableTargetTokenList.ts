@@ -29,6 +29,7 @@ import {
 import { getNativeAssetType } from '@/hooks/useAllTokens/lib/getNativeAssetType';
 import { useTokensForAccount } from '@/hooks/useTokensForAccount';
 import { type ChainOption } from '@/components/TokenSelect/components/ChainFilterChips';
+import { getChainFilterName } from '@/components/TokenSelect/utils';
 import { buildAsset } from './useAssetAndChain/lib/buildAsset';
 import { ChainId } from '@avalabs/core-chains-sdk';
 
@@ -256,29 +257,17 @@ export const useBridgeableTargetTokenList = (
   // Build chain filter chip options from the full supported target chain list
   const targetChainOptions = useMemo(() => {
     const options: ChainOption[] = [];
-    let hasAvalanche = false;
 
     for (const caipId of allTargetCaipIds) {
       const network = getNetwork(caipId);
       if (!network) continue;
 
       const chainId = network.chainId as number;
-      if (isAvalancheChainId(chainId)) {
-        if (!hasAvalanche) {
-          hasAvalanche = true;
-          options.push({
-            chainId: 'avalanche',
-            chainName: 'Avalanche',
-            logoUri: network.logoUri,
-          });
-        }
-      } else {
-        options.push({
-          chainId: network.chainId as number,
-          chainName: network.chainName,
-          logoUri: network.logoUri,
-        });
-      }
+      options.push({
+        chainId,
+        chainName: getChainFilterName(chainId, network.chainName),
+        logoUri: network.logoUri,
+      });
     }
 
     return options;
@@ -353,8 +342,11 @@ export const useBridgeableTargetTokenList = (
     const network = getNetwork(selectedTargetCaipId);
     if (!network) return [];
 
-    const cChainAvaxLogoUri = getNetwork(ChainId.AVALANCHE_MAINNET_ID)
-      ?.networkToken.logoUri;
+    const cChainAvaxLogoUri = getNetwork(
+      network.isTestnet
+        ? ChainId.AVALANCHE_TESTNET_ID
+        : ChainId.AVALANCHE_MAINNET_ID,
+    )?.networkToken.logoUri;
 
     const all: FungibleTokenBalance[] = [];
     for (const page of data?.pages ?? []) {
