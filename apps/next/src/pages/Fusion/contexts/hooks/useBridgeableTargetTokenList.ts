@@ -2,6 +2,7 @@ import {
   type BridgeableUiAsset,
   type GetSupportedChainsResult,
   type TransferManager,
+  sortDestinationChains,
   TokenType as FusionTokenType,
 } from '@avalabs/fusion-sdk';
 import { TokenType } from '@avalabs/vm-module-types';
@@ -227,51 +228,60 @@ export const useBridgeableTargetTokenList = (
     });
   }, [supportedChainsMap, sourceToken, getNetwork, walletDetails, active]);
 
+  const sortedTargetChains = useMemo(() => {
+    const targetChains = allTargetCaipIds.flatMap((caipId) => {
+      const network = getNetwork(caipId);
+      if (!network) {
+        return [];
+      }
+
+      return [
+        {
+          caipId: caipId,
+          chainId: caipId,
+          chainName: network.chainName,
+          network,
+        },
+      ];
+    });
+
+    return sortDestinationChains(targetChains);
+  }, [allTargetCaipIds, getNetwork]);
+
   // Resolve the selected chip value to a single CAIP ID for the API call
   const selectedTargetCaipId = useMemo(() => {
-    if (allTargetCaipIds.length === 0) return null;
+    if (sortedTargetChains.length === 0) return null;
 
     if (!selectedTargetChainId) {
-      return allTargetCaipIds[0] ?? null;
+      return sortedTargetChains[0]?.caipId ?? null;
     }
 
     if (selectedTargetChainId === 'avalanche') {
       return (
-        allTargetCaipIds.find((caipId) => {
-          const network = getNetwork(caipId);
-          return network
-            ? isAvalancheChainId(network.chainId as number)
-            : false;
-        }) ?? null
+        sortedTargetChains.find(({ network }) =>
+          isAvalancheChainId(network.chainId as number),
+        )?.caipId ?? null
       );
     }
 
     return (
-      allTargetCaipIds.find((caipId) => {
-        const network = getNetwork(caipId);
-        return network?.chainId === selectedTargetChainId;
-      }) ?? null
+      sortedTargetChains.find(
+        ({ network }) => network.chainId === selectedTargetChainId,
+      )?.caipId ?? null
     );
-  }, [selectedTargetChainId, allTargetCaipIds, getNetwork]);
+  }, [selectedTargetChainId, sortedTargetChains]);
 
   // Build chain filter chip options from the full supported target chain list
   const targetChainOptions = useMemo(() => {
-    const options: ChainOption[] = [];
-
-    for (const caipId of allTargetCaipIds) {
-      const network = getNetwork(caipId);
-      if (!network) continue;
-
+    return sortedTargetChains.map(({ network }) => {
       const chainId = network.chainId as number;
-      options.push({
+      return {
         chainId,
         chainName: getChainFilterName(chainId, network.chainName),
         logoUri: network.logoUri,
-      });
-    }
-
-    return options;
-  }, [allTargetCaipIds, getNetwork]);
+      } satisfies ChainOption;
+    });
+  }, [sortedTargetChains]);
 
   // Track whether any data has ever arrived so chain-chip changes don't
   // flip isLoading back to true and unmount the SwapPair (closing the dropdown).
