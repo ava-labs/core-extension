@@ -43,10 +43,19 @@ export const useGasless: UseGasless = ({ action }) => {
 
   // If we're eligible, fetch the gasless challenge
   useEffect(() => {
-    if (isGaslessEligible && gaslessPhase === GaslessPhase.NOT_READY) {
+    if (
+      eligibilityParams &&
+      isGaslessEligible &&
+      gaslessPhase === GaslessPhase.NOT_READY
+    ) {
       fetchAndSolveGaslessChallange();
     }
-  }, [isGaslessEligible, fetchAndSolveGaslessChallange, gaslessPhase]);
+  }, [
+    eligibilityParams,
+    isGaslessEligible,
+    fetchAndSolveGaslessChallange,
+    gaslessPhase,
+  ]);
 
   // Capture analytics for gasless funding errors
   useEffect(() => {

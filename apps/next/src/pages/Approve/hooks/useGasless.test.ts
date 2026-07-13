@@ -430,6 +430,33 @@ describe('useGasless', () => {
 
       expect(fetchAndSolveGaslessChallange).not.toHaveBeenCalled();
     });
+
+    it('does not call fetchAndSolveGaslessChallange for an ineligible action even when a previous eligibility value leaks through', () => {
+      const fetchAndSolveGaslessChallange = jest.fn();
+      jest.mocked(useNetworkFeeContext).mockReturnValue({
+        ...defaultNetworkFeeContext,
+        isGaslessEligible: true,
+        gaslessPhase: GaslessPhase.NOT_READY,
+        fetchAndSolveGaslessChallange,
+      });
+
+      const nonPolymarketAction: Action<DisplayData> = {
+        ...mockAction,
+        signingData: {
+          type: RpcMethod.ETH_SEND_TRANSACTION,
+          data: {
+            from: '0x123',
+            nonce: 1,
+            to: '0x1111111111111111111111111111111111111111',
+          },
+          account: '0x123',
+        },
+      };
+
+      renderHook(() => useGasless({ action: nonPolymarketAction }));
+
+      expect(fetchAndSolveGaslessChallange).not.toHaveBeenCalled();
+    });
   });
 
   describe('return values', () => {
