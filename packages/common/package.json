@@ -45,7 +45,7 @@
     "prettier": "3.4.2",
     "ts-jest": "29.3.0",
     "typescript": "5.8.2",
-    "viem": "2.38.0",
+    "viem": "2.38.3",
     "webextension-polyfill": "0.10.0",
     "zod": "4.3.5"
   }
