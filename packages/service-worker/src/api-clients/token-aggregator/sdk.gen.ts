@@ -3,6 +3,8 @@
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
 import type {
+  GetV1NetworksData,
+  GetV1NetworksResponses,
   GetV1TokenlistData,
   GetV1TokenlistResponses,
   GetV1TokensData,
@@ -19,6 +21,13 @@ import type {
   GetV1WatchlistTokensResponses,
   GetV1WatchlistTrendingData,
   GetV1WatchlistTrendingResponses,
+  GetV2NetworksData,
+  GetV2NetworksResponses,
+  GetV2TokensData,
+  GetV2TokensErrors,
+  GetV2TokensResponses,
+  PostV1ManualOversightAcknowledgeData,
+  PostV1ManualOversightAcknowledgeResponses,
   PostV1TokenLookupData,
   PostV1TokenLookupResponses,
   PostV1TokenLookupWithPriceData,
@@ -70,6 +79,19 @@ export const getV1Tokens = <ThrowOnError extends boolean = false>(
       },
     ],
     url: '/v1/tokens',
+    ...options,
+  });
+};
+
+export const getV1Networks = <ThrowOnError extends boolean = false>(
+  options?: Options<GetV1NetworksData, ThrowOnError>,
+) => {
+  return (options?.client ?? client).get<
+    GetV1NetworksResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: '/v1/networks',
     ...options,
   });
 };
@@ -232,6 +254,69 @@ export const getV1WatchlistTrending = <ThrowOnError extends boolean = false>(
       },
     ],
     url: '/v1/watchlist/trending',
+    ...options,
+  });
+};
+
+export const postV1ManualOversightAcknowledge = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<PostV1ManualOversightAcknowledgeData, ThrowOnError>,
+) => {
+  return (options.client ?? client).post<
+    PostV1ManualOversightAcknowledgeResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [
+      {
+        name: 'x-firebase-appcheck',
+        type: 'apiKey',
+      },
+    ],
+    url: '/v1/manual-oversight/acknowledge',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+};
+
+export const getV2Networks = <ThrowOnError extends boolean = false>(
+  options?: Options<GetV2NetworksData, ThrowOnError>,
+) => {
+  return (options?.client ?? client).get<
+    GetV2NetworksResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [
+      {
+        name: 'x-firebase-appcheck',
+        type: 'apiKey',
+      },
+    ],
+    url: '/v2/networks',
+    ...options,
+  });
+};
+
+export const getV2Tokens = <ThrowOnError extends boolean = false>(
+  options?: Options<GetV2TokensData, ThrowOnError>,
+) => {
+  return (options?.client ?? client).get<
+    GetV2TokensResponses,
+    GetV2TokensErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        name: 'x-firebase-appcheck',
+        type: 'apiKey',
+      },
+    ],
+    url: '/v2/tokens',
     ...options,
   });
 };
