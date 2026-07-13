@@ -33,6 +33,41 @@ function shiftSourceMapDown(mapJson, lineCount) {
   return JSON.stringify(map);
 }
 
+/**
+ * Extracts the chunk's own inline source map from an asset's content.
+ *
+ * rspack appends the map as a `//# sourceMappingURL=` data URI on the asset's
+ * final line. Bundled dependencies (e.g. `@metamask/rpc-errors`) can ship their
+ * own inline maps embedded mid-file, so matching the marker anywhere would grab
+ * a dependency's map instead. We only accept the marker when it is the last
+ * line (nothing but whitespace follows) and read just that line — never to EOF.
+ *
+ * @param {string} content
+ * @returns {{ body: string, mapJson: string } | undefined}
+ */
+function extractTrailingInlineMap(content) {
+  let end = content.length;
+  while (end > 0 && /\s/.test(content[end - 1])) {
+    end--;
+  }
+  const lineStart = content.lastIndexOf('\n', end - 1) + 1;
+  const lastLine = content.slice(lineStart, end);
+  if (!lastLine.startsWith(INLINE_MAP_MARKER)) {
+    return undefined;
+  }
+  const b64Idx = lastLine.indexOf(BASE64_MARKER);
+  if (b64Idx === -1) {
+    return undefined;
+  }
+  return {
+    body: content.slice(0, lineStart),
+    mapJson: Buffer.from(
+      lastLine.slice(b64Idx + BASE64_MARKER.length),
+      'base64',
+    ).toString('utf-8'),
+  };
+}
+
 module.exports = {
   /**
    * @param {object} options
@@ -53,26 +88,18 @@ module.exports = {
         // Inline source map (dev): the map is baked into the asset content as
         // a trailing data URI. The devtool stage runs before this one, so the
         // embedded mappings have no idea the lockdown prefix is coming.
-        const markerIdx = content.lastIndexOf(INLINE_MAP_MARKER);
-        if (markerIdx !== -1) {
-          const b64Idx = content.indexOf(BASE64_MARKER, markerIdx);
-          if (b64Idx !== -1) {
-            const body = content.slice(0, markerIdx);
-            const b64 = content.slice(b64Idx + BASE64_MARKER.length).trim();
-            const shifted = shiftSourceMapDown(
-              Buffer.from(b64, 'base64').toString('utf-8'),
-              PREFIX_LINE_COUNT,
-            );
-            const rebuilt =
-              lockdownSourcePrefix +
-              body +
-              INLINE_MAP_MARKER +
-              ';charset=utf-8;' +
-              BASE64_MARKER +
-              Buffer.from(shifted, 'utf-8').toString('base64');
-            compilation.updateAsset(file, new RawSource(rebuilt));
-            continue;
-          }
+        const inline = extractTrailingInlineMap(content);
+        if (inline) {
+          const shifted = shiftSourceMapDown(inline.mapJson, PREFIX_LINE_COUNT);
+          const rebuilt =
+            lockdownSourcePrefix +
+            inline.body +
+            INLINE_MAP_MARKER +
+            ';charset=utf-8;' +
+            BASE64_MARKER +
+            Buffer.from(shifted, 'utf-8').toString('base64');
+          compilation.updateAsset(file, new RawSource(rebuilt));
+          continue;
         }
 
         // External source map (prod hidden-source-map): the JS asset has a
