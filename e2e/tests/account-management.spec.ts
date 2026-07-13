@@ -4,18 +4,28 @@ import { test, expect } from '../fixtures/extension.fixture';
 import { AccountManagementPage } from '../pages/extension/AccountManagementPage';
 import { TEST_CONFIG } from '../constants';
 
-const RECOVERY_PHRASE_24_WORDS =
-  process.env.RECOVERY_PHRASE_24_WORDS?.split(' ') || [];
-const PRIVATE_KEY_IMPORT = process.env.PRIVATE_KEY_IMPORT || '';
-const PRIVATE_KEY_MAIN_EXT_WALLET =
-  process.env.PRIVATE_KEY_MAIN_EXT_WALLET || '';
-const XP_PRIVATE_KEY_MAIN_EXT_WALLET =
-  process.env.XP_PRIVATE_KEY_MAIN_EXT_WALLET || '';
-
+// Secrets / fixtures are centralized in TEST_CONFIG.wallet & TEST_CONFIG.keystore
+// so env parsing lives in one place.
+const { wallet, keystore } = TEST_CONFIG;
 const MAINNET_SNAPSHOT = TEST_CONFIG.snapshots.mainnet;
 
 const keystorePath = (fileName: string) =>
-  path.resolve(__dirname, '..', TEST_CONFIG.keystore.dir, fileName);
+  path.resolve(__dirname, '..', keystore.dir, fileName);
+
+/**
+ * Skips the test locally when a required secret/fixture is missing, but fails
+ * loudly in CI so a missing secret or an empty S3 sync doesn't silently drop
+ * coverage while the overall run still reports green.
+ */
+const requireFixture = (isMissing: boolean, message: string) => {
+  if (!isMissing) {
+    return;
+  }
+  if (process.env.CI) {
+    throw new Error(`Missing required test fixture in CI: ${message}`);
+  }
+  test.skip(true, message);
+};
 
 test.describe('Account Management Tests', () => {
   test(
@@ -57,7 +67,7 @@ test.describe('Account Management Tests', () => {
       ],
     },
     async ({ unlockedExtensionPage }) => {
-      test.skip(!PRIVATE_KEY_IMPORT, 'PRIVATE_KEY_IMPORT env var not set');
+      requireFixture(!wallet.privateKey, 'PRIVATE_KEY_IMPORT env var not set');
       test.setTimeout(120000);
 
       const accountManagement = new AccountManagementPage(
@@ -69,7 +79,7 @@ test.describe('Account Management Tests', () => {
       await accountManagement.openAddWalletMenu();
 
       await expect(accountManagement.privateKeyOption).toBeVisible();
-      await accountManagement.importPrivateKey(PRIVATE_KEY_IMPORT);
+      await accountManagement.importPrivateKey(wallet.privateKey);
 
       await expect(
         unlockedExtensionPage.getByText('Private Key Imported', {
@@ -92,8 +102,8 @@ test.describe('Account Management Tests', () => {
       ],
     },
     async ({ unlockedExtensionPage }) => {
-      test.skip(
-        !XP_PRIVATE_KEY_MAIN_EXT_WALLET,
+      requireFixture(
+        !wallet.privateKeyXp,
         'XP_PRIVATE_KEY_MAIN_EXT_WALLET env var not set',
       );
       test.setTimeout(120000);
@@ -106,7 +116,7 @@ test.describe('Account Management Tests', () => {
       await accountManagement.openMyWallets();
       await accountManagement.openAddWalletMenu();
 
-      await accountManagement.importPrivateKey(XP_PRIVATE_KEY_MAIN_EXT_WALLET);
+      await accountManagement.importPrivateKey(wallet.privateKeyXp);
 
       await expect(
         unlockedExtensionPage.getByText('Private Key Imported', {
@@ -120,7 +130,7 @@ test.describe('Account Management Tests', () => {
 
       await expect(accountManagement.accountAddressAvm).toHaveAttribute(
         'data-address',
-        TEST_CONFIG.wallet.privateKeyXpExpectedAvmAddress,
+        wallet.privateKeyXpExpectedAvmAddress,
       );
     },
   );
@@ -138,8 +148,8 @@ test.describe('Account Management Tests', () => {
       ],
     },
     async ({ unlockedExtensionPage }) => {
-      test.skip(
-        !PRIVATE_KEY_MAIN_EXT_WALLET,
+      requireFixture(
+        !wallet.privateKeyMain,
         'PRIVATE_KEY_MAIN_EXT_WALLET env var not set',
       );
       test.setTimeout(120000);
@@ -153,7 +163,7 @@ test.describe('Account Management Tests', () => {
       await accountManagement.openAddWalletMenu();
 
       await accountManagement.openImportPrivateKey();
-      await accountManagement.submitPrivateKey(PRIVATE_KEY_MAIN_EXT_WALLET);
+      await accountManagement.submitPrivateKey(wallet.privateKeyMain);
 
       // The mainnet primary wallet's key is already present -> duplicate screen.
       await expect(accountManagement.duplicateAccountScreen).toBeVisible({
@@ -184,8 +194,8 @@ test.describe('Account Management Tests', () => {
       ],
     },
     async ({ unlockedExtensionPage }) => {
-      test.skip(
-        !RECOVERY_PHRASE_24_WORDS.length,
+      requireFixture(
+        !wallet.recoveryPhrase24.length,
         'RECOVERY_PHRASE_24_WORDS env var not set',
       );
       test.setTimeout(180000);
@@ -203,7 +213,7 @@ test.describe('Account Management Tests', () => {
       });
 
       const importPage = await accountManagement.importRecoveryPhrase(
-        RECOVERY_PHRASE_24_WORDS,
+        wallet.recoveryPhrase24,
       );
 
       // On success the fullscreen import tab closes and returns to the wallet.
@@ -261,10 +271,10 @@ test.describe('Account Management Tests', () => {
       ],
     },
     async ({ unlockedExtensionPage }) => {
-      const { fileName, password } = TEST_CONFIG.keystore.v4;
+      const { fileName, password } = keystore.v4;
       const filePath = keystorePath(fileName);
-      test.skip(!password, 'PASSWORD_KEYSTORE_V4 env var not set');
-      test.skip(
+      requireFixture(!password, 'PASSWORD_KEYSTORE_V4 env var not set');
+      requireFixture(
         !fs.existsSync(filePath),
         `Keystore file not found: ${filePath} (sync from S3)`,
       );
@@ -306,10 +316,10 @@ test.describe('Account Management Tests', () => {
       ],
     },
     async ({ unlockedExtensionPage }) => {
-      const { fileName, password } = TEST_CONFIG.keystore.v6;
+      const { fileName, password } = keystore.v6;
       const filePath = keystorePath(fileName);
-      test.skip(!password, 'PASSWORD_KEYSTORE_V6 env var not set');
-      test.skip(
+      requireFixture(!password, 'PASSWORD_KEYSTORE_V6 env var not set');
+      requireFixture(
         !fs.existsSync(filePath),
         `Keystore file not found: ${filePath} (sync from S3)`,
       );
@@ -351,9 +361,9 @@ test.describe('Account Management Tests', () => {
       ],
     },
     async ({ unlockedExtensionPage }) => {
-      const { fileName } = TEST_CONFIG.keystore.invalid;
+      const { fileName } = keystore.invalid;
       const filePath = keystorePath(fileName);
-      test.skip(
+      requireFixture(
         !fs.existsSync(filePath),
         `Keystore file not found: ${filePath} (sync from S3)`,
       );

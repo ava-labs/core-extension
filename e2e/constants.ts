@@ -37,8 +37,8 @@ export const TEST_CONFIG = {
    *
    * The JSON files are stored in S3 under
    * `s3://core-qa-automation-snapshots/ext/keystores/` and synced by the E2E
-   * workflows into `KEYSTORE_DIR` (see below). Each file has its own password,
-   * provided via GitHub Actions secrets / local `.env`:
+   * workflows into `TEST_CONFIG.keystore.dir` (see below). Each file has its own
+   * password, provided via GitHub Actions secrets / local `.env`:
    *   • keystore-v4.json            → PASSWORD_KEYSTORE_V4
    *   • keystore-v6-private-key.json → PASSWORD_KEYSTORE_V6
    */

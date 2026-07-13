@@ -239,6 +239,10 @@ export class AccountManagementPage extends BasePage {
       timeout: 15000,
     });
     await this.keystorePasswordInput.fill(password);
+
+    await this.page
+      .locator('[data-testid="keystore-import-button"]:not([disabled])')
+      .waitFor({ state: 'visible', timeout: 15000 });
     await this.keystoreImportButton.click();
   }
 

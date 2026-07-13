@@ -238,7 +238,11 @@ jobs:
           echo "=== Downloaded files ==="
           ls -la
 
+      # Keystore fixtures are only needed by @regression keystore tests, which
+      # run in the "full" dispatch. Skip for the default @smoke signal so it
+      # doesn't depend on S3 availability.
       - name: Download Keystore files from AWS S3 bucket
+        if: ${{ github.event.inputs.test-run-type == 'full' }}
         shell: bash
         working-directory: e2e/helpers
         run: |
