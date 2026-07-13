@@ -527,8 +527,16 @@ export class NetworkService implements OnLock, OnStorageReady {
           : caipToChainId(scopeOrChainId)
         : scopeOrChainId;
 
-    const activeNetworks = await this.allNetworks.promisify();
-    return activeNetworks?.[chainId];
+    const networks = await this.allNetworks.promisify();
+    const network = networks?.[chainId];
+
+    // Feature-gated chains stay in `allNetworks` (e.g. for UI config), but
+    // callers of getNetwork should only resolve networks that are enabled.
+    if (!network || !this.isNetworkEnabledByFeatureFlags(network)) {
+      return undefined;
+    }
+
+    return network;
   }
 
   /**
@@ -835,20 +843,29 @@ export class NetworkService implements OnLock, OnStorageReady {
       );
   };
 
+  isNetworkEnabledByFeatureFlags = (network: Network) => {
+    if (isSolanaNetwork(network)) {
+      return Boolean(
+        this.featureFlagService.featureFlags[FeatureGates.SOLANA_SUPPORT],
+      );
+    }
+
+    if (isHyperliquidNetwork(network)) {
+      return (
+        Boolean(
+          this.featureFlagService.featureFlags[
+            FeatureGates.HYPERLIQUID_FEATURE
+          ],
+        ) || Boolean(this._customNetworks[network.chainId])
+      );
+    }
+
+    return true;
+  };
+
   #filterBasedOnFeatureFlags = (chainList?: ChainList) => {
     return Object.values(chainList ?? {})
-      .filter(
-        (network) =>
-          (!isSolanaNetwork(network) ||
-            this.featureFlagService.featureFlags[
-              FeatureGates.SOLANA_SUPPORT
-            ]) &&
-          (!isHyperliquidNetwork(network) ||
-            this.featureFlagService.featureFlags[
-              FeatureGates.HYPERLIQUID_FEATURE
-            ] ||
-            Boolean(this._customNetworks[network.chainId])),
-      )
+      .filter((network) => this.isNetworkEnabledByFeatureFlags(network))
       .reduce(
         (acc, network) => ({
           ...acc,
