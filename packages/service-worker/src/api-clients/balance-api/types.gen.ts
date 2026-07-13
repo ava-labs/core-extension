@@ -320,28 +320,35 @@ export type SvmGetBalancesResponse = {
      * Total balance in given currency
      */
     totalBalanceInCurrency?: number;
-    splTokenBalances: Array<{
-      internalId?: string;
-      name: string;
-      symbol: string;
-      type: 'spl';
-      decimals: number;
-      logoUri?: string;
-      balance: string;
-      balanceInCurrency?: number;
-      price?: number;
-      priceChange24h?: number;
-      priceChangePercentage24h?: number;
-      address: string;
-      associatedTokenAddress: string;
-      scanResult?: 'Benign' | 'Malicious' | 'Warning' | 'Spam';
-    }>;
+    splTokenBalances: Array<SplTokenBalance>;
   };
   /**
    * The requested currency
    */
   currency: Currency;
   error: null;
+};
+
+/**
+ * SPL Token Balance
+ *
+ * The balance for a given SPL token
+ */
+export type SplTokenBalance = {
+  internalId?: string;
+  name: string;
+  symbol: string;
+  type: 'spl';
+  decimals: number;
+  logoUri?: string;
+  balance: string;
+  balanceInCurrency?: number;
+  price?: number;
+  priceChange24h?: number;
+  priceChangePercentage24h?: number;
+  address: string;
+  associatedTokenAddress: string;
+  scanResult?: 'Benign' | 'Malicious' | 'Warning' | 'Spam';
 };
 
 /**

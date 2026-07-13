@@ -13,6 +13,7 @@ import {
   Divider,
   Fade,
   getHexAlpha,
+  CircularProgress,
   SearchInput,
   Stack,
   Typography,
@@ -58,6 +59,7 @@ type InternalProps = TokenSelectProps & {
   chainOptions: ChainOption[];
   selectedChainId: number | 'avalanche' | null;
   setSelectedChainId: (id: number | 'avalanche' | null) => void;
+  showAllNetworksChip: boolean;
 };
 
 const UnverifiedSeparator: FC<{ style: CSSProperties }> = ({ style }) => {
@@ -91,11 +93,15 @@ function TokenSelectFlat({
   chainOptions,
   selectedChainId,
   setSelectedChainId,
+  showAllNetworksChip,
+  selectedTokenFallback,
 }: InternalProps) {
   const { t } = useTranslation();
   const selectedToken = useMemo(
-    () => tokenList.find((token) => getUniqueTokenId(token) === tokenId),
-    [tokenList, tokenId],
+    () =>
+      tokenList.find((token) => getUniqueTokenId(token) === tokenId) ??
+      selectedTokenFallback,
+    [tokenList, tokenId, selectedTokenFallback],
   );
 
   return (
@@ -136,6 +142,7 @@ function TokenSelectFlat({
             chainOptions={chainOptions}
             selectedChainId={selectedChainId}
             onChainSelect={setSelectedChainId}
+            showAllNetworksChip={showAllNetworksChip}
           />
         ) : undefined
       }
@@ -152,22 +159,39 @@ function TokenSelectWithSeparator({
   onQueryChange,
   hint,
   disabled,
+  onEndReached,
   filteredTokenList,
   chainOptions,
   selectedChainId,
   setSelectedChainId,
+  showAllNetworksChip,
+  selectedTokenFallback,
+  onOpenChange,
+  isLoadingTokens,
 }: InternalProps) {
   const { t } = useTranslation();
   const theme = useTheme();
   const [isOpen, setIsOpen] = useState(false);
+  const isMountedRef = useRef(false);
+
+  useEffect(() => {
+    if (!isMountedRef.current) {
+      isMountedRef.current = true;
+      return;
+    }
+    onOpenChange?.(isOpen);
+  }, [isOpen, onOpenChange]);
   const triggerRef = useRef<HTMLDivElement | null>(null);
   const listBoxRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<VariableSizeList>(null);
+  const endReachedRef = useRef(false);
   const [scrollOffset, setScrollOffset] = useState(0);
 
   const selectedToken = useMemo(
-    () => tokenList.find((token) => getUniqueTokenId(token) === tokenId),
-    [tokenList, tokenId],
+    () =>
+      tokenList.find((token) => getUniqueTokenId(token) === tokenId) ??
+      selectedTokenFallback,
+    [tokenList, tokenId, selectedTokenFallback],
   );
 
   const {
@@ -223,6 +247,8 @@ function TokenSelectWithSeparator({
   // biome-ignore lint/correctness/useExhaustiveDependencies: separatorAt & totalItems are an intentional trigger dependency
   useEffect(() => {
     listRef.current?.resetAfterIndex(0);
+    // New items arrived — allow the end-reached callback to fire again.
+    endReachedRef.current = false;
   }, [separatorAt, totalItems]);
 
   // The separator's top edge is at separatorAt * TOKEN_ROW_HEIGHT in scroll space.
@@ -318,23 +344,37 @@ function TokenSelectWithSeparator({
                 chainOptions={chainOptions}
                 selectedChainId={selectedChainId}
                 onChainSelect={setSelectedChainId}
+                showAllNetworksChip={showAllNetworksChip}
               />
             )}
-            {displayTokens.length === 0 && (
-              <Stack
-                direction="row"
-                px={2}
-                py={1.5}
-                alignItems="center"
-                gap={1}
-                color="error.main"
-              >
-                <FiAlertCircle size={20} />
-                <Typography variant="body2">
-                  {t('No matching results')}
-                </Typography>
-              </Stack>
-            )}
+            {displayTokens.length === 0 &&
+              (isLoadingTokens ? (
+                <Stack
+                  direction="row"
+                  px={2}
+                  py={1.5}
+                  alignItems="center"
+                  gap={1}
+                  color="text.secondary"
+                >
+                  <CircularProgress size={20} />
+                  <Typography variant="body2">{t('Loading tokens')}</Typography>
+                </Stack>
+              ) : (
+                <Stack
+                  direction="row"
+                  px={2}
+                  py={1.5}
+                  alignItems="center"
+                  gap={1}
+                  color="error.main"
+                >
+                  <FiAlertCircle size={20} />
+                  <Typography variant="body2">
+                    {t('No matching results')}
+                  </Typography>
+                </Stack>
+              ))}
             <SearchableSelectListBox
               sx={{ overflow: 'hidden' }}
               ref={listBoxRef}
@@ -367,6 +407,17 @@ function TokenSelectWithSeparator({
                   itemCount={totalItems}
                   itemSize={getItemSize}
                   overscanCount={5}
+                  onItemsRendered={
+                    onEndReached
+                      ? ({ visibleStopIndex }) => {
+                          if (endReachedRef.current) return;
+                          if (visibleStopIndex >= totalItems - 5) {
+                            endReachedRef.current = true;
+                            onEndReached();
+                          }
+                        }
+                      : undefined
+                  }
                   onScroll={(() => {
                     let frameId: number | null = null;
                     let latestOffset = 0;
@@ -399,10 +450,23 @@ function TokenSelectWithSeparator({
 }
 
 function TokenSelectRaw(props: TokenSelectProps) {
-  const { tokenList, chainFilterMode = 'group-avalanche' } = props;
-  const [selectedChainId, setSelectedChainId] = useState<
+  const {
+    tokenList,
+    chainFilterMode = 'group-avalanche',
+    defaultChainId = null,
+    externalChainOptions,
+    onChainChange,
+    selectedChainId: controlledChainId,
+  } = props;
+  // When `selectedChainId` is provided the chain selection is fully controlled
+  // by the parent; otherwise the component owns it locally.
+  const isChainControlled = controlledChainId !== undefined;
+  const [internalChainId, setInternalChainId] = useState<
     number | 'avalanche' | null
-  >(null);
+  >(defaultChainId);
+  const selectedChainId = isChainControlled
+    ? controlledChainId
+    : internalChainId;
   const isAnyAvalancheNetwork = useIsAnyAvalancheNetwork();
   const { availableChainIds, hasAvalancheNetworks } = useChainIds(
     tokenList,
@@ -414,34 +478,56 @@ function TokenSelectRaw(props: TokenSelectProps) {
     hasAvalancheNetworks,
     chainFilterMode,
   );
+  // When external chain options are provided (e.g. swap target), validate
+  // against those — not the internally derived list which is empty while the
+  // bridgeable token list is loading and would wrongly trigger a chain reset.
+  const chainOptionsForValidation = externalChainOptions ?? chainOptions;
   const isSelectedChainIdAvailable =
     selectedChainId === null ||
-    chainOptions.some(({ chainId }) => chainId === selectedChainId);
+    chainOptionsForValidation.some(
+      ({ chainId }) => chainId === selectedChainId,
+    );
   const effectiveSelectedChainId = isSelectedChainIdAvailable
     ? selectedChainId
     : null;
 
   useEffect(() => {
     if (!isSelectedChainIdAvailable) {
-      setSelectedChainId(null);
+      setInternalChainId(null);
+      onChainChange?.(null);
     }
-  }, [isSelectedChainIdAvailable]);
+  }, [isSelectedChainIdAvailable, onChainChange]);
 
   const filteredTokenList = useFilteredTokenList(
     tokenList,
     effectiveSelectedChainId,
     isAnyAvalancheNetwork,
   );
+  const derivedChainOptions = useChainOptions(
+    availableChainIds,
+    hasAvalancheNetworks,
+    chainFilterMode,
+  );
+
+  const handleChainSelect = (chainId: number | 'avalanche' | null) => {
+    if (!isChainControlled) {
+      setInternalChainId(chainId);
+    }
+    onChainChange?.(chainId);
+  };
 
   const sharedProps: InternalProps = {
     ...props,
     filteredTokenList,
-    chainOptions,
+    chainOptions: externalChainOptions ?? derivedChainOptions,
     selectedChainId: effectiveSelectedChainId,
-    setSelectedChainId,
+    setSelectedChainId: handleChainSelect,
+    showAllNetworksChip: !externalChainOptions,
   };
 
-  if (tokenList.some((t) => t.isVerified === false)) {
+  // Use the separator variant whenever scroll-to-end pagination is needed,
+  // even if there are no unverified tokens (it handles onItemsRendered).
+  if (props.onEndReached || tokenList.some((t) => t.isVerified === false)) {
     return <TokenSelectWithSeparator {...sharedProps} />;
   }
   return <TokenSelectFlat {...sharedProps} />;

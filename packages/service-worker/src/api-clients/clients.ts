@@ -5,6 +5,8 @@ import { createClient as createTokenAggregatorApiClientV1 } from '~/api-clients/
 import { AppCheckService } from '~/services/appcheck/AppCheckService';
 import { applyExponentialBackOffMiddleware } from './utils/exponentialBackOffMiddleware';
 
+const TOKEN_AGGREGATOR_URL = process.env.TOKEN_AGGREGATOR_SERVICE_URL;
+
 const appcheckService = container.resolve(AppCheckService);
 
 const authInterceptor = async <R extends Request>(request: R): Promise<R> => {
@@ -26,7 +28,7 @@ applyExponentialBackOffMiddleware(balanceApiClientV1);
 balanceApiClientV1.interceptors.request.use(authInterceptor);
 
 const tokenAggregatorApiClientV1 = createTokenAggregatorApiClientV1({
-  baseUrl: process.env.TOKEN_AGGREGATOR_SERVICE_URL,
+  baseUrl: TOKEN_AGGREGATOR_URL,
 });
 tokenAggregatorApiClientV1.interceptors.request.use(authInterceptor);
 
