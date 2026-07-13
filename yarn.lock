@@ -418,6 +418,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@avalabs/prediction-market-sdk@npm:1.1.4":
+  version: 1.1.4
+  resolution: "@avalabs/prediction-market-sdk@npm:1.1.4"
+  dependencies:
+    viem: "npm:^2.38.3"
+  peerDependencies:
+    viem: ^2.38.3
+    zod: ^4.1.0
+  checksum: 10c0/9790eb8e9f281f5fcf8d102c105ac36f65dd96411f97136cfafc2563d6c9aea4d293a95269e69b04226090e5b8bb8616677a4e482d18258f2a80fbb82f185920
+  languageName: node
+  linkType: hard
+
 "@avalabs/svm-module@npm:3.10.0":
   version: 3.10.0
   resolution: "@avalabs/svm-module@npm:3.10.0"
@@ -2809,6 +2821,7 @@ __metadata:
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/fusion-sdk": "npm:0.26.0"
     "@avalabs/k2-alpine": "npm:1.266.0"
+    "@avalabs/prediction-market-sdk": "npm:1.1.4"
     "@avalabs/types": "npm:3.1.0-alpha.87"
     "@avalabs/vm-module-types": "npm:3.10.0"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
@@ -2917,7 +2930,7 @@ __metadata:
     ts-jest: "npm:29.3.0"
     ts-loader: "npm:9.2.6"
     typescript: "npm:5.8.2"
-    viem: "npm:2.38.0"
+    viem: "npm:2.38.3"
     webextension-polyfill: "npm:0.10.0"
     zod: "npm:4.3.5"
   languageName: unknown
@@ -2954,7 +2967,7 @@ __metadata:
     prettier: "npm:3.4.2"
     ts-jest: "npm:29.3.0"
     typescript: "npm:5.8.2"
-    viem: "npm:2.38.0"
+    viem: "npm:2.38.3"
     webextension-polyfill: "npm:0.10.0"
     zod: "npm:4.3.5"
   peerDependencies:
@@ -3228,7 +3241,7 @@ __metadata:
     tsyringe: "npm:4.8.0"
     tweetnacl: "npm:1.0.3"
     typescript: "npm:5.8.2"
-    viem: "npm:2.38.0"
+    viem: "npm:2.38.3"
     web3: "npm:1.8.2"
     webextension-polyfill: "npm:0.10.0"
     xss: "npm:1.0.13"
@@ -3396,7 +3409,7 @@ __metadata:
     style-loader: "npm:3.3.1"
     ts-jest: "npm:29.3.0"
     typescript: "npm:5.8.2"
-    viem: "npm:2.38.0"
+    viem: "npm:2.38.3"
     webextension-polyfill: "npm:0.10.0"
     xss: "npm:1.0.13"
     zod: "npm:4.3.5"
@@ -23016,6 +23029,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ox@npm:0.14.30":
+  version: 0.14.30
+  resolution: "ox@npm:0.14.30"
+  dependencies:
+    "@adraffy/ens-normalize": "npm:^1.11.0"
+    "@noble/ciphers": "npm:^1.3.0"
+    "@noble/curves": "npm:1.9.1"
+    "@noble/hashes": "npm:^1.8.0"
+    "@scure/bip32": "npm:^1.7.0"
+    "@scure/bip39": "npm:^1.6.0"
+    abitype: "npm:^1.2.3"
+    eventemitter3: "npm:5.0.1"
+  peerDependencies:
+    typescript: ">=5.4.0"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 10c0/dfefa9218269103b3da3686c4da62849aef15e4347fd21f898fa113d9b4c2b86afab7c662c94d58206257736202647ce96249405c021c4a233712ac34fa3cc1b
+  languageName: node
+  linkType: hard
+
 "ox@npm:0.9.6":
   version: 0.9.6
   resolution: "ox@npm:0.9.6"
@@ -28144,9 +28178,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"viem@npm:2.38.0":
-  version: 2.38.0
-  resolution: "viem@npm:2.38.0"
+"viem@npm:2.38.3":
+  version: 2.38.3
+  resolution: "viem@npm:2.38.3"
   dependencies:
     "@noble/curves": "npm:1.9.1"
     "@noble/hashes": "npm:1.8.0"
@@ -28161,7 +28195,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10c0/65d13718f6dd8f2de282c147c13700b7c057d855c02641ff1268a57f57963437df1f5bb71fb93e6df547d5e0a880990a9bea497ab2cbc26e89d0bf3e65976f6d
+  checksum: 10c0/ec69d641d26e64e793883021618ca0d5c833d4807c53201ff0441c1e8369cbc12079fc08edfb4e69c8e75ec47ff80058b989916cbc257770dc8c430e320e1428
   languageName: node
   linkType: hard
 
@@ -28183,6 +28217,27 @@ __metadata:
     typescript:
       optional: true
   checksum: 10c0/5e67eebbb0ec48273cf3a4e85964bca6e30eb0b7d85bd8cf33a4b3e821563ea9b8cc2416f98cf80ebd6346679ff7f19b20dad420e51e4706900fde08513a828a
+  languageName: node
+  linkType: hard
+
+"viem@npm:^2.38.3":
+  version: 2.55.0
+  resolution: "viem@npm:2.55.0"
+  dependencies:
+    "@noble/curves": "npm:1.9.1"
+    "@noble/hashes": "npm:1.8.0"
+    "@scure/bip32": "npm:1.7.0"
+    "@scure/bip39": "npm:1.6.0"
+    abitype: "npm:1.2.3"
+    isows: "npm:1.0.7"
+    ox: "npm:0.14.30"
+    ws: "npm:8.21.0"
+  peerDependencies:
+    typescript: ">=5.0.4"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 10c0/6baed9096ed427397c137b4d313719a86012fc0812a36924667f5b972c0940755d05f49d8b87442d97e0184c4bbf4e208221b712b27cce5c677cdb03e9a3895b
   languageName: node
   linkType: hard
 
@@ -29217,6 +29272,21 @@ __metadata:
     utf-8-validate:
       optional: true
   checksum: 10c0/eac918213de265ef7cb3d4ca348b891a51a520d839aa51cdb8ca93d4fa7ff9f6ccb339ccee89e4075324097f0a55157c89fa3f7147bde9d8d7e90335dc087b53
+  languageName: node
+  linkType: hard
+
+"ws@npm:8.21.0":
+  version: 8.21.0
+  resolution: "ws@npm:8.21.0"
+  peerDependencies:
+    bufferutil: ^4.0.1
+    utf-8-validate: ">=5.0.2"
+  peerDependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: 10c0/ef4a243476283fc49bc7550966c4af4aa0eef56273837211e700de3b664e08604a760cdddcb5ba43c049140e74ccfec5b0ee0bb439e08c2adf9138902fdde5f9
   languageName: node
   linkType: hard
 
