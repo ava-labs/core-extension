@@ -6,10 +6,10 @@ import {
   useBalancesContext,
   useNetworkContext,
   useAnalyticsContext,
-  useWalletTotalBalance,
 } from '@core/ui';
 import { IMPORTED_ACCOUNTS_WALLET_ID } from '@core/types';
-import { useTokensForAccount } from '@/hooks/useTokensForAccount';
+import { useAccountAssets } from '@/hooks/useAccountAssets';
+import { useWalletTotalBalance } from '@/hooks/useWalletTotalBalance';
 
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -45,7 +45,7 @@ export const PortfolioTabs: FC = () => {
       : IMPORTED_ACCOUNTS_WALLET_ID,
   );
 
-  const assets = useTokensForAccount(accounts.active);
+  const assets = useAccountAssets(accounts.active);
 
   const isLoading = !accounts.active || balances.loading;
   const isAccountEmpty =

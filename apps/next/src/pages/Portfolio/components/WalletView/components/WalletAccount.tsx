@@ -7,12 +7,12 @@ import { Account, NetworkWithCaipId } from '@core/types';
 import {
   useAccountsContext,
   useAnalyticsContext,
-  useBalancesContext,
   useSettingsContext,
 } from '@core/ui';
 import { FC, useCallback } from 'react';
 import { MdCircle, MdNavigateNext } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
+import { useAccountTotalBalance } from '@/hooks/useAccountTotalBalance';
 import { BalanceChange } from '../../BalanceChange';
 import { NetworksWithBalances } from './NetworksWithBalances';
 import { TruncatedText } from '@/components/Header/components/styledComponents';
@@ -35,9 +35,9 @@ export const WalletAccount: FC<Props> = ({
   const { privacyMode } = useSettingsContext();
   const history = useHistory();
   const { selectAccount, isActiveAccount } = useAccountsContext();
-  const { getTotalBalance } = useBalancesContext();
   const { currencyFormatter } = useSettingsContext();
   const { capture } = useAnalyticsContext();
+  const balance = useAccountTotalBalance(account);
   const clickHandler = useCallback(async () => {
     await selectAccount(account.id);
 
@@ -47,8 +47,6 @@ export const WalletAccount: FC<Props> = ({
 
     history.push(`/portfolio`);
   }, [selectAccount, account.id, account.type, history, capture]);
-
-  const balance = getTotalBalance(account.addressC);
 
   return (
     <ClickableStack

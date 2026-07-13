@@ -26,8 +26,10 @@ export {
   type HypercoreTokenBalance,
 } from './buildHypercoreTokens';
 export {
+  getHypercoreBalancesQueryOptions,
   HYPERCORE_BALANCES_QUERY_KEY,
   useHypercoreBalances,
+  useHypercoreTokensForAddresses,
 } from './hooks/useHypercoreBalances';
 export {
   HYPERCORE_SPOT_TOKENS_QUERY_KEY,

@@ -1,7 +1,16 @@
-import { skipToken, useQuery } from '@tanstack/react-query';
+import {
+  queryOptions,
+  skipToken,
+  useQueries,
+  useQuery,
+  type UseQueryResult,
+} from '@tanstack/react-query';
 import { useIsHyperliquidEnabled, useIsMainnet } from '@core/ui';
 import { useMemo } from 'react';
-import { buildHypercoreTokens } from '../buildHypercoreTokens';
+import {
+  buildHypercoreTokens,
+  type HypercoreTokenBalance,
+} from '../buildHypercoreTokens';
 import {
   getClearinghouseState,
   getSpotClearinghouseState,
@@ -31,6 +40,34 @@ const fetchHypercorePortfolio = async (
   });
 };
 
+const spotTokensQueryKey = (spotTokens: HypercoreSpotToken[] | undefined) =>
+  spotTokens?.map(
+    (token) =>
+      `${token.index}:${token.decimals}:${token.symbol}:${token.name}:${token.address ?? ''}`,
+  );
+
+export const getHypercoreBalancesQueryOptions = ({
+  evmAddress,
+  spotTokens,
+  enabled,
+}: {
+  evmAddress: string;
+  spotTokens: HypercoreSpotToken[] | undefined;
+  enabled: boolean;
+}) =>
+  queryOptions({
+    staleTime: BALANCES_STALE_TIME_MS,
+    queryKey: [
+      HYPERCORE_BALANCES_QUERY_KEY,
+      evmAddress,
+      spotTokensQueryKey(spotTokens),
+    ],
+    queryFn:
+      enabled && spotTokens
+        ? () => fetchHypercorePortfolio(evmAddress, spotTokens)
+        : skipToken,
+  });
+
 type UseHypercoreBalancesParams = {
   evmAddress?: string;
 };
@@ -45,21 +82,17 @@ export const useHypercoreBalances = ({
   const { data: spotTokens, isLoading: isLoadingSpotTokens } =
     useHypercoreSpotTokens({ enabled });
 
-  const query = useQuery({
-    staleTime: BALANCES_STALE_TIME_MS,
-    queryKey: [
-      HYPERCORE_BALANCES_QUERY_KEY,
-      evmAddress,
-      spotTokens?.map(
-        (token) =>
-          `${token.index}:${token.decimals}:${token.symbol}:${token.name}:${token.address ?? ''}`,
-      ),
-    ],
-    queryFn:
-      enabled && evmAddress && spotTokens
-        ? () => fetchHypercorePortfolio(evmAddress, spotTokens)
-        : skipToken,
-  });
+  const options = useMemo(
+    () =>
+      getHypercoreBalancesQueryOptions({
+        evmAddress: evmAddress ?? '',
+        spotTokens,
+        enabled,
+      }),
+    [enabled, evmAddress, spotTokens],
+  );
+
+  const query = useQuery(options);
 
   return useMemo(
     () => ({
@@ -79,4 +112,43 @@ export const useHypercoreBalances = ({
       query.refetch,
     ],
   );
+};
+
+type UseHypercoreTokensForAddressesParams = {
+  evmAddresses: readonly string[];
+};
+
+export const useHypercoreTokensForAddresses = ({
+  evmAddresses,
+}: UseHypercoreTokensForAddressesParams) => {
+  const isHyperliquidEnabled = useIsHyperliquidEnabled();
+  const isMainnet = useIsMainnet();
+  const enabled = isHyperliquidEnabled && isMainnet && evmAddresses.length > 0;
+
+  const { data: spotTokens, isLoading: isLoadingSpotTokens } =
+    useHypercoreSpotTokens({ enabled });
+
+  const combine = useMemo(
+    () => (results: UseQueryResult<HypercoreTokenBalance[]>[]) => ({
+      tokens: results.flatMap((result) => result.data ?? []),
+      isLoading:
+        enabled &&
+        (isLoadingSpotTokens || results.some((result) => result.isLoading)),
+      isFetching: results.some((result) => result.isFetching),
+    }),
+    [enabled, isLoadingSpotTokens],
+  );
+
+  return useQueries({
+    queries: enabled
+      ? evmAddresses.map((evmAddress) =>
+          getHypercoreBalancesQueryOptions({
+            evmAddress,
+            spotTokens,
+            enabled: Boolean(spotTokens),
+          }),
+        )
+      : [],
+    combine,
+  });
 };

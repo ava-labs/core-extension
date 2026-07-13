@@ -1,6 +1,6 @@
 import { HighlightsBannerCarousel } from '@/components/HighlightsBanner';
-import { useHypercoreAssets } from '@/hooks/useHypercoreAssets';
-import { useHypercoreTotalBalance } from '@/hooks/useHypercoreTotalBalance';
+import { useAccountAssets } from '@/hooks/useAccountAssets';
+import { useAccountTotalBalance } from '@/hooks/useAccountTotalBalance';
 import { Box, Button, Stack } from '@avalabs/k2-alpine';
 import { getUniqueTokenId } from '@core/types';
 import {
@@ -42,9 +42,9 @@ export const AssetsTab: FC = () => {
   );
   const isMainnet = useIsMainnet();
 
-  const accountBalance = useHypercoreTotalBalance(account);
+  const accountBalance = useAccountTotalBalance(account);
 
-  const assets = useHypercoreAssets(account, { networks: enabledNetworks });
+  const assets = useAccountAssets(account, { networks: enabledNetworks });
 
   //Only show assets with balances
   const assetsWithBalances = useMemo(() => {

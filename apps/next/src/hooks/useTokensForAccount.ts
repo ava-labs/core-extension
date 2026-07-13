@@ -32,6 +32,7 @@ const DEFAULT_OPTIONS: UseTokensForAccountOptions = {
   forceShowAllTokens: false,
 };
 
+/** Balance-service tokens only. For portfolio UI (incl. HyperCore), use `useAccountAssets`. */
 export const useTokensForAccount = (
   account?: Account,
   options: UseTokensForAccountOptions = DEFAULT_OPTIONS,

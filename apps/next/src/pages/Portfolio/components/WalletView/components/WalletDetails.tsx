@@ -10,11 +10,11 @@ import {
   useLiveWalletBalance,
   useNetworkContext,
   useSettingsContext,
-  useWalletTotalBalance,
 } from '@core/ui';
 import { useNetworksWithBalance } from '../hooks/useNetworksWithBalance';
 import { WalletDetails as WalletDetailsType } from '@core/types';
 import { getNetworkCount } from '../utils/networkCount';
+import { useWalletTotalBalance } from '@/hooks/useWalletTotalBalance';
 
 type Props = {
   wallet: WalletDetailsType;

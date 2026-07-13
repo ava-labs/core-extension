@@ -7,14 +7,17 @@ import { useHypercoreBalances } from '@/lib/hypercore/hooks/useHypercoreBalances
 import { toFungibleTokenBalances } from '@/lib/hypercore/toFungibleTokenBalances';
 import { isChainIdRequested, sortFungibleTokens } from '@/lib/tokens';
 
-type UseHypercoreAssetsOptions = {
+type UseAccountAssetsOptions = {
   networks?: NetworkWithCaipId[];
   forceShowAllTokens?: boolean;
 };
 
-export const useHypercoreAssets = (
+/**
+ * Account portfolio assets (balance-service tokens + HyperCore rows when enabled).
+ */
+export const useAccountAssets = (
   account?: Account,
-  options: UseHypercoreAssetsOptions = {},
+  options: UseAccountAssetsOptions = {},
 ) => {
   const { getNetwork } = useNetworkContext();
   const baseAssets = useTokensForAccount(account, options);

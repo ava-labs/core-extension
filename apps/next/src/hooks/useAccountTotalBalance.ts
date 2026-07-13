@@ -3,18 +3,21 @@ import { useBalancesContext } from '@core/ui';
 import { useMemo } from 'react';
 import { useHypercoreBalanceInCurrency } from './useHypercoreBalanceInCurrency';
 
-export const useHypercoreTotalBalance = (account?: Account) => {
+/**
+ * Account portfolio total in the active currency (balance-service chains + HyperCore).
+ */
+export const useAccountTotalBalance = (account?: Account) => {
   const { getTotalBalance } = useBalancesContext();
   const hypercoreBalanceInCurrency = useHypercoreBalanceInCurrency(account);
 
   return useMemo(() => {
     if (!account?.addressC) {
-      return null;
+      return undefined;
     }
 
     const totalBalance = getTotalBalance(account.addressC);
     if (!totalBalance) {
-      return null;
+      return undefined;
     }
 
     if (hypercoreBalanceInCurrency === 0) {

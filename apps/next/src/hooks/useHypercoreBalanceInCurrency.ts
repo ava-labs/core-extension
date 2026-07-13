@@ -1,12 +1,34 @@
 import { HYPERCORE_CHAIN_ID, isHypercoreNetwork } from '@core/common';
-import type { Account } from '@core/types';
+import type { Account, NetworkWithCaipId } from '@core/types';
 import { useNetworkContext } from '@core/ui';
 import { useMemo } from 'react';
-import { useHypercoreBalances } from '@/lib/hypercore/hooks/useHypercoreBalances';
+import type { HypercoreTokenBalance } from '@/lib/hypercore/buildHypercoreTokens';
+import {
+  useHypercoreBalances,
+  useHypercoreTokensForAddresses,
+} from '@/lib/hypercore/hooks/useHypercoreBalances';
 import {
   sumHypercoreBalanceInCurrency,
   toFungibleTokenBalances,
 } from '@/lib/hypercore/toFungibleTokenBalances';
+
+export const sumHypercoreTokensInCurrency = ({
+  hypercoreTokens,
+  hypercoreNetwork,
+  isHypercoreEnabled,
+}: {
+  hypercoreTokens: readonly HypercoreTokenBalance[] | undefined;
+  hypercoreNetwork: NetworkWithCaipId | undefined;
+  isHypercoreEnabled: boolean;
+}) => {
+  if (!hypercoreTokens?.length || !hypercoreNetwork || !isHypercoreEnabled) {
+    return 0;
+  }
+
+  return sumHypercoreBalanceInCurrency(
+    toFungibleTokenBalances(hypercoreTokens, hypercoreNetwork),
+  );
+};
 
 export const useHypercoreBalanceInCurrency = (account?: Account) => {
   const { getNetwork, enabledNetworks } = useNetworkContext();
@@ -15,18 +37,27 @@ export const useHypercoreBalanceInCurrency = (account?: Account) => {
   });
 
   return useMemo(() => {
-    const hypercoreNetwork = getNetwork(HYPERCORE_CHAIN_ID);
+    return sumHypercoreTokensInCurrency({
+      hypercoreTokens,
+      hypercoreNetwork: getNetwork(HYPERCORE_CHAIN_ID),
+      isHypercoreEnabled: enabledNetworks.some(isHypercoreNetwork),
+    });
+  }, [enabledNetworks, getNetwork, hypercoreTokens]);
+};
 
-    if (
-      !hypercoreTokens?.length ||
-      !hypercoreNetwork ||
-      !enabledNetworks.some(isHypercoreNetwork)
-    ) {
-      return 0;
-    }
+export const useHypercoreBalanceInCurrencyForAddresses = (
+  evmAddresses: readonly string[],
+) => {
+  const { getNetwork, enabledNetworks } = useNetworkContext();
+  const { tokens: hypercoreTokens } = useHypercoreTokensForAddresses({
+    evmAddresses,
+  });
 
-    return sumHypercoreBalanceInCurrency(
-      toFungibleTokenBalances(hypercoreTokens, hypercoreNetwork),
-    );
+  return useMemo(() => {
+    return sumHypercoreTokensInCurrency({
+      hypercoreTokens,
+      hypercoreNetwork: getNetwork(HYPERCORE_CHAIN_ID),
+      isHypercoreEnabled: enabledNetworks.some(isHypercoreNetwork),
+    });
   }, [enabledNetworks, getNetwork, hypercoreTokens]);
 };

@@ -1,7 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import { createElement, type PropsWithChildren } from 'react';
-import { useHypercoreBalances } from './useHypercoreBalances';
+import {
+  useHypercoreBalances,
+  useHypercoreTokensForAddresses,
+} from './useHypercoreBalances';
 import { useHypercoreSpotTokens } from './useHypercoreSpotTokens';
 
 jest.mock('@core/ui', () => ({
@@ -164,6 +167,71 @@ describe('useHypercoreBalances', () => {
     });
 
     expect(result.current.data).toBeUndefined();
+    expect(getSpotClearinghouseState).not.toHaveBeenCalled();
+  });
+});
+
+describe('useHypercoreTokensForAddresses', () => {
+  beforeEach(() => {
+    jest.mocked(useIsHyperliquidEnabled).mockReturnValue(true);
+    jest.mocked(useIsMainnet).mockReturnValue(true);
+    jest.mocked(getSpotMeta).mockResolvedValue({
+      tokens: [
+        {
+          name: 'USDC',
+          index: 0,
+          weiDecimals: 8,
+          fullName: 'USD Coin',
+        },
+      ],
+    });
+    jest
+      .mocked(getSpotClearinghouseState)
+      .mockImplementation(async (address) => ({
+        balances: [
+          {
+            coin: 'USDC',
+            token: 0,
+            total: address.endsWith('1') ? '10' : '25',
+            hold: '0',
+          },
+        ],
+      }));
+    jest.mocked(getClearinghouseState).mockResolvedValue({
+      assetPositions: [],
+      crossMarginSummary: { accountValue: '0' },
+    });
+    jest.mocked(getUserAbstraction).mockResolvedValue('unifiedAccount');
+  });
+
+  it('fetches and flattens HyperCore tokens for multiple addresses', async () => {
+    const { result } = renderHook(
+      () =>
+        useHypercoreTokensForAddresses({
+          evmAddresses: [
+            '0x0000000000000000000000000000000000000001',
+            '0x0000000000000000000000000000000000000002',
+          ],
+        }),
+      { wrapper: createWrapper() },
+    );
+
+    await waitFor(() => expect(result.current.tokens.length).toBe(2));
+
+    expect(result.current.tokens.map((token) => token.balance)).toEqual([
+      '10',
+      '25',
+    ]);
+    expect(getSpotClearinghouseState).toHaveBeenCalledTimes(2);
+  });
+
+  it('skips fetching with an empty address list', () => {
+    const { result } = renderHook(
+      () => useHypercoreTokensForAddresses({ evmAddresses: [] }),
+      { wrapper: createWrapper() },
+    );
+
+    expect(result.current.tokens).toEqual([]);
     expect(getSpotClearinghouseState).not.toHaveBeenCalled();
   });
 });

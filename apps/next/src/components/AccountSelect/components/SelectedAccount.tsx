@@ -1,10 +1,7 @@
 import { Stack, Typography } from '@avalabs/k2-alpine';
 
-import {
-  useAccountsContext,
-  useBalanceTotalInCurrency,
-  useSettingsContext,
-} from '@core/ui';
+import { useAccountsContext, useSettingsContext } from '@core/ui';
+import { useAccountTotalBalance } from '@/hooks/useAccountTotalBalance';
 
 type SelectedAccountProps = {
   accountId: string;
@@ -17,9 +14,7 @@ export const SelectedAccount = ({
 }: SelectedAccountProps) => {
   const { getAccountById } = useAccountsContext();
   const { currencyFormatter } = useSettingsContext();
-  const fromAccountBalance = useBalanceTotalInCurrency(
-    getAccountById(accountId),
-  );
+  const fromAccountBalance = useAccountTotalBalance(getAccountById(accountId));
   return (
     <Stack textAlign="end" py={!isBalanceVisible ? 0.75 : 0}>
       <Typography
