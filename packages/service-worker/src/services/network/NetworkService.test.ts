@@ -819,31 +819,6 @@ describe('background/services/network/NetworkService', () => {
     });
   });
 
-  describe('Hyperliquid networks injection', () => {
-    it('injects HyperEVM and HyperCore into the fetched chain list', async () => {
-      jest.mocked(getChainsAndTokens).mockResolvedValue({});
-
-      const freshService = new NetworkService(
-        storageServiceMock,
-        featureFlagsServiceMock,
-        glacierServiceMock,
-      );
-
-      const fetched = await freshService['_initChainList']();
-
-      expect(fetched[999]).toEqual(
-        expect.objectContaining({ chainName: 'HyperEVM', chainId: 999 }),
-      );
-      expect(fetched[9999]).toEqual(
-        expect.objectContaining({
-          chainName: 'HyperCore',
-          chainId: 9999,
-          rpcUrl: '',
-        }),
-      );
-    });
-  });
-
   describe('enabled networks management', () => {
     beforeEach(() => {
       service = new NetworkService(

@@ -10,6 +10,9 @@ import { useHypercoreSpotTokens } from './useHypercoreSpotTokens';
 jest.mock('@core/ui', () => ({
   useIsHyperliquidEnabled: jest.fn(() => true),
   useIsMainnet: jest.fn(() => true),
+  useNetworkContext: jest.fn(() => ({
+    enabledNetworks: [{ chainId: 9999 }],
+  })),
 }));
 
 jest.mock('../infoClient', () => ({
@@ -19,7 +22,11 @@ jest.mock('../infoClient', () => ({
   getUserAbstraction: jest.fn(),
 }));
 
-import { useIsHyperliquidEnabled, useIsMainnet } from '@core/ui';
+import {
+  useIsHyperliquidEnabled,
+  useIsMainnet,
+  useNetworkContext,
+} from '@core/ui';
 import {
   getClearinghouseState,
   getSpotClearinghouseState,
@@ -44,6 +51,9 @@ describe('useHypercoreSpotTokens', () => {
   beforeEach(() => {
     jest.mocked(useIsHyperliquidEnabled).mockReturnValue(true);
     jest.mocked(useIsMainnet).mockReturnValue(true);
+    jest.mocked(useNetworkContext).mockReturnValue({
+      enabledNetworks: [{ chainId: 9999 }],
+    } as ReturnType<typeof useNetworkContext>);
     jest.mocked(getSpotMeta).mockResolvedValue({
       tokens: [
         {
@@ -90,6 +100,9 @@ describe('useHypercoreBalances', () => {
   beforeEach(() => {
     jest.mocked(useIsHyperliquidEnabled).mockReturnValue(true);
     jest.mocked(useIsMainnet).mockReturnValue(true);
+    jest.mocked(useNetworkContext).mockReturnValue({
+      enabledNetworks: [{ chainId: 9999 }],
+    } as ReturnType<typeof useNetworkContext>);
     jest.mocked(getSpotMeta).mockResolvedValue({
       tokens: [
         {
@@ -169,12 +182,32 @@ describe('useHypercoreBalances', () => {
     expect(result.current.data).toBeUndefined();
     expect(getSpotClearinghouseState).not.toHaveBeenCalled();
   });
+
+  it('skips fetching when HyperCore is not in enabled networks', () => {
+    jest.mocked(useNetworkContext).mockReturnValue({
+      enabledNetworks: [{ chainId: 43114 }],
+    } as ReturnType<typeof useNetworkContext>);
+
+    const { result } = renderHook(
+      () =>
+        useHypercoreBalances({
+          evmAddress: '0xABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCD',
+        }),
+      { wrapper: createWrapper() },
+    );
+
+    expect(result.current.data).toBeUndefined();
+    expect(getSpotClearinghouseState).not.toHaveBeenCalled();
+  });
 });
 
 describe('useHypercoreTokensForAddresses', () => {
   beforeEach(() => {
     jest.mocked(useIsHyperliquidEnabled).mockReturnValue(true);
     jest.mocked(useIsMainnet).mockReturnValue(true);
+    jest.mocked(useNetworkContext).mockReturnValue({
+      enabledNetworks: [{ chainId: 9999 }],
+    } as ReturnType<typeof useNetworkContext>);
     jest.mocked(getSpotMeta).mockResolvedValue({
       tokens: [
         {

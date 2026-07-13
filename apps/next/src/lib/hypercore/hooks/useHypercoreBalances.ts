@@ -5,7 +5,12 @@ import {
   useQuery,
   type UseQueryResult,
 } from '@tanstack/react-query';
-import { useIsHyperliquidEnabled, useIsMainnet } from '@core/ui';
+import { isHypercoreNetwork } from '@core/common';
+import {
+  useIsHyperliquidEnabled,
+  useIsMainnet,
+  useNetworkContext,
+} from '@core/ui';
 import { useMemo } from 'react';
 import {
   buildHypercoreTokens,
@@ -68,6 +73,11 @@ export const getHypercoreBalancesQueryOptions = ({
         : skipToken,
   });
 
+const useIsHypercoreNetworkEnabled = () => {
+  const { enabledNetworks } = useNetworkContext();
+  return enabledNetworks.some(isHypercoreNetwork);
+};
+
 type UseHypercoreBalancesParams = {
   evmAddress?: string;
 };
@@ -77,7 +87,12 @@ export const useHypercoreBalances = ({
 }: UseHypercoreBalancesParams) => {
   const isHyperliquidEnabled = useIsHyperliquidEnabled();
   const isMainnet = useIsMainnet();
-  const enabled = Boolean(evmAddress) && isHyperliquidEnabled && isMainnet;
+  const isHypercoreNetworkEnabled = useIsHypercoreNetworkEnabled();
+  const enabled =
+    Boolean(evmAddress) &&
+    isHyperliquidEnabled &&
+    isMainnet &&
+    isHypercoreNetworkEnabled;
 
   const { data: spotTokens, isLoading: isLoadingSpotTokens } =
     useHypercoreSpotTokens({ enabled });
@@ -123,7 +138,12 @@ export const useHypercoreTokensForAddresses = ({
 }: UseHypercoreTokensForAddressesParams) => {
   const isHyperliquidEnabled = useIsHyperliquidEnabled();
   const isMainnet = useIsMainnet();
-  const enabled = isHyperliquidEnabled && isMainnet && evmAddresses.length > 0;
+  const isHypercoreNetworkEnabled = useIsHypercoreNetworkEnabled();
+  const enabled =
+    isHyperliquidEnabled &&
+    isMainnet &&
+    isHypercoreNetworkEnabled &&
+    evmAddresses.length > 0;
 
   const { data: spotTokens, isLoading: isLoadingSpotTokens } =
     useHypercoreSpotTokens({ enabled });

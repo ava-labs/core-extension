@@ -1,4 +1,4 @@
-import { HYPERCORE_CHAIN_ID } from '@core/common';
+import { HYPERCORE_CHAIN_ID, isHypercoreNetwork } from '@core/common';
 import type { Account, NetworkWithCaipId } from '@core/types';
 import { useNetworkContext } from '@core/ui';
 import { useMemo } from 'react';
@@ -19,10 +19,11 @@ export const useAccountAssets = (
   account?: Account,
   options: UseAccountAssetsOptions = {},
 ) => {
-  const { getNetwork } = useNetworkContext();
+  const { getNetwork, enabledNetworks } = useNetworkContext();
+  const isHypercoreEnabled = enabledNetworks.some(isHypercoreNetwork);
   const baseAssets = useTokensForAccount(account, options);
   const { data: hypercoreTokens } = useHypercoreBalances({
-    evmAddress: account?.addressC,
+    evmAddress: isHypercoreEnabled ? account?.addressC : undefined,
   });
 
   return useMemo(() => {
@@ -30,6 +31,7 @@ export const useAccountAssets = (
     const hypercoreNetwork = getNetwork(HYPERCORE_CHAIN_ID);
 
     if (
+      !isHypercoreEnabled ||
       !hypercoreTokens?.length ||
       !hypercoreNetwork ||
       !isChainIdRequested(HYPERCORE_CHAIN_ID, networks)
@@ -43,5 +45,11 @@ export const useAccountAssets = (
     );
 
     return sortFungibleTokens([...baseAssets, ...hypercoreAssets]);
-  }, [baseAssets, getNetwork, hypercoreTokens, options.networks]);
+  }, [
+    baseAssets,
+    getNetwork,
+    hypercoreTokens,
+    isHypercoreEnabled,
+    options.networks,
+  ]);
 };

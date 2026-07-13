@@ -32,32 +32,34 @@ export const sumHypercoreTokensInCurrency = ({
 
 export const useHypercoreBalanceInCurrency = (account?: Account) => {
   const { getNetwork, enabledNetworks } = useNetworkContext();
+  const isHypercoreEnabled = enabledNetworks.some(isHypercoreNetwork);
   const { data: hypercoreTokens } = useHypercoreBalances({
-    evmAddress: account?.addressC,
+    evmAddress: isHypercoreEnabled ? account?.addressC : undefined,
   });
 
   return useMemo(() => {
     return sumHypercoreTokensInCurrency({
       hypercoreTokens,
       hypercoreNetwork: getNetwork(HYPERCORE_CHAIN_ID),
-      isHypercoreEnabled: enabledNetworks.some(isHypercoreNetwork),
+      isHypercoreEnabled,
     });
-  }, [enabledNetworks, getNetwork, hypercoreTokens]);
+  }, [getNetwork, hypercoreTokens, isHypercoreEnabled]);
 };
 
 export const useHypercoreBalanceInCurrencyForAddresses = (
   evmAddresses: readonly string[],
 ) => {
   const { getNetwork, enabledNetworks } = useNetworkContext();
+  const isHypercoreEnabled = enabledNetworks.some(isHypercoreNetwork);
   const { tokens: hypercoreTokens } = useHypercoreTokensForAddresses({
-    evmAddresses,
+    evmAddresses: isHypercoreEnabled ? evmAddresses : [],
   });
 
   return useMemo(() => {
     return sumHypercoreTokensInCurrency({
       hypercoreTokens,
       hypercoreNetwork: getNetwork(HYPERCORE_CHAIN_ID),
-      isHypercoreEnabled: enabledNetworks.some(isHypercoreNetwork),
+      isHypercoreEnabled,
     });
-  }, [enabledNetworks, getNetwork, hypercoreTokens]);
+  }, [getNetwork, hypercoreTokens, isHypercoreEnabled]);
 };
