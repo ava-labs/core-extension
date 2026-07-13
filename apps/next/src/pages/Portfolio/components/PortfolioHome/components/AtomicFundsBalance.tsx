@@ -34,21 +34,26 @@ const StyledCard = styled(Card)(({ theme }) =>
 const normalizeAddress = (address: string | undefined) =>
   address ? stripAddressPrefix(address).toLowerCase() : undefined;
 
-const isTransferForAccount = (transfer: Transfer, account: Account) => {
-  const accountAddresses = new Set(
+const getAccountAddresses = (account: Account) =>
+  new Set(
     [
-      account.addressC,
-      account.addressCoreEth,
-      account.addressAVM,
-      account.addressPVM,
-    ]
-      .map(normalizeAddress)
-      .filter(Boolean),
+      normalizeAddress(account.addressC),
+      normalizeAddress(account.addressCoreEth),
+      normalizeAddress(account.addressAVM),
+      normalizeAddress(account.addressPVM),
+    ].filter((address): address is string => Boolean(address)),
   );
 
-  return (
-    accountAddresses.has(normalizeAddress(transfer.fromAddress)) ||
-    accountAddresses.has(normalizeAddress(transfer.toAddress))
+const isTransferForAccount = (
+  transfer: Transfer,
+  accountAddresses: Set<string>,
+) => {
+  const fromAddress = normalizeAddress(transfer.fromAddress);
+  const toAddress = normalizeAddress(transfer.toAddress);
+
+  return Boolean(
+    (fromAddress && accountAddresses.has(fromAddress)) ||
+      (toAddress && accountAddresses.has(toAddress)),
   );
 };
 
@@ -68,10 +73,12 @@ export const AtomicFundsBalance: FC<Props> = ({ accountId }) => {
       return 0;
     }
 
+    const accountAddresses = getAccountAddresses(active);
+
     return transfers.reduce((suppressUntil, { transfer }) => {
       if (
         transfer.type !== ServiceType.AVALANCHE_CCT ||
-        !isTransferForAccount(transfer, active)
+        !isTransferForAccount(transfer, accountAddresses)
       ) {
         return suppressUntil;
       }
@@ -93,21 +100,29 @@ export const AtomicFundsBalance: FC<Props> = ({ accountId }) => {
   }, [active, transfers]);
 
   useEffect(() => {
+    const currentTime = Date.now();
+
     if (
       suppressRecoveryBannerUntil === 0 ||
-      suppressRecoveryBannerUntil === Number.POSITIVE_INFINITY ||
-      suppressRecoveryBannerUntil <= now
+      suppressRecoveryBannerUntil === Number.POSITIVE_INFINITY
     ) {
       return;
     }
 
+    if (suppressRecoveryBannerUntil <= currentTime) {
+      setNow(currentTime);
+      return;
+    }
+
+    setNow(currentTime);
+
     const timeout = setTimeout(
       () => setNow(Date.now()),
-      suppressRecoveryBannerUntil - now,
+      suppressRecoveryBannerUntil - currentTime,
     );
 
     return () => clearTimeout(timeout);
-  }, [now, suppressRecoveryBannerUntil]);
+  }, [suppressRecoveryBannerUntil]);
 
   if (
     !accountId ||
