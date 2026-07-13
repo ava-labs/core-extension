@@ -1152,6 +1152,220 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         expect(service.balances[network1.chainId]).toEqual(fallbackBalances);
       });
 
+      it('back-fills custom token balances missing from the balance service response', async () => {
+        const customToken = {
+          address: '0xCustomTokenAddress',
+          name: 'Custom Token',
+          symbol: 'CUSTOM',
+          decimals: 18,
+        };
+
+        const settingsWithCustomToken = {
+          getSettings: jest.fn().mockResolvedValue({
+            currency: 'USD',
+            customTokens: {
+              [network1.chainId]: {
+                [customToken.address.toLowerCase()]: customToken,
+              },
+            },
+          }),
+        } as unknown as SettingsService;
+
+        const networkServiceWithNetwork1 = {
+          activeNetworks: {
+            promisify: jest
+              .fn()
+              .mockResolvedValue({ [network1.chainId]: network1 }),
+          },
+          getFavoriteNetworks: () => [],
+        } as any;
+
+        jest
+          .mocked(createGetBalancePayload)
+          .mockResolvedValue([{ data: [], currency: 'usd' }]);
+        // The balance service returns a native balance but no custom token.
+        jest.mocked(postV1BalanceGetBalances).mockResolvedValue({
+          stream: {
+            async next() {
+              if (this._done) {
+                return { value: undefined, done: true };
+              }
+              this._done = true;
+              return {
+                value: {
+                  caip2Id: 'eip155:1',
+                  id: account1.addressC,
+                  networkType: 'evm',
+                  balances: {
+                    nativeTokenBalance: {
+                      ...networkToken1,
+                      type: TokenType.NATIVE,
+                      balance: '100',
+                      balanceDisplayValue: '0.00001',
+                    },
+                    erc20TokenBalances: [],
+                  },
+                },
+                done: false,
+              };
+            },
+            _done: false,
+          } as any,
+        });
+
+        const customTokenBalance = {
+          ...customToken,
+          type: TokenType.ERC20,
+          balance: 500n,
+          balanceDisplayValue: '5',
+        };
+        const balancesService = {
+          getBalancesForNetwork: jest.fn().mockResolvedValue({
+            [account1.addressC]: {
+              [customToken.address.toLowerCase()]: customTokenBalance,
+            },
+          }),
+        } as any;
+
+        const service = new BalanceAggregatorService(
+          balancesService,
+          networkServiceWithNetwork1,
+          lockService,
+          storageService,
+          settingsWithCustomToken,
+          {
+            featureFlags: {
+              [FeatureGates.BALANCE_SERVICE_INTEGRATION]: true,
+            },
+          } as any,
+          mockSecretsService,
+          addressResolverMock,
+          tokenPricesServiceMock,
+        );
+
+        await service.getBalancesForNetworks({
+          chainIds: [network1.chainId],
+          accounts: [account1],
+          tokenTypes: [TokenType.ERC20],
+        });
+
+        // The custom-token back-fill queries the VM module for just the
+        // missing token, via RPC.
+        expect(balancesService.getBalancesForNetwork).toHaveBeenCalledWith(
+          network1,
+          [account1],
+          [TokenType.ERC20],
+          undefined,
+          {
+            customTokens: [customToken],
+            customTokensOnly: true,
+          },
+        );
+        expect(
+          service.balances[network1.chainId]?.[account1.addressC]?.[
+            customToken.address.toLowerCase()
+          ],
+        ).toEqual(customTokenBalance);
+      });
+
+      it('does not back-fill custom tokens already present in the balance service response', async () => {
+        const customToken = {
+          address: '0xCustomTokenAddress',
+          name: 'Custom Token',
+          symbol: 'CUSTOM',
+          decimals: 18,
+        };
+
+        const settingsWithCustomToken = {
+          getSettings: jest.fn().mockResolvedValue({
+            currency: 'USD',
+            customTokens: {
+              [network1.chainId]: {
+                [customToken.address.toLowerCase()]: customToken,
+              },
+            },
+          }),
+        } as unknown as SettingsService;
+
+        const networkServiceWithNetwork1 = {
+          activeNetworks: {
+            promisify: jest
+              .fn()
+              .mockResolvedValue({ [network1.chainId]: network1 }),
+          },
+          getFavoriteNetworks: () => [],
+        } as any;
+
+        jest
+          .mocked(createGetBalancePayload)
+          .mockResolvedValue([{ data: [], currency: 'usd' }]);
+        // The balance service already returns the custom token balance.
+        jest.mocked(postV1BalanceGetBalances).mockResolvedValue({
+          stream: {
+            async next() {
+              if (this._done) {
+                return { value: undefined, done: true };
+              }
+              this._done = true;
+              return {
+                value: {
+                  caip2Id: 'eip155:1',
+                  id: account1.addressC,
+                  networkType: 'evm',
+                  balances: {
+                    nativeTokenBalance: {
+                      ...networkToken1,
+                      type: TokenType.NATIVE,
+                      balance: '100',
+                      balanceDisplayValue: '0.00001',
+                    },
+                    erc20TokenBalances: [
+                      {
+                        address: customToken.address,
+                        name: customToken.name,
+                        symbol: customToken.symbol,
+                        decimals: customToken.decimals,
+                        balance: '500',
+                      },
+                    ],
+                  },
+                },
+                done: false,
+              };
+            },
+            _done: false,
+          } as any,
+        });
+
+        const balancesService = {
+          getBalancesForNetwork: jest.fn(),
+        } as any;
+
+        const service = new BalanceAggregatorService(
+          balancesService,
+          networkServiceWithNetwork1,
+          lockService,
+          storageService,
+          settingsWithCustomToken,
+          {
+            featureFlags: {
+              [FeatureGates.BALANCE_SERVICE_INTEGRATION]: true,
+            },
+          } as any,
+          mockSecretsService,
+          addressResolverMock,
+          tokenPricesServiceMock,
+        );
+
+        await service.getBalancesForNetworks({
+          chainIds: [network1.chainId],
+          accounts: [account1],
+          tokenTypes: [TokenType.ERC20],
+        });
+
+        expect(balancesService.getBalancesForNetwork).not.toHaveBeenCalled();
+      });
+
       it('does not invoke the VM-module fallback when the only errors are rate-limits', async () => {
         const networkServiceWithMonad = {
           activeNetworks: {
