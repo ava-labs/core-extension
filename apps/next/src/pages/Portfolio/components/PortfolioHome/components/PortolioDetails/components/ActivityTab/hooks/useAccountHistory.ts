@@ -41,7 +41,7 @@ export function useAccountHistory(
       numericNetworkId,
       isHypercore ? active?.addressC : undefined,
     ],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       if (isHypercore) {
         const address = active?.addressC;
         if (!address) {
@@ -50,7 +50,7 @@ export function useAccountHistory(
         const explorerNetwork = getNetwork(HYPERCORE_CHAIN_ID) ?? {
           explorerUrl: DEFAULT_HYPERCORE_EXPLORER,
         };
-        const items = await fetchHypercoreActivity(address);
+        const items = await fetchHypercoreActivity(address, { signal });
         return mapHypercoreActivityToTxHistoryItems(
           items,
           address,

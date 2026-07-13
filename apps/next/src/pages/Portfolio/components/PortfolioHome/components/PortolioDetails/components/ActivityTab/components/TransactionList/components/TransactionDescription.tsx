@@ -73,7 +73,7 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
 
   if (fillMeta || transaction.txType === TransactionType.FILL_ORDER) {
     const ticker = mainToken?.symbol ?? '';
-    const label = fillLabel(fillMeta?.dir ?? '');
+    const label = fillLabel(fillMeta?.dir ?? '', fillMeta?.closedPnl);
     const arrowColor =
       label.tone === 'profit'
         ? theme.palette.success.main

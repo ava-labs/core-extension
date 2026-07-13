@@ -22,14 +22,32 @@ export const tickerOfCoin = (coin: string) => {
   return i === -1 ? coin : coin.slice(i + 1);
 };
 
-/** Map a fill's `dir` string into a display label */
-export const fillLabel = (dir: string): FillLabel => {
+/** PnL tone from `closedPnl` — `dir` alone does not indicate profit vs loss. */
+export const closedPnlTone = (
+  closedPnl: string | undefined,
+): 'profit' | 'loss' | undefined => {
+  if (closedPnl === undefined) {
+    return undefined;
+  }
+  const n = Number.parseFloat(closedPnl);
+  if (!Number.isFinite(n) || n === 0) {
+    return undefined;
+  }
+  return n > 0 ? 'profit' : 'loss';
+};
+
+/**
+ * Map a fill's `dir` into a display label. Arrow direction follows side
+ * (long ▲ / short ▼); success/error tone comes from `closedPnl` when provided.
+ */
+export const fillLabel = (dir: string, closedPnl?: string): FillLabel => {
+  const tone = closedPnlTone(closedPnl);
   const d = dir.toLowerCase();
   if (d.includes('close') && d.includes('long')) {
-    return { text: 'Long closed', arrow: FILL_ARROW_UP, tone: 'profit' };
+    return { text: 'Long closed', arrow: FILL_ARROW_UP, tone };
   }
   if (d.includes('close') && d.includes('short')) {
-    return { text: 'Short closed', arrow: FILL_ARROW_DOWN, tone: 'loss' };
+    return { text: 'Short closed', arrow: FILL_ARROW_DOWN, tone };
   }
   if (d.includes('open') && (d.includes('long') || d.includes('short'))) {
     return { text: 'Order opened' };

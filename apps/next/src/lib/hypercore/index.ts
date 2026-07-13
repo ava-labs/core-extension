@@ -6,6 +6,7 @@ export {
 } from './activity/getHypercoreLedgerDisplay';
 export { mapHypercoreActivityToTxHistoryItems } from './activity/mapHypercoreActivityToTxHistoryItems';
 export {
+  closedPnlTone,
   encodeHypercoreFillMethod,
   fillLabel,
   formatHypercoreFillPx,

@@ -1,4 +1,5 @@
 import {
+  closedPnlTone,
   encodeHypercoreFillMethod,
   fillLabel,
   formatHypercoreFillPx,
@@ -13,16 +14,35 @@ describe('tickerOfCoin', () => {
   });
 });
 
+describe('closedPnlTone', () => {
+  it('maps sign to profit/loss and ignores zero/invalid', () => {
+    expect(closedPnlTone('1.5')).toBe('profit');
+    expect(closedPnlTone('-0.01')).toBe('loss');
+    expect(closedPnlTone('0')).toBeUndefined();
+    expect(closedPnlTone(undefined)).toBeUndefined();
+    expect(closedPnlTone('abc')).toBeUndefined();
+  });
+});
+
 describe('fillLabel', () => {
-  it('maps close/open dirs like web', () => {
-    expect(fillLabel('Close Long')).toMatchObject({
+  it('maps close/open dirs and derives tone from closedPnl', () => {
+    expect(fillLabel('Close Long', '12.5')).toMatchObject({
       text: 'Long closed',
       tone: 'profit',
     });
-    expect(fillLabel('Close Short')).toMatchObject({
+    expect(fillLabel('Close Long', '-3')).toMatchObject({
+      text: 'Long closed',
+      tone: 'loss',
+    });
+    expect(fillLabel('Close Short', '4')).toMatchObject({
+      text: 'Short closed',
+      tone: 'profit',
+    });
+    expect(fillLabel('Close Short', '-4')).toMatchObject({
       text: 'Short closed',
       tone: 'loss',
     });
+    expect(fillLabel('Close Short').tone).toBeUndefined();
     expect(fillLabel('Open Long').text).toBe('Order opened');
     expect(fillLabel('Open Short').text).toBe('Order opened');
     expect(fillLabel('Cancel').text).toBe('Order cancelled');
