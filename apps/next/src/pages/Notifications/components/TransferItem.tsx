@@ -1,8 +1,9 @@
 import { AnimatedSyncIcon } from '@/components/AnimatedSyncIcon';
+import { getChainFilterName } from '@/components/TokenSelect/utils';
 import { Box, useTheme } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import * as Styled from './Styled';
-import { Transfer } from '@avalabs/fusion-sdk';
+import { ServiceType, Transfer } from '@avalabs/fusion-sdk';
 import {
   isCompletedTransfer,
   isConcludedTransfer,
@@ -11,6 +12,7 @@ import {
   isTransferInProgress,
 } from '@core/types';
 import { useTransferTrackingContext } from '@core/ui';
+import { caipToChainId } from '@core/common';
 import { MdCheckCircle, MdError, MdReplay } from 'react-icons/md';
 import { TFunction, useTranslation } from 'react-i18next';
 import { getTransferTimestamp } from '../lib/getTransferTimestamp';
@@ -77,21 +79,38 @@ export const TransferItem: FC<Props> = ({ transfer, showSeparator }) => {
 };
 
 const getTransferTitle = (transfer: Transfer, t: TFunction) => {
+  const sourceToken = getTransferTokenLabel(transfer, 'source');
+  const targetToken = getTransferTokenLabel(transfer, 'target');
+
   if (isCompletedTransfer(transfer)) {
     return t('Swapped {{sourceToken}} to {{targetToken}}', {
-      sourceToken: transfer.sourceAsset.symbol,
-      targetToken: transfer.targetAsset.symbol,
+      sourceToken,
+      targetToken,
     });
   }
 
   if (isFailedTransfer(transfer)) {
     return t('Swapping {{sourceToken}} to {{targetToken}} failed', {
-      sourceToken: transfer.sourceAsset.symbol,
-      targetToken: transfer.targetAsset.symbol,
+      sourceToken,
+      targetToken,
     });
   }
   return t('Swapping {{sourceToken}} to {{targetToken}} in progress...', {
-    sourceToken: transfer.sourceAsset.symbol,
-    targetToken: transfer.targetAsset.symbol,
+    sourceToken,
+    targetToken,
   });
+};
+
+const getTransferTokenLabel = (
+  transfer: Transfer,
+  side: 'source' | 'target',
+) => {
+  const asset = side === 'source' ? transfer.sourceAsset : transfer.targetAsset;
+  const chain = side === 'source' ? transfer.sourceChain : transfer.targetChain;
+
+  if (transfer.type !== ServiceType.AVALANCHE_CCT) {
+    return asset.symbol;
+  }
+
+  return `${asset.symbol} (${getChainFilterName(caipToChainId(chain.chainId))})`;
 };

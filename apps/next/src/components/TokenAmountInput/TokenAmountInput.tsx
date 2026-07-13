@@ -1,5 +1,6 @@
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import {
+  ButtonProps,
   CircularProgress,
   Collapse,
   Grow,
@@ -54,6 +55,7 @@ type TokenAmountInputProps = {
   disabled?: boolean;
   chainFilterMode?: ChainFilterMode;
   presetButtonsStartSlot?: ReactNode;
+  presetButtonSx?: ButtonProps['sx'];
   onEndReached?: () => void;
   defaultChainId?: number | 'avalanche' | null;
   externalChainOptions?: ChainOption[];
@@ -106,6 +108,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   disabled,
   chainFilterMode,
   presetButtonsStartSlot,
+  presetButtonSx,
   onEndReached,
   defaultChainId,
   externalChainOptions,
@@ -291,12 +294,14 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
             <AmountPresetButton
               onClick={() => handlePresetClick(25)}
               disabled={arePresetButtonsDisabled}
+              sx={presetButtonSx}
             >
               {t('25%')}
             </AmountPresetButton>
             <AmountPresetButton
               onClick={() => handlePresetClick(50)}
               disabled={arePresetButtonsDisabled}
+              sx={presetButtonSx}
             >
               {t('50%')}
             </AmountPresetButton>
@@ -304,6 +309,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
               data-testid="amount-preset-max"
               onClick={() => handlePresetClick(100)}
               disabled={arePresetButtonsDisabled}
+              sx={presetButtonSx}
             >
               {t('Max')}
             </AmountPresetButton>
