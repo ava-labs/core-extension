@@ -13,7 +13,7 @@ export function getAvalancheAddressLink(hash: string, isMainnet = true) {
 }
 
 export function getExplorerAddressByNetwork(
-  network: Network,
+  network: Pick<Network, 'explorerUrl'>,
   hash: string,
   hashType: 'address' | 'tx' = 'tx',
 ) {
