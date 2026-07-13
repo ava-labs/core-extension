@@ -136,6 +136,7 @@ export const KeystoreFileUpload = ({
             type="file"
             hidden
             id="browse-files"
+            data-testid="keystore-file-input"
             onChange={handleFileUploaded}
           />
         </Stack>
@@ -149,6 +150,7 @@ export const KeystoreFileUpload = ({
         color="primary"
         fullWidth
         size="small"
+        data-testid="keystore-next-button"
       >
         {t('Next')}
       </Button>

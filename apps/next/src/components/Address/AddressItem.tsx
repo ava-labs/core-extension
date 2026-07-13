@@ -21,6 +21,7 @@ export type Props = {
   copyActionVisibility?: 'always' | 'hover';
   truncate?: boolean | number;
   AddressEnabler?: ComponentType<AddressEnablerProps>;
+  testId?: string;
 };
 
 const DEFAULT_TRUNCATE_FRONT = 7;
@@ -34,6 +35,7 @@ export const AddressItem: FC<Props> = ({
   onClick,
   address,
   AddressEnabler,
+  testId,
 }) => {
   const { t } = useTranslation();
 
@@ -64,6 +66,8 @@ export const AddressItem: FC<Props> = ({
           <Typography
             variant="mono2"
             color="text.secondary"
+            data-testid={testId}
+            data-address={strippedAddress}
             sx={truncate ? undefined : { lineBreak: 'anywhere' }}
           >
             {truncate

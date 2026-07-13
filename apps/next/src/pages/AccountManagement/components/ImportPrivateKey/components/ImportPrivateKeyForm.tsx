@@ -129,6 +129,9 @@ export const ImportPrivateKeyForm = ({
           onChange={keyInputHandler}
           error={!!error}
           helperText={error}
+          slotProps={{
+            htmlInput: { 'data-testid': 'private-key-input' },
+          }}
         />
 
         {!error && derivedAddresses && (
@@ -167,6 +170,7 @@ export const ImportPrivateKeyForm = ({
           color="primary"
           size="small"
           fullWidth
+          data-testid="import-private-key-submit"
           onClick={handleSubmit}
         >
           {t('Import')}
