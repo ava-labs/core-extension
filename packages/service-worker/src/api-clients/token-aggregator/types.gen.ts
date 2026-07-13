@@ -33,8 +33,9 @@ export type TokenListResponse = {
         name: string;
         symbol: string;
         isNative: boolean;
+        isVerified?: boolean | null;
         logoUri?: string;
-        caip2Id: string;
+        networkCaip2Id: string;
         contractType: 'ERC-20' | 'SPL';
         chainId: number;
         decimals: number;
@@ -55,8 +56,51 @@ export type TokensResponse = {
     symbol: string;
     isNative: boolean;
     logoUri: string | null;
-    decimals: number | null;
+    decimals: number;
+    isVerified?: boolean | null;
   }>;
+};
+
+/**
+ * Get the list of networks
+ */
+export type NetworkListResponse = {
+  data: {
+    [key: string]: {
+      chainId: number;
+      chainName: string;
+      caip2Id: string;
+      description?: string | null;
+      explorerUrl: string;
+      isTestnet: boolean;
+      logoUri?: string | null;
+      networkToken: {
+        name: string;
+        decimals: number;
+        symbol: string;
+        internalId: string;
+        description?: string | null;
+        logoUri?: string | null;
+      } | null;
+      pricingProviders?: {
+        coingecko: {
+          nativeTokenId?: string | null;
+          assetPlatformId: string;
+        };
+      } | null;
+      primaryColor?: string | null;
+      rpcUrl: string | null;
+      wsUrl: string | null;
+      subnetExplorerUriId: string;
+      vmName: string;
+      utilityAddresses?: {
+        [key: string]: string;
+      } | null;
+      platformChainId?: string | null;
+      subnetId?: string | null;
+      vmId?: string | null;
+    };
+  };
 };
 
 /**
@@ -276,6 +320,103 @@ export type BirdeyeTrendingResponse = Array<{
   }> | null;
 }>;
 
+/**
+ * List of networks. The `data` object is keyed by CAIP-2 chain id (e.g. `eip155:1`, `eip155:43114`). Each value still includes numeric `chainId` on the item.
+ */
+export type NetworkListV2Response = {
+  /**
+   * Networks keyed by CAIP-2 chain id (e.g. `eip155:43114`, `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp`). Not keyed by numeric `chainId`.
+   */
+  data: {
+    [key: string]: {
+      chainId: number;
+      chainName: string;
+      caip2Id: string;
+      description?: string | null;
+      explorerUrl: string;
+      isTestnet: boolean;
+      logoUri?: string | null;
+      networkToken: {
+        name: string;
+        decimals: number;
+        symbol: string;
+        internalId: string;
+        description?: string | null;
+        logoUri?: string | null;
+      } | null;
+      pricingProviders?: {
+        coingecko: {
+          nativeTokenId?: string | null;
+          assetPlatformId: string;
+        };
+      } | null;
+      primaryColor?: string | null;
+      rpcUrl: string | null;
+      wsUrl: string | null;
+      subnetExplorerUriId: string;
+      vmName: string;
+      utilityAddresses?: {
+        [key: string]: string;
+      } | null;
+      platformChainId?: string | null;
+      subnetId?: string | null;
+      vmId?: string | null;
+    };
+  };
+};
+
+export type NetworkTokensByCaip2Response = {
+  networks: {
+    [key: string]: {
+      chainId: number;
+      chainName: string;
+      caip2Id: string;
+      description?: string | null;
+      explorerUrl: string;
+      isTestnet: boolean;
+      logoUri?: string | null;
+      networkToken: {
+        name: string;
+        decimals: number;
+        symbol: string;
+        internalId: string;
+        description?: string | null;
+        logoUri?: string | null;
+      } | null;
+      pricingProviders?: {
+        coingecko: {
+          nativeTokenId?: string | null;
+          assetPlatformId: string;
+        };
+      } | null;
+      primaryColor?: string | null;
+      rpcUrl: string | null;
+      wsUrl: string | null;
+      subnetExplorerUriId: string;
+      vmName: string;
+      utilityAddresses?: {
+        [key: string]: string;
+      } | null;
+      platformChainId?: string | null;
+      subnetId?: string | null;
+      vmId?: string | null;
+    };
+  };
+  tokens: Array<{
+    internalId: string;
+    address: string;
+    name: string;
+    symbol: string;
+    isNative: boolean;
+    logoUri: string | null;
+    decimals: number;
+    isVerified?: boolean | null;
+    top250Rank: number | null;
+    networkCaip2Id: string;
+    contractType: 'ERC-20' | 'SPL' | null;
+  }>;
+};
+
 export type GetV1TokenlistData = {
   body?: never;
   path?: never;
@@ -319,6 +460,28 @@ export type GetV1TokensResponses = {
 
 export type GetV1TokensResponse =
   GetV1TokensResponses[keyof GetV1TokensResponses];
+
+export type GetV1NetworksData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * A query param to indicate whether the Solana network should be returned as well
+     */
+    includeSolana?: string | boolean;
+  };
+  url: '/v1/networks';
+};
+
+export type GetV1NetworksResponses = {
+  /**
+   * Default Response
+   */
+  200: NetworkListResponse;
+};
+
+export type GetV1NetworksResponse =
+  GetV1NetworksResponses[keyof GetV1NetworksResponses];
 
 export type GetV1TrendingListData = {
   body?: never;
@@ -489,3 +652,116 @@ export type GetV1WatchlistTrendingResponses = {
 
 export type GetV1WatchlistTrendingResponse =
   GetV1WatchlistTrendingResponses[keyof GetV1WatchlistTrendingResponses];
+
+export type PostV1ManualOversightAcknowledgeData = {
+  body:
+    | {
+        type: 'CONTENTFUL_URLS';
+        urls: Array<string>;
+      }
+    | {
+        type: 'COINGECKO_IDS';
+        ids: Array<string>;
+      };
+  path?: never;
+  query?: never;
+  url: '/v1/manual-oversight/acknowledge';
+};
+
+export type PostV1ManualOversightAcknowledgeResponses = {
+  /**
+   * Default Response
+   */
+  200: {
+    data: string;
+  };
+};
+
+export type PostV1ManualOversightAcknowledgeResponse =
+  PostV1ManualOversightAcknowledgeResponses[keyof PostV1ManualOversightAcknowledgeResponses];
+
+export type GetV2NetworksData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * A query param to indicate whether the Solana network should be returned as well
+     */
+    includeSolana?: string | boolean;
+  };
+  url: '/v2/networks';
+};
+
+export type GetV2NetworksResponses = {
+  /**
+   * Default Response
+   */
+  200: NetworkListV2Response;
+};
+
+export type GetV2NetworksResponse =
+  GetV2NetworksResponses[keyof GetV2NetworksResponses];
+
+export type GetV2TokensData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * One or more CAIP-2 chain ids (required). Repeat the param (`caip2Id=a&caip2Id=b`) or comma-separate. Same filters and pagination apply.
+     */
+    caip2Id?: string | Array<string>;
+    /**
+     * Page number (starts from 1 cannot be lower than 1)
+     */
+    page?: number;
+    /**
+     * Number of tokens per page (max 1000 cannot be lower than 1)
+     */
+    limit?: number;
+    /**
+     * Filter by token contract address (case-insensitive but exact match)
+     */
+    address?: string;
+    /**
+     * Filter by token symbol (case-insensitive). Minimum 2 characters when provided.
+     */
+    symbol?: string;
+    /**
+     * Filter by token name (case-insensitive). Minimum 2 characters when provided.
+     */
+    name?: string;
+    /**
+     * Filter by name or symbol containing this keyword. Minimum 2 characters when provided.
+     */
+    keyword?: string;
+    /**
+     * If true, include tokens marked as Spam/Malicious
+     */
+    returnMalicious?: boolean | 'true' | 'false';
+  };
+  url: '/v2/tokens';
+};
+
+export type GetV2TokensErrors = {
+  /**
+   * Default Response
+   */
+  404: {
+    message: string;
+  };
+};
+
+export type GetV2TokensError = GetV2TokensErrors[keyof GetV2TokensErrors];
+
+export type GetV2TokensResponses = {
+  /**
+   * Default Response
+   */
+  200: {
+    data: NetworkTokensByCaip2Response;
+    metadata: MetaData;
+  };
+};
+
+export type GetV2TokensResponse =
+  GetV2TokensResponses[keyof GetV2TokensResponses];
