@@ -18,6 +18,7 @@ export const ActionDetails = ({
   action,
   updateAction,
   error,
+  disableGasless,
 }: ActionDetailsProps) => {
   if (isEvmNetwork(network)) {
     return (
@@ -26,6 +27,7 @@ export const ActionDetails = ({
         action={action}
         updateAction={updateAction}
         error={error}
+        disableGasless={disableGasless}
       />
     );
   }

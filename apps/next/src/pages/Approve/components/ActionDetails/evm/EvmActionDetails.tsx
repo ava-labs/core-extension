@@ -21,6 +21,7 @@ type EvmActionDetailsProps = Omit<ActionDetailsProps, 'network'> & {
 export const EvmActionDetails = ({
   action,
   network,
+  disableGasless,
 }: EvmActionDetailsProps) => {
   // Extract NFTs from balanceChange outs (NFTs being sent/received)
   const nftDiffs =
@@ -63,7 +64,11 @@ export const EvmActionDetails = ({
         </DetailsSection>
       ))}
       {action.displayData.networkFeeSelector && (
-        <EvmNetworkFeeWidget action={action} network={network} />
+        <EvmNetworkFeeWidget
+          action={action}
+          network={network}
+          disableGasless={disableGasless}
+        />
       )}
     </Stack>
   );
