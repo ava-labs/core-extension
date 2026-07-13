@@ -25,7 +25,7 @@
     "@avalabs/fusion-sdk": "0.26.0",
     "@avalabs/k2-alpine": "1.266.0",
     "@avalabs/types": "3.1.0-alpha.87",
-    "@avalabs/vm-module-types": "0.0.0-fix-custom-tokens-balances-for-20260709075511",
+    "@avalabs/vm-module-types": "3.10.0",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/service-worker": "workspace:*",

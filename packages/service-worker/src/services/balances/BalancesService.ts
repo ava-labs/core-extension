@@ -4,7 +4,7 @@ import {
   TokenType,
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
-import { NetworkContractToken } from '@avalabs/core-chains-sdk';
+import type { NetworkContractToken } from '@avalabs/core-chains-sdk';
 import {
   getPriceChangeValues,
   isNotNullish,
