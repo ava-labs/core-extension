@@ -18,7 +18,7 @@ import { TokenAvatar } from '@/components/TokenAvatar';
 import { FungibleTokenBalance } from '@core/types';
 import { useSettingsContext } from '@core/ui';
 import { ProfitAndLoss } from '../../ProfitAndLoss';
-import { isAvaxToken } from '@/hooks/useTokensForAccount';
+import { isAvaxToken } from '@/lib/tokens';
 
 interface AssetCardProps {
   asset: FungibleTokenBalance;

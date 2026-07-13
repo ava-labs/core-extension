@@ -1,5 +1,10 @@
-import { styled, Typography } from '@avalabs/k2-alpine';
+import { styled, Typography, useTheme } from '@avalabs/k2-alpine';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
+import {
+  fillLabel,
+  formatHypercoreFillPx,
+  parseHypercoreFillMethod,
+} from '@/lib/hypercore/activity/hypercoreFillMeta';
 import { TxHistoryItem } from '@core/types';
 import { Trans, useTranslation } from 'react-i18next';
 import { TransactionType } from '@avalabs/vm-module-types';
@@ -10,6 +15,8 @@ import {
   isCctImportTransaction,
   isCctTransaction,
 } from '../../../utils/cctTransaction';
+
+const QUOTE_ASSET = 'USDC';
 
 const EVM_ADDRESS_HEX = /^0x[a-fA-F0-9]{40}$/;
 
@@ -35,6 +42,7 @@ export interface Props {
 
 export const TransactionDescription: FC<Props> = ({ transaction }) => {
   const { t } = useTranslation();
+  const theme = useTheme();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -44,6 +52,7 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
     [activeAccount],
   );
   const [mainToken] = transaction.tokens;
+  const fillMeta = parseHypercoreFillMethod(transaction.method);
 
   const amount = useMemo(
     () => (
@@ -61,6 +70,39 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
     ),
     [mainToken],
   );
+
+  if (fillMeta || transaction.txType === TransactionType.FILL_ORDER) {
+    const ticker = mainToken?.symbol ?? '';
+    const label = fillLabel(fillMeta?.dir ?? '');
+    const arrowColor =
+      label.tone === 'profit'
+        ? theme.palette.success.main
+        : label.tone === 'loss'
+          ? theme.palette.error.main
+          : undefined;
+
+    return (
+      <TransactionDescriptionContainer>
+        <div>
+          {ticker}-{QUOTE_ASSET} · {amount} {ticker} @{' '}
+          {formatHypercoreFillPx(fillMeta?.px ?? '')}
+        </div>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          component="div"
+          sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+        >
+          {label.arrow && (
+            <Typography component="span" sx={{ color: arrowColor }}>
+              {label.arrow}
+            </Typography>
+          )}
+          {label.text}
+        </Typography>
+      </TransactionDescriptionContainer>
+    );
+  }
 
   if (transaction.bridgeAnalysis.isBridgeTx) {
     return (

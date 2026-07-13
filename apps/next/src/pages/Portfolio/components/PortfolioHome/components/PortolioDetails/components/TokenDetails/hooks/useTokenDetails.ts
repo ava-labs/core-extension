@@ -1,5 +1,5 @@
 import { TokenType } from '@avalabs/vm-module-types';
-import { getAddressForChain } from '@core/common';
+import { getAddressForChain, HYPERCORE_CHAIN_ID } from '@core/common';
 import {
   useAccountsContext,
   useBalancesContext,
@@ -33,7 +33,14 @@ export function useTokenDetails({
       ? tokenAddress
       : tokenAddress.toLowerCase();
 
-  const tokenBalance = balances.tokens?.[networkId]?.[address]?.[addressKey];
+  const tokenBalanceFromProvider =
+    balances.tokens?.[networkId]?.[address ?? '']?.[addressKey];
+
+  // HyperCore balances are frontend-only (not in BalancesProvider). Use the
+  // merged token itself as the balance source for display.
+  const tokenBalance =
+    tokenBalanceFromProvider ??
+    (networkId === HYPERCORE_CHAIN_ID ? token : undefined);
 
   const placeholderTotalBalance = useMemo(
     () => currencyFormatter(0).replace('0.00', ' -'),

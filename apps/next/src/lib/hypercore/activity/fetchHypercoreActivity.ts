@@ -7,7 +7,7 @@ const fetchLedgerUpdates = async (evmAddress: string) => {
   const all: HypercoreLedgerUpdate[] = [];
   let startTime = 0;
 
-  for (;;) {
+  while (true) {
     const page = await getUserNonFundingLedgerUpdates(evmAddress, startTime);
     if (page.length === 0) {
       break;

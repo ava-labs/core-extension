@@ -52,6 +52,9 @@ export const TransactionTypeIcon: FC<Props> = ({ transaction }) => {
     case TransactionType.SWAP: {
       return <SwapIcon size={iconSize} viewBox={k2IconViewBoxFix} />;
     }
+    case TransactionType.FILL_ORDER: {
+      return <SwapIcon size={iconSize} viewBox={k2IconViewBoxFix} />;
+    }
     case TransactionType.APPROVE: {
       return <ContractCallIcon size={iconSize} viewBox={k2IconViewBoxFix} />;
     }
