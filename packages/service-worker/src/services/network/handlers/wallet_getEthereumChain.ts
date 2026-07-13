@@ -4,6 +4,7 @@ import {
   DAppProviderRequest,
   DAppRequestHandler,
 } from '@core/types';
+import { isHypercoreNetwork } from '@core/common';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
@@ -33,7 +34,9 @@ export class WalletGetEthereumChainHandler extends DAppRequestHandler {
 
   handleAuthenticated = async ({ request, scope }) => {
     const activeNetwork = await this.networkService.getNetwork(scope);
-    if (!activeNetwork) {
+    // HyperCore is display-only and has no valid EVM chain descriptor (no RPC),
+    // so it must never be surfaced to dApps as a usable chain.
+    if (!activeNetwork || isHypercoreNetwork(activeNetwork)) {
       return {
         ...request,
         error: ethErrors.rpc.resourceUnavailable({
