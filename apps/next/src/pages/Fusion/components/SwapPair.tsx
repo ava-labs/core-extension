@@ -1,17 +1,43 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Divider, Stack } from '@avalabs/k2-alpine';
+import { Button, Divider, Stack } from '@avalabs/k2-alpine';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 
-import { FeatureGates, getUniqueTokenId } from '@core/types';
+import {
+  FeatureGates,
+  getUniqueTokenId,
+  isPChainToken,
+  isXChainToken,
+} from '@core/types';
 import { useFeatureFlagContext } from '@core/ui';
 
 import { Card } from '@/components/Card';
 import { TokenAmountInput } from '@/components/TokenAmountInput';
+import { CORE_WEB_BASE_URL } from '@/config';
 
 import { useFusionState } from '../contexts';
 import { calculateNativeFee } from '../lib/calculateNativeFee';
 import { usePinnedMaxAmount } from '../hooks/usePinnedMaxAmount';
+
+const NATIVE_AVAX_ASSET_ID = 'NATIVE-avax';
+const DEFAULT_CORE_WEB_BASE_URL = 'https://core.app';
+
+const getCoreWebSwapUrl = (fromChain: string, toChain?: string) => {
+  const url = new URL('/swap', CORE_WEB_BASE_URL || DEFAULT_CORE_WEB_BASE_URL);
+  const params = new URLSearchParams({
+    from: NATIVE_AVAX_ASSET_ID,
+    fromChain,
+  });
+
+  if (toChain) {
+    params.set('to', NATIVE_AVAX_ASSET_ID);
+    params.set('toChain', toChain);
+  }
+
+  url.search = params.toString();
+
+  return url.toString();
+};
 
 export const SwapPair = () => {
   const { t } = useTranslation();
@@ -24,6 +50,14 @@ export const SwapPair = () => {
     updateQuery,
     sourceTokenList,
     targetTokenList,
+    fetchNextTargetTokenPage,
+    isTargetTokenListLoading,
+    isTargetTokenListFetching,
+    targetChainOptions,
+    selectedTargetChainId,
+    setSelectedTargetChainId,
+    setIsTargetSelectOpen,
+    onTargetTokenChange,
     sourceToken,
     targetToken,
     userAmount,
@@ -35,13 +69,23 @@ export const SwapPair = () => {
   } = useFusionState();
 
   const fromTokenId = sourceToken ? getUniqueTokenId(sourceToken) : queryFromId;
-  const toTokenId = targetToken ? getUniqueTokenId(targetToken) : queryToId;
+  const targetTokenId = targetToken ? getUniqueTokenId(targetToken) : queryToId;
+  const isTargetSameAsSource = targetTokenId === fromTokenId;
+  const toTokenId = isTargetSameAsSource ? '' : targetTokenId;
   const isAvalancheCctEnabled = isFlagEnabled(
     FeatureGates.FUSION_AVALANCHE_CCT,
   );
   const chainFilterMode = isAvalancheCctEnabled
     ? 'avalanche-cct'
     : 'group-avalanche';
+  const showSelectUtxosButton =
+    isAvalancheCctEnabled &&
+    sourceToken !== undefined &&
+    (isPChainToken(sourceToken) || isXChainToken(sourceToken));
+  const selectUtxosUrl =
+    showSelectUtxosButton && sourceToken
+      ? getCoreWebSwapUrl(sourceToken.chainCaipId, targetToken?.chainCaipId)
+      : undefined;
 
   const { maxAmount, pin, unpin } = usePinnedMaxAmount(
     sourceToken,
@@ -101,6 +145,21 @@ export const SwapPair = () => {
           tokenHint={sourceToken ? t('You pay') : undefined}
           withPresetButtons={minimumRequiredTokens.state === 'complete'}
           chainFilterMode={chainFilterMode}
+          presetButtonsStartSlot={
+            selectUtxosUrl ? (
+              <Button
+                color="secondary"
+                data-testid="fusion-select-utxos"
+                onClick={() => {
+                  window.open(selectUtxosUrl, '_blank', 'noopener,noreferrer');
+                }}
+                size="xsmall"
+                variant="contained"
+              >
+                {t('Select UTXOs')}
+              </Button>
+            ) : undefined
+          }
         />
         <Divider sx={{ mx: 2 }} />
         <TokenAmountInput
@@ -110,7 +169,7 @@ export const SwapPair = () => {
           tokensForAccount={targetTokenList}
           onTokenChange={(value) => {
             unpin();
-            updateQuery({ to: value, toQuery: '' });
+            onTargetTokenChange(value);
           }}
           tokenQuery={toQuery}
           onQueryChange={(q) => updateQuery({ toQuery: q })}
@@ -123,6 +182,18 @@ export const SwapPair = () => {
             (quotesStatus === 'loading' && !selectedQuote)
           }
           chainFilterMode={chainFilterMode}
+          onEndReached={fetchNextTargetTokenPage}
+          defaultChainId="avalanche"
+          externalChainOptions={
+            targetChainOptions.length > 0 ? targetChainOptions : undefined
+          }
+          onChainChange={setSelectedTargetChainId}
+          selectedChainId={selectedTargetChainId}
+          onOpenChange={setIsTargetSelectOpen}
+          isLoadingTokens={
+            isTargetTokenListLoading || isTargetTokenListFetching
+          }
+          selectedTokenFallback={isTargetSameAsSource ? undefined : targetToken}
         />
       </Stack>
     </Card>

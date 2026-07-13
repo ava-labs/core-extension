@@ -387,6 +387,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     this._customNetworks = storedState?.customNetworks || {};
     const fullChainlist = {
       ...chainlist,
+      ...this.#buildDevnetEntries(),
       ...this._customNetworks,
     };
 
@@ -414,6 +415,13 @@ export class NetworkService implements OnLock, OnStorageReady {
     }
 
     return networkList;
+  }
+
+  #buildDevnetEntries(): ChainList {
+    return {
+      [ChainId.AVALANCHE_DEVNET_P]: this._getPchainNetwork('devnet'),
+      [ChainId.AVALANCHE_DEVNET_X]: this._getXchainNetwork('devnet'),
+    };
   }
 
   private _getPchainNetwork(type: AvalancheNetworkType): NetworkWithCaipId {
@@ -682,9 +690,14 @@ export class NetworkService implements OnLock, OnStorageReady {
 
     await this.updateNetworkState();
 
-    // Dispatch _allNetworks signal so the changes are reflected in the UI
+    // Dispatch _allNetworks signal so the changes are reflected in the UI.
+    // The devnet entries embed the devnet RPC/explorer URLs at build time,
+    // so they must be rebuilt from the updated mode.
     const chainlist = await this._rawNetworks.promisify();
-    this._allNetworks.dispatch({ ...chainlist });
+    this._allNetworks.dispatch({
+      ...chainlist,
+      ...this.#buildDevnetEntries(),
+    });
 
     // Only dispatch the developer mode changed signal after chainlist has been rebuilt,
     // so the services depending on it can react to the updated configs.
