@@ -8,6 +8,31 @@ const {
 const lockdownSource = readFileSync(require.resolve('ses'), 'utf-8');
 const lockdownSourcePrefix = `/*! SES sources included by LavaMoat. Do not optimize or minify. */\n;\n${lockdownSource}\n;/*! end SES */\n`;
 
+// ConcatSource places the original asset right after the prefix's final
+// newline, so the asset's first line moves down by exactly this many lines.
+const PREFIX_LINE_COUNT = (lockdownSourcePrefix.match(/\n/g) || []).length;
+
+const INLINE_MAP_MARKER = '//# sourceMappingURL=data:application/json';
+const BASE64_MARKER = 'base64,';
+
+/**
+ * Prepends empty lines to a source map's `mappings` so every mapping shifts
+ * down by `lineCount`. Mappings are line-delimited by `;`, so prepending
+ * `lineCount` semicolons inserts that many unmapped lines at the top without
+ * touching any VLQ segments.
+ *
+ * @param {string} mapJson
+ * @param {number} lineCount
+ * @returns {string}
+ */
+function shiftSourceMapDown(mapJson, lineCount) {
+  const map = JSON.parse(mapJson);
+  if (typeof map.mappings === 'string') {
+    map.mappings = ';'.repeat(lineCount) + map.mappings;
+  }
+  return JSON.stringify(map);
+}
+
 module.exports = {
   /**
    * @param {object} options
@@ -23,10 +48,51 @@ module.exports = {
           continue;
         }
         const asset = compilation.assets[file];
-        compilation.assets[file] = new ConcatSource(
-          lockdownSourcePrefix,
-          asset,
+        const content = asset.source().toString();
+
+        // Inline source map (dev): the map is baked into the asset content as
+        // a trailing data URI. The devtool stage runs before this one, so the
+        // embedded mappings have no idea the lockdown prefix is coming.
+        const markerIdx = content.lastIndexOf(INLINE_MAP_MARKER);
+        if (markerIdx !== -1) {
+          const b64Idx = content.indexOf(BASE64_MARKER, markerIdx);
+          if (b64Idx !== -1) {
+            const body = content.slice(0, markerIdx);
+            const b64 = content.slice(b64Idx + BASE64_MARKER.length).trim();
+            const shifted = shiftSourceMapDown(
+              Buffer.from(b64, 'base64').toString('utf-8'),
+              PREFIX_LINE_COUNT,
+            );
+            const rebuilt =
+              lockdownSourcePrefix +
+              body +
+              INLINE_MAP_MARKER +
+              ';charset=utf-8;' +
+              BASE64_MARKER +
+              Buffer.from(shifted, 'utf-8').toString('base64');
+            compilation.updateAsset(file, new RawSource(rebuilt));
+            continue;
+          }
+        }
+
+        // External source map (prod hidden-source-map): the JS asset has a
+        // sibling `.map` asset whose mappings must shift by the same amount.
+        const related = asset.info && asset.info.related;
+        const mapFile =
+          related && typeof related.sourceMap === 'string'
+            ? related.sourceMap
+            : undefined;
+        compilation.updateAsset(
+          file,
+          new ConcatSource(lockdownSourcePrefix, asset),
         );
+        if (mapFile && compilation.assets[mapFile]) {
+          const shifted = shiftSourceMapDown(
+            compilation.assets[mapFile].source().toString(),
+            PREFIX_LINE_COUNT,
+          );
+          compilation.updateAsset(mapFile, new RawSource(shifted));
+        }
       }
     },
   /**
