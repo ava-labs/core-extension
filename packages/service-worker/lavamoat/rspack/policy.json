@@ -4808,6 +4808,12 @@
         "webextension-polyfill": true
       }
     },
+    "external:../common/src/unifiedTransfer/assetMapping.ts": {
+      "packages": {
+        "external:../common/node_modules/@avalabs/fusion-sdk/dist/constants.js": true,
+        "external:../common/node_modules/@avalabs/fusion-sdk/dist/mod.js": true
+      }
+    },
     "external:../common/src/unifiedTransfer/getEnabledTransferServices.ts": {
       "packages": {
         "external:../common/node_modules/@avalabs/fusion-sdk/dist/constants.js": true,

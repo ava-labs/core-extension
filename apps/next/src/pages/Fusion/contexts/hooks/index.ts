@@ -7,6 +7,7 @@ export * from './useSupportedChainIds';
 export * from './useSwapSourceTokenList';
 export * from './useSwapSourceToken';
 export * from './useSwapTargetTokenList';
+export * from './useBridgeableTargetTokenList';
 export * from './useSwapTargetToken';
 export * from './useSlippageTolerance';
 export * from './useCreateRecurringSwap';

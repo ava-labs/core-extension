@@ -13,6 +13,7 @@ export const useSwapTargetToken = (
   targetTokens: FungibleTokenBalance[],
   sourceToken?: FungibleTokenBalance,
   targetTokenId?: string,
+  skipDefaultSelection = false,
 ): FungibleTokenBalance | undefined => {
   const defaultTargetTokenIdentifier = sourceToken
     ? DEFAULT_TARGET_TOKENS[sourceToken.symbol]
@@ -23,27 +24,47 @@ export const useSwapTargetToken = (
       ? getUniqueTokenId(sourceToken)
       : undefined;
 
-    // If there is only one target token, select it automatically.
-    if (targetTokens.length === 1) {
-      return targetTokens[0];
+    // A non-empty targetTokenId means the user explicitly picked a target.
+    // Honor it while it's still a valid target, otherwise deselect — do NOT
+    // fall back to a default, so changing the source token to one that
+    // invalidates the selection clears it.
+    if (targetTokenId) {
+      return targetTokens.find((lookupToken) => {
+        const lookupTokenId = getUniqueTokenId(lookupToken);
+        return (
+          lookupTokenId === targetTokenId && lookupTokenId !== sourceTokenId
+        );
+      });
     }
 
-    const foundById = targetTokens.find((lookupToken) => {
-      const lookupTokenId = getUniqueTokenId(lookupToken);
-      return lookupTokenId === targetTokenId && lookupTokenId !== sourceTokenId;
-    });
+    // No explicit selection yet. If there is only one target token, select it
+    // automatically — unless it's the source token itself (you can't swap a
+    // token to itself), in which case there is nothing valid to select.
+    const [onlyToken] = targetTokens;
+    if (targetTokens.length === 1 && onlyToken) {
+      return getUniqueTokenId(onlyToken) === sourceTokenId
+        ? undefined
+        : onlyToken;
+    }
 
-    return (
-      foundById ??
-      targetTokens.find(
-        defaultTokenFinder(
-          sourceToken ? !isNativeToken(sourceToken) : false,
-          sourceToken?.chainCaipId,
-          defaultTargetTokenIdentifier,
-        ),
-      )
-    );
-  }, [sourceToken, targetTokens, targetTokenId, defaultTargetTokenIdentifier]);
+    // No explicit selection — auto-pick a sensible default, unless the user is
+    // browsing chains in the open dropdown.
+    return skipDefaultSelection
+      ? undefined
+      : targetTokens.find(
+          defaultTokenFinder(
+            sourceToken ? !isNativeToken(sourceToken) : false,
+            sourceToken?.chainCaipId,
+            defaultTargetTokenIdentifier,
+          ),
+        );
+  }, [
+    sourceToken,
+    targetTokens,
+    targetTokenId,
+    defaultTargetTokenIdentifier,
+    skipDefaultSelection,
+  ]);
 };
 
 const defaultTokenFinder =

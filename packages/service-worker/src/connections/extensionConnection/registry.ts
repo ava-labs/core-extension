@@ -118,6 +118,7 @@ import { UpdateShowNoBalanceHandler } from '../../services/settings/handlers/upd
 import { UpdateThemeHandler } from '../../services/settings/handlers/updateTheme';
 import { UpdateTokensVisiblityHandler } from '../../services/settings/handlers/updateTokensVisibility';
 import { ResetExtensionStateHandler } from '../../services/storage/handlers/resetExtensionState';
+import { GetMarkrTargetChainAssetsHandler } from '../../services/tokens/handlers/getMarkrTargetChainAssets';
 import { GetTokensListHandler } from '../../services/tokens/handlers/getTokenList';
 import { CheckIfWalletExists } from '~/services/wallet/handlers/checkIfWalletExists';
 import { GetBtcWalletPolicyDetails } from '../../services/wallet/handlers/getBtcWalletPolicyDetails';
@@ -319,6 +320,10 @@ import { SetBridgeDevEnvHandler } from '~/services/settings/handlers/setBridgeDe
   {
     token: 'ExtensionRequestHandler',
     useToken: GetTokensListHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetMarkrTargetChainAssetsHandler,
   },
   {
     token: 'ExtensionRequestHandler',

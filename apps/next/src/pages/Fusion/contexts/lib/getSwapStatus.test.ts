@@ -99,6 +99,93 @@ describe('getSwapStatus', () => {
     });
   });
 
+  describe('target list gating', () => {
+    it('returns loading when target list is loading and selector is closed', () => {
+      const result = getSwapStatus(
+        mockAccount,
+        false,
+        mockManager,
+        false,
+        mockSourceTokenList,
+        mockTargetTokenList,
+        null,
+        true,
+      );
+
+      expect(result).toBe('loading');
+    });
+
+    it('does not return loading when target list is loading and selector is open', () => {
+      const result = getSwapStatus(
+        mockAccount,
+        false,
+        mockManager,
+        false,
+        mockSourceTokenList,
+        [],
+        null,
+        true,
+        false,
+        true,
+      );
+
+      expect(result).toBe('initialized');
+    });
+
+    it('does not return no-routes-found when target search is active', () => {
+      const result = getSwapStatus(
+        mockAccount,
+        false,
+        mockManager,
+        false,
+        mockSourceTokenList,
+        [],
+        null,
+        false,
+        true,
+      );
+
+      expect(result).toBe('initialized');
+    });
+
+    it('does not return no-routes-found when target list is fetching', () => {
+      const result = getSwapStatus(
+        mockAccount,
+        false,
+        mockManager,
+        false,
+        mockSourceTokenList,
+        [],
+        null,
+        false,
+        false,
+        false,
+        true,
+      );
+
+      expect(result).toBe('initialized');
+    });
+
+    it('does not return no-routes-found when there is a selected target', () => {
+      const result = getSwapStatus(
+        mockAccount,
+        false,
+        mockManager,
+        false,
+        mockSourceTokenList,
+        [],
+        null,
+        false,
+        false,
+        false,
+        false,
+        true,
+      );
+
+      expect(result).toBe('initialized');
+    });
+  });
+
   describe('ready states', () => {
     it('returns ready-to-transfer when a quote is selected', () => {
       const result = getSwapStatus(

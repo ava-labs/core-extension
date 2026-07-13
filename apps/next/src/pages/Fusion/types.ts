@@ -14,6 +14,7 @@ import {
   SolanaNativeTokenBalance,
   SolanaSplTokenBalance,
 } from '@core/types';
+import { type ChainOption } from '@/components/TokenSelect/components/ChainFilterChips';
 import { useSwapQuery } from './hooks';
 import {
   PriceImpactAvailability,
@@ -81,6 +82,15 @@ export type FusionState = QueryState & {
   manager: TransferManager | undefined;
   sourceTokenList: FungibleTokenBalance[];
   targetTokenList: FungibleTokenBalance[];
+  fetchNextTargetTokenPage: () => void;
+  isTargetTokenListLoading: boolean;
+  isTargetTokenListFetching: boolean;
+  targetChainOptions: ChainOption[];
+  selectedTargetChainId: number | 'avalanche' | null;
+  /** Updates the browse chain while the dropdown is open. Only call from chip interactions inside the open dropdown. */
+  setSelectedTargetChainId: (id: number | 'avalanche' | null) => void;
+  setIsTargetSelectOpen: (isOpen: boolean) => void;
+  onTargetTokenChange: (tokenId: string) => void;
   sourceToken: FungibleTokenBalance | undefined;
   targetToken: FungibleTokenBalance | undefined;
   account?: Account;

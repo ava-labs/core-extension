@@ -143,3 +143,4 @@ export type { TransferTrackingGetState } from './services/transferTracking/handl
 export type { TrackUnifiedTransfer } from './services/transferTracking/handlers/trackUnifiedTransfer';
 export type { MarkTransferAsRead } from './services/transferTracking/handlers/markTransferAsRead';
 export type { ClearHistoricalTransfers } from './services/transferTracking/handlers/clearHistoricalTransfers';
+export type { GetMarkrTargetChainAssetsHandler } from './services/tokens/handlers/getMarkrTargetChainAssets';

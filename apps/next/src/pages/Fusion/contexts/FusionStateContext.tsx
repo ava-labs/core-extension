@@ -4,6 +4,8 @@ import {
   useCallback,
   useContext,
   useMemo,
+  useEffect,
+  useLayoutEffect,
   useState,
   type ReactNode,
 } from 'react';
@@ -18,7 +20,12 @@ import { ERC_ZERO_ADDRESS, Quote, ServiceType } from '@avalabs/fusion-sdk';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { useDebouncedValue } from '@tanstack/react-pacer';
 
-import { FeatureVars, isCrossChainTransfer } from '@core/types';
+import {
+  type FungibleTokenBalance,
+  FeatureVars,
+  getUniqueTokenId,
+  isCrossChainTransfer,
+} from '@core/types';
 import {
   isUserRejectionError,
   Monitoring,
@@ -50,7 +57,7 @@ import {
   useSupportedChainsMap,
   useSwapSourceTokenList,
   useSwapSourceToken,
-  useSwapTargetTokenList,
+  useBridgeableTargetTokenList,
   useSwapTargetToken,
   useSlippageTolerance,
   useCreateRecurringSwap,
@@ -86,6 +93,33 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
 
   const [isConfirming, setIsConfirming] = useState(false);
 
+  // Chip the user is browsing while the target dropdown is open.
+  const [browseTargetChainId, setBrowseTargetChainId] = useState<
+    number | 'avalanche' | null
+  >('avalanche');
+  // Chain of the committed target token.
+  const [committedTargetChainId, setCommittedTargetChainId] = useState<
+    number | 'avalanche' | null
+  >('avalanche');
+  const [isTargetSelectOpen, _setIsTargetSelectOpen] = useState(false);
+
+  // While open the user browses freely; while closed we always reflect the
+  // committed chain, so a "browse then dismiss" leaves the selection untouched.
+  const selectedTargetChainId = isTargetSelectOpen
+    ? browseTargetChainId
+    : committedTargetChainId;
+
+  const setIsTargetSelectOpen = useCallback(
+    (open: boolean) => {
+      // Start each browse session from the committed chain.
+      if (open) {
+        setBrowseTargetChainId(committedTargetChainId);
+      }
+      _setIsTargetSelectOpen(open);
+    },
+    [committedTargetChainId],
+  );
+
   const {
     update: updateQuery,
     userAmount,
@@ -103,11 +137,172 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const supportedChainsMap = useSupportedChainsMap(manager);
   const sourceTokenList = useSwapSourceTokenList(supportedChainsMap);
   const sourceToken = useSwapSourceToken(sourceTokenList, fromId);
-  const targetTokenList = useSwapTargetTokenList(
+  const sourceTokenId = sourceToken ? getUniqueTokenId(sourceToken) : undefined;
+  const {
+    tokens: targetTokenList,
+    fetchNextPage: fetchNextTargetTokenPage,
+    hasNextPage: hasNextTargetTokenPage,
+    isLoading: isTargetTokenListLoading,
+    isFetching: isTargetTokenListFetching,
+    targetChainOptions,
+  } = useBridgeableTargetTokenList(
+    manager,
     supportedChainsMap,
     sourceToken,
+    toQuery,
+    selectedTargetChainId,
   );
-  const targetToken = useSwapTargetToken(targetTokenList, sourceToken, toId);
+  // Skip default selection while browsing so opening another chain never
+  // auto-picks a token there.
+  const candidateTargetToken = useSwapTargetToken(
+    targetTokenList,
+    sourceToken,
+    toId,
+    isTargetSelectOpen,
+  );
+  const isTargetSearchActive = !!(toQuery && toQuery.length >= 2);
+
+  // Committed target token used by quotes and the trigger. Frozen while the
+  // dropdown is open so browsing other chains never changes the selection.
+  const [targetToken, setTargetToken] = useState<
+    FungibleTokenBalance | undefined
+  >(undefined);
+  // Source token id at the moment the target id was committed.
+  const [targetTokenSourceTokenId, setTargetTokenSourceTokenId] = useState<
+    string | undefined
+  >(undefined);
+  const shouldKeepExplicitTarget =
+    !!toId &&
+    !!targetToken &&
+    sourceTokenId !== undefined &&
+    targetTokenSourceTokenId === sourceTokenId &&
+    getUniqueTokenId(targetToken) === toId;
+
+  useEffect(() => {
+    if (isTargetSelectOpen) {
+      return;
+    }
+    // Adopt a resolved candidate right away.
+    if (candidateTargetToken) {
+      setTargetToken(candidateTargetToken);
+      return;
+    }
+    // Candidate is undefined: only clear the committed token once the list has
+    // settled. While it's still fetching (e.g. right after a source change) keep
+    // showing the previous token to avoid a deselect/reselect flicker when the
+    // token is actually still a valid target on the incoming list.
+    if (!isTargetTokenListFetching) {
+      if (shouldKeepExplicitTarget) {
+        return;
+      }
+      if (hasNextTargetTokenPage) {
+        return;
+      }
+      const [onlyTargetToken] = targetTokenList;
+      if (
+        toId &&
+        targetTokenList.length === 1 &&
+        onlyTargetToken &&
+        getUniqueTokenId(onlyTargetToken) !== sourceTokenId
+      ) {
+        setTargetToken(onlyTargetToken);
+        setTargetTokenSourceTokenId(sourceTokenId);
+        updateQuery({ to: getUniqueTokenId(onlyTargetToken) });
+        return;
+      }
+      setTargetToken(undefined);
+    }
+  }, [
+    candidateTargetToken,
+    isTargetSelectOpen,
+    isTargetTokenListFetching,
+    hasNextTargetTokenPage,
+    toId,
+    targetToken,
+    sourceTokenId,
+    targetTokenSourceTokenId,
+    shouldKeepExplicitTarget,
+    targetTokenList,
+    updateQuery,
+  ]);
+
+  // Persist an auto-selected target (default / single option) into the query id
+  // so later source changes validate it — keep it while it's still a supported
+  // route, deselect it otherwise — instead of re-running the default finder.
+  useEffect(() => {
+    if (!isTargetSelectOpen && targetToken && !toId) {
+      setTargetTokenSourceTokenId(sourceTokenId);
+      updateQuery({ to: getUniqueTokenId(targetToken) });
+    }
+  }, [isTargetSelectOpen, targetToken, toId, updateQuery, sourceTokenId]);
+
+  // Keep the committed target chain usable for the current source. Reroute to
+  // Avalanche (or the first available chain) when the committed chain either
+  // isn't a valid target chain anymore, or has settled with no bridgeable
+  // tokens for this source (e.g. switching to another same-chain source that
+  // can't reach it). This avoids the "no routes" screen while other chains
+  // still have targets, and lets the now-invalid target deselect. Runs before
+  // paint so the corrected chain is applied in the same frame without a flash.
+  useLayoutEffect(() => {
+    if (targetChainOptions.length === 0) {
+      return;
+    }
+    const isCommittedChainReachable = targetChainOptions.some(
+      (option) => option.chainId === committedTargetChainId,
+    );
+    const isCommittedChainEmpty =
+      !isTargetSelectOpen &&
+      !isTargetSearchActive &&
+      !isTargetTokenListFetching &&
+      !shouldKeepExplicitTarget &&
+      targetTokenList.length === 0;
+
+    if (isCommittedChainReachable && !isCommittedChainEmpty) {
+      return;
+    }
+    const fallbackChainId =
+      targetChainOptions.find((option) => option.chainId === 'avalanche')
+        ?.chainId ?? targetChainOptions[0]?.chainId;
+    if (
+      fallbackChainId !== undefined &&
+      fallbackChainId !== committedTargetChainId
+    ) {
+      setCommittedTargetChainId(fallbackChainId);
+    }
+  }, [
+    targetChainOptions,
+    committedTargetChainId,
+    isTargetSelectOpen,
+    isTargetSearchActive,
+    isTargetTokenListFetching,
+    shouldKeepExplicitTarget,
+    targetTokenList,
+  ]);
+
+  // Called only when the user explicitly picks a token — commits its chain.
+  const onTargetTokenChange = useCallback(
+    (tokenId: string) => {
+      if (tokenId === sourceTokenId) {
+        setTargetToken(undefined);
+        setTargetTokenSourceTokenId(undefined);
+        updateQuery({ to: tokenId, toQuery: '' });
+        return;
+      }
+
+      // Set the token immediately so shouldKeepExplicitSelection can protect it
+      // if it's an unverified token absent from the default (un-searched) list.
+      const token = targetTokenList.find(
+        (t) => getUniqueTokenId(t) === tokenId,
+      );
+      if (token) {
+        setTargetToken(token);
+      }
+      setCommittedTargetChainId(browseTargetChainId);
+      setTargetTokenSourceTokenId(sourceTokenId);
+      updateQuery({ to: tokenId, toQuery: '' });
+    },
+    [browseTargetChainId, updateQuery, sourceTokenId, targetTokenList],
+  );
 
   const { chain: sourceChain, asset: sourceAsset } =
     useAssetAndChain(sourceToken);
@@ -372,6 +567,11 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     sourceTokenList,
     targetTokenList,
     selectedQuote,
+    isTargetTokenListLoading,
+    isTargetSearchActive,
+    isTargetSelectOpen,
+    isTargetTokenListFetching,
+    !!targetToken,
   );
 
   const minimumRequiredTokens = useRequiredTokenAmounts(manager, minimalQuote);
@@ -430,6 +630,14 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         priceImpactAvailability,
         sourceTokenList,
         targetTokenList,
+        fetchNextTargetTokenPage,
+        isTargetTokenListLoading,
+        isTargetTokenListFetching,
+        targetChainOptions,
+        selectedTargetChainId,
+        setSelectedTargetChainId: setBrowseTargetChainId,
+        setIsTargetSelectOpen,
+        onTargetTokenChange,
         sourceToken,
         targetToken,
         account: activeAccount,

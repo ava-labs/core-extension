@@ -3,7 +3,7 @@ import {
   isPchainNetworkId,
   isXchainNetworkId,
 } from '@core/common';
-import { getUniqueTokenId } from '@core/types';
+import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';
 import type { TokenSelectProps } from './types';
 
 export const sortChainIds = (a: number, b: number) => {
@@ -65,6 +65,13 @@ export const areTokenListsEqual = (
   // Compare all props except tokenList
   // IMPORTANT: Also compare callbacks to ensure component re-renders when callbacks change
   // This is critical because callbacks may capture outdated closures (e.g., outdated searchParams)
+  const prevFallbackId = prevProps.selectedTokenFallback
+    ? getUniqueTokenId(prevProps.selectedTokenFallback)
+    : undefined;
+  const nextFallbackId = nextProps.selectedTokenFallback
+    ? getUniqueTokenId(nextProps.selectedTokenFallback)
+    : undefined;
+
   if (
     prevProps.id !== nextProps.id ||
     prevProps.tokenId !== nextProps.tokenId ||
@@ -72,34 +79,46 @@ export const areTokenListsEqual = (
     prevProps.hint !== nextProps.hint ||
     prevProps.chainFilterMode !== nextProps.chainFilterMode ||
     prevProps.disabled !== nextProps.disabled ||
+    prevProps.selectedChainId !== nextProps.selectedChainId ||
+    prevProps.isLoadingTokens !== nextProps.isLoadingTokens ||
+    prevFallbackId !== nextFallbackId ||
     prevProps.onValueChange !== nextProps.onValueChange ||
-    prevProps.onQueryChange !== nextProps.onQueryChange
+    prevProps.onQueryChange !== nextProps.onQueryChange ||
+    prevProps.onEndReached !== nextProps.onEndReached ||
+    prevProps.externalChainOptions !== nextProps.externalChainOptions ||
+    prevProps.onChainChange !== nextProps.onChainChange ||
+    prevProps.onOpenChange !== nextProps.onOpenChange ||
+    prevProps.defaultChainId !== nextProps.defaultChainId
   ) {
     return false;
   }
 
-  // Compare tokenList by token IDs and verification status rather than reference
+  // Compare ordered token rows by values that affect rendering or sorting.
   if (prevProps.tokenList.length !== nextProps.tokenList.length) {
     return false;
   }
 
-  const prevTokenMap = new Map(
-    prevProps.tokenList.map((token) => [getUniqueTokenId(token), token]),
-  );
-  const nextTokenMap = new Map(
-    nextProps.tokenList.map((token) => [getUniqueTokenId(token), token]),
-  );
-
-  if (prevTokenMap.size !== nextTokenMap.size) {
-    return false;
-  }
-
-  for (const [id, prevToken] of prevTokenMap) {
-    const nextToken = nextTokenMap.get(id);
-    if (!nextToken || prevToken.isVerified !== nextToken.isVerified) {
+  for (const [index, prevToken] of prevProps.tokenList.entries()) {
+    const nextToken = nextProps.tokenList[index];
+    if (!nextToken || !areTokenRowsEqual(prevToken, nextToken)) {
       return false;
     }
   }
 
   return true;
 };
+
+const areTokenRowsEqual = (
+  prevToken: FungibleTokenBalance,
+  nextToken: FungibleTokenBalance,
+) =>
+  getUniqueTokenId(prevToken) === getUniqueTokenId(nextToken) &&
+  prevToken.name === nextToken.name &&
+  prevToken.symbol === nextToken.symbol &&
+  prevToken.logoUri === nextToken.logoUri &&
+  prevToken.coreChainId === nextToken.coreChainId &&
+  prevToken.balance === nextToken.balance &&
+  prevToken.balanceDisplayValue === nextToken.balanceDisplayValue &&
+  prevToken.balanceInCurrency === nextToken.balanceInCurrency &&
+  prevToken.priceInCurrency === nextToken.priceInCurrency &&
+  prevToken.isVerified === nextToken.isVerified;
