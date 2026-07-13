@@ -135,6 +135,7 @@ export const SwapPair = () => {
           tokenHint={sourceToken ? t('You pay') : undefined}
           withPresetButtons={minimumRequiredTokens.state === 'complete'}
           chainFilterMode={chainFilterMode}
+          presetButtonSx={selectUtxosUrl ? { px: 1 } : undefined}
           presetButtonsStartSlot={
             selectUtxosUrl ? (
               <Button
