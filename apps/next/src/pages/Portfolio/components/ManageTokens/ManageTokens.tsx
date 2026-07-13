@@ -76,6 +76,7 @@ export const ManageTokens: FC = () => {
           size="small"
           checked={onlyTokensWithBalance}
           onChange={(_, checked) => setOnlyTokensWithBalance(checked)}
+          aria-label={t('Hide tokens without balance')}
         />
       </Stack>
       <TokenSwitchList

@@ -23,14 +23,12 @@ export const TokenSwitchList: FC<Props> = ({
   onlyTokensWithBalance,
 }) => {
   const [height, containerRef] = useContainerHeight<HTMLDivElement>(400);
-  const tokensWithBalances = useAllTokensFromEnabledNetworks(
-    onlyTokensWithBalance,
-  );
+  const visibleTokens = useAllTokensFromEnabledNetworks(onlyTokensWithBalance);
 
   const { t } = useTranslation();
   const filteredTokensList = useMemo(() => {
     const list = filter
-      ? tokensWithBalances.filter((token) => {
+      ? visibleTokens.filter((token) => {
           const normalizedFilter = filter.toLowerCase();
           return (
             token.name.toLowerCase().includes(normalizedFilter) ||
@@ -39,12 +37,12 @@ export const TokenSwitchList: FC<Props> = ({
               token.address.toLowerCase().includes(normalizedFilter))
           );
         })
-      : tokensWithBalances;
+      : visibleTokens;
 
     return includeSpamTokens
       ? list
       : list.filter((token) => !isTokenMalicious(token));
-  }, [filter, tokensWithBalances, includeSpamTokens]);
+  }, [filter, visibleTokens, includeSpamTokens]);
 
   return (
     <Box height={1} ref={containerRef}>
