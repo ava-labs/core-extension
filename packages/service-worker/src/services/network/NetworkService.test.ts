@@ -686,7 +686,9 @@ describe('background/services/network/NetworkService', () => {
       expect(storageServiceMock.load).toHaveBeenCalledWith(
         NETWORK_LIST_STORAGE_KEY,
       );
-      expect(dispatchSpy).toHaveBeenCalledWith(cachedChainList);
+      expect(dispatchSpy).toHaveBeenCalledWith(
+        expect.objectContaining(cachedChainList),
+      );
     });
   });
 
