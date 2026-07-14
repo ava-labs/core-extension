@@ -71,7 +71,9 @@ const mapBridgeableAsset = (
   const isVerified =
     (asset.extras?.isVerified as boolean | null | undefined) ?? null;
   const logoUri =
-    isPchainNetworkId(network.chainId) || isXchainNetworkId(network.chainId)
+    isPchainNetworkId(network.chainId) ||
+    isXchainNetworkId(network.chainId) ||
+    isAvalancheChainId(network.chainId)
       ? cChainAvaxLogoUri
       : (asset.logoUri ?? undefined);
   const base = {
