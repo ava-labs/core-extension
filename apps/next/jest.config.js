@@ -12,6 +12,7 @@ module.exports = {
     '\\.(css|less|scss)$': 'identity-obj-proxy',
     '^uuid$': require.resolve('uuid'),
     '^lodash-es$': require.resolve('lodash'),
+    '^@avalabs/crypto-wasm$': '<rootDir>/../../src/tests/mocks/cryptoWasm.js',
   },
   transform: {
     '^.+\\.(js|jsx)$': 'babel-jest',

@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { TokenType } from '@avalabs/vm-module-types';
 import { renderHook, waitFor } from '@testing-library/react';
 import { createElement, type PropsWithChildren } from 'react';
 import {
@@ -6,6 +7,11 @@ import {
   useHypercoreTokensForAddresses,
 } from './useHypercoreBalances';
 import { useHypercoreSpotTokens } from './useHypercoreSpotTokens';
+
+const mockGetSpotMeta = jest.fn();
+const mockGetSpotClearinghouseState = jest.fn();
+const mockGetClearinghouseState = jest.fn();
+const mockGetUserAbstraction = jest.fn();
 
 jest.mock('@core/ui', () => ({
   useIsHyperliquidEnabled: jest.fn(() => true),
@@ -15,24 +21,24 @@ jest.mock('@core/ui', () => ({
   })),
 }));
 
-jest.mock('../infoClient', () => ({
-  getSpotMeta: jest.fn(),
-  getSpotClearinghouseState: jest.fn(),
-  getClearinghouseState: jest.fn(),
-  getUserAbstraction: jest.fn(),
-}));
+jest.mock('@avalabs/hypercore-module', () => {
+  const actual = jest.requireActual('@avalabs/hypercore-module');
+  return {
+    ...actual,
+    HypercoreInfoClient: jest.fn().mockImplementation(() => ({
+      getSpotMeta: mockGetSpotMeta,
+      getSpotClearinghouseState: mockGetSpotClearinghouseState,
+      getClearinghouseState: mockGetClearinghouseState,
+      getUserAbstraction: mockGetUserAbstraction,
+    })),
+  };
+});
 
 import {
   useIsHyperliquidEnabled,
   useIsMainnet,
   useNetworkContext,
 } from '@core/ui';
-import {
-  getClearinghouseState,
-  getSpotClearinghouseState,
-  getSpotMeta,
-  getUserAbstraction,
-} from '../infoClient';
 
 const createWrapper = () => {
   const queryClient = new QueryClient({
@@ -54,7 +60,7 @@ describe('useHypercoreSpotTokens', () => {
     jest.mocked(useNetworkContext).mockReturnValue({
       enabledNetworks: [{ chainId: 9999 }],
     } as ReturnType<typeof useNetworkContext>);
-    jest.mocked(getSpotMeta).mockResolvedValue({
+    mockGetSpotMeta.mockResolvedValue({
       tokens: [
         {
           name: 'USDC',
@@ -75,11 +81,12 @@ describe('useHypercoreSpotTokens', () => {
 
     expect(result.current.data).toEqual([
       {
+        type: TokenType.HYPERCORE_SPOT,
         index: 0,
         name: 'USD Coin',
         symbol: 'USDC',
         decimals: 8,
-        address: undefined,
+        evmContract: undefined,
       },
     ]);
   });
@@ -92,7 +99,7 @@ describe('useHypercoreSpotTokens', () => {
     });
 
     expect(result.current.fetchStatus).toBe('idle');
-    expect(getSpotMeta).not.toHaveBeenCalled();
+    expect(mockGetSpotMeta).not.toHaveBeenCalled();
   });
 });
 
@@ -103,7 +110,7 @@ describe('useHypercoreBalances', () => {
     jest.mocked(useNetworkContext).mockReturnValue({
       enabledNetworks: [{ chainId: 9999 }],
     } as ReturnType<typeof useNetworkContext>);
-    jest.mocked(getSpotMeta).mockResolvedValue({
+    mockGetSpotMeta.mockResolvedValue({
       tokens: [
         {
           name: 'USDC',
@@ -122,17 +129,17 @@ describe('useHypercoreBalances', () => {
         },
       ],
     });
-    jest.mocked(getSpotClearinghouseState).mockResolvedValue({
+    mockGetSpotClearinghouseState.mockResolvedValue({
       balances: [
         { coin: 'USDC', token: 0, total: '100', hold: '0' },
         { coin: 'PURR', token: 5, total: '12.5', hold: '0' },
       ],
     });
-    jest.mocked(getClearinghouseState).mockResolvedValue({
+    mockGetClearinghouseState.mockResolvedValue({
       assetPositions: [{ position: { unrealizedPnl: '10' } }],
       crossMarginSummary: { accountValue: '50' },
     });
-    jest.mocked(getUserAbstraction).mockResolvedValue('default');
+    mockGetUserAbstraction.mockResolvedValue('default');
   });
 
   it('builds tokens with perp collateral folded into USDC', async () => {
@@ -151,15 +158,16 @@ describe('useHypercoreBalances', () => {
       'PURR',
     ]);
     expect(result.current.data?.[0]?.balance).toBe('140');
+    expect(result.current.data?.[1]).toMatchObject({
+      kind: 'spot',
+      index: 5,
+      evmContract: '0xabc0000000000000000000000000000000000001',
+    });
   });
 
   it('soft-fails individual info calls and still builds from partial data', async () => {
-    jest
-      .mocked(getClearinghouseState)
-      .mockRejectedValue(new Error('perp down'));
-    jest
-      .mocked(getUserAbstraction)
-      .mockRejectedValue(new Error('abstraction down'));
+    mockGetClearinghouseState.mockRejectedValue(new Error('perp down'));
+    mockGetUserAbstraction.mockRejectedValue(new Error('abstraction down'));
 
     const { result } = renderHook(
       () =>
@@ -180,7 +188,7 @@ describe('useHypercoreBalances', () => {
     });
 
     expect(result.current.data).toBeUndefined();
-    expect(getSpotClearinghouseState).not.toHaveBeenCalled();
+    expect(mockGetSpotClearinghouseState).not.toHaveBeenCalled();
   });
 
   it('skips fetching when HyperCore is not in enabled networks', () => {
@@ -197,7 +205,7 @@ describe('useHypercoreBalances', () => {
     );
 
     expect(result.current.data).toBeUndefined();
-    expect(getSpotClearinghouseState).not.toHaveBeenCalled();
+    expect(mockGetSpotClearinghouseState).not.toHaveBeenCalled();
   });
 });
 
@@ -208,7 +216,7 @@ describe('useHypercoreTokensForAddresses', () => {
     jest.mocked(useNetworkContext).mockReturnValue({
       enabledNetworks: [{ chainId: 9999 }],
     } as ReturnType<typeof useNetworkContext>);
-    jest.mocked(getSpotMeta).mockResolvedValue({
+    mockGetSpotMeta.mockResolvedValue({
       tokens: [
         {
           name: 'USDC',
@@ -218,9 +226,8 @@ describe('useHypercoreTokensForAddresses', () => {
         },
       ],
     });
-    jest
-      .mocked(getSpotClearinghouseState)
-      .mockImplementation(async (address) => ({
+    mockGetSpotClearinghouseState.mockImplementation(
+      async (address: string) => ({
         balances: [
           {
             coin: 'USDC',
@@ -229,12 +236,13 @@ describe('useHypercoreTokensForAddresses', () => {
             hold: '0',
           },
         ],
-      }));
-    jest.mocked(getClearinghouseState).mockResolvedValue({
+      }),
+    );
+    mockGetClearinghouseState.mockResolvedValue({
       assetPositions: [],
       crossMarginSummary: { accountValue: '0' },
     });
-    jest.mocked(getUserAbstraction).mockResolvedValue('unifiedAccount');
+    mockGetUserAbstraction.mockResolvedValue('unifiedAccount');
   });
 
   it('fetches and flattens HyperCore tokens for multiple addresses', async () => {
@@ -255,7 +263,7 @@ describe('useHypercoreTokensForAddresses', () => {
       '10',
       '25',
     ]);
-    expect(getSpotClearinghouseState).toHaveBeenCalledTimes(2);
+    expect(mockGetSpotClearinghouseState).toHaveBeenCalledTimes(2);
   });
 
   it('skips fetching with an empty address list', () => {
@@ -265,6 +273,6 @@ describe('useHypercoreTokensForAddresses', () => {
     );
 
     expect(result.current.tokens).toEqual([]);
-    expect(getSpotClearinghouseState).not.toHaveBeenCalled();
+    expect(mockGetSpotClearinghouseState).not.toHaveBeenCalled();
   });
 });

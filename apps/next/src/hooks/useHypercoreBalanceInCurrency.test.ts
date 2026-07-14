@@ -1,11 +1,11 @@
-import { HYPERCORE_CHAIN_ID } from '@core/common';
+import { HYPERCORE_CAIP_ID, HYPERCORE_CHAIN_ID } from '@core/common';
 import type { NetworkWithCaipId } from '@core/types';
-import type { HypercoreTokenBalance } from '@/lib/hypercore/buildHypercoreTokens';
+import type { HypercoreTokenBalance } from '@avalabs/hypercore-module';
 import { sumHypercoreTokensInCurrency } from './useHypercoreBalanceInCurrency';
 
 const hypercoreNetwork = {
   chainId: HYPERCORE_CHAIN_ID,
-  caipId: `eip155:${HYPERCORE_CHAIN_ID}`,
+  caipId: HYPERCORE_CAIP_ID,
 } as NetworkWithCaipId;
 
 const usdcToken: HypercoreTokenBalance = {
@@ -38,7 +38,6 @@ describe('sumHypercoreTokensInCurrency', () => {
         isHypercoreEnabled: false,
       }),
     ).toBe(0);
-
     expect(
       sumHypercoreTokensInCurrency({
         hypercoreTokens: [usdcToken],

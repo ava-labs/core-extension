@@ -7,7 +7,6 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
-import { TokenType } from '@avalabs/vm-module-types';
 import { FC } from 'react';
 import { useHistory } from 'react-router-dom';
 
@@ -15,7 +14,7 @@ import { Card } from '@/components/Card';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 import { OverflowingTypography } from '@/components/OverflowingTypography';
 import { TokenAvatar } from '@/components/TokenAvatar';
-import { FungibleTokenBalance } from '@core/types';
+import { FungibleTokenBalance, getFungibleTokenKey } from '@core/types';
 import { useSettingsContext } from '@core/ui';
 import { ProfitAndLoss } from '../../ProfitAndLoss';
 import { isAvaxToken } from '@/lib/tokens';
@@ -43,9 +42,7 @@ export const AssetCard: FC<AssetCardProps> = ({ asset }) => {
   const history = useHistory();
   const { privacyMode } = useSettingsContext();
   const handleClick = () => {
-    const tokenAddress =
-      asset.type === TokenType.NATIVE ? asset.symbol : asset.address;
-    history.push(`/asset/${asset.coreChainId}/${tokenAddress}`);
+    history.push(`/asset/${asset.coreChainId}/${getFungibleTokenKey(asset)}`);
   };
 
   const badgeBorderColor = getBadgeBorderColor(theme);

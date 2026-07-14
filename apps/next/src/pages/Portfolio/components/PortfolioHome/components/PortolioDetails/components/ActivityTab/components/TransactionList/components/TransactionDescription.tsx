@@ -4,7 +4,7 @@ import {
   fillLabel,
   formatHypercoreFillPx,
   parseHypercoreFillMethod,
-} from '@/lib/hypercore/activity/hypercoreFillMeta';
+} from '@avalabs/hypercore-module';
 import { TxHistoryItem } from '@core/types';
 import { Trans, useTranslation } from 'react-i18next';
 import { TransactionType } from '@avalabs/vm-module-types';

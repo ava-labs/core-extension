@@ -5,6 +5,11 @@ import {
   useQuery,
   type UseQueryResult,
 } from '@tanstack/react-query';
+import {
+  buildHypercoreTokens,
+  type HypercoreSpotToken,
+  type HypercoreTokenBalance,
+} from '@avalabs/hypercore-module';
 import { isHypercoreNetwork } from '@core/common';
 import {
   useIsHyperliquidEnabled,
@@ -12,16 +17,7 @@ import {
   useNetworkContext,
 } from '@core/ui';
 import { useMemo } from 'react';
-import {
-  buildHypercoreTokens,
-  type HypercoreTokenBalance,
-} from '../buildHypercoreTokens';
-import {
-  getClearinghouseState,
-  getSpotClearinghouseState,
-  getUserAbstraction,
-} from '../infoClient';
-import type { HypercoreSpotToken } from '../spotTokens';
+import { getHypercoreInfoClient } from '../getHypercoreInfoClient';
 import { useHypercoreSpotTokens } from './useHypercoreSpotTokens';
 
 export const HYPERCORE_BALANCES_QUERY_KEY = 'hypercoreBalances';
@@ -31,10 +27,11 @@ const fetchHypercorePortfolio = async (
   evmAddress: string,
   spotTokens: HypercoreSpotToken[],
 ) => {
+  const client = getHypercoreInfoClient();
   const [spotState, perpState, abstractionMode] = await Promise.all([
-    getSpotClearinghouseState(evmAddress).catch(() => undefined),
-    getClearinghouseState(evmAddress).catch(() => undefined),
-    getUserAbstraction(evmAddress).catch(() => undefined),
+    client.getSpotClearinghouseState(evmAddress).catch(() => undefined),
+    client.getClearinghouseState(evmAddress).catch(() => undefined),
+    client.getUserAbstraction(evmAddress).catch(() => undefined),
   ]);
 
   return buildHypercoreTokens({
@@ -48,7 +45,7 @@ const fetchHypercorePortfolio = async (
 const spotTokensQueryKey = (spotTokens: HypercoreSpotToken[] | undefined) =>
   spotTokens?.map(
     (token) =>
-      `${token.index}:${token.decimals}:${token.symbol}:${token.name}:${token.address ?? ''}`,
+      `${token.index}:${token.decimals}:${token.symbol}:${token.name}:${token.evmContract ?? ''}`,
   );
 
 export const getHypercoreBalancesQueryOptions = ({

@@ -2,7 +2,7 @@ import { HYPERCORE_CHAIN_ID, isHypercoreNetwork } from '@core/common';
 import type { Account, NetworkWithCaipId } from '@core/types';
 import { useNetworkContext } from '@core/ui';
 import { useMemo } from 'react';
-import type { HypercoreTokenBalance } from '@/lib/hypercore/buildHypercoreTokens';
+import type { HypercoreTokenBalance } from '@avalabs/hypercore-module';
 import {
   useHypercoreBalances,
   useHypercoreTokensForAddresses,

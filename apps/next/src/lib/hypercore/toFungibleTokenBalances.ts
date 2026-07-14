@@ -1,13 +1,13 @@
 import { TokenType } from '@avalabs/vm-module-types';
-import { chainIdToCaip, HYPERCORE_CHAIN_ID } from '@core/common';
-import type { FungibleTokenBalance, NetworkWithCaipId } from '@core/types';
-import type { HypercoreTokenBalance } from './buildHypercoreTokens';
+import type { HypercoreTokenBalance } from '@avalabs/hypercore-module';
 import {
   HYPERCORE_USDC_DECIMALS,
   HYPERCORE_USDC_NAME,
   HYPERCORE_USDC_SYMBOL,
-} from './buildHypercoreTokens';
-import { hyperliquidCoinSvgUrl } from './hyperliquidCoinSvgUrl';
+  hyperliquidCoinSvgUrl,
+} from '@avalabs/hypercore-module';
+import { chainIdToCaip, HYPERCORE_CHAIN_ID } from '@core/common';
+import type { FungibleTokenBalance, NetworkWithCaipId } from '@core/types';
 
 const toBalanceInCurrency = (value: string) => {
   const parsed = Number(value);
@@ -15,8 +15,8 @@ const toBalanceInCurrency = (value: string) => {
 };
 
 /**
- * Maps HyperCore display balances into portfolio `FungibleTokenBalance` rows
- * for chain 9999. USDC is native @ $1; other spot tokens are ERC20-shaped.
+ * Maps HyperCore module balances into portfolio `FungibleTokenBalance` rows.
+ * USDC is native @ $1; other spot inventory is `HYPERCORE_SPOT`.
  */
 export const toFungibleTokenBalances = (
   tokens: readonly HypercoreTokenBalance[],
@@ -51,12 +51,13 @@ export const toFungibleTokenBalances = (
     }
 
     return {
-      type: TokenType.ERC20,
-      assetType: 'evm_erc20',
+      type: TokenType.HYPERCORE_SPOT,
+      assetType: 'hypercore_spot',
       name: token.name,
       symbol: token.symbol,
       decimals: token.decimals,
-      address: token.address,
+      index: token.index,
+      evmContract: token.evmContract,
       balance,
       balanceDisplayValue: token.balance,
       logoUri,

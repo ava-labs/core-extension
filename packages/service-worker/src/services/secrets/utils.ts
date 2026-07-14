@@ -20,6 +20,7 @@ export const emptyAddresses = (): Record<NetworkVMType, string> => ({
   [NetworkVMType.HVM]: '',
   [NetworkVMType.PVM]: '',
   [NetworkVMType.SVM]: '',
+  [NetworkVMType.HYPERCORE]: '',
 });
 
 export const emptyDerivationPaths = (): DerivationPathsMap => ({
@@ -28,6 +29,7 @@ export const emptyDerivationPaths = (): DerivationPathsMap => ({
   [NetworkVMType.EVM]: '',
   [NetworkVMType.HVM]: '',
   [NetworkVMType.SVM]: '',
+  [NetworkVMType.HYPERCORE]: '',
 });
 
 export const isImportedAccountSecrets = (

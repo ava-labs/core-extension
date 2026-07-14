@@ -1,5 +1,5 @@
 import { ChainBadge } from '@/components/ChainBadge';
-import { hyperliquidCoinSvgUrl } from '@/lib/hypercore/hyperliquidCoinSvgUrl';
+import { hyperliquidCoinSvgUrl } from '@avalabs/hypercore-module';
 import { Badge, BadgeProps, Stack } from '@avalabs/k2-alpine';
 import { caipToChainId, HYPERCORE_CHAIN_ID } from '@core/common';
 import { TxHistoryItem } from '@core/types';

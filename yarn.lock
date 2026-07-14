@@ -396,6 +396,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@avalabs/hypercore-module@npm:0.0.0-feat-add-hyperliquid-modules-20260714192934":
+  version: 0.0.0-feat-add-hyperliquid-modules-20260714192934
+  resolution: "@avalabs/hypercore-module@npm:0.0.0-feat-add-hyperliquid-modules-20260714192934"
+  dependencies:
+    "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.87"
+    "@avalabs/crypto-sdk": "npm:1.0.0"
+    "@avalabs/vm-module-types": "npm:0.0.0-feat-add-hyperliquid-modules-20260714192934"
+    "@metamask/rpc-errors": "npm:6.3.0"
+    big.js: "npm:6.2.1"
+    zod: "npm:3.23.8"
+  peerDependencies:
+    ethers: 6.13.5
+  checksum: 10c0/127543f19174f12d207c30fc34f40f1c13c922f44234a38e53204de21c24f643b2744d2df5528c1324c5c099fb8916ff3153d5a731260814e393b38c37d0250b
+  languageName: node
+  linkType: hard
+
 "@avalabs/k2-alpine@npm:1.266.0":
   version: 1.266.0
   resolution: "@avalabs/k2-alpine@npm:1.266.0"
@@ -461,9 +477,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/vm-module-types@npm:3.10.0":
-  version: 3.10.0
-  resolution: "@avalabs/vm-module-types@npm:3.10.0"
+"@avalabs/vm-module-types@npm:0.0.0-feat-add-hyperliquid-modules-20260714192934":
+  version: 0.0.0-feat-add-hyperliquid-modules-20260714192934
+  resolution: "@avalabs/vm-module-types@npm:0.0.0-feat-add-hyperliquid-modules-20260714192934"
   dependencies:
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.87"
@@ -474,7 +490,7 @@ __metadata:
     zod: "npm:3.23.8"
   peerDependencies:
     ethers: 6.13.5
-  checksum: 10c0/b6bb3090d9c4f90a35c7f19720405d12b665cb54fff6bece599eed79338b35f466cf6c07f546f3971be4f1d020d59c51c93c9855ca1b6252b1e3d32fd6e24b2f
+  checksum: 10c0/79e50c5b16bd0f7a0ed884f376329e1bba130580cde0e31d8ae33ca5d07c9f02a0b8a331fb670b2bf7d28712c66d5e57af3f66892b882512b27fe47c1a78c9f7
   languageName: node
   linkType: hard
 
@@ -2819,11 +2835,12 @@ __metadata:
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.87"
-    "@avalabs/fusion-sdk": "npm:0.26.1"
+    "@avalabs/fusion-sdk": "npm:0.26.0"
+    "@avalabs/hypercore-module": "npm:0.0.0-feat-add-hyperliquid-modules-20260714192934"
     "@avalabs/k2-alpine": "npm:1.266.0"
     "@avalabs/prediction-market-sdk": "npm:1.1.4"
     "@avalabs/types": "npm:3.1.0-alpha.87"
-    "@avalabs/vm-module-types": "npm:3.10.0"
+    "@avalabs/vm-module-types": "npm:0.0.0-feat-add-hyperliquid-modules-20260714192934"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
     "@babel/preset-react": "npm:7.24.1"
@@ -3117,9 +3134,10 @@ __metadata:
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/hvm-module": "npm:3.10.0"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
+    "@avalabs/hypercore-module": "npm:0.0.0-feat-add-hyperliquid-modules-20260714192934"
     "@avalabs/svm-module": "npm:3.10.0"
     "@avalabs/types": "npm:3.1.0-alpha.87"
-    "@avalabs/vm-module-types": "npm:3.10.0"
+    "@avalabs/vm-module-types": "npm:0.0.0-feat-add-hyperliquid-modules-20260714192934"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
     "@babel/preset-typescript": "npm:7.24.1"
@@ -3286,7 +3304,7 @@ __metadata:
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.87"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
     "@avalabs/types": "npm:3.1.0-alpha.87"
-    "@avalabs/vm-module-types": "npm:3.10.0"
+    "@avalabs/vm-module-types": "npm:0.0.0-feat-add-hyperliquid-modules-20260714192934"
     "@blockaid/client": "npm:0.10.0"
     "@cubist-labs/cubesigner-sdk": "npm:0.3.28"
     "@eslint/compat": "npm:1.2.4"

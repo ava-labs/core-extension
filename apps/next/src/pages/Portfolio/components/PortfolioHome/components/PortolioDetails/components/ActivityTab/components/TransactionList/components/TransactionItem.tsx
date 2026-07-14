@@ -12,7 +12,7 @@ import { format, isToday, isYesterday } from 'date-fns';
 import { FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { parseHypercoreFillMethod } from '@/lib/hypercore/activity/hypercoreFillMeta';
+import { parseHypercoreFillMethod } from '@avalabs/hypercore-module';
 import * as Styled from './Styled';
 import { TransactionDescription } from './TransactionDescription';
 import { TransactionIcon } from './TransactionIcon';

@@ -1,7 +1,7 @@
 import { TokenType } from '@avalabs/vm-module-types';
-import { HYPERCORE_CHAIN_ID } from '@core/common';
+import type { HypercoreTokenBalance } from '@avalabs/hypercore-module';
+import { HYPERCORE_CAIP_ID, HYPERCORE_CHAIN_ID } from '@core/common';
 import type { NetworkWithCaipId } from '@core/types';
-import type { HypercoreTokenBalance } from './buildHypercoreTokens';
 import {
   sumHypercoreBalanceInCurrency,
   toFungibleTokenBalances,
@@ -9,7 +9,7 @@ import {
 
 const network = {
   chainId: HYPERCORE_CHAIN_ID,
-  caipId: `eip155:${HYPERCORE_CHAIN_ID}`,
+  caipId: HYPERCORE_CAIP_ID,
   networkToken: {
     name: 'USD Coin',
     symbol: 'USDC',
@@ -49,31 +49,33 @@ describe('toFungibleTokenBalances', () => {
       priceInCurrency: 1,
       logoUri: 'https://app.hyperliquid.xyz/coins/USDC.svg',
       coreChainId: HYPERCORE_CHAIN_ID,
-      chainCaipId: `eip155:${HYPERCORE_CHAIN_ID}`,
+      chainCaipId: HYPERCORE_CAIP_ID,
       coingeckoId: 'usd-coin',
     });
   });
 
-  it('maps ERC20 spot tokens with Hyperliquid CDN icons and no fiat when unpriced', () => {
+  it('maps HyperCore spot tokens without synthesizing ERC20 addresses', () => {
     const tokens: HypercoreTokenBalance[] = [
       {
-        kind: 'erc20',
+        kind: 'spot',
         name: 'Purr',
         symbol: 'PURR',
         decimals: 6,
         balance: '12.5',
         balanceRaw: '12500000',
-        address: '0xabc0000000000000000000000000000000000001',
+        index: 5,
+        evmContract: '0xabc0000000000000000000000000000000000001',
       },
     ];
 
     const [purr] = toFungibleTokenBalances(tokens, network);
 
     expect(purr).toMatchObject({
-      type: TokenType.ERC20,
-      assetType: 'evm_erc20',
+      type: TokenType.HYPERCORE_SPOT,
+      assetType: 'hypercore_spot',
       symbol: 'PURR',
-      address: '0xabc0000000000000000000000000000000000001',
+      index: 5,
+      evmContract: '0xabc0000000000000000000000000000000000001',
       balance: 12500000n,
       balanceDisplayValue: '12.5',
       logoUri: 'https://app.hyperliquid.xyz/coins/PURR.svg',
@@ -97,13 +99,14 @@ describe('toFungibleTokenBalances', () => {
           balanceUsd: '100',
         },
         {
-          kind: 'erc20',
+          kind: 'spot',
           name: 'Purr',
           symbol: 'PURR',
           decimals: 6,
           balance: '1',
           balanceRaw: '1000000',
-          address: '0xabc0000000000000000000000000000000000001',
+          index: 5,
+          evmContract: '0xabc0000000000000000000000000000000000001',
         },
       ],
       network,

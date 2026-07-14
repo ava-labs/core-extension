@@ -96,5 +96,7 @@ const defaultTokenFinder =
       );
     }
 
-    return lookupToken.address === defaultTokenIdentifier;
+    return (
+      'address' in lookupToken && lookupToken.address === defaultTokenIdentifier
+    );
   };

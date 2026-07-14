@@ -38,6 +38,7 @@ export const buildAsset = (
         symbol: symbol,
         address: address(tokenAddress!),
       };
+    case 'hypercore_spot':
     case 'unknown':
       throw new Error(`Unknown asset type: ${assetType}`);
   }

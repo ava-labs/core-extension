@@ -13,7 +13,8 @@ export const useAssetAndChain = (token?: FungibleTokenBalance) => {
 
   const tokenAddress = !token
     ? undefined
-    : token.type === VmTokenType.NATIVE
+    : token.type === VmTokenType.NATIVE ||
+        token.type === VmTokenType.HYPERCORE_SPOT
       ? undefined
       : token.address;
 
