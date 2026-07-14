@@ -333,6 +333,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@avalabs/fusion-sdk@npm:0.26.0":
+  version: 0.26.0
+  resolution: "@avalabs/fusion-sdk@npm:0.26.0"
+  dependencies:
+    "@bitcoinerlab/secp256k1": "npm:^1.2.0"
+    "@layerzerolabs/lz-v2-utilities": "npm:^3.0.17"
+    "@lombard.finance/sdk": "npm:^4.3.0"
+    "@scure/base": "npm:^1.0.1"
+    axios: "npm:^1.12.0"
+    bignumber.js: "npm:^9.3.1"
+    bitcoinjs-lib: "npm:^6.1.5"
+    coinselect: "npm:^3.1.13"
+    es-toolkit: "npm:^1.42.0"
+  peerDependencies:
+    "@avalabs/avalanchejs": ^5.0.0
+    "@solana/kit": ^5.0.0 || ^6.0.0
+    viem: ^2.38.0
+    zod: ^4.1.0
+  checksum: 10c0/6f93e4fad090903ecabe365efc8ce407b03d08911c2fcb97cdb2fbc5719518a70cc73f8d5d5a7ef1d97ed2a094b6a9fe33f3ebd8710841262ce1cf9bb9f9d1e0
+  languageName: node
+  linkType: hard
+
 "@avalabs/fusion-sdk@npm:0.26.1":
   version: 0.26.1
   resolution: "@avalabs/fusion-sdk@npm:0.26.1"
