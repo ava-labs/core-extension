@@ -63,7 +63,7 @@ const getHasMore = (
   return true;
 };
 
-const mapBridgeableAsset = (
+export const mapBridgeableAsset = (
   asset: BridgeableUiAsset,
   network: NetworkWithCaipId,
   cChainAvaxLogoUri: string | undefined,
@@ -71,9 +71,13 @@ const mapBridgeableAsset = (
   const isVerified =
     (asset.extras?.isVerified as boolean | null | undefined) ?? null;
   const logoUri =
-    isPchainNetworkId(network.chainId) || isXchainNetworkId(network.chainId)
-      ? cChainAvaxLogoUri
-      : (asset.logoUri ?? undefined);
+    typeof asset.logoUri === 'string' && asset.logoUri.trim() !== ''
+      ? asset.logoUri
+      : isPchainNetworkId(network.chainId) ||
+          isXchainNetworkId(network.chainId) ||
+          isAvalancheChainId(network.chainId)
+        ? cChainAvaxLogoUri
+        : undefined;
   const base = {
     name: asset.name,
     symbol: asset.symbol,
@@ -90,6 +94,7 @@ const mapBridgeableAsset = (
   if (asset.type === FusionTokenType.NATIVE) {
     return {
       ...base,
+      decimals: network.networkToken.decimals,
       type: TokenType.NATIVE,
       assetType: getNativeAssetType(network),
     } as unknown as FungibleTokenBalance;
