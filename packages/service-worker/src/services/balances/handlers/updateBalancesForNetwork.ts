@@ -71,7 +71,11 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
         {
           chainIds: networksToFetch,
           accounts: accountsToFetch,
-          tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+          tokenTypes: [
+            TokenType.NATIVE,
+            TokenType.ERC20,
+            TokenType.HYPERCORE_SPOT,
+          ],
         },
       );
       return {

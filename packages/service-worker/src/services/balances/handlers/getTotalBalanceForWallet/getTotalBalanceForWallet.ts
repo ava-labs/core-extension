@@ -76,7 +76,11 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
         await this.balanceAggregatorService.getBalancesForNetworks({
           chainIds: networksIncludedInTotal.map((network) => network.chainId),
           accounts: [account],
-          tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+          tokenTypes: [
+            TokenType.NATIVE,
+            TokenType.ERC20,
+            TokenType.HYPERCORE_SPOT,
+          ],
           requestId: walletId,
         });
 
@@ -115,7 +119,11 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
       await this.balanceAggregatorService.getBalancesForNetworks({
         chainIds: networksIncludedInTotal.map((network) => network.chainId),
         accounts,
-        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        tokenTypes: [
+          TokenType.NATIVE,
+          TokenType.ERC20,
+          TokenType.HYPERCORE_SPOT,
+        ],
         requestId: walletId,
       });
 

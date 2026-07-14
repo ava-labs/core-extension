@@ -113,13 +113,12 @@ export const TransactionItem: FC<Props> = ({ transaction }) => {
   }, [priceLookupKey, transaction.historyTokenUsdPrices]);
 
   const fillPnl = fillMeta ? Number.parseFloat(fillMeta.closedPnl) : undefined;
-  const hasFillPnl =
-    fillPnl !== undefined && Number.isFinite(fillPnl) && fillPnl !== 0;
+  const hasFillPnl = fillPnl !== undefined && Number.isFinite(fillPnl);
 
   const usdValue = hasFillPnl
     ? fillPnl
-    : tokenPrice
-      ? tokenPrice * (Number(token?.amount) || 0) * directionModifier
+    : tokenPrice !== undefined
+      ? (tokenPrice ?? 0) * (Number(token?.amount) || 0) * directionModifier
       : null;
 
   const amountSlotProps =
@@ -150,7 +149,7 @@ export const TransactionItem: FC<Props> = ({ transaction }) => {
       </Styled.ListItemIcon>
       <ListItemText
         primary={<TransactionDescription transaction={transaction} />}
-        secondary={usdValue ? currencyFormatter(usdValue) : ''}
+        secondary={usdValue != null ? currencyFormatter(usdValue) : ''}
         slotProps={amountSlotProps}
       />
       <ListItemText

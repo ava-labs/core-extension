@@ -46,7 +46,11 @@ import { useSwapTargetTokenList } from '@/pages/Fusion/contexts/hooks/useSwapTar
 import { buildAsset } from '@/pages/Fusion/contexts/hooks/useAssetAndChain/lib/buildAsset';
 import { buildChain } from '@/pages/Fusion/contexts/hooks/useAssetAndChain/lib/buildChain';
 
-const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
+const POLLED_BALANCES = [
+  TokenType.NATIVE,
+  TokenType.ERC20,
+  TokenType.HYPERCORE_SPOT,
+];
 
 export const useFunctions = ({ setIsTyping, setInput }) => {
   useLiveBalance(POLLED_BALANCES);
