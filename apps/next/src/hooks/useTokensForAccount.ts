@@ -5,7 +5,11 @@ import {
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
 
-import { chainIdToCaip, getAllAddressesForAccount } from '@core/common';
+import {
+  chainIdToCaip,
+  getAllAddressesForAccount,
+  isHypercoreNetwork,
+} from '@core/common';
 import {
   Account,
   FungibleAssetType,
@@ -32,7 +36,7 @@ const DEFAULT_OPTIONS: UseTokensForAccountOptions = {
   forceShowAllTokens: false,
 };
 
-/** Balance-service tokens only. For portfolio UI (incl. HyperCore), use `useAccountAssets`. */
+/** Tokens from BalanceService for the account (incl. HyperCore when enabled). */
 export const useTokensForAccount = (
   account?: Account,
   options: UseTokensForAccountOptions = DEFAULT_OPTIONS,
@@ -112,6 +116,12 @@ const getFungibleAssetType = (
   token: TokenWithBalance,
   network: NetworkWithCaipId,
 ): FungibleAssetType => {
+  if (isHypercoreNetwork(network)) {
+    return token.type === TokenType.HYPERCORE_SPOT
+      ? 'hypercore_spot'
+      : 'evm_native';
+  }
+
   switch (network.vmName) {
     case NetworkVMType.EVM:
       return token.type === TokenType.NATIVE ? 'evm_native' : 'evm_erc20';

@@ -5,11 +5,11 @@ import {
   useLiveBalance,
   useSettingsContext,
   useWalletContext,
+  useWalletTotalBalance,
 } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccountTotalBalance } from '@/hooks/useAccountTotalBalance';
-import { useWalletTotalBalance } from '@/hooks/useWalletTotalBalance';
 
 type Props = {
   className?: string;

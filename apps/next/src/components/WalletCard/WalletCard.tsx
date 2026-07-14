@@ -6,7 +6,7 @@ import {
   TypographyProps,
 } from '@avalabs/k2-alpine';
 import { WalletDetails } from '@core/types';
-import { useSettingsContext } from '@core/ui';
+import { useSettingsContext, useWalletTotalBalance } from '@core/ui';
 import {
   cloneElement,
   FC,
@@ -21,7 +21,6 @@ import * as Styled from './Styled';
 import { WalletIconProps } from '@/components/WalletIcon';
 import { useHistory } from 'react-router-dom';
 import { URL_SEARCH_TOKENS } from '@/pages/AccountManagement/utils/searchParams';
-import { useWalletTotalBalance } from '@/hooks/useWalletTotalBalance';
 interface WalletCardProps extends PropsWithChildren {
   accountsNumber: number;
   id: WalletDetails['id'];

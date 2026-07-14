@@ -14,7 +14,7 @@ import {
 import { useNetworksWithBalance } from '../hooks/useNetworksWithBalance';
 import { WalletDetails as WalletDetailsType } from '@core/types';
 import { getNetworkCount } from '../utils/networkCount';
-import { useWalletTotalBalance } from '@/hooks/useWalletTotalBalance';
+import { useWalletTotalBalance } from '@core/ui';
 
 type Props = {
   wallet: WalletDetailsType;

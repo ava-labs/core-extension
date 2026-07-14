@@ -1,6 +1,6 @@
 import { HighlightsBannerCarousel } from '@/components/HighlightsBanner';
-import { useAccountAssets } from '@/hooks/useAccountAssets';
 import { useAccountTotalBalance } from '@/hooks/useAccountTotalBalance';
+import { useTokensForAccount } from '@/hooks/useTokensForAccount';
 import { Box, Button, Stack } from '@avalabs/k2-alpine';
 import { getUniqueTokenId } from '@core/types';
 import {
@@ -44,7 +44,7 @@ export const AssetsTab: FC = () => {
 
   const accountBalance = useAccountTotalBalance(account);
 
-  const assets = useAccountAssets(account, { networks: enabledNetworks });
+  const assets = useTokensForAccount(account, { networks: enabledNetworks });
 
   //Only show assets with balances
   const assetsWithBalances = useMemo(() => {
