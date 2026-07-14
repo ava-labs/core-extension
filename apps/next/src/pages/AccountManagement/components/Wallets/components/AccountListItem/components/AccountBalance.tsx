@@ -2,8 +2,8 @@ import { Stack, Tooltip, Typography } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
 
 import {
-  useBalanceTotalInCurrency,
   useBalancesContext,
+  useBalanceTotalInCurrency,
   useSettingsContext,
 } from '@core/ui';
 import { FC } from 'react';

@@ -1,8 +1,8 @@
 import { Button, styled, Typography } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
 import {
-  useBalanceTotalInCurrency,
   useBalancesContext,
+  useBalanceTotalInCurrency,
   useSettingsContext,
   useAnalyticsContext,
 } from '@core/ui';

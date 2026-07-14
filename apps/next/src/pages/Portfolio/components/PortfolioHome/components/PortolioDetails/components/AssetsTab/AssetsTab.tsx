@@ -1,12 +1,12 @@
-import { HighlightsBannerCarousel } from '@/components/HighlightsBanner';
 import { useTokensForAccount } from '@/hooks/useTokensForAccount';
+import { HighlightsBannerCarousel } from '@/components/HighlightsBanner';
 import { Box, Button, Stack } from '@avalabs/k2-alpine';
 import { getUniqueTokenId } from '@core/types';
 import {
   promoteNetworks,
   useAccountsContext,
-  useBalanceTotalInCurrency,
   useBalancesContext,
+  useBalanceTotalInCurrency,
   useIsMainnet,
   useNetworkContext,
 } from '@core/ui';
