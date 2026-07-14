@@ -7,7 +7,7 @@ export function useBalanceTotalInCurrency(account?: Account) {
 
   return useMemo(() => {
     if (!account?.addressC) {
-      return null;
+      return undefined;
     }
 
     return getTotalBalance(account.addressC);

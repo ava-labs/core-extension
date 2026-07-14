@@ -1,11 +1,11 @@
 import { HighlightsBannerCarousel } from '@/components/HighlightsBanner';
-import { useAccountTotalBalance } from '@/hooks/useAccountTotalBalance';
 import { useTokensForAccount } from '@/hooks/useTokensForAccount';
 import { Box, Button, Stack } from '@avalabs/k2-alpine';
 import { getUniqueTokenId } from '@core/types';
 import {
   promoteNetworks,
   useAccountsContext,
+  useBalanceTotalInCurrency,
   useBalancesContext,
   useIsMainnet,
   useNetworkContext,
@@ -42,7 +42,7 @@ export const AssetsTab: FC = () => {
   );
   const isMainnet = useIsMainnet();
 
-  const accountBalance = useAccountTotalBalance(account);
+  const accountBalance = useBalanceTotalInCurrency(account);
 
   const assets = useTokensForAccount(account, { networks: enabledNetworks });
 

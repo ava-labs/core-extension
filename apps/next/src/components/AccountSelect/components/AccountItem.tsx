@@ -9,11 +9,14 @@ import {
 } from '@avalabs/k2-alpine';
 import { FaCheck } from 'react-icons/fa';
 
-import { useAccountsContext, useSettingsContext } from '@core/ui';
+import {
+  useAccountsContext,
+  useBalanceTotalInCurrency,
+  useSettingsContext,
+} from '@core/ui';
 import { AddressType, ImportedAccount, PrimaryAccount } from '@core/types';
 
 import { getAddressByType } from '@/utils/getAddressByType';
-import { useAccountTotalBalance } from '@/hooks/useAccountTotalBalance';
 
 type AccountItemProps = {
   account: PrimaryAccount | ImportedAccount;
@@ -30,7 +33,9 @@ export const AccountItem: FC<AccountItemProps> = ({
   const [showBalance, setShowBalance] = useState(false);
   const { getAccountById } = useAccountsContext();
   const { currencyFormatter } = useSettingsContext();
-  const fromAccountBalance = useAccountTotalBalance(getAccountById(account.id));
+  const fromAccountBalance = useBalanceTotalInCurrency(
+    getAccountById(account.id),
+  );
 
   return (
     <StyledMenuItem

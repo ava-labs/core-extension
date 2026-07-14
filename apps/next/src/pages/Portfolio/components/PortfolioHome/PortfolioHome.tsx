@@ -1,13 +1,13 @@
 import { Stack } from '@avalabs/k2-alpine';
 import {
   useAccountsContext,
+  useBalanceTotalInCurrency,
   useBalancesContext,
   useNetworkContext,
 } from '@core/ui';
 import { FC } from 'react';
 
 import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
-import { useAccountTotalBalance } from '@/hooks/useAccountTotalBalance';
 import { AccountInfo } from './components/AccountInfo/AccountInfo';
 import { AtomicFundsBalance } from './components/AtomicFundsBalance';
 import { PortfolioTabs } from './components/PortfolioTabs';
@@ -16,7 +16,7 @@ export const PortfolioHome: FC = () => {
   const { accounts } = useAccountsContext();
   const { isDeveloperMode } = useNetworkContext();
   const { balances } = useBalancesContext();
-  const accountBalance = useAccountTotalBalance(accounts.active);
+  const accountBalance = useBalanceTotalInCurrency(accounts.active);
 
   return (
     <>

@@ -1,6 +1,7 @@
 import { Button, styled, Typography } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
 import {
+  useBalanceTotalInCurrency,
   useBalancesContext,
   useSettingsContext,
   useAnalyticsContext,
@@ -8,7 +9,6 @@ import {
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdError } from 'react-icons/md';
-import { useAccountTotalBalance } from '@/hooks/useAccountTotalBalance';
 
 type Props = {
   account: Account;
@@ -16,7 +16,7 @@ type Props = {
 
 export const AccountDetailsHeader: FC<Props> = ({ account }) => {
   const { t } = useTranslation();
-  const balance = useAccountTotalBalance(account);
+  const balance = useBalanceTotalInCurrency(account);
   const { isTokensCached, updateBalanceOnNetworks } = useBalancesContext();
   const { currencyFormatter } = useSettingsContext();
   const { capture } = useAnalyticsContext();

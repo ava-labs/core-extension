@@ -1,10 +1,13 @@
 import { Stack, Tooltip, Typography } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
 
-import { useBalancesContext, useSettingsContext } from '@core/ui';
+import {
+  useBalanceTotalInCurrency,
+  useBalancesContext,
+  useSettingsContext,
+} from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAccountTotalBalance } from '@/hooks/useAccountTotalBalance';
 import * as Styled from '../../Styled';
 
 type Props = {
@@ -15,7 +18,7 @@ type Props = {
 export const AccountBalance: FC<Props> = ({ account, selected }) => {
   const { t } = useTranslation();
   const { currencyFormatter } = useSettingsContext();
-  const balance = useAccountTotalBalance(account);
+  const balance = useBalanceTotalInCurrency(account);
   const { isTokensCached } = useBalancesContext();
   return (
     <Stack direction="row" alignItems="center" gap={0.5}>

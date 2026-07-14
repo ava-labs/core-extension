@@ -2,6 +2,7 @@ import { getHexAlpha, styled, Typography } from '@avalabs/k2-alpine';
 import { TokenType } from '@avalabs/vm-module-types';
 import {
   useAccountsContext,
+  useBalanceTotalInCurrency,
   useLiveBalance,
   useSettingsContext,
   useWalletContext,
@@ -9,7 +10,6 @@ import {
 } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAccountTotalBalance } from '@/hooks/useAccountTotalBalance';
 
 type Props = {
   className?: string;
@@ -37,7 +37,7 @@ const CurrentAccount: FC<Props> = ({ className }) => {
   const { walletDetails } = useWalletContext();
   const { totalBalanceInCurrency } = useWalletTotalBalance(walletDetails?.id);
 
-  const accountBalance = useAccountTotalBalance(accounts.active);
+  const accountBalance = useBalanceTotalInCurrency(accounts.active);
   const { currencyFormatter } = useSettingsContext();
   useLiveBalance(POLLED_BALANCES);
 
