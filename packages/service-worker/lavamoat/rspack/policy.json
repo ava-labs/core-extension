@@ -360,7 +360,7 @@
         "Buffer.from": true,
         "DOMException": true,
         "Intl.NumberFormat": true,
-        "fetch.bind": true
+        "fetch": true
       },
       "packages": {
         "@avalabs/core-wallets-sdk": true,
