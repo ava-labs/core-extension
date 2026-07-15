@@ -14,6 +14,8 @@ import {
   isXChainToken,
   NetworkWithCaipId,
 } from '@core/types';
+import { isDirectLedgerHyperEvmTransactionUnsupported } from '@core/common';
+import { useWalletContext } from '@core/ui';
 import { isNil } from 'lodash';
 import { useTranslation } from 'react-i18next';
 
@@ -45,6 +47,7 @@ export const SendBody = ({
   recipient,
 }: SendBodyProps) => {
   const { t } = useTranslation();
+  const { walletDetails } = useWalletContext();
 
   // If any of the parameters is not ready, we just show a disabled Send button.
   if (
@@ -57,6 +60,18 @@ export const SendBody = ({
     return (
       <DisabledSendBody
         reason={t('Please provide all the required information to send.')}
+      />
+    );
+  }
+
+  if (
+    isDirectLedgerHyperEvmTransactionUnsupported(network, walletDetails?.type)
+  ) {
+    return (
+      <DisabledSendBody
+        reason={t(
+          'Sending on HyperEVM is not supported for direct Ledger wallets.',
+        )}
       />
     );
   }

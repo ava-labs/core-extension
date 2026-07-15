@@ -25,6 +25,7 @@ import {
   getProviderForNetwork,
   hasAtLeastOneElement,
   isEthereumNetwork,
+  isDirectLedgerHyperEvmTransactionUnsupported,
   isNotNullish,
   isPchainNetwork,
   isPrimaryAccount,
@@ -275,6 +276,12 @@ export class WalletService implements OnUnlock {
       return;
     }
     const { secretType } = secrets;
+
+    if (isDirectLedgerHyperEvmTransactionUnsupported(network, secretType)) {
+      throw new Error(
+        'Direct Ledger transactions are not supported on HyperEVM',
+      );
+    }
 
     const accountIndex: number | undefined = this.#isMultiSignerRequest(params)
       ? params.accountIndices[0]
