@@ -1,7 +1,6 @@
 import { ChainBadge } from '@/components/ChainBadge';
-import { hyperliquidCoinSvgUrl } from '@avalabs/hypercore-module';
 import { Badge, BadgeProps, Stack } from '@avalabs/k2-alpine';
-import { caipToChainId, HYPERCORE_CHAIN_ID } from '@core/common';
+import { caipToChainId } from '@core/common';
 import { TxHistoryItem } from '@core/types';
 import { FC } from 'react';
 import { TransactionTypeIcon } from './components/TransactionTypeIcon';
@@ -29,12 +28,6 @@ const resolveCoreChainId = (chainId: string) => {
 
 const TransactionIcon: FC<Props> = ({ transaction }) => {
   const coreChainId = resolveCoreChainId(transaction.chainId);
-  const [token] = transaction.tokens;
-  const isHypercore =
-    Number.isFinite(coreChainId) && coreChainId === HYPERCORE_CHAIN_ID;
-  const hypercoreCoin = isHypercore
-    ? (token?.name ?? token?.symbol)
-    : undefined;
 
   return (
     <Badge
@@ -56,17 +49,7 @@ const TransactionIcon: FC<Props> = ({ transaction }) => {
         bgcolor="background.paper"
         overflow="hidden"
       >
-        {hypercoreCoin ? (
-          <img
-            src={hyperliquidCoinSvgUrl(hypercoreCoin)}
-            alt=""
-            width={32}
-            height={32}
-            style={{ borderRadius: '50%', objectFit: 'cover' }}
-          />
-        ) : (
-          <TransactionTypeIcon transaction={transaction} />
-        )}
+        <TransactionTypeIcon transaction={transaction} />
       </Stack>
     </Badge>
   );

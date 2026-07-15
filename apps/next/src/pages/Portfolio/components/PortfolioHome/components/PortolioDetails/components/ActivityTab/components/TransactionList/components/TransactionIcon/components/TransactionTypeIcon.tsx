@@ -1,5 +1,5 @@
 import { BridgeIcon } from '@/components/BridgeIcon';
-import { ContractCallIcon, SwapIcon } from '@avalabs/k2-alpine';
+import { ContractCallIcon, FillOrderIcon, SwapIcon } from '@avalabs/k2-alpine';
 import { TransactionType } from '@avalabs/vm-module-types';
 import { isNftTokenType } from '@core/common';
 import { TxHistoryItem } from '@core/types';
@@ -53,7 +53,7 @@ export const TransactionTypeIcon: FC<Props> = ({ transaction }) => {
       return <SwapIcon size={iconSize} viewBox={k2IconViewBoxFix} />;
     }
     case TransactionType.FILL_ORDER: {
-      return <SwapIcon size={iconSize} viewBox={k2IconViewBoxFix} />;
+      return <FillOrderIcon size={iconSize} viewBox={k2IconViewBoxFix} />;
     }
     case TransactionType.APPROVE: {
       return <ContractCallIcon size={iconSize} viewBox={k2IconViewBoxFix} />;
