@@ -2,10 +2,14 @@ import {
   AvalancheCaip2ChainId,
   BitcoinCaip2ChainId,
   ChainId,
+  NetworkVMType,
 } from '@avalabs/core-chains-sdk';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
-import { NetworkVMType } from '@avalabs/vm-module-types';
 import { EnsureDefined, PartialBy, Network } from '@core/types';
+import {
+  HYPERCORE_CAIP_ID,
+  HYPERCORE_CHAIN_ID,
+} from './network/isHyperliquidNetwork';
 
 export enum CaipNamespace {
   AVAX = 'avax',
@@ -13,6 +17,7 @@ export enum CaipNamespace {
   EIP155 = 'eip155',
   HVM = 'hvm',
   SOLANA = 'solana',
+  HLCORE = 'hlcore',
 }
 
 export const BitcoinCaipId = {
@@ -44,6 +49,11 @@ export const AvaxCaipId = {
   // This, however, should not affect the functionality at the moment (e.g. Balance API would not support your devnet anyway).
   [ChainId.AVALANCHE_DEVNET_P]: `avax:devnet-p`,
   [ChainId.AVALANCHE_DEVNET_X]: `avax:devnet-x`,
+} as const;
+
+/** Synthetic Core list id → `hlcore:mainnet` (not an EVM chain; must not fall through to eip155). */
+export const HypercoreCaipId = {
+  [HYPERCORE_CHAIN_ID]: HYPERCORE_CAIP_ID,
 } as const;
 
 export const getNetworkCaipId = (network: PartialBy<Network, 'caipId'>) => {
@@ -129,17 +139,19 @@ export const caipToChainId = (identifier: string): number => {
     return Number(chainId);
   }
 
+  if (namespace === CaipNamespace.HLCORE) {
+    return HYPERCORE_CHAIN_ID;
+  }
+
   throw new Error('No chainId match for CAIP identifier: ' + identifier);
 };
 
-export const chainIdToCaip = (chainId: number): string => {
-  return (
-    BitcoinCaipId[chainId] ??
-    AvaxCaipId[chainId] ??
-    SolanaCaipId[chainId] ??
-    `eip155:${chainId}`
-  );
-};
+export const chainIdToCaip = (chainId: number): string =>
+  BitcoinCaipId[chainId] ??
+  AvaxCaipId[chainId] ??
+  SolanaCaipId[chainId] ??
+  HypercoreCaipId[chainId] ??
+  `eip155:${chainId}`;
 
 export const decorateWithCaipId = (
   network: Network,

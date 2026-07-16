@@ -1,6 +1,7 @@
 import { AvalancheModule } from '@avalabs/avalanche-module';
 import { BitcoinModule } from '@avalabs/bitcoin-module';
 import { EvmModule } from '@avalabs/evm-module';
+import { HypercoreModule } from '@avalabs/hypercore-module';
 import { HvmModule } from '@avalabs/hvm-module';
 import { SvmModule } from '@avalabs/svm-module';
 import {
@@ -101,6 +102,12 @@ export class ModuleManager {
         runtime: { fetch: circuitBreakerFetch },
       }),
       new SvmModule({
+        environment,
+        approvalController: this.#approvalController,
+        appInfo,
+        runtime: { fetch: circuitBreakerFetch },
+      }),
+      new HypercoreModule({
         environment,
         approvalController: this.#approvalController,
         appInfo,

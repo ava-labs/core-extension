@@ -32,7 +32,11 @@ import { getAddressByType } from '@/utils/getAddressByType';
 import { SendBody } from './components/SendBody';
 import { getAddressTypeForToken } from '../../lib/getAddressTypeForToken';
 
-const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
+const POLLED_BALANCES = [
+  TokenType.NATIVE,
+  TokenType.ERC20,
+  TokenType.HYPERCORE_SPOT,
+];
 
 export const Send = () => {
   useLiveBalance(POLLED_BALANCES);

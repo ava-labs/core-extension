@@ -24,6 +24,7 @@ const POLLED_BALANCES = [
   VmTokenType.NATIVE,
   VmTokenType.ERC20,
   VmTokenType.SPL,
+  VmTokenType.HYPERCORE_SPOT,
 ] as VmTokenType[];
 
 const FusionPage = () => {

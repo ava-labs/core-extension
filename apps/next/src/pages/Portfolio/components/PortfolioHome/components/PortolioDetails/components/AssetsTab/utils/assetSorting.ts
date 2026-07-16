@@ -1,6 +1,6 @@
 import { orderBy } from 'lodash';
 import { FungibleTokenBalance } from '@core/types';
-import { isAvaxToken } from '@/hooks/useTokensForAccount';
+import { isAvaxToken } from '@/lib/tokens';
 
 export type AssetSortOption =
   | 'default'

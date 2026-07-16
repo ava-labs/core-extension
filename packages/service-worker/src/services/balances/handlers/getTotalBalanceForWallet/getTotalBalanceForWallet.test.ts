@@ -358,7 +358,11 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
           ChainId.ETHEREUM_HOMESTEAD,
         ]),
         accounts: [ACCOUNT_IMPORTED_0],
-        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        tokenTypes: [
+          TokenType.NATIVE,
+          TokenType.ERC20,
+          TokenType.HYPERCORE_SPOT,
+        ],
         requestId: '__IMPORTED__',
       });
 
@@ -373,7 +377,11 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
           ChainId.ETHEREUM_HOMESTEAD,
         ]),
         accounts: [ACCOUNT_IMPORTED_1],
-        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        tokenTypes: [
+          TokenType.NATIVE,
+          TokenType.ERC20,
+          TokenType.HYPERCORE_SPOT,
+        ],
         requestId: '__IMPORTED__',
       });
     });
@@ -417,7 +425,11 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
           ChainId.ETHEREUM_HOMESTEAD,
         ]),
         accounts: [ACCOUNT_SEEDLESS],
-        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        tokenTypes: [
+          TokenType.NATIVE,
+          TokenType.ERC20,
+          TokenType.HYPERCORE_SPOT,
+        ],
         requestId: 'seedless',
       });
     });
@@ -461,7 +473,11 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
           ChainId.ETHEREUM_HOMESTEAD,
         ]),
         accounts: [ACCOUNT_SEED_0],
-        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        tokenTypes: [
+          TokenType.NATIVE,
+          TokenType.ERC20,
+          TokenType.HYPERCORE_SPOT,
+        ],
         requestId: 'seedphrase',
       });
 
@@ -476,7 +492,11 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
           ChainId.ETHEREUM_HOMESTEAD,
         ]),
         accounts: [ACCOUNT_SEED_1],
-        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        tokenTypes: [
+          TokenType.NATIVE,
+          TokenType.ERC20,
+          TokenType.HYPERCORE_SPOT,
+        ],
         requestId: 'seedphrase',
       });
 
@@ -511,7 +531,11 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
           ChainId.ETHEREUM_TEST_SEPOLIA,
         ]),
         accounts: [ACCOUNT_SEED_0],
-        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        tokenTypes: [
+          TokenType.NATIVE,
+          TokenType.ERC20,
+          TokenType.HYPERCORE_SPOT,
+        ],
         requestId: 'seedphrase',
       });
 
@@ -526,7 +550,11 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
           ChainId.ETHEREUM_TEST_SEPOLIA,
         ]),
         accounts: [ACCOUNT_SEED_1],
-        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        tokenTypes: [
+          TokenType.NATIVE,
+          TokenType.ERC20,
+          TokenType.HYPERCORE_SPOT,
+        ],
         requestId: 'seedphrase',
       });
 
@@ -825,7 +853,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
           ACCOUNT_LEDGER_1,
           ACCOUNT_SEEDLESS,
         ],
-        tokenTypes: ['NATIVE', 'ERC20'],
+        tokenTypes: ['NATIVE', 'ERC20', 'HYPERCORE_SPOT'],
         requestId: 'testing',
       });
     });

@@ -31,7 +31,11 @@ import { useApprovalHelpers } from './hooks';
 import { hasNoteWarning, hasOverlayWarning } from './lib';
 import { CancelActionFn, UpdateActionFn, ActionError } from './types';
 
-const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
+const POLLED_BALANCES = [
+  TokenType.NATIVE,
+  TokenType.ERC20,
+  TokenType.HYPERCORE_SPOT,
+];
 
 type BatchAction = MultiTxAction & {
   actionId: string;

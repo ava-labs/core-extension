@@ -41,7 +41,12 @@ export const HYPEREVM_NETWORK: Network = {
 export const HYPERCORE_NETWORK: Network = {
   chainName: HYPERCORE_CHAIN_NAME,
   chainId: HYPERCORE_CHAIN_ID,
+  // chains-sdk NetworkVMType has no HYPERCORE yet; CAIP (`caip2Id`) is the
+  // routing source of truth for ModuleManager → @avalabs/hypercore-module.
+  // Address resolution still uses addressC via the EVM branch until chains-sdk
+  // / BalancesService gain an explicit HYPERCORE case.
   vmName: NetworkVMType.EVM,
+  caip2Id: 'hlcore:mainnet',
   description: '',
   rpcUrl: '',
   isTestnet: false,

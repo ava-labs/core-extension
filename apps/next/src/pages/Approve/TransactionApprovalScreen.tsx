@@ -35,7 +35,11 @@ import {
   UpdateActionFn,
 } from './types';
 
-const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20]; // Approval screen should always have the latest balance
+const POLLED_BALANCES = [
+  TokenType.NATIVE,
+  TokenType.ERC20,
+  TokenType.HYPERCORE_SPOT,
+]; // Approval screen should always have the latest balance
 
 type TransactionApprovalScreenProps = {
   action: TransactionSigningRequest;

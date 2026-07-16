@@ -186,7 +186,11 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
         return true;
       }
       const key =
-        token.type === TokenType.NATIVE ? token.symbol : token.address;
+        token.type === TokenType.NATIVE
+          ? token.symbol
+          : token.type === TokenType.HYPERCORE_SPOT
+            ? `spot:${token.index}`
+            : token.address;
       const tokenVisibility = settings?.tokensVisibility?.[caipId]?.[key];
 
       // If the token is flagged as malicious, only show it if the user specifically enabled it.

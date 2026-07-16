@@ -1,8 +1,7 @@
-import { Network, NetworkToken } from '@avalabs/core-chains-sdk';
+import { Network, NetworkToken, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { HistoryService } from './HistoryService';
 import { TxHistoryItem } from '@core/types';
-import { NetworkVMType, TokenType } from '@avalabs/vm-module-types';
-import { TransactionType } from '@avalabs/vm-module-types';
+import { TokenType, TransactionType } from '@avalabs/vm-module-types';
 import { BridgeType } from '@avalabs/bridge-unified';
 
 const ETHEREUM_ADDRESS = '0x0000000000000000000000000000000000000000';

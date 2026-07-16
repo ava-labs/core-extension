@@ -355,6 +355,24 @@
         "buffer": true
       }
     },
+    "@avalabs/hypercore-module": {
+      "globals": {
+        "Buffer.from": true,
+        "DOMException": true,
+        "Intl.NumberFormat": true,
+        "fetch": true
+      },
+      "packages": {
+        "@avalabs/core-wallets-sdk": true,
+        "@avalabs/evm-module>@avalabs/crypto-sdk": true,
+        "@avalabs/vm-module-types": true,
+        "@metamask/rpc-errors": true,
+        "@avalabs/hypercore-module>big.js": true,
+        "buffer": true,
+        "ethers": true,
+        "@avalabs/hypercore-module>zod": true
+      }
+    },
     "@avalabs/svm-module": {
       "globals": {
         "Buffer.from": true,
@@ -4877,7 +4895,7 @@
       "packages": {
         "@avalabs/core-chains-sdk": true,
         "@avalabs/core-wallets-sdk": true,
-        "@avalabs/vm-module-types": true
+        "external:../common/src/utils/network/isHyperliquidNetwork.ts": true
       }
     },
     "external:../common/src/utils/calculateTotalAtomicFundsForAccounts.ts": {
@@ -5046,8 +5064,7 @@
     },
     "external:../common/src/utils/network/buildCoreEth.ts": {
       "packages": {
-        "@avalabs/core-chains-sdk": true,
-        "@avalabs/vm-module-types": true
+        "@avalabs/core-chains-sdk": true
       }
     },
     "external:../common/src/utils/network/getProviderForNetwork.ts": {
@@ -6677,6 +6694,12 @@
       }
     },
     "@avalabs/hvm-module>zod": {
+      "globals": {
+        "SuppressedError": true,
+        "URL": true
+      }
+    },
+    "@avalabs/hypercore-module>zod": {
       "globals": {
         "SuppressedError": true,
         "URL": true

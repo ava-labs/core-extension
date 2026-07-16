@@ -15,7 +15,11 @@ import * as Styled from './components/Styled';
 import { WalletList } from './components/WalletList';
 import { useImportWalletSuccess } from './hooks';
 
-const POLLED_BALANCES: TokenType[] = [TokenType.NATIVE, TokenType.ERC20];
+const POLLED_BALANCES: TokenType[] = [
+  TokenType.NATIVE,
+  TokenType.ERC20,
+  TokenType.HYPERCORE_SPOT,
+];
 
 export const WalletsHomePage: FC = () => {
   useLiveBalance(POLLED_BALANCES);

@@ -103,6 +103,27 @@ jest.mock('@avalabs/svm-module', () => {
     }),
   };
 });
+jest.mock('@avalabs/hypercore-module', () => {
+  return {
+    HypercoreModule: jest.fn().mockImplementation(() => {
+      return {
+        getManifest: jest.fn().mockReturnValue({
+          name: 'HyperCore',
+          network: {
+            chainIds: ['hlcore:mainnet'],
+            namespaces: ['hlcore'],
+          },
+          permissions: {
+            rpc: {
+              methods: [],
+              dapps: false,
+            },
+          },
+        }),
+      };
+    }),
+  };
+});
 
 describe('ModuleManager', () => {
   let manager: ModuleManager;

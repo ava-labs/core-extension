@@ -198,7 +198,10 @@ export const useBridgeableTargetTokenList = (
     if (!sourceToken) return undefined;
     try {
       const tokenAddress =
-        sourceToken.type === TokenType.NATIVE ? undefined : sourceToken.address;
+        sourceToken.type === TokenType.NATIVE ||
+        sourceToken.type === TokenType.HYPERCORE_SPOT
+          ? undefined
+          : sourceToken.address;
       return buildAsset(
         sourceToken.assetType,
         sourceToken.name,

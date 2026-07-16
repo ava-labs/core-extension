@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { usePersonalAvatar } from '@/components/PersonalAvatar';
-import { useBalancesContext, useNetworkContext } from '@core/ui';
+import { useBalanceTotalInCurrency, useNetworkContext } from '@core/ui';
 import { useNetworksWithBalance } from '../hooks/useNetworksWithBalance';
 import { getAccountAvatars } from '../utils/accountAvatars';
 import { WalletBalance } from './WalletBalance';
@@ -17,8 +17,7 @@ type Props = {
 export const ImportedAccountDetails = ({ account }: Props) => {
   const { t } = useTranslation();
   const { avaxNetworkC } = useNetworkContext();
-  const { getTotalBalance } = useBalancesContext();
-  const balance = getTotalBalance(account.addressC);
+  const balance = useBalanceTotalInCurrency(account);
   const networksWithBalance = useNetworksWithBalance({ accountId: account.id });
 
   const {
