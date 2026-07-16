@@ -16,6 +16,47 @@ export const TEST_CONFIG = {
     password: process.env.WALLET_PASSWORD || 'TestPassword123!',
     recoveryPhrase12: process.env.RECOVERY_PHRASE_12_WORDS?.split(' ') || [],
     recoveryPhrase24: process.env.RECOVERY_PHRASE_24_WORDS?.split(' ') || [],
+    /** Raw private key used for the Import Private Key account-management flow. */
+    privateKey: process.env.PRIVATE_KEY_IMPORT || '',
+    /**
+     * Private key of the mainnet primary wallet's account. Importing it triggers
+     * the "This account has already been imported" duplicate confirmation.
+     */
+    privateKeyMain: process.env.PRIVATE_KEY_MAIN_EXT_WALLET || '',
+    /**
+     * X/P-Chain private key of the mainnet primary wallet. Importing it derives
+     * the X/P-Chain (AVM) address in `privateKeyXpExpectedAvmAddress`.
+     */
+    privateKeyXp: process.env.XP_PRIVATE_KEY_MAIN_EXT_WALLET || '',
+    /** Expected X/P-Chain address after importing `privateKeyXp`. */
+    privateKeyXpExpectedAvmAddress:
+      'avax1hypjnfr5fzqlpj5jrh2gqex2arujfl2lk9n9r5',
+  },
+  /**
+   * Keystore files used by the Import Keystore File account-management flow.
+   *
+   * The JSON files are stored in S3 under
+   * `s3://core-qa-automation-snapshots/ext/keystores/` and synced by the E2E
+   * workflows into `TEST_CONFIG.keystore.dir` (see below). Each file has its own
+   * password, provided via GitHub Actions secrets / local `.env`:
+   *   • keystore-v4.json            → PASSWORD_KEYSTORE_V4
+   *   • keystore-v6-private-key.json → PASSWORD_KEYSTORE_V6
+   */
+  keystore: {
+    /** Local directory (relative to the `e2e/` root) the S3 keystores sync into. */
+    dir: 'helpers/keystores',
+    v4: {
+      fileName: 'keystore-v4.json',
+      password: process.env.PASSWORD_KEYSTORE_V4 || '',
+    },
+    v6: {
+      fileName: 'keystore-v6-private-key.json',
+      password: process.env.PASSWORD_KEYSTORE_V6 || '',
+    },
+    /** Unsupported (v3) keystore used for the negative import test. */
+    invalid: {
+      fileName: 'invalid-keystore.json',
+    },
   },
   timeouts: {
     short: 5000,

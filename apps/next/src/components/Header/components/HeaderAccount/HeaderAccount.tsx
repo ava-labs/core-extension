@@ -61,6 +61,7 @@ export const HeaderAccount = () => {
 
           <AccountInfoClickableStack
             className={ACCOUNT_INFO_CLASS}
+            data-testid="account-info-clickable"
             direction="row"
             alignItems="center"
             onClick={() => history.push('/account-management')}

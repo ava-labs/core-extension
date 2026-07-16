@@ -62,7 +62,9 @@ export const ConnectAvalanche: FC<ConnectionStepProps> = ({
 
   return (
     <Stack height="100%" width="100%" {...stackProps}>
-      <FullscreenModalTitle>{t('Connect your Ledger')}</FullscreenModalTitle>
+      <FullscreenModalTitle data-testid="connect-ledger-title">
+        {t('Connect your Ledger')}
+      </FullscreenModalTitle>
       <FullscreenModalDescription>
         {status === 'error'
           ? t(

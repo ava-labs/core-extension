@@ -327,6 +327,11 @@ jobs:
       WALLET_PASSWORD: ${{ secrets.WALLET_PASSWORD }}
       RECOVERY_PHRASE_12_WORDS: ${{ secrets.RECOVERY_PHRASE_12_WORDS }}
       RECOVERY_PHRASE_24_WORDS: ${{ secrets.RECOVERY_PHRASE_24_WORDS }}
+      PRIVATE_KEY_IMPORT: ${{ secrets.PRIVATE_KEY_IMPORT }}
+      PRIVATE_KEY_MAIN_EXT_WALLET: ${{ secrets.PRIVATE_KEY_MAIN_EXT_WALLET }}
+      XP_PRIVATE_KEY_MAIN_EXT_WALLET: ${{ secrets.XP_PRIVATE_KEY_MAIN_EXT_WALLET }}
+      PASSWORD_KEYSTORE_V4: ${{ secrets.PASSWORD_KEYSTORE_V4 }}
+      PASSWORD_KEYSTORE_V6: ${{ secrets.PASSWORD_KEYSTORE_V6 }}
       APITOKEN_CRYPTOAPIS: ${{ secrets.APITOKEN_CRYPTOAPIS }}
       APITOKEN_ETHERSCAN: ${{ secrets.APITOKEN_ETHERSCAN }}
       APITOKEN_GLACIER: ${{ secrets.APITOKEN_GLACIER }}
@@ -404,6 +409,18 @@ jobs:
           aws s3 ls s3://core-qa-automation-snapshots/ext/alpha/ || echo "Failed to list S3 bucket"
           echo "=== Downloading snapshots ==="
           aws s3 sync s3://core-qa-automation-snapshots/ext/alpha/ .
+          echo "=== Downloaded files ==="
+          ls -la
+
+      - name: Download Keystore files from AWS S3 bucket
+        shell: bash
+        working-directory: e2e/helpers
+        run: |
+          mkdir -p keystores
+          cd keystores
+          source ~/py_env/bin/activate
+          echo "=== Downloading keystore files ==="
+          aws s3 sync s3://core-qa-automation-snapshots/ext/keystores/ .
           echo "=== Downloaded files ==="
           ls -la
 

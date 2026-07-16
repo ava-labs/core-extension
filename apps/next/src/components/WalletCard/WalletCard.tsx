@@ -77,6 +77,7 @@ export const WalletCard: FC<WalletCardProps> = ({
         expanded={isExpanded}
         onChange={(_, expanded) => setIsExpanded(expanded)}
         stickinessMargin={stickinessMargin}
+        data-testid={`wallet-card-${id}`}
       >
         <Styled.AccordionSummary
           component="div"
@@ -107,7 +108,11 @@ export const WalletCard: FC<WalletCardProps> = ({
             {disableRename ? (
               <Stack minWidth={0} overflow="hidden" flex={1}>
                 <Typography {...sharedTitleProps}>{name}</Typography>
-                <Typography variant="body3" color="text.disabled">
+                <Typography
+                  variant="body3"
+                  color="text.disabled"
+                  data-testid="wallet-account-count"
+                >
                   {accountsNumber > 1
                     ? t('{{count}} accounts', { count: accountsNumber })
                     : t('{{count}} account', { count: accountsNumber })}
@@ -118,7 +123,11 @@ export const WalletCard: FC<WalletCardProps> = ({
                 <RenamableTitle {...sharedTitleProps} onRename={handleRename}>
                   {name}
                 </RenamableTitle>
-                <Typography variant="body3" color="text.disabled">
+                <Typography
+                  variant="body3"
+                  color="text.disabled"
+                  data-testid="wallet-account-count"
+                >
                   {accountsNumber > 1
                     ? t('{{count}} accounts', { count: accountsNumber })
                     : t('{{count}} account', { count: accountsNumber })}

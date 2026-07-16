@@ -34,6 +34,7 @@ type Props = {
     | ((event: MouseEvent<HTMLButtonElement>) => Promise<void>);
   tooltip?: string;
   disabled?: boolean;
+  testId?: string;
 };
 
 export const AccountListItem: FC<Props> = ({
@@ -43,6 +44,7 @@ export const AccountListItem: FC<Props> = ({
   onClick,
   tooltip,
   disabled,
+  testId,
 }) => {
   const [isPending, setPending] = useState(false);
   const handleClick = async (event: MouseEvent<HTMLButtonElement>) => {
@@ -59,6 +61,7 @@ export const AccountListItem: FC<Props> = ({
       <Tooltip title={tooltip}>
         <ListItemButton
           component="button"
+          data-testid={testId}
           onClick={handleClick}
           disabled={isPending || disabled}
           sx={{

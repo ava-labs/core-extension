@@ -26,7 +26,10 @@ export const DuplicatedAccountConfirmation = ({
   }, [onCancel, capture]);
 
   return (
-    <Stack sx={{ height: '100%', mt: '23px' }}>
+    <Stack
+      sx={{ height: '100%', mt: '23px' }}
+      data-testid="duplicate-account-screen"
+    >
       <Typography
         variant="h2"
         sx={{
@@ -45,6 +48,7 @@ export const DuplicatedAccountConfirmation = ({
           color="primary"
           size="small"
           fullWidth
+          data-testid="import-duplicate-button"
           onClick={submitHandler}
         >
           {t('Import duplicate')}
