@@ -3295,7 +3295,7 @@ __metadata:
     "@ethereumjs/common": "npm:2.6.5"
     "@ethereumjs/tx": "npm:3.4.0"
     "@google/generative-ai": "npm:0.22.0"
-    "@hpke/core": "npm:1.2.5"
+    "@hpke/core": "npm:1.7.5"
     "@keystonehq/alias-sampling": "npm:0.1.2"
     "@keystonehq/animated-qr": "npm:0.5.2"
     "@keystonehq/bc-ur-registry-eth": "npm:0.15.2"
