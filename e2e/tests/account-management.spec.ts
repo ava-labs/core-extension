@@ -250,9 +250,7 @@ test.describe('Account Management Tests', () => {
 
       const ledgerPage = await accountManagement.openLedgerImportTab();
 
-      const connectTitle = ledgerPage.locator(
-        '[data-testid="connect-ledger-title"]',
-      );
+      const connectTitle = ledgerPage.getByTestId('connect-ledger-title');
       await expect(connectTitle).toBeVisible({ timeout: 30000 });
       await expect(connectTitle).toHaveText(/connect your ledger/i);
     },

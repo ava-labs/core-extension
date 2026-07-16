@@ -2,7 +2,7 @@
  * Account Management Page - "My wallets" screen, adding accounts, and the
  * add-wallet import flows (private key, recovery phrase, Ledger, keystore file).
  */
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
 import { waitForExtensionLoad } from '../../helpers/extensionHelpers';
 
@@ -47,58 +47,28 @@ export class AccountManagementPage extends BasePage {
 
   constructor(page: Page) {
     super(page);
-    this.accountInfoClickable = page.locator(
-      '[data-testid="account-info-clickable"]',
+    this.accountInfoClickable = page.getByTestId('account-info-clickable');
+    this.addConnectWalletButton = page.getByTestId('add-connect-wallet-button');
+    this.addAccountButton = page.getByTestId('add-account-button');
+    this.accountListItems = page.getByTestId('account-list-item');
+    this.privateKeyOption = page.getByTestId('add-wallet-private-key-option');
+    this.recoveryPhraseOption = page.getByTestId(
+      'add-wallet-recovery-phrase-option',
     );
-    this.addConnectWalletButton = page.locator(
-      '[data-testid="add-connect-wallet-button"]',
-    );
-    this.addAccountButton = page.locator('[data-testid="add-account-button"]');
-    this.accountListItems = page.locator('[data-testid="account-list-item"]');
-    this.privateKeyOption = page.locator(
-      '[data-testid="add-wallet-private-key-option"]',
-    );
-    this.recoveryPhraseOption = page.locator(
-      '[data-testid="add-wallet-recovery-phrase-option"]',
-    );
-    this.ledgerOption = page.locator(
-      '[data-testid="add-wallet-ledger-option"]',
-    );
-    this.keystoreOption = page.locator(
-      '[data-testid="add-wallet-keystore-option"]',
-    );
-    this.privateKeyInput = page.locator('[data-testid="private-key-input"]');
-    this.importPrivateKeySubmit = page.locator(
-      '[data-testid="import-private-key-submit"]',
-    );
-    this.importDuplicateButton = page.locator(
-      '[data-testid="import-duplicate-button"]',
-    );
-    this.duplicateAccountScreen = page.locator(
-      '[data-testid="duplicate-account-screen"]',
-    );
-    this.keystoreFileInput = page.locator(
-      '[data-testid="keystore-file-input"]',
-    );
-    this.keystoreNextButton = page.locator(
-      '[data-testid="keystore-next-button"]',
-    );
-    this.keystorePasswordInput = page.locator(
-      '[data-testid="keystore-password-input"]',
-    );
-    this.keystoreImportButton = page.locator(
-      '[data-testid="keystore-import-button"]',
-    );
-    this.keystoreError = page.locator('[data-testid="keystore-error"]');
-    this.keystoreTryAgainButton = page.locator(
-      '[data-testid="keystore-try-again-button"]',
-    );
-    this.importedAccountsCard = page.locator(
-      '[data-testid="wallet-card-__IMPORTED__"]',
-    );
-    this.accountAddressAvm = page.locator(
-      '[data-testid="account-address-avm"]',
-    );
+    this.ledgerOption = page.getByTestId('add-wallet-ledger-option');
+    this.keystoreOption = page.getByTestId('add-wallet-keystore-option');
+    this.privateKeyInput = page.getByTestId('private-key-input');
+    this.importPrivateKeySubmit = page.getByTestId('import-private-key-submit');
+    this.importDuplicateButton = page.getByTestId('import-duplicate-button');
+    this.duplicateAccountScreen = page.getByTestId('duplicate-account-screen');
+    this.keystoreFileInput = page.getByTestId('keystore-file-input');
+    this.keystoreNextButton = page.getByTestId('keystore-next-button');
+    this.keystorePasswordInput = page.getByTestId('keystore-password-input');
+    this.keystoreImportButton = page.getByTestId('keystore-import-button');
+    this.keystoreError = page.getByTestId('keystore-error');
+    this.keystoreTryAgainButton = page.getByTestId('keystore-try-again-button');
+    this.importedAccountsCard = page.getByTestId('wallet-card-__IMPORTED__');
+    this.accountAddressAvm = page.getByTestId('account-address-avm');
   }
 
   private extensionHostFromUrl(url: string): string | null {
@@ -198,9 +168,7 @@ export class AccountManagementPage extends BasePage {
   /** Fills the private key and clicks Import (once enabled). */
   async submitPrivateKey(privateKey: string): Promise<void> {
     await this.privateKeyInput.fill(privateKey);
-    await this.page
-      .locator('[data-testid="import-private-key-submit"]:not([disabled])')
-      .waitFor({ state: 'visible', timeout: 15000 });
+    await expect(this.importPrivateKeySubmit).toBeEnabled({ timeout: 15000 });
     await this.importPrivateKeySubmit.click();
   }
 
@@ -229,9 +197,7 @@ export class AccountManagementPage extends BasePage {
     await this.keystoreFileInput.waitFor({ state: 'attached', timeout: 15000 });
     await this.keystoreFileInput.setInputFiles(filePath);
 
-    await this.page
-      .locator('[data-testid="keystore-next-button"]:not([disabled])')
-      .waitFor({ state: 'visible', timeout: 15000 });
+    await expect(this.keystoreNextButton).toBeEnabled({ timeout: 15000 });
     await this.keystoreNextButton.click();
 
     await this.keystorePasswordInput.waitFor({
@@ -240,9 +206,7 @@ export class AccountManagementPage extends BasePage {
     });
     await this.keystorePasswordInput.fill(password);
 
-    await this.page
-      .locator('[data-testid="keystore-import-button"]:not([disabled])')
-      .waitFor({ state: 'visible', timeout: 15000 });
+    await expect(this.keystoreImportButton).toBeEnabled({ timeout: 15000 });
     await this.keystoreImportButton.click();
   }
 
@@ -257,7 +221,7 @@ export class AccountManagementPage extends BasePage {
     });
 
     const accountItem = this.importedAccountsCard
-      .locator('[data-testid="account-list-item"]')
+      .getByTestId('account-list-item')
       .first();
 
     // Expand the card if the account rows are collapsed.
@@ -316,9 +280,7 @@ export class AccountManagementPage extends BasePage {
 
     // Enter each recovery-phrase word.
     for (let i = 0; i < words.length; i++) {
-      const wordInput = importPage.locator(
-        `[data-testid="recovery-phrase-word-${i}"]`,
-      );
+      const wordInput = importPage.getByTestId(`recovery-phrase-word-${i}`);
       await wordInput.waitFor({ state: 'visible', timeout: 15000 });
       await wordInput.fill(words[i]);
     }
