@@ -1,14 +1,27 @@
 import { Card } from '@/components/Card';
 import { CORE_WEB_BASE_URL } from '@/config';
+import { ServiceType, Transfer } from '@avalabs/fusion-sdk';
 import { Box, Button, Stack, styled, Typography } from '@avalabs/k2-alpine';
-import { useBalancesContext } from '@core/ui/src/contexts/BalancesProvider';
-import { FC } from 'react';
+import { stripAddressPrefix } from '@core/common';
+import {
+  Account,
+  isCompletedTransfer,
+  isTransferInProgress,
+} from '@core/types';
+import {
+  useAccountsContext,
+  useBalancesContext,
+  useTransferTrackingContext,
+} from '@core/ui';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiAlertCircle } from 'react-icons/fi';
 
 type Props = {
   accountId: string | undefined;
 };
+
+const RECENT_AVALANCHE_CCT_COMPLETION_GRACE_PERIOD_MS = 15_000;
 
 const StyledCard = styled(Card)(({ theme }) =>
   theme.palette.mode === 'light'
@@ -18,13 +31,104 @@ const StyledCard = styled(Card)(({ theme }) =>
     : {},
 );
 
+const normalizeAddress = (address: string | undefined) =>
+  address ? stripAddressPrefix(address).toLowerCase() : undefined;
+
+const getAccountAddresses = (account: Account) =>
+  new Set(
+    [
+      normalizeAddress(account.addressC),
+      normalizeAddress(account.addressCoreEth),
+      normalizeAddress(account.addressAVM),
+      normalizeAddress(account.addressPVM),
+    ].filter((address): address is string => Boolean(address)),
+  );
+
+const isTransferForAccount = (
+  transfer: Transfer,
+  accountAddresses: Set<string>,
+) => {
+  const fromAddress = normalizeAddress(transfer.fromAddress);
+  const toAddress = normalizeAddress(transfer.toAddress);
+
+  return Boolean(
+    (fromAddress && accountAddresses.has(fromAddress)) ||
+      (toAddress && accountAddresses.has(toAddress)),
+  );
+};
+
 // TODO: Multiple token support
 export const AtomicFundsBalance: FC<Props> = ({ accountId }) => {
   const { t } = useTranslation();
+  const {
+    accounts: { active },
+  } = useAccountsContext();
   const { getAtomicBalance } = useBalancesContext();
+  const { transfers } = useTransferTrackingContext();
+  const [now, setNow] = useState(() => Date.now());
   const atomicBalance = getAtomicBalance(accountId);
 
-  if (!accountId || !atomicBalance?.balanceDisplayValue) {
+  const suppressRecoveryBannerUntil = useMemo(() => {
+    if (!active) {
+      return 0;
+    }
+
+    const accountAddresses = getAccountAddresses(active);
+
+    return transfers.reduce((suppressUntil, { transfer }) => {
+      if (
+        transfer.type !== ServiceType.AVALANCHE_CCT ||
+        !isTransferForAccount(transfer, accountAddresses)
+      ) {
+        return suppressUntil;
+      }
+
+      if (isTransferInProgress(transfer)) {
+        return Number.POSITIVE_INFINITY;
+      }
+
+      if (isCompletedTransfer(transfer)) {
+        return Math.max(
+          suppressUntil,
+          transfer.completedAtMs +
+            RECENT_AVALANCHE_CCT_COMPLETION_GRACE_PERIOD_MS,
+        );
+      }
+
+      return suppressUntil;
+    }, 0);
+  }, [active, transfers]);
+
+  useEffect(() => {
+    const currentTime = Date.now();
+
+    if (
+      suppressRecoveryBannerUntil === 0 ||
+      suppressRecoveryBannerUntil === Number.POSITIVE_INFINITY
+    ) {
+      return;
+    }
+
+    if (suppressRecoveryBannerUntil <= currentTime) {
+      setNow(currentTime);
+      return;
+    }
+
+    setNow(currentTime);
+
+    const timeout = setTimeout(
+      () => setNow(Date.now()),
+      suppressRecoveryBannerUntil - currentTime,
+    );
+
+    return () => clearTimeout(timeout);
+  }, [suppressRecoveryBannerUntil]);
+
+  if (
+    !accountId ||
+    !atomicBalance?.balanceDisplayValue ||
+    suppressRecoveryBannerUntil > now
+  ) {
     return null;
   }
 

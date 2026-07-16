@@ -50,6 +50,14 @@ export const SwapPair = () => {
     updateQuery,
     sourceTokenList,
     targetTokenList,
+    fetchNextTargetTokenPage,
+    isTargetTokenListLoading,
+    isTargetTokenListFetching,
+    targetChainOptions,
+    selectedTargetChainId,
+    setSelectedTargetChainId,
+    setIsTargetSelectOpen,
+    onTargetTokenChange,
     sourceToken,
     targetToken,
     userAmount,
@@ -61,7 +69,9 @@ export const SwapPair = () => {
   } = useFusionState();
 
   const fromTokenId = sourceToken ? getUniqueTokenId(sourceToken) : queryFromId;
-  const toTokenId = targetToken ? getUniqueTokenId(targetToken) : queryToId;
+  const targetTokenId = targetToken ? getUniqueTokenId(targetToken) : queryToId;
+  const isTargetSameAsSource = targetTokenId === fromTokenId;
+  const toTokenId = isTargetSameAsSource ? '' : targetTokenId;
   const isAvalancheCctEnabled = isFlagEnabled(
     FeatureGates.FUSION_AVALANCHE_CCT,
   );
@@ -135,6 +145,7 @@ export const SwapPair = () => {
           tokenHint={sourceToken ? t('You pay') : undefined}
           withPresetButtons={minimumRequiredTokens.state === 'complete'}
           chainFilterMode={chainFilterMode}
+          presetButtonSx={selectUtxosUrl ? { px: 1 } : undefined}
           presetButtonsStartSlot={
             selectUtxosUrl ? (
               <Button
@@ -159,7 +170,7 @@ export const SwapPair = () => {
           tokensForAccount={targetTokenList}
           onTokenChange={(value) => {
             unpin();
-            updateQuery({ to: value, toQuery: '' });
+            onTargetTokenChange(value);
           }}
           tokenQuery={toQuery}
           onQueryChange={(q) => updateQuery({ toQuery: q })}
@@ -172,6 +183,18 @@ export const SwapPair = () => {
             (quotesStatus === 'loading' && !selectedQuote)
           }
           chainFilterMode={chainFilterMode}
+          onEndReached={fetchNextTargetTokenPage}
+          defaultChainId="avalanche"
+          externalChainOptions={
+            targetChainOptions.length > 0 ? targetChainOptions : undefined
+          }
+          onChainChange={setSelectedTargetChainId}
+          selectedChainId={selectedTargetChainId}
+          onOpenChange={setIsTargetSelectOpen}
+          isLoadingTokens={
+            isTargetTokenListLoading || isTargetTokenListFetching
+          }
+          selectedTokenFallback={isTargetSameAsSource ? undefined : targetToken}
         />
       </Stack>
     </Card>

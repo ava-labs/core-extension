@@ -1,12 +1,27 @@
 import { Network } from '@avalabs/core-chains-sdk';
 
 export const HYPEREVM_CHAIN_ID = 999;
+export const HYPERCORE_CHAIN_ID = 9999; // synthetic, HyperCore has no real chain id
 
-const HYPERCORE_CHAIN_NAME = 'HyperCore';
-const HYPEREVM_CHAIN_NAME = 'HyperEVM';
+export const HYPEREVM_CHAIN_NAME = 'HyperEVM';
+export const HYPERCORE_CHAIN_NAME = 'HyperCore';
 
 export function isHyperliquidChainId(chainId: number) {
   return chainId === HYPEREVM_CHAIN_ID;
+}
+
+// HyperCore is a synthetic, display-only network: it is modeled as EVM for
+// reuse but has no RPC and no send/receive/swap/dApp actions, so EVM code paths
+// must guard against it. Matched by name because it has no canonical chain id.
+export function isHypercoreNetwork(network?: Network) {
+  if (!network) {
+    return false;
+  }
+
+  return (
+    network.chainName === HYPERCORE_CHAIN_NAME ||
+    network.chainId === HYPERCORE_CHAIN_ID
+  );
 }
 
 export function isHyperliquidNetwork(network?: Network) {
@@ -14,9 +29,7 @@ export function isHyperliquidNetwork(network?: Network) {
     return false;
   }
 
-  // HyperCore is not an EVM chain and has no canonical chain id (Fusion/Relay use a
-  // synthetic eip155:1337 at the SDK boundary, which collides with local devnets).
-  if (network.chainName === HYPERCORE_CHAIN_NAME) {
+  if (isHypercoreNetwork(network)) {
     return true;
   }
 

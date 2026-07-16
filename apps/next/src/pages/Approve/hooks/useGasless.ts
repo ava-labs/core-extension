@@ -5,7 +5,10 @@ import { toast, useAnalyticsContext, useNetworkFeeContext } from '@core/ui';
 import { isUndefined } from 'lodash';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { isPolymarketContract } from '../lib/isPolymarketContract';
 import { GaslessEligibilityParams, UseGasless } from './types';
+
+const POLYGON_CHAIN_ID = 137;
 
 export const useGasless: UseGasless = ({ action }) => {
   const { t } = useTranslation();
@@ -31,15 +34,28 @@ export const useGasless: UseGasless = ({ action }) => {
   useEffect(() => {
     if (eligibilityParams) {
       setGaslessEligibility(...eligibilityParams);
+    } else {
+      // Provider-level eligibility is shared across actions, so reset it here to
+      // avoid leaking a `true` value from a previous eligible action.
+      setGaslessDefaultValues();
     }
-  }, [eligibilityParams, setGaslessEligibility]);
+  }, [eligibilityParams, setGaslessEligibility, setGaslessDefaultValues]);
 
   // If we're eligible, fetch the gasless challenge
   useEffect(() => {
-    if (isGaslessEligible && gaslessPhase === GaslessPhase.NOT_READY) {
+    if (
+      eligibilityParams &&
+      isGaslessEligible &&
+      gaslessPhase === GaslessPhase.NOT_READY
+    ) {
       fetchAndSolveGaslessChallange();
     }
-  }, [isGaslessEligible, fetchAndSolveGaslessChallange, gaslessPhase]);
+  }, [
+    eligibilityParams,
+    isGaslessEligible,
+    fetchAndSolveGaslessChallange,
+    gaslessPhase,
+  ]);
 
   // Capture analytics for gasless funding errors
   useEffect(() => {
@@ -109,16 +125,25 @@ const getEligibilityParams = (
   const { signingData } = action;
   const evmChainId = caipToChainId(action.scope);
 
-  if (signingData?.type === RpcMethod.ETH_SEND_TRANSACTION) {
-    const fromAddress = isUndefined(signingData?.data.from)
-      ? undefined
-      : String(signingData?.data.from);
-    const nonce = isUndefined(signingData?.data.nonce)
-      ? undefined
-      : Number(signingData?.data.nonce);
-
-    return [evmChainId, fromAddress, nonce];
+  if (signingData?.type !== RpcMethod.ETH_SEND_TRANSACTION) {
+    return null;
   }
 
-  return [evmChainId, undefined, undefined];
+  const to = isUndefined(signingData?.data.to)
+    ? undefined
+    : String(signingData?.data.to);
+
+  // On Polygon, gas is only sponsored for Polymarket transactions
+  if (evmChainId === POLYGON_CHAIN_ID && !isPolymarketContract(to)) {
+    return null;
+  }
+
+  const fromAddress = isUndefined(signingData?.data.from)
+    ? undefined
+    : String(signingData?.data.from);
+  const nonce = isUndefined(signingData?.data.nonce)
+    ? undefined
+    : Number(signingData?.data.nonce);
+
+  return [evmChainId, fromAddress, nonce];
 };

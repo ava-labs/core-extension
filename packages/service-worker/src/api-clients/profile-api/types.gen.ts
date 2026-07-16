@@ -27,6 +27,10 @@ export type GetAddressesRequestBody = {
    * Whether the response should include 20 extra external addresses after the last index with activity.
    */
   withExtraAddresses?: boolean;
+  /**
+   * The number of consecutive inactive addresses that ends the derivation scan (the address gap limit). Must be greater than or equal to 20 and less than or equal to 100. Defaults to 50.
+   */
+  maxGap?: number;
 };
 
 /**

@@ -29,10 +29,14 @@ export const SwapCctTransactionWarning = () => {
           <MdErrorOutline size={24} color={theme.palette.error.main} />
         </Stack>
         <Stack>
-          <Typography variant="body2" color="error.main">
+          <Typography variant="caption" color="error.main">
             {t('This swap will require two transactions.')}
           </Typography>
-          <Typography variant="body2" color="error.main">
+          <Typography
+            variant="caption"
+            color="error.main"
+            sx={{ textWrap: 'pretty' }}
+          >
             {t('You will need to sign twice. One export and one import.')}
           </Typography>
         </Stack>

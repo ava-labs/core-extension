@@ -1,5 +1,6 @@
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import {
+  ButtonProps,
   CircularProgress,
   Collapse,
   Grow,
@@ -27,6 +28,7 @@ import { useConvertedCurrencyFormatter } from '@core/ui';
 
 import { TokenSelect } from '@/components/TokenSelect';
 import { ChainFilterMode } from '@/components/TokenSelect/types';
+import { type ChainOption } from '@/components/TokenSelect/components/ChainFilterChips';
 import { getAvailableBalance } from '@/lib/getAvailableBalance';
 
 import { AmountPresetButton, InvisibleAmountInput } from './components';
@@ -53,6 +55,15 @@ type TokenAmountInputProps = {
   disabled?: boolean;
   chainFilterMode?: ChainFilterMode;
   presetButtonsStartSlot?: ReactNode;
+  presetButtonSx?: ButtonProps['sx'];
+  onEndReached?: () => void;
+  defaultChainId?: number | 'avalanche' | null;
+  externalChainOptions?: ChainOption[];
+  onChainChange?: (chainId: number | 'avalanche' | null) => void;
+  selectedChainId?: number | 'avalanche' | null;
+  onOpenChange?: (isOpen: boolean) => void;
+  isLoadingTokens?: boolean;
+  selectedTokenFallback?: FungibleTokenBalance;
 } & AmountInputProps;
 
 type AmountInputProps =
@@ -97,6 +108,15 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   disabled,
   chainFilterMode,
   presetButtonsStartSlot,
+  presetButtonSx,
+  onEndReached,
+  defaultChainId,
+  externalChainOptions,
+  onChainChange,
+  selectedChainId,
+  onOpenChange,
+  isLoadingTokens,
+  selectedTokenFallback,
 }) => {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -105,8 +125,10 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   const previousTokenIdRef = useRef<string>(tokenId);
 
   const token = useMemo(
-    () => tokensForAccount.find((tok) => getUniqueTokenId(tok) === tokenId),
-    [tokensForAccount, tokenId],
+    () =>
+      tokensForAccount.find((tok) => getUniqueTokenId(tok) === tokenId) ??
+      selectedTokenFallback,
+    [tokensForAccount, tokenId, selectedTokenFallback],
   );
 
   // Auto-focus the input when a token is selected for THIS specific component
@@ -213,6 +235,14 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
           hint={tokenHint}
           disabled={disabled}
           chainFilterMode={chainFilterMode}
+          onEndReached={onEndReached}
+          defaultChainId={defaultChainId}
+          externalChainOptions={externalChainOptions}
+          onChainChange={onChainChange}
+          selectedChainId={selectedChainId}
+          onOpenChange={onOpenChange}
+          isLoadingTokens={isLoadingTokens}
+          selectedTokenFallback={selectedTokenFallback}
         />
         <Grow in={Boolean(token)} mountOnEnter unmountOnExit>
           <InvisibleAmountInput
@@ -264,12 +294,14 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
             <AmountPresetButton
               onClick={() => handlePresetClick(25)}
               disabled={arePresetButtonsDisabled}
+              sx={presetButtonSx}
             >
               {t('25%')}
             </AmountPresetButton>
             <AmountPresetButton
               onClick={() => handlePresetClick(50)}
               disabled={arePresetButtonsDisabled}
+              sx={presetButtonSx}
             >
               {t('50%')}
             </AmountPresetButton>
@@ -277,6 +309,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
               data-testid="amount-preset-max"
               onClick={() => handlePresetClick(100)}
               disabled={arePresetButtonsDisabled}
+              sx={presetButtonSx}
             >
               {t('Max')}
             </AmountPresetButton>

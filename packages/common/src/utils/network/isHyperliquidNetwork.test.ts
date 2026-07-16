@@ -1,6 +1,8 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import {
+  HYPERCORE_CHAIN_ID,
   HYPEREVM_CHAIN_ID,
+  isHypercoreNetwork,
   isHyperliquidChainId,
   isHyperliquidNetwork,
 } from './isHyperliquidNetwork';
@@ -62,6 +64,42 @@ describe('isHyperliquidNetwork', () => {
         ...baseNetwork,
         chainId: 1337,
         chainName: 'Local Devnet',
+      }),
+    ).toBe(false);
+  });
+});
+
+describe('isHypercoreNetwork', () => {
+  it('returns false for undefined network', () => {
+    expect(isHypercoreNetwork(undefined)).toBe(false);
+  });
+
+  it('identifies HyperCore by chain name', () => {
+    expect(
+      isHypercoreNetwork({
+        ...baseNetwork,
+        chainId: 1,
+        chainName: 'HyperCore',
+      }),
+    ).toBe(true);
+  });
+
+  it('identifies HyperCore by synthetic chain id', () => {
+    expect(
+      isHypercoreNetwork({
+        ...baseNetwork,
+        chainId: HYPERCORE_CHAIN_ID,
+        chainName: 'Something else',
+      }),
+    ).toBe(true);
+  });
+
+  it('does not treat HyperEVM as HyperCore', () => {
+    expect(
+      isHypercoreNetwork({
+        ...baseNetwork,
+        chainId: HYPEREVM_CHAIN_ID,
+        chainName: 'HyperEVM',
       }),
     ).toBe(false);
   });
