@@ -9,6 +9,10 @@ import { TxHistoryItem } from '@core/types';
 import { Trans, useTranslation } from 'react-i18next';
 import { TransactionType } from '@avalabs/vm-module-types';
 import { FC, useMemo } from 'react';
+import {
+  MdArrowDownward as ArrowDownIcon,
+  MdArrowUpward as ArrowUpIcon,
+} from 'react-icons/md';
 import { useAccountsContext } from '@core/ui/src/contexts/AccountsProvider';
 import { getAllAddressesForAccount, isNftTokenType } from '@core/common';
 import {
@@ -93,10 +97,11 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
           component="div"
           sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
         >
-          {label.arrow && (
-            <Typography component="span" sx={{ color: arrowColor }}>
-              {label.arrow}
-            </Typography>
+          {label.direction === 'up' && (
+            <ArrowUpIcon size={12} color={arrowColor} />
+          )}
+          {label.direction === 'down' && (
+            <ArrowDownIcon size={12} color={arrowColor} />
           )}
           {label.text}
         </Typography>
