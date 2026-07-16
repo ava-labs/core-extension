@@ -15,7 +15,11 @@ type Props = {
   className?: string;
 };
 
-const POLLED_BALANCES: TokenType[] = [TokenType.NATIVE, TokenType.ERC20];
+const POLLED_BALANCES: TokenType[] = [
+  TokenType.NATIVE,
+  TokenType.ERC20,
+  TokenType.HYPERCORE_SPOT,
+];
 
 const Root = styled('div')(({ theme }) => ({
   display: 'grid',

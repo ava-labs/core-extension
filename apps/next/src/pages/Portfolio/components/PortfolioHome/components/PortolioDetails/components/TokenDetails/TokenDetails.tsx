@@ -2,7 +2,11 @@ import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 import { PageTopBar } from '@/components/PageTopBar';
 import { TokenAvatar } from '@/components/TokenAvatar';
 import { Box, Stack, Typography } from '@avalabs/k2-alpine';
-import { isPchainNetworkId, isXchainNetworkId } from '@core/common';
+import {
+  isHypercoreNetwork,
+  isPchainNetworkId,
+  isXchainNetworkId,
+} from '@core/common';
 import { useBalancesContext, useNetworkContext } from '@core/ui';
 import { useHistory, useParams } from 'react-router-dom';
 import { AssetsErrorState } from '../AssetsTab';
@@ -97,7 +101,9 @@ export const TokenDetails = () => {
                   {tokenBalanceInCurrency} {currency}
                 </Typography>
               </Stack>
-              <PortfolioActionButtons network={network} token={token} />
+              {!isHypercoreNetwork(network) && (
+                <PortfolioActionButtons network={network} token={token} />
+              )}
             </StyledTokenSummary>
 
             <StyledTokenDetailsContent>

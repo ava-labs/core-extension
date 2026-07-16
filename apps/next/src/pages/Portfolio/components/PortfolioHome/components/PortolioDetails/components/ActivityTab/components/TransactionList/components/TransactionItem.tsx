@@ -12,6 +12,7 @@ import { format, isToday, isYesterday } from 'date-fns';
 import { FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { parseHypercoreFillMethod } from '@avalabs/hypercore-module';
 import * as Styled from './Styled';
 import { TransactionDescription } from './TransactionDescription';
 import { TransactionIcon } from './TransactionIcon';
@@ -82,6 +83,7 @@ export const TransactionItem: FC<Props> = ({ transaction }) => {
   const { currencyFormatter } = useSettingsContext();
 
   const [token] = transaction.tokens;
+  const fillMeta = parseHypercoreFillMethod(transaction.method);
 
   const isDateToday = isToday(transaction.timestamp);
   const isDateYesterday = isYesterday(transaction.timestamp);
@@ -110,9 +112,23 @@ export const TransactionItem: FC<Props> = ({ transaction }) => {
       : undefined;
   }, [priceLookupKey, transaction.historyTokenUsdPrices]);
 
-  const usdValue = tokenPrice
-    ? tokenPrice * (Number(token?.amount) || 0) * directionModifier
-    : null;
+  const fillPnl = fillMeta ? Number.parseFloat(fillMeta.closedPnl) : undefined;
+  const hasFillPnl = fillPnl !== undefined && Number.isFinite(fillPnl);
+
+  const usdValue = hasFillPnl
+    ? fillPnl
+    : tokenPrice !== undefined
+      ? (tokenPrice ?? 0) * (Number(token?.amount) || 0) * directionModifier
+      : null;
+
+  const amountSlotProps =
+    fillMeta !== undefined
+      ? hasFillPnl && fillPnl < 0
+        ? sentAmountSlotProps
+        : receivedAmountSlotProps
+      : transaction.isSender
+        ? sentAmountSlotProps
+        : receivedAmountSlotProps;
 
   return (
     <ListItem
@@ -133,10 +149,8 @@ export const TransactionItem: FC<Props> = ({ transaction }) => {
       </Styled.ListItemIcon>
       <ListItemText
         primary={<TransactionDescription transaction={transaction} />}
-        secondary={usdValue ? currencyFormatter(usdValue) : ''}
-        slotProps={
-          transaction.isSender ? sentAmountSlotProps : receivedAmountSlotProps
-        }
+        secondary={usdValue != null ? currencyFormatter(usdValue) : ''}
+        slotProps={amountSlotProps}
       />
       <ListItemText
         primary={

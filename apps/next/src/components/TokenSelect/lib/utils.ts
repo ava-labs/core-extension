@@ -1,6 +1,10 @@
 import { TokenType } from '@avalabs/vm-module-types';
 
-import { getUniqueTokenId, FungibleTokenBalance } from '@core/types';
+import {
+  getFungibleTokenKey,
+  getUniqueTokenId,
+  FungibleTokenBalance,
+} from '@core/types';
 
 export const compareTokens = (
   a: FungibleTokenBalance,
@@ -16,7 +20,9 @@ export const searchTokens = <T extends FungibleTokenBalance>(
   const normalizedSymbol = token.symbol.toLowerCase();
   const normalizedName = token.name?.toLowerCase();
   const normalizedAddress =
-    token.type !== TokenType.NATIVE ? token.address.toLowerCase() : '';
+    token.type !== TokenType.NATIVE
+      ? getFungibleTokenKey(token).toLowerCase()
+      : '';
   const normalizedQuery = query?.toLowerCase() ?? '';
 
   return (

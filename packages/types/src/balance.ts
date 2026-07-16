@@ -176,6 +176,7 @@ export type FungibleAssetType =
   | 'avm_native'
   | 'svm_native'
   | 'svm_spl'
+  | 'hypercore_spot'
   | 'unknown';
 
 export type FungibleTokenBalance = Exclude<
@@ -190,8 +191,15 @@ export type FungibleTokenBalance = Exclude<
 
 export type NonNativeFungibleTokenBalance = Exclude<
   FungibleTokenBalance,
-  { type: TokenType.NATIVE }
+  { type: TokenType.NATIVE } | { type: TokenType.HYPERCORE_SPOT }
 >;
+
+export type HypercoreSpotTokenBalance = Extract<
+  FungibleTokenBalance,
+  { type: TokenType.HYPERCORE_SPOT }
+> & {
+  assetType: 'hypercore_spot';
+};
 
 export type NativeTokenBalance = Extract<
   FungibleTokenBalance,
@@ -251,6 +259,15 @@ export type NonFungibleTokenBalance = NftTokenWithBalance & {
 };
 
 export const getUniqueTokenId = <T extends FungibleTokenBalance>(token: T) => {
+  if (token.type === TokenType.HYPERCORE_SPOT) {
+    return getUniqueTokenIdGeneric({
+      type: token.type,
+      symbol: token.symbol,
+      address: `spot:${token.index}`,
+      coreChainId: token.coreChainId,
+    });
+  }
+
   const normalizedSymbol = isEvmFungibleToken(token)
     ? token.symbol.toLowerCase()
     : token.symbol;
@@ -258,7 +275,9 @@ export const getUniqueTokenId = <T extends FungibleTokenBalance>(token: T) => {
     ? undefined
     : isEvmFungibleToken(token)
       ? token.address.toLowerCase()
-      : token.address;
+      : 'address' in token
+        ? token.address
+        : undefined;
 
   return getUniqueTokenIdGeneric({
     type: token.type,
@@ -331,3 +350,19 @@ export const isSolanaFungibleToken = (
   token: FungibleTokenBalance,
 ): token is SolanaSplTokenBalance | SolanaNativeTokenBalance =>
   token.assetType === 'svm_spl' || token.assetType === 'svm_native';
+
+export const isHypercoreSpotToken = (
+  token: FungibleTokenBalance,
+): token is Extract<FungibleTokenBalance, { type: TokenType.HYPERCORE_SPOT }> =>
+  token.type === TokenType.HYPERCORE_SPOT;
+
+/** Route / visibility / search key for a fungible token. */
+export const getFungibleTokenKey = (token: FungibleTokenBalance) => {
+  if (token.type === TokenType.NATIVE) {
+    return token.symbol;
+  }
+  if (isHypercoreSpotToken(token)) {
+    return `spot:${token.index}`;
+  }
+  return token.address;
+};

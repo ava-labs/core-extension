@@ -7,7 +7,7 @@ import { Account, NetworkWithCaipId } from '@core/types';
 import {
   useAccountsContext,
   useAnalyticsContext,
-  useBalancesContext,
+  useBalanceTotalInCurrency,
   useSettingsContext,
 } from '@core/ui';
 import { FC, useCallback } from 'react';
@@ -35,9 +35,9 @@ export const WalletAccount: FC<Props> = ({
   const { privacyMode } = useSettingsContext();
   const history = useHistory();
   const { selectAccount, isActiveAccount } = useAccountsContext();
-  const { getTotalBalance } = useBalancesContext();
   const { currencyFormatter } = useSettingsContext();
   const { capture } = useAnalyticsContext();
+  const balance = useBalanceTotalInCurrency(account);
   const clickHandler = useCallback(async () => {
     await selectAccount(account.id);
 
@@ -47,8 +47,6 @@ export const WalletAccount: FC<Props> = ({
 
     history.push(`/portfolio`);
   }, [selectAccount, account.id, account.type, history, capture]);
-
-  const balance = getTotalBalance(account.addressC);
 
   return (
     <ClickableStack

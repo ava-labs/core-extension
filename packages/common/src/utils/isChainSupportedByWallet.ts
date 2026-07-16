@@ -1,4 +1,4 @@
-import { NetworkVMType } from '@avalabs/core-chains-sdk';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 import { SecretType } from '@core/types';
 
 export const isChainSupportedByWallet = (
@@ -11,6 +11,7 @@ export const isChainSupportedByWallet = (
 
   switch (networkType) {
     case NetworkVMType.EVM:
+    case NetworkVMType.HYPERCORE:
       return true;
     case NetworkVMType.AVM:
     case NetworkVMType.PVM:

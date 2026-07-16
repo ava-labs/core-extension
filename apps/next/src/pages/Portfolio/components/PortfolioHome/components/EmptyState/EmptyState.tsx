@@ -17,7 +17,7 @@ type TabConfig = {
 const tabConfig: Record<Exclude<TabName, 'activity'>, TabConfig> = {
   assets: {
     TabComponent: AssetsTab,
-    balancesFor: [TokenType.NATIVE, TokenType.ERC20],
+    balancesFor: [TokenType.NATIVE, TokenType.ERC20, TokenType.HYPERCORE_SPOT],
   },
   collectibles: {
     TabComponent: CollectiblesTab,

@@ -4,9 +4,12 @@ import {
   TokenType,
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
-import { orderBy } from 'lodash';
 
-import { chainIdToCaip, getAllAddressesForAccount } from '@core/common';
+import {
+  chainIdToCaip,
+  getAllAddressesForAccount,
+  isHypercoreNetwork,
+} from '@core/common';
 import {
   Account,
   FungibleAssetType,
@@ -19,6 +22,7 @@ import {
   useSettingsContext,
 } from '@core/ui';
 import { useMemo } from 'react';
+import { isChainIdRequested, sortFungibleTokens } from '@/lib/tokens';
 
 type UseTokensForAccountOptions = {
   // If omitted, all networks will be used.
@@ -32,6 +36,7 @@ const DEFAULT_OPTIONS: UseTokensForAccountOptions = {
   forceShowAllTokens: false,
 };
 
+/** Tokens from BalanceService for the account (incl. HyperCore when enabled). */
 export const useTokensForAccount = (
   account?: Account,
   options: UseTokensForAccountOptions = DEFAULT_OPTIONS,
@@ -80,7 +85,7 @@ export const useTokensForAccount = (
       }
     }
 
-    return sortTokens(
+    return sortFungibleTokens(
       options.forceShowAllTokens
         ? tokens
         : tokens
@@ -97,13 +102,6 @@ export const useTokensForAccount = (
   ]);
 };
 
-const isChainIdRequested = (chainId: string, networks: NetworkWithCaipId[]) => {
-  return (
-    networks.length === 0 ||
-    networks.some((network) => network.chainId === Number(chainId))
-  );
-};
-
 const decorateWithAssetTypeAndChainId = (
   token: Exclude<TokenWithBalance, NftTokenWithBalance>,
   network: NetworkWithCaipId,
@@ -118,6 +116,12 @@ const getFungibleAssetType = (
   token: TokenWithBalance,
   network: NetworkWithCaipId,
 ): FungibleAssetType => {
+  if (isHypercoreNetwork(network)) {
+    return token.type === TokenType.HYPERCORE_SPOT
+      ? 'hypercore_spot'
+      : 'evm_native';
+  }
+
   switch (network.vmName) {
     case NetworkVMType.EVM:
       return token.type === TokenType.NATIVE ? 'evm_native' : 'evm_erc20';
@@ -148,35 +152,3 @@ const getIsTokenVisible =
   (getTokenVisibility: TokenVisibilityChecker) =>
   (token: FungibleTokenBalance) =>
     getTokenVisibility(token, chainIdToCaip(token.coreChainId));
-
-const hasCurrencyValue = (
-  token: FungibleTokenBalance,
-): token is FungibleTokenBalance & { balanceInCurrency: number } =>
-  typeof token.balanceInCurrency === 'number';
-
-const isNativeToken = (
-  token: FungibleTokenBalance,
-): token is FungibleTokenBalance & { type: TokenType.NATIVE } =>
-  token.type === TokenType.NATIVE;
-
-export const isAvaxToken = (
-  token: FungibleTokenBalance,
-): token is FungibleTokenBalance & { type: TokenType.NATIVE } =>
-  token.type === TokenType.NATIVE && token.symbol === 'AVAX';
-
-/**
- * Native tokens first, then tokens sorted by balance in currency, then tokens sorted by balance, then tokens sorted by symbol
- */
-const sortTokens = (tokens: FungibleTokenBalance[]): FungibleTokenBalance[] =>
-  orderBy(
-    tokens,
-    [
-      isAvaxToken,
-      isNativeToken,
-      hasCurrencyValue,
-      (t) => t.balanceInCurrency ?? 0,
-      (t) => t.balance ?? 0n,
-      (t) => t.name ?? '',
-    ],
-    ['desc', 'desc', 'desc', 'desc', 'desc', 'asc'], // isNativeToken and hasCurrencyValue return booleans and true > false (1 > 0)
-  );

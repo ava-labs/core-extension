@@ -94,6 +94,25 @@ describe('isHypercoreNetwork', () => {
     ).toBe(true);
   });
 
+  it('identifies HyperCore by CAIP id', () => {
+    expect(
+      isHypercoreNetwork({
+        ...baseNetwork,
+        chainId: 1,
+        chainName: 'Something else',
+        caip2Id: 'hlcore:mainnet',
+      }),
+    ).toBe(true);
+    expect(
+      isHypercoreNetwork({
+        ...baseNetwork,
+        chainId: 1,
+        chainName: 'Something else',
+        caipId: 'hlcore:mainnet',
+      }),
+    ).toBe(true);
+  });
+
   it('does not treat HyperEVM as HyperCore', () => {
     expect(
       isHypercoreNetwork({

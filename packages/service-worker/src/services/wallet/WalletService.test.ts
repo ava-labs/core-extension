@@ -828,7 +828,7 @@ describe('background/services/wallet/WalletService.ts', () => {
             },
             {
               ...networkMock,
-              vmName: NetworkVMType.PVM,
+              vmName: NetworkVMType.PVM as (typeof networkMock)['vmName'],
             },
           );
 
@@ -881,7 +881,7 @@ describe('background/services/wallet/WalletService.ts', () => {
 
           await walletService.sign(avalancheTxMock, {
             ...networkMock,
-            vmName: NetworkVMType.PVM,
+            vmName: NetworkVMType.PVM as (typeof networkMock)['vmName'],
             isTestnet: true,
           });
 

@@ -87,6 +87,30 @@
         "@avalabs/core-wallets-sdk>xss": true
       }
     },
+    "@avalabs/hypercore-module>@avalabs/crypto-sdk": {
+      "packages": {
+        "@core/service-worker>@avalabs/crypto-wasm": true
+      }
+    },
+    "@core/service-worker>@avalabs/crypto-wasm": {
+      "globals": {
+        "FinalizationRegistry": true,
+        "TextDecoder": true,
+        "URL": true,
+        "WebAssembly.RuntimeError": true,
+        "WebAssembly.instantiate": true,
+        "WorkerGlobalScope": true,
+        "XMLHttpRequest": true,
+        "console": true,
+        "fetch": true,
+        "process": true,
+        "setTimeout": true,
+        "window": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>process": true
+      }
+    },
     "@avalabs/fusion-sdk": {
       "globals": {
         "AbortController": true,
@@ -143,6 +167,24 @@
         "@core/ui>@ledgerhq/hw-app-eth": true,
         "@core/ui>@avalabs/hw-app-avalanche>bs58": true,
         "@rsbuild/plugin-node-polyfill>buffer": true
+      }
+    },
+    "@avalabs/hypercore-module": {
+      "globals": {
+        "Buffer.from": true,
+        "DOMException": true,
+        "Intl.NumberFormat": true,
+        "fetch": true
+      },
+      "packages": {
+        "@avalabs/core-wallets-sdk": true,
+        "@avalabs/hypercore-module>@avalabs/crypto-sdk": true,
+        "@avalabs/vm-module-types": true,
+        "@core/ui>@metamask/rpc-errors": true,
+        "@avalabs/hypercore-module>big.js": true,
+        "@rsbuild/plugin-node-polyfill>buffer": true,
+        "ethers": true,
+        "@avalabs/hypercore-module>zod": true
       }
     },
     "@avalabs/k2-alpine": {
@@ -1149,6 +1191,12 @@
         "@core/service-worker>tweetnacl": true
       }
     },
+    "@core/ui>@metamask/rpc-errors": {
+      "packages": {
+        "@core/ui>@metamask/rpc-errors>@metamask/utils": true,
+        "@core/ui>eth-rpc-errors>fast-safe-stringify": true
+      }
+    },
     "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/abi-utils>@metamask/utils": {
       "globals": {
         "Buffer": true,
@@ -1179,6 +1227,15 @@
         "@core/ui>@metamask/rpc-errors>@metamask/utils>pony-cause": true,
         "@core/ui>semver": true,
         "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/utils>superstruct": true
+      }
+    },
+    "@core/ui>@metamask/rpc-errors>@metamask/utils": {
+      "globals": {
+        "TextEncoder": true
+      },
+      "packages": {
+        "@core/ui>@metamask/rpc-errors>@metamask/utils>@metamask/superstruct": true,
+        "@core/ui>@metamask/rpc-errors>@metamask/utils>pony-cause": true
       }
     },
     "@avalabs/k2-alpine>@mui/material": {
@@ -4788,6 +4845,12 @@
         "navigator": true,
         "regexes": true,
         "util": true
+      }
+    },
+    "@avalabs/hypercore-module>zod": {
+      "globals": {
+        "SuppressedError": true,
+        "URL": true
       }
     },
     "@avalabs/vm-module-types>zod": {

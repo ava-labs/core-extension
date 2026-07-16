@@ -1,4 +1,4 @@
-import { NetworkVMType } from '@avalabs/vm-module-types';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { AvalancheCaip2ChainId } from '@avalabs/core-chains-sdk';
 
 import { CoreEthNetwork, NetworkWithCaipId } from '@core/types';

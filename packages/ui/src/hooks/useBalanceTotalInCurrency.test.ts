@@ -29,9 +29,9 @@ describe('hooks/useBalanceTotalInCurrency', () => {
     });
   });
 
-  it('returns null if address is not provided', () => {
+  it('returns undefined if address is not provided', () => {
     const { result } = renderHook(() => useBalanceTotalInCurrency());
-    expect(result.current).toBeNull();
+    expect(result.current).toBeUndefined();
   });
 
   it('returns the total balance of the given address', () => {

@@ -1,5 +1,5 @@
 import { openApprovalWindow } from '~/runtime/openApprovalWindow';
-import { NetworkVMType } from '@avalabs/vm-module-types';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import {
   Action,
   ActionStatus,
