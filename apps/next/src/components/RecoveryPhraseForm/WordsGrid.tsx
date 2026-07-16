@@ -31,6 +31,7 @@ export const WordsGrid: FC<WordsGridProps> = ({ count, words, setWords }) => {
                   borderRadius: theme.shape.borderRadius,
                 },
               },
+              htmlInput: { 'data-testid': `recovery-phrase-word-${i}` },
               input: {
                 startAdornment: (
                   <Typography

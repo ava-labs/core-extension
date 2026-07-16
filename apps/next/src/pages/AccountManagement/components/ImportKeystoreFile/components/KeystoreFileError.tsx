@@ -20,7 +20,7 @@ export const KeystoreFileError = ({
   const { title, hint } = getTranslatedError(error);
 
   return (
-    <Stack sx={{ flexGrow: 1 }}>
+    <Stack sx={{ flexGrow: 1 }} data-testid="keystore-error">
       <Stack
         sx={{
           justifyContent: 'center',
@@ -45,6 +45,7 @@ export const KeystoreFileError = ({
           variant="contained"
           color="primary"
           size="small"
+          data-testid="keystore-try-again-button"
         >
           {t('Try again')}
         </Button>

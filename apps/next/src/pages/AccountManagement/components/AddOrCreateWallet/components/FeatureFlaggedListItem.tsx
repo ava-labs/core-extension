@@ -10,6 +10,7 @@ type Props = {
   primary: string;
   secondary: string;
   onClick: () => void;
+  testId?: string;
 };
 
 export const FeatureFlaggedListItem: FC<Props> = ({
@@ -18,6 +19,7 @@ export const FeatureFlaggedListItem: FC<Props> = ({
   primary,
   secondary,
   onClick,
+  testId,
 }) => {
   const { isFlagEnabled } = useFeatureFlagContext();
 
@@ -33,6 +35,7 @@ export const FeatureFlaggedListItem: FC<Props> = ({
         primary={primary}
         secondary={secondary}
         onClick={onClick}
+        testId={testId}
       />
     </>
   );

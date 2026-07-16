@@ -15,6 +15,7 @@ export const AddOrConnectWalletButton: FC = () => {
   return (
     <IconButton
       size="medium"
+      data-testid="add-connect-wallet-button"
       onClick={() => push('/account-management/add-wallet')}
       color="primary"
     >
