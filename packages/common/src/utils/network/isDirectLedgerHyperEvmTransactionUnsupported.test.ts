@@ -36,7 +36,7 @@ describe('isDirectLedgerHyperEvmTransactionUnsupported', () => {
     },
   );
 
-  it('does not block direct Ledger transactions on other networks', () => {
+  it('does not block Ledger transactions on other networks', () => {
     expect(
       isDirectLedgerHyperEvmTransactionUnsupported(
         { chainId: 43114 },
