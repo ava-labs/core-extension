@@ -142,6 +142,7 @@
       "packages": {
         "@avalabs/avalanchejs": true,
         "@avalabs/fusion-sdk>@lombard.finance/sdk": true,
+        "@avalabs/fusion-sdk>@msgpack/msgpack": true,
         "@avalabs/fusion-sdk>@scure/base": true,
         "@solana/kit>@solana/addresses": true,
         "@solana/kit>@solana/keys>@solana/codecs-strings": true,
@@ -1236,6 +1237,12 @@
       "packages": {
         "@core/ui>@metamask/rpc-errors>@metamask/utils>@metamask/superstruct": true,
         "@core/ui>@metamask/rpc-errors>@metamask/utils>pony-cause": true
+      }
+    },
+    "@avalabs/fusion-sdk>@msgpack/msgpack": {
+      "globals": {
+        "TextDecoder": true,
+        "TextEncoder": true
       }
     },
     "@avalabs/k2-alpine>@mui/material": {
