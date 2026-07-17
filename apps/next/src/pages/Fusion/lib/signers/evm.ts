@@ -30,6 +30,22 @@ const getChainIdForBatch = (transactions: readonly EvmTransactionRequest[]) => {
   return chainId;
 };
 
+// eth_signTypedData_v4 (and the eth-sig-util signer it ultimately routes to)
+// require an explicit `EIP712Domain` type entry, which the SDK's typed-data
+// payload omits. Rebuild it from whichever domain fields are actually present.
+const EIP712_DOMAIN_FIELD_TYPES: Record<string, string> = {
+  name: 'string',
+  version: 'string',
+  chainId: 'uint256',
+  verifyingContract: 'address',
+  salt: 'bytes32',
+};
+
+const buildEip712DomainType = (domain: Record<string, unknown>) =>
+  Object.keys(EIP712_DOMAIN_FIELD_TYPES)
+    .filter((field) => domain[field] !== undefined)
+    .map((field) => ({ name: field, type: EIP712_DOMAIN_FIELD_TYPES[field] }));
+
 export function getEVMSigner(
   request: RequestHandlerType,
   _t: TFunction,
@@ -155,10 +171,50 @@ export function getEVMSigner(
     }
   };
 
+  const signTypedData: NonNullable<
+    EvmSignerWithMessage['signTypedData']
+  > = async ({ typedData, address, chainId }, stepDetails) => {
+    assert(address, UnifiedBridgeError.InvalidTxPayload);
+    assert(chainId, UnifiedBridgeError.MissingChainId);
+
+    // The typed data's own `domain.chainId` (e.g. 1337 internally for a Hyperliquid L1
+    // action) is signed verbatim — it is NOT overridden with the routing
+    // `chainId` below. The routing `chainId` only selects which network/account
+    // signs the message.
+    const payload = {
+      ...typedData,
+      types: {
+        EIP712Domain: buildEip712DomainType(
+          typedData.domain as Record<string, unknown>,
+        ),
+        ...typedData.types,
+      },
+    };
+
+    try {
+      const result = await request(
+        {
+          method: RpcMethod.SIGN_TYPED_DATA_V4,
+          params: [address, JSON.stringify(payload)],
+        },
+        {
+          scope: chainIdToCaip(Number(chainId)),
+          context: buildRequestContext(stepDetails),
+        },
+      );
+
+      return result as `0x${string}`;
+    } catch (err) {
+      console.error(`[fusion::evmSigner.signTypedData]`, err);
+      throw err;
+    }
+  };
+
   return {
     signBatch:
       isAutoSignSupported && isQuickSwapsEnabled ? signBatch : undefined,
     sign,
     signMessage,
+    signTypedData,
   };
 }
