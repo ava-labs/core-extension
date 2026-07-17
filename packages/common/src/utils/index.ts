@@ -64,6 +64,7 @@ export * from './network/addGlacierAPIKeyIfNeeded';
 export * from './network/buildCoreEth';
 export * from './network/buildGlacierAuthHeaders';
 export * from './network/getProviderForNetwork';
+export * from './network/isDirectLedgerHyperEvmTransactionUnsupported';
 export * from './network/isAvalancheNetwork';
 export * from './network/isAvalanchePchainNetwork';
 export * from './network/isAvalanchePrimaryNetwork';
