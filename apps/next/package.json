@@ -22,7 +22,7 @@
     "@avalabs/core-chains-sdk": "3.1.0-alpha.87",
     "@avalabs/core-utils-sdk": "3.1.0-alpha.87",
     "@avalabs/core-wallets-sdk": "3.1.0-alpha.87",
-    "@avalabs/fusion-sdk": "0.26.0",
+    "@avalabs/fusion-sdk": "0.0.0-feat-enable-hvm-big-blocks-20260717231714",
     "@avalabs/hypercore-module": "3.12.0",
     "@avalabs/k2-alpine": "1.266.0",
     "@avalabs/prediction-market-sdk": "1.1.4",
