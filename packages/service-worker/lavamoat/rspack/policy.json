@@ -5091,6 +5091,12 @@
         "@avalabs/core-chains-sdk": true
       }
     },
+    "external:../common/src/utils/network/isDirectLedgerHyperEvmTransactionUnsupported.ts": {
+      "packages": {
+        "external:../common/src/utils/network/isHyperliquidNetwork.ts": true,
+        "external:../types/src/index.ts": true
+      }
+    },
     "external:../common/src/utils/network/isEthereumNetwork.ts": {
       "packages": {
         "@avalabs/core-chains-sdk": true

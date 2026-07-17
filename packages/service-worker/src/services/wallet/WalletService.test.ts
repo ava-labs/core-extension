@@ -620,6 +620,20 @@ describe('background/services/wallet/WalletService.ts', () => {
       ).rejects.toThrow('Wallet not found');
     });
 
+    it('blocks direct Ledger transactions on HyperEVM', async () => {
+      mockLedgerWallet();
+
+      await expect(
+        walletService.sign(
+          txMock,
+          { chainId: 999, chainName: 'HyperEVM' } as Network,
+          tabId,
+        ),
+      ).rejects.toThrow(
+        'Direct Ledger transactions are not supported on HyperEVM',
+      );
+    });
+
     it('throws if there is no wallet for btc tx', async () => {
       spyOnGetWallet().mockResolvedValueOnce(walletMock);
 
@@ -1072,6 +1086,20 @@ describe('background/services/wallet/WalletService.ts', () => {
       ).rejects.toThrow('Wallet not found');
     });
 
+    it('blocks direct Ledger transaction batches on HyperEVM', async () => {
+      mockLedgerWallet();
+
+      await expect(
+        walletService.signTransactionBatch(
+          [{ from: '0x1', to: '0x2', value: 10n }],
+          { chainId: 999, chainName: 'HyperEVM' } as Network,
+          tabId,
+        ),
+      ).rejects.toThrow(
+        'Direct Ledger transactions are not supported on HyperEVM',
+      );
+    });
+
     it.each([
       ['WalletConnect wallets', Object.create(WalletConnectSigner.prototype)],
       ['Ledger wallets', Object.create(LedgerSigner.prototype)],
@@ -1227,6 +1255,20 @@ describe('background/services/wallet/WalletService.ts', () => {
       ).resolves.toBe('0x00002');
       expect(evmLedgerSignerMock.signMessage).toHaveBeenCalledTimes(2);
       expect(evmLedgerSignerMock.signMessage).toHaveBeenNthCalledWith(2, {});
+    });
+
+    it('blocks Direct Ledger message signing on HyperEVM', async () => {
+      mockLedgerWallet();
+      jest.spyOn(networkService, 'getNetwork').mockResolvedValue({
+        chainId: 999,
+        chainName: 'HyperEVM',
+      } as any);
+
+      await expect(
+        walletService.signMessage(MessageType.PERSONAL_SIGN, action),
+      ).rejects.toThrow(
+        'Direct Ledger transactions are not supported on HyperEVM',
+      );
     });
 
     it('signs typed data with Ledger', async () => {

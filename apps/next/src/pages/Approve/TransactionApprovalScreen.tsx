@@ -2,8 +2,9 @@ import { Stack } from '@avalabs/k2-alpine';
 import { TokenType } from '@avalabs/vm-module-types';
 import { FC, useCallback, useEffect, useRef } from 'react';
 
+import { isDirectLedgerHyperEvmTransactionUnsupported } from '@core/common';
 import { ActionStatus, GaslessPhase, NetworkWithCaipId } from '@core/types';
-import { useLiveBalance } from '@core/ui';
+import { useLiveBalance, useWalletContext } from '@core/ui';
 import { useTranslation } from 'react-i18next';
 
 import { NoScrollStack } from '@/components/NoScrollStack';
@@ -70,7 +71,10 @@ const TransactionApprovalScreenContent: FC<TransactionApprovalScreenProps> = ({
   useLiveBalance(POLLED_BALANCES);
 
   const { isUsingHardwareWallet, deviceType } = useIsUsingHardwareWallet();
+  const { walletDetails } = useWalletContext();
   const { isUpdating: isUpdatingTxData } = useTxDataUpdate();
+  const isDirectLedgerHyperEvmTransactionBlocked =
+    isDirectLedgerHyperEvmTransactionUnsupported(network, walletDetails?.type);
 
   const { tryFunding, setGaslessDefaultValues, gaslessPhase } = useGasless({
     action,
@@ -135,6 +139,17 @@ const TransactionApprovalScreenContent: FC<TransactionApprovalScreenProps> = ({
             />
           </Stack>
         )}
+        {isDirectLedgerHyperEvmTransactionBlocked && (
+          <Stack px={2} mt={1.5} mb={1.5}>
+            <SimulationAlertBox
+              textLines={[
+                t(
+                  'Transactions on HyperEVM are not supported for direct Ledger wallets.',
+                ),
+              ]}
+            />
+          </Stack>
+        )}
         <Stack flexGrow={1} px={2}>
           <ActionDetails
             network={network}
@@ -148,7 +163,9 @@ const TransactionApprovalScreenContent: FC<TransactionApprovalScreenProps> = ({
           approve={() => tryFunding(handleApproval)}
           reject={handleRejection}
           isProcessing={isProcessing}
-          isDisabled={isUpdatingTxData}
+          isDisabled={
+            isUpdatingTxData || isDirectLedgerHyperEvmTransactionBlocked
+          }
           withConfirmationSwitch={hasOverlayWarning(action)}
         />
       </NoScrollStack>
