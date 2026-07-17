@@ -73,7 +73,7 @@
         "@avalabs/bridge-unified>@noble/hashes": true,
         "@avalabs/bridge-unified>@scure/base": true,
         "@avalabs/fusion-sdk>coinselect": true,
-        "lodash": true,
+        "@avalabs/bridge-unified>lodash": true,
         "@avalabs/bridge-unified>viem": true,
         "@avalabs/bridge-unified>zod": true
       }
@@ -106,7 +106,6 @@
     "@avalabs/core-utils-sdk": {
       "globals": {
         "AbortController": true,
-        "URL": true,
         "URLSearchParams": true,
         "clearTimeout": true,
         "fetch": true,
@@ -114,8 +113,7 @@
       },
       "packages": {
         "@avalabs/core-utils-sdk>big.js": true,
-        "bn.js": true,
-        "@avalabs/core-utils-sdk>is-ipfs": true
+        "bn.js": true
       }
     },
     "@avalabs/avalanche-module>@avalabs/core-utils-sdk": {
@@ -137,6 +135,16 @@
         "clearTimeout": true,
         "fetch": true,
         "setTimeout": true
+      }
+    },
+    "@avalabs/evm-module>@avalabs/core-utils-sdk": {
+      "globals": {
+        "URL": true
+      },
+      "packages": {
+        "@avalabs/core-utils-sdk>big.js": true,
+        "bn.js": true,
+        "@avalabs/core-utils-sdk>is-ipfs": true
       }
     },
     "@avalabs/core-wallets-sdk": {
@@ -236,7 +244,7 @@
       "packages": {
         "@avalabs/core-chains-sdk": true,
         "@avalabs/core-coingecko-sdk": true,
-        "@avalabs/core-utils-sdk": true,
+        "@avalabs/evm-module>@avalabs/core-utils-sdk": true,
         "@avalabs/core-wallets-sdk": true,
         "@avalabs/evm-module>@avalabs/crypto-sdk": true,
         "@avalabs/glacier-sdk": true,
@@ -1599,7 +1607,7 @@
         "fireblocks-sdk>@notabene/pii-sdk>bs58": true,
         "buffer": true,
         "fireblocks-sdk>@notabene/pii-sdk>did-jwt": true,
-        "lodash": true,
+        "fireblocks-sdk>@notabene/pii-sdk>lodash": true,
         "fireblocks-sdk>@notabene/pii-sdk>multibase": true,
         "fireblocks-sdk>@notabene/pii-sdk>multicodec": true
       }
@@ -5792,7 +5800,7 @@
         "buffer": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify": true,
         "fireblocks-sdk>jsonwebtoken>jws": true,
-        "lodash": true,
+        "fireblocks-sdk>jsonwebtoken>lodash": true,
         "fireblocks-sdk>jsonwebtoken>ms": true,
         "@rsbuild/plugin-node-polyfill>process": true,
         "semver": true
@@ -5852,6 +5860,21 @@
       }
     },
     "lodash": {
+      "globals": {
+        "define": true
+      }
+    },
+    "@avalabs/bridge-unified>lodash": {
+      "globals": {
+        "define": true
+      }
+    },
+    "fireblocks-sdk>@notabene/pii-sdk>lodash": {
+      "globals": {
+        "define": true
+      }
+    },
+    "fireblocks-sdk>jsonwebtoken>lodash": {
       "globals": {
         "define": true
       }
