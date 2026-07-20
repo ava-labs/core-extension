@@ -1,5 +1,6 @@
 import { hex, utf8 } from '@scure/base';
 import { TFunction } from 'react-i18next';
+import { getTypesForEIP712Domain } from 'viem';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import {
   EvmSignerWithMessage,
@@ -29,22 +30,6 @@ const getChainIdForBatch = (transactions: readonly EvmTransactionRequest[]) => {
 
   return chainId;
 };
-
-// eth_signTypedData_v4 (and the eth-sig-util signer it ultimately routes to)
-// require an explicit `EIP712Domain` type entry, which the SDK's typed-data
-// payload omits. Rebuild it from whichever domain fields are actually present.
-const EIP712_DOMAIN_FIELD_TYPES: Record<string, string> = {
-  name: 'string',
-  version: 'string',
-  chainId: 'uint256',
-  verifyingContract: 'address',
-  salt: 'bytes32',
-};
-
-const buildEip712DomainType = (domain: Record<string, unknown>) =>
-  Object.keys(EIP712_DOMAIN_FIELD_TYPES)
-    .filter((field) => domain[field] !== undefined)
-    .map((field) => ({ name: field, type: EIP712_DOMAIN_FIELD_TYPES[field] }));
 
 export function getEVMSigner(
   request: RequestHandlerType,
@@ -181,12 +166,14 @@ export function getEVMSigner(
     // action) is signed verbatim — it is NOT overridden with the routing
     // `chainId` below. The routing `chainId` only selects which network/account
     // signs the message.
+    //
+    // fusion-sdk mirrors viem's typed-data shape and omits `EIP712Domain`.
+    // Wagmi/viem inject it via getTypesForEIP712Domain before signing; we do
+    // the same here because eth_signTypedData_v4 / eth-sig-util require it.
     const payload = {
       ...typedData,
       types: {
-        EIP712Domain: buildEip712DomainType(
-          typedData.domain as Record<string, unknown>,
-        ),
+        EIP712Domain: getTypesForEIP712Domain({ domain: typedData.domain }),
         ...typedData.types,
       },
     };
