@@ -91,6 +91,7 @@ export type FusionState = QueryState & {
   setSelectedTargetChainId: (id: number | 'avalanche' | null) => void;
   setIsTargetSelectOpen: (isOpen: boolean) => void;
   onTargetTokenChange: (tokenId: string) => void;
+  onTokenPairFlip: () => void;
   sourceToken: FungibleTokenBalance | undefined;
   targetToken: FungibleTokenBalance | undefined;
   account?: Account;

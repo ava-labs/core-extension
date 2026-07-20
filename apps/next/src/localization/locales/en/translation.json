@@ -861,6 +861,7 @@
   "Swapped {{sourceToken}} to {{targetToken}}": "Swapped {{sourceToken}} to {{targetToken}}",
   "Swapping {{sourceToken}} to {{targetToken}} failed": "Swapping {{sourceToken}} to {{targetToken}} failed",
   "Swapping {{sourceToken}} to {{targetToken}} in progress...": "Swapping {{sourceToken}} to {{targetToken}} in progress...",
+  "Switch source and destination tokens": "Switch source and destination tokens",
   "System": "System",
   "Testnet mode": "Testnet mode",
   "Testnet mode is off": "Testnet mode is off",

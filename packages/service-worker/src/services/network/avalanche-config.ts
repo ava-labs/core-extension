@@ -17,8 +17,8 @@ export const BASE_NETWORK_CONFIG_BY_TYPE: Record<
 };
 
 export const LOGO_BY_ALIAS: Record<'p' | 'x', string> = {
-  x: 'https://images.ctfassets.net/gcj8jwzm6086/5xiGm7IBR6G44eeVlaWrxi/1b253c4744a3ad21a278091e3119feba/xchain-square.svg',
-  p: 'https://images.ctfassets.net/gcj8jwzm6086/42aMwoCLblHOklt6Msi6tm/1e64aa637a8cead39b2db96fe3225c18/pchain-square.svg',
+  x: 'https://images.ctfassets.net/gcj8jwzm6086/5xiGm7IBR6G44eeVlaWrxi/fa3ae7dad2d1d39720f4b132e6dfd63f/xchain-square.svg',
+  p: 'https://images.ctfassets.net/gcj8jwzm6086/42aMwoCLblHOklt6Msi6tm/b80574ddae50c0cebe904e0c09a60f00/pchain-square.svg',
 };
 
 export const getXPExplorerUrl = (
