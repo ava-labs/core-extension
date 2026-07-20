@@ -41,7 +41,8 @@ const FlipButton = styled(IconButton)(({ theme: { palette } }) => ({
     pointerEvents: 'auto',
     cursor: 'not-allowed',
     color: getHexAlpha(palette.text.primary, 70),
-    backgroundColor: palette.mode === 'light' ? 'glass.dark3' : 'glass.light2',
+    backgroundColor:
+      palette.mode === 'light' ? palette.glass.dark3 : palette.glass.light2,
   },
 }));
 
@@ -50,7 +51,7 @@ const FlipContainer = styled(Stack)(({ theme: { palette } }) => ({
   alignItems: 'center',
   justifyContent: 'center',
 
-  '::before, ::after': {
+  '&::before, &::after': {
     content: '""',
     position: 'absolute',
     height: '1px',
@@ -58,11 +59,11 @@ const FlipContainer = styled(Stack)(({ theme: { palette } }) => ({
     width: '50%',
     top: '50%',
   },
-  '::before': {
+  '&::before': {
     left: 0,
     transform: 'translateX(-18px)',
   },
-  '::after': {
+  '&::after': {
     left: '50%',
     transform: 'translateX(18px)',
   },
