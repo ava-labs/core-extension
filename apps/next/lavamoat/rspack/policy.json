@@ -623,28 +623,28 @@
       "packages": {
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/bytes": true,
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/logger": true,
-        "@core/ui>bn.js": true
+        "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/bignumber>bn.js": true
       }
     },
     "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>@ethersproject/address>@ethersproject/bignumber": {
       "packages": {
         "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>@ethersproject/address>@ethersproject/bytes": true,
         "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>@ethersproject/address>@ethersproject/logger": true,
-        "@core/ui>bn.js": true
+        "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>@ethersproject/address>@ethersproject/bignumber>bn.js": true
       }
     },
     "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/constants>@ethersproject/bignumber": {
       "packages": {
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/constants>@ethersproject/bignumber>@ethersproject/bytes": true,
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/constants>@ethersproject/bignumber>@ethersproject/logger": true,
-        "@core/ui>bn.js": true
+        "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/constants>@ethersproject/bignumber>bn.js": true
       }
     },
     "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/bignumber": {
       "packages": {
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/bytes": true,
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/logger": true,
-        "@core/ui>bn.js": true
+        "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/bignumber>bn.js": true
       }
     },
     "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/bytes": {
@@ -783,7 +783,7 @@
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/signing-key>@ethersproject/bytes": true,
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/signing-key>@ethersproject/logger": true,
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/properties": true,
-        "@core/ui>bn.js": true,
+        "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/signing-key>bn.js": true,
         "@keystonehq/hw-app-eth>elliptic>hash.js": true
       }
     },
@@ -1506,7 +1506,7 @@
         "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>bs58": true,
         "@rsbuild/plugin-node-polyfill>buffer": true,
         "@core/service-worker>fireblocks-sdk>@notabene/pii-sdk>did-jwt": true,
-        "@core/ui>lodash": true,
+        "@core/service-worker>fireblocks-sdk>@notabene/pii-sdk>lodash": true,
         "@core/service-worker>fireblocks-sdk>@notabene/pii-sdk>multibase": true,
         "@core/service-worker>fireblocks-sdk>@notabene/pii-sdk>multicodec": true
       }
@@ -2603,7 +2603,42 @@
         "Buffer": true
       }
     },
+    "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/bignumber>bn.js": {
+      "globals": {
+        "Buffer": true
+      }
+    },
+    "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>@ethersproject/address>@ethersproject/bignumber>bn.js": {
+      "globals": {
+        "Buffer": true
+      }
+    },
+    "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/constants>@ethersproject/bignumber>bn.js": {
+      "globals": {
+        "Buffer": true
+      }
+    },
+    "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/bignumber>bn.js": {
+      "globals": {
+        "Buffer": true
+      }
+    },
+    "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/signing-key>bn.js": {
+      "globals": {
+        "Buffer": true
+      }
+    },
     "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>parse-asn1>asn1.js>bn.js": {
+      "globals": {
+        "Buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>browserify-rsa>bn.js": {
+      "globals": {
+        "Buffer": true
+      }
+    },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>bn.js": {
       "globals": {
         "Buffer": true
       }
@@ -2623,12 +2658,22 @@
         "Buffer": true
       }
     },
+    "@core/ui>@ethereumjs/tx>ethereumjs-util>bn.js": {
+      "globals": {
+        "Buffer": true
+      }
+    },
     "@rsbuild/plugin-node-polyfill>crypto-browserify>diffie-hellman>miller-rabin>bn.js": {
       "globals": {
         "Buffer": true
       }
     },
     "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>bn.js": {
+      "globals": {
+        "Buffer": true
+      }
+    },
+    "@keystonehq/hw-app-eth>rlp>bn.js": {
       "globals": {
         "Buffer": true
       }
@@ -2677,14 +2722,14 @@
         "Buffer": true
       },
       "packages": {
-        "@core/ui>bn.js": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>browserify-rsa>bn.js": true,
         "@rsbuild/plugin-node-polyfill>buffer": true,
         "@core/ui>bip39>randombytes": true
       }
     },
     "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign": {
       "packages": {
-        "@core/ui>bn.js": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>bn.js": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>browserify-rsa": true,
         "@avalabs/core-wallets-sdk>create-hash": true,
         "@core/ui>bip32>create-hmac": true,
@@ -3127,7 +3172,7 @@
       },
       "packages": {
         "@rsbuild/plugin-node-polyfill>assert": true,
-        "@core/ui>bn.js": true,
+        "@core/ui>@ethereumjs/tx>ethereumjs-util>bn.js": true,
         "@core/service-worker>buffer": true,
         "@rsbuild/plugin-node-polyfill>buffer": true,
         "@avalabs/core-wallets-sdk>create-hash": true,
@@ -3627,7 +3672,7 @@
         "@rsbuild/plugin-node-polyfill>buffer": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify": true,
         "@core/service-worker>fireblocks-sdk>jsonwebtoken>jws": true,
-        "@core/ui>lodash": true,
+        "@core/service-worker>fireblocks-sdk>jsonwebtoken>lodash": true,
         "semantic-release>@semantic-release/npm>npm>ms": true,
         "@rsbuild/plugin-node-polyfill>process": true,
         "@core/ui>semver": true
@@ -3699,6 +3744,16 @@
       }
     },
     "@core/ui>lodash": {
+      "globals": {
+        "define": true
+      }
+    },
+    "@core/service-worker>fireblocks-sdk>@notabene/pii-sdk>lodash": {
+      "globals": {
+        "define": true
+      }
+    },
+    "@core/service-worker>fireblocks-sdk>jsonwebtoken>lodash": {
       "globals": {
         "define": true
       }
@@ -4390,7 +4445,7 @@
         "Buffer.isBuffer": true
       },
       "packages": {
-        "@core/ui>bn.js": true,
+        "@keystonehq/hw-app-eth>rlp>bn.js": true,
         "@rsbuild/plugin-node-polyfill>buffer": true
       }
     },

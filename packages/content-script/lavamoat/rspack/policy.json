@@ -44,7 +44,7 @@
         "bs58": true,
         "@rsbuild/plugin-node-polyfill>buffer": true,
         "did-jwt": true,
-        "semantic-release>lodash": true,
+        "@semantic-release/commit-analyzer>lodash": true,
         "multibase": true,
         "multicodec": true
       }
@@ -196,6 +196,11 @@
         "Buffer": true
       }
     },
+    "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>browserify-rsa>bn.js": {
+      "globals": {
+        "Buffer": true
+      }
+    },
     "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>bn.js": {
       "globals": {
         "Buffer": true
@@ -265,7 +270,7 @@
         "Buffer": true
       },
       "packages": {
-        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>bn.js": true,
+        "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>browserify-rsa>bn.js": true,
         "@rsbuild/plugin-node-polyfill>buffer": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify>randombytes": true
       }
@@ -746,7 +751,7 @@
         "@rsbuild/plugin-node-polyfill>buffer": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify": true,
         "jws": true,
-        "semantic-release>lodash": true,
+        "@semantic-release/commit-analyzer>lodash": true,
         "semantic-release>@semantic-release/npm>npm>ms": true,
         "@rsbuild/plugin-node-polyfill>process": true,
         "semantic-release>semver": true
@@ -780,7 +785,7 @@
         "setTimeout": true
       }
     },
-    "semantic-release>lodash": {
+    "@semantic-release/commit-analyzer>lodash": {
       "globals": {
         "define": true
       }
