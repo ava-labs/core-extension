@@ -304,6 +304,30 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     [browseTargetChainId, updateQuery, sourceTokenId, targetTokenList],
   );
 
+  const onTokenPairFlip = useCallback(() => {
+    if (
+      !sourceToken ||
+      !targetToken ||
+      !sourceTokenList.some(
+        (token) => getUniqueTokenId(token) === getUniqueTokenId(targetToken),
+      )
+    ) {
+      return;
+    }
+
+    setTargetToken(sourceToken);
+    setTargetTokenSourceTokenId(getUniqueTokenId(targetToken));
+    setCommittedTargetChainId(sourceToken.coreChainId);
+    setBrowseTargetChainId(sourceToken.coreChainId);
+    updateQuery({
+      from: getUniqueTokenId(targetToken),
+      fromQuery: '',
+      to: getUniqueTokenId(sourceToken),
+      toQuery: '',
+      userAmount: '',
+    });
+  }, [sourceToken, sourceTokenList, targetToken, updateQuery]);
+
   const { chain: sourceChain, asset: sourceAsset } =
     useAssetAndChain(sourceToken);
   const { chain: targetChain, asset: targetAsset } =
@@ -638,6 +662,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         setSelectedTargetChainId: setBrowseTargetChainId,
         setIsTargetSelectOpen,
         onTargetTokenChange,
+        onTokenPairFlip,
         sourceToken,
         targetToken,
         account: activeAccount,

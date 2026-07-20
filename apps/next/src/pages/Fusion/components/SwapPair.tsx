@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Divider, Stack } from '@avalabs/k2-alpine';
+import { Button, Stack } from '@avalabs/k2-alpine';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 
 import {
@@ -18,6 +18,7 @@ import { CORE_WEB_BASE_URL } from '@/config';
 import { useFusionState } from '../contexts';
 import { calculateNativeFee } from '../lib/calculateNativeFee';
 import { usePinnedMaxAmount } from '../hooks/usePinnedMaxAmount';
+import { PairFlipper } from './PairFlipper';
 
 const NATIVE_AVAX_ASSET_ID = 'NATIVE-avax';
 const DEFAULT_CORE_WEB_BASE_URL = 'https://core.app';
@@ -58,6 +59,7 @@ export const SwapPair = () => {
     setSelectedTargetChainId,
     setIsTargetSelectOpen,
     onTargetTokenChange,
+    onTokenPairFlip,
     sourceToken,
     targetToken,
     userAmount,
@@ -72,6 +74,13 @@ export const SwapPair = () => {
   const targetTokenId = targetToken ? getUniqueTokenId(targetToken) : queryToId;
   const isTargetSameAsSource = targetTokenId === fromTokenId;
   const toTokenId = isTargetSameAsSource ? '' : targetTokenId;
+  const canFlip = Boolean(
+    sourceToken &&
+      targetToken &&
+      sourceTokenList.some(
+        (token) => getUniqueTokenId(token) === getUniqueTokenId(targetToken),
+      ),
+  );
   const isAvalancheCctEnabled = isFlagEnabled(
     FeatureGates.FUSION_AVALANCHE_CCT,
   );
@@ -162,7 +171,14 @@ export const SwapPair = () => {
             ) : undefined
           }
         />
-        <Divider sx={{ mx: 2 }} />
+        <PairFlipper
+          ariaLabel={t('Switch source and destination tokens')}
+          disabled={!canFlip}
+          onClick={() => {
+            unpin();
+            onTokenPairFlip();
+          }}
+        />
         <TokenAmountInput
           autoFocus={false}
           id="swap-to-amount"
