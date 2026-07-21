@@ -123,7 +123,7 @@ const BatchApprovalContent: FC<BatchApprovalContentProps> = ({
             <SimulationAlertBox
               textLines={[
                 t(
-                  'Transactions on HyperEVM are not supported for direct Ledger wallets.',
+                  'Transactions on HyperEVM are not supported for Ledger wallets.',
                 ),
               ]}
             />

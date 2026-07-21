@@ -89,6 +89,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const { feeSetting } = useSettingsContext();
   const {
     balances: { loading: isBalancesLoading },
+    updateBalanceOnNetworks,
   } = useBalancesContext();
 
   const [isConfirming, setIsConfirming] = useState(false);
@@ -476,6 +477,29 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
 
         await trackTransfer(transferObject);
 
+        // HyperEVM is not indexed by the balance service, so do not rely on
+        // the normal cache cadence to reflect a completed swap. Refresh both
+        // sides of the route (a same-chain swap naturally de-duplicates).
+        const chainIds = [
+          ...new Set(
+            [sourceToken?.coreChainId, targetToken?.coreChainId].filter(
+              (chainId): chainId is number => typeof chainId === 'number',
+            ),
+          ),
+        ];
+
+        if (activeAccount && chainIds.length > 0) {
+          void updateBalanceOnNetworks([activeAccount], chainIds).catch(
+            (error) => {
+              // A refresh failure must not make an already-submitted swap fail.
+              console.error(
+                '[Fusion] Failed to refresh balances after swap',
+                error,
+              );
+            },
+          );
+        }
+
         replace(
           isCrossChainTransfer(transferObject)
             ? `/fusion-transfer/${transferObject.id}`
@@ -516,6 +540,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     },
     [
       manager,
+      activeAccount,
       fromAddress,
       toAddress,
       slippage,
@@ -525,7 +550,10 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       quotes,
       isUserSelectedQuote,
       selectedQuote,
+      sourceToken?.coreChainId,
+      targetToken?.coreChainId,
       trackTransfer,
+      updateBalanceOnNetworks,
       transferMarginBps,
       getNetworkFee,
       feeSetting,

@@ -1,5 +1,6 @@
 import { hex, utf8 } from '@scure/base';
 import { TFunction } from 'react-i18next';
+import { getTypesForEIP712Domain } from 'viem';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import {
   EvmSignerWithMessage,
@@ -155,10 +156,52 @@ export function getEVMSigner(
     }
   };
 
+  const signTypedData: NonNullable<
+    EvmSignerWithMessage['signTypedData']
+  > = async ({ typedData, address, chainId }, stepDetails) => {
+    assert(address, UnifiedBridgeError.InvalidTxPayload);
+    assert(chainId, UnifiedBridgeError.MissingChainId);
+
+    // The typed data's own `domain.chainId` (e.g. 1337 internally for a Hyperliquid L1
+    // action) is signed verbatim — it is NOT overridden with the routing
+    // `chainId` below. The routing `chainId` only selects which network/account
+    // signs the message.
+    //
+    // fusion-sdk mirrors viem's typed-data shape and omits `EIP712Domain`.
+    // Wagmi/viem inject it via getTypesForEIP712Domain before signing; we do
+    // the same here because eth_signTypedData_v4 / eth-sig-util require it.
+    const payload = {
+      ...typedData,
+      types: {
+        EIP712Domain: getTypesForEIP712Domain({ domain: typedData.domain }),
+        ...typedData.types,
+      },
+    };
+
+    try {
+      const result = await request(
+        {
+          method: RpcMethod.SIGN_TYPED_DATA_V4,
+          params: [address, JSON.stringify(payload)],
+        },
+        {
+          scope: chainIdToCaip(Number(chainId)),
+          context: buildRequestContext(stepDetails),
+        },
+      );
+
+      return result as `0x${string}`;
+    } catch (err) {
+      console.error(`[fusion::evmSigner.signTypedData]`, err);
+      throw err;
+    }
+  };
+
   return {
     signBatch:
       isAutoSignSupported && isQuickSwapsEnabled ? signBatch : undefined,
     sign,
     signMessage,
+    signTypedData,
   };
 }
