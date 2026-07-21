@@ -37,6 +37,8 @@ export const NETWORKS_ENABLED_BY_DEFAULT = [
   10, //Optimism Mainnet
   8453, //Base Mainnet
   137, //Polygon Mainnet
+  999, //HyperEVM
+  9999, //HyperCore
 ];
 
 export interface NetworkAvailability {
