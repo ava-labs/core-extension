@@ -30,6 +30,7 @@ const THROTTLE_MS = 10_000;
 export const usePinnedMaxAmount = (
   sourceToken: FungibleTokenBalance | undefined,
   tokenRequirements: RequiredTokenAmounts,
+  balanceCap?: bigint,
 ) => {
   const { updateQuery } = useFusionState();
   const pinnedAmount = useRef<bigint | undefined>(undefined);
@@ -62,8 +63,16 @@ export const usePinnedMaxAmount = (
       maxAmountTokenRequirements,
     );
 
-    return max > 0n ? max : undefined;
-  }, [sourceTokenId, sourceTokenBalance, maxAmountTokenRequirements]);
+    const capped =
+      balanceCap !== undefined && max > balanceCap ? balanceCap : max;
+
+    return capped > 0n ? capped : undefined;
+  }, [
+    sourceTokenId,
+    sourceTokenBalance,
+    maxAmountTokenRequirements,
+    balanceCap,
+  ]);
 
   useEffect(() => {
     const now = Date.now();

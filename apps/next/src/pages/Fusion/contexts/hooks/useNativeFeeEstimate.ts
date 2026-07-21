@@ -1,10 +1,14 @@
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { TransferManager, Quote } from '@avalabs/fusion-sdk';
 
+import { FUSION_HYPERCORE_CAIP_ID, fromFusionCaipId } from '@core/common';
 import { FeatureVars } from '@core/types';
 import { useFeatureFlagContext, useNetworkFeeContext } from '@core/ui';
 
 import { EstimatedFeeResult } from '../../types';
+
+const isHypercoreFusionSource = (quote: Quote) =>
+  quote.sourceChain.chainId === FUSION_HYPERCORE_CAIP_ID;
 
 export const useNativeFeeEstimate = (
   manager: TransferManager | undefined,
@@ -12,6 +16,14 @@ export const useNativeFeeEstimate = (
 ): EstimatedFeeResult => {
   const { getNetworkFee } = useNetworkFeeContext();
   const { selectFeatureFlag } = useFeatureFlagContext();
+
+  // HyperCore is a read-only module — no EVM gas rates. Skip entirely so we
+  // don't hit `getNetworkFee` (throws) or block Max / presets on feeError.
+  const canEstimate =
+    selectedQuote !== null &&
+    manager !== undefined &&
+    !isHypercoreFusionSource(selectedQuote);
+
   const {
     data: fee,
     error: feeError,
@@ -19,11 +31,11 @@ export const useNativeFeeEstimate = (
   } = useQuery({
     queryKey: ['useNativeFeeEstimate', selectedQuote?.id],
     queryFn:
-      selectedQuote && manager
+      canEstimate && selectedQuote && manager
         ? async () => {
             try {
               const fees = await getNetworkFee(
-                selectedQuote?.sourceChain.chainId,
+                fromFusionCaipId(selectedQuote.sourceChain.chainId),
               )
                 .then((presets) => ({
                   maxFeePerGas: presets?.high.maxFeePerGas,
@@ -65,7 +77,7 @@ export const useNativeFeeEstimate = (
 
   return {
     fee,
-    isFeeLoading,
-    feeError,
+    isFeeLoading: canEstimate && isFeeLoading,
+    feeError: canEstimate ? feeError : null,
   };
 };

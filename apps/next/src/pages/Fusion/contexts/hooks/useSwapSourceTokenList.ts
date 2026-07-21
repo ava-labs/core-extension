@@ -8,7 +8,13 @@ import { useTokensForAccount } from '@/hooks/useTokensForAccount';
 import { useMemo } from 'react';
 import { FungibleTokenBalance } from '@core/types';
 import { GetSupportedChainsResult } from '@avalabs/fusion-sdk';
-import { isChainSupportedByWalletOrAccount } from '@core/common';
+import {
+  caipIdsMatchForFusion,
+  isChainSupportedByWalletOrAccount,
+  isHypercoreNetwork,
+} from '@core/common';
+
+import { isHypercoreUsdcToken } from '../../lib/isHypercoreUsdcToken';
 
 export const useSwapSourceTokenList = (
   supportedChainsMap: GetSupportedChainsResult,
@@ -29,12 +35,23 @@ export const useSwapSourceTokenList = (
   return useMemo(
     () =>
       tokens.filter((token) => {
-        if (!sourceChains.some((caipId) => caipId === token.chainCaipId)) {
+        const network = getNetwork(token.chainCaipId);
+
+        if (isHypercoreNetwork(network) && !isHypercoreUsdcToken(token)) {
           return false;
         }
+
+        if (
+          !sourceChains.some((caipId) =>
+            caipIdsMatchForFusion(caipId, token.chainCaipId),
+          )
+        ) {
+          return false;
+        }
+
         // Hide chains the active wallet can't sign for (e.g. Solana on Keystone).
         return isChainSupportedByWalletOrAccount(
-          getNetwork(token.chainCaipId),
+          network,
           walletDetails,
           active,
         );

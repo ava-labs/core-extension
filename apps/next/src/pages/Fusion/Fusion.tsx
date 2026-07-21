@@ -19,6 +19,7 @@ import {
 import { SwapContent } from './SwapContent';
 import { SwapProviderNotice } from './components/SwapProviderNotice';
 import { SwapCctTransactionWarning } from './components/SwapCctTransactionWarning';
+import { SwapHypercoreStrandedMessage } from './components/SwapHypercoreStrandedMessage';
 
 const POLLED_BALANCES = [
   VmTokenType.NATIVE,
@@ -41,6 +42,9 @@ const FusionPage = () => {
     status,
     priceImpactSeverity,
     formError,
+    sourceToken,
+    hypercoreWithdrawableBalance,
+    hypercoreAbstractionMode,
   } = useFusionState();
   const { isRecurring, numberOfOrders } = useRecurringSwapState();
 
@@ -67,6 +71,11 @@ const FusionPage = () => {
       contentProps={{ justifyContent: 'flex-start', alignItems: 'stretch' }}
     >
       <SwapContent />
+      <SwapHypercoreStrandedMessage
+        sourceToken={sourceToken}
+        withdrawableBalance={hypercoreWithdrawableBalance}
+        abstractionMode={hypercoreAbstractionMode}
+      />
       <SwapActionButtonsContainer>
         <Stack
           width="100%"

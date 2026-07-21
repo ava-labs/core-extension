@@ -18,6 +18,7 @@ type UseSwapFormErrorArgs = Pick<
   | 'currentRequiredTokens'
 > & {
   recurring?: RecurringSwapValidation;
+  hypercoreWithdrawableBalance?: bigint;
 };
 
 export const useSwapFormError = ({
@@ -28,6 +29,7 @@ export const useSwapFormError = ({
   minimumTransferAmount,
   currentRequiredTokens,
   recurring,
+  hypercoreWithdrawableBalance,
 }: UseSwapFormErrorArgs) => {
   const { t } = useTranslation();
 
@@ -63,6 +65,7 @@ export const useSwapFormError = ({
     sourceToken,
     requiredTokens: currentRequiredTokens,
     recurring,
+    hypercoreWithdrawableBalance,
   });
 
   if (userQuoteAmountError) {

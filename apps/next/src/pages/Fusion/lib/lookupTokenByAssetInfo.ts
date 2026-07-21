@@ -3,6 +3,11 @@ import { TokenType as VmTokenType } from '@avalabs/vm-module-types';
 
 import { FungibleTokenBalance } from '@core/types';
 
+import {
+  HYPERLIQUID_USDC_TOKEN_ADDRESS,
+  isHypercoreUsdcToken,
+} from './isHypercoreUsdcToken';
+
 export type AssetLike =
   | {
       type: TokenType.NATIVE;
@@ -21,10 +26,24 @@ export const lookupTokenByAssetInfo = (
   }
 
   if (assetLike.type === TokenType.ERC20) {
-    return tokensByChainId.find(
+    const byAddress = tokensByChainId.find(
       (token) =>
         token.type === VmTokenType.ERC20 && token.address === assetLike.address,
     );
+
+    if (byAddress) {
+      return byAddress;
+    }
+
+    // HyperCore USDC is NATIVE in balances but Markr quotes it as ERC20 zero-address.
+    if (
+      assetLike.address.toLowerCase() ===
+      HYPERLIQUID_USDC_TOKEN_ADDRESS.toLowerCase()
+    ) {
+      return tokensByChainId.find(isHypercoreUsdcToken);
+    }
+
+    return undefined;
   }
 
   return tokensByChainId.find(

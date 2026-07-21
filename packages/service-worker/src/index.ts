@@ -144,3 +144,5 @@ export type { TrackUnifiedTransfer } from './services/transferTracking/handlers/
 export type { MarkTransferAsRead } from './services/transferTracking/handlers/markTransferAsRead';
 export type { ClearHistoricalTransfers } from './services/transferTracking/handlers/clearHistoricalTransfers';
 export type { GetMarkrTargetChainAssetsHandler } from './services/tokens/handlers/getMarkrTargetChainAssets';
+export type { GetHypercoreWithdrawableHandler } from './services/balances/handlers/getHypercoreWithdrawable';
+export type { HypercoreWithdrawableResult } from './services/balances/handlers/getHypercoreWithdrawable';

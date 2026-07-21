@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { PartialBy } from '@avalabs/vm-module-types';
 import { Transfer, Quote } from '@avalabs/fusion-sdk';
 
+import { toFusionCaipId } from '@core/common';
 import { useNetworkContext } from '@core/ui';
 import { FungibleTokenBalance } from '@core/types';
 
@@ -26,11 +27,13 @@ export const useTransferTokensLookup = (
   return useMemo(() => {
     return tokens.reduce(
       (lookup, token) => {
-        if (!lookup[token.chainCaipId]) {
-          lookup[token.chainCaipId] = [];
+        // Quotes use Fusion CAIP ids (eip155:1337 for HyperCore); key the same way.
+        const fusionCaipId = toFusionCaipId(token.chainCaipId);
+        if (!lookup[fusionCaipId]) {
+          lookup[fusionCaipId] = [];
         }
 
-        lookup[token.chainCaipId].push(token);
+        lookup[fusionCaipId].push(token);
         return lookup;
       },
       {} satisfies Record<string, FungibleTokenBalance[]>,

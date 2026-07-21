@@ -19,17 +19,12 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import { stringToBigint } from '@core/common';
-import {
-  FungibleTokenBalance,
-  getUniqueTokenId,
-  isNativeToken,
-} from '@core/types';
+import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';
 import { useConvertedCurrencyFormatter } from '@core/ui';
 
 import { TokenSelect } from '@/components/TokenSelect';
 import { ChainFilterMode } from '@/components/TokenSelect/types';
 import { type ChainOption } from '@/components/TokenSelect/components/ChainFilterChips';
-import { getAvailableBalance } from '@/lib/getAvailableBalance';
 
 import { AmountPresetButton, InvisibleAmountInput } from './components';
 
@@ -165,17 +160,15 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
 
   const handlePresetClick = useCallback(
     (percentage: number) => {
-      if (!token) return;
+      if (!token || maxAmount === undefined) return;
 
-      const tokenUnit = new TokenUnit(
-        getAvailableBalance(token, false),
-        token.decimals,
-        token.symbol,
-      );
+      // Prefer maxAmount (fee-adjusted / balance-capped) over raw token.balance so
+      // presets stay correct for HyperCore withdrawable and native fee reserves.
+      const tokenUnit = new TokenUnit(maxAmount, token.decimals, token.symbol);
 
-      // If sending the max. amount of a native token, we need to subtract the estimated fee.
-      const shouldSubtractFee =
-        alwaysApplyFee || (percentage === 100 && isNativeToken(token));
+      // maxAmount from Swap/Send is already fee-adjusted; only subtract again when
+      // a caller explicitly opts in via alwaysApplyFee.
+      const shouldSubtractFee = Boolean(alwaysApplyFee);
       const amountToSubtract = shouldSubtractFee
         ? estimatedFeeWithBuffer(estimatedFee)
         : 0n;
@@ -191,6 +184,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
     },
     [
       token,
+      maxAmount,
       alwaysApplyFee,
       estimatedFee,
       onAmountChange,
