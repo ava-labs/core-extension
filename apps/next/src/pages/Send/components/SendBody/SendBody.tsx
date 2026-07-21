@@ -69,9 +69,7 @@ export const SendBody = ({
   ) {
     return (
       <DisabledSendBody
-        reason={t(
-          'Sending on HyperEVM is not supported for direct Ledger wallets.',
-        )}
+        reason={t('Sending on HyperEVM is not supported for Ledger wallets.')}
       />
     );
   }

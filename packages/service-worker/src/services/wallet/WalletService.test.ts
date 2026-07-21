@@ -620,7 +620,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       ).rejects.toThrow('Wallet not found');
     });
 
-    it('blocks direct Ledger transactions on HyperEVM', async () => {
+    it('blocks Ledger transactions on HyperEVM', async () => {
       mockLedgerWallet();
 
       await expect(
@@ -629,9 +629,7 @@ describe('background/services/wallet/WalletService.ts', () => {
           { chainId: 999, chainName: 'HyperEVM' } as Network,
           tabId,
         ),
-      ).rejects.toThrow(
-        'Direct Ledger transactions are not supported on HyperEVM',
-      );
+      ).rejects.toThrow('Ledger transactions are not supported on HyperEVM');
     });
 
     it('throws if there is no wallet for btc tx', async () => {
@@ -1086,7 +1084,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       ).rejects.toThrow('Wallet not found');
     });
 
-    it('blocks direct Ledger transaction batches on HyperEVM', async () => {
+    it('blocks Ledger transaction batches on HyperEVM', async () => {
       mockLedgerWallet();
 
       await expect(
@@ -1095,9 +1093,7 @@ describe('background/services/wallet/WalletService.ts', () => {
           { chainId: 999, chainName: 'HyperEVM' } as Network,
           tabId,
         ),
-      ).rejects.toThrow(
-        'Direct Ledger transactions are not supported on HyperEVM',
-      );
+      ).rejects.toThrow('Ledger transactions are not supported on HyperEVM');
     });
 
     it.each([
@@ -1257,7 +1253,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       expect(evmLedgerSignerMock.signMessage).toHaveBeenNthCalledWith(2, {});
     });
 
-    it('blocks Direct Ledger message signing on HyperEVM', async () => {
+    it('blocks Ledger message signing on HyperEVM', async () => {
       mockLedgerWallet();
       jest.spyOn(networkService, 'getNetwork').mockResolvedValue({
         chainId: 999,
@@ -1266,9 +1262,7 @@ describe('background/services/wallet/WalletService.ts', () => {
 
       await expect(
         walletService.signMessage(MessageType.PERSONAL_SIGN, action),
-      ).rejects.toThrow(
-        'Direct Ledger transactions are not supported on HyperEVM',
-      );
+      ).rejects.toThrow('Ledger transactions are not supported on HyperEVM');
     });
 
     it('signs typed data with Ledger', async () => {

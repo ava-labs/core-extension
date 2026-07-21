@@ -278,9 +278,7 @@ export class WalletService implements OnUnlock {
     const { secretType } = secrets;
 
     if (isDirectLedgerHyperEvmTransactionUnsupported(network, secretType)) {
-      throw new Error(
-        'Direct Ledger transactions are not supported on HyperEVM',
-      );
+      throw new Error('Ledger transactions are not supported on HyperEVM');
     }
 
     const accountIndex: number | undefined = this.#isMultiSignerRequest(params)

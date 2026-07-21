@@ -6,7 +6,9 @@ import {
 } from './isHyperliquidNetwork';
 
 export function isDirectLedgerHyperEvmTransactionUnsupported(
-  network: Pick<Network, 'chainId' | 'chainName'> | undefined,
+  network:
+    | (Pick<Network, 'chainId'> & Partial<Pick<Network, 'chainName'>>)
+    | undefined,
   secretType: SecretType | undefined,
 ) {
   return (
