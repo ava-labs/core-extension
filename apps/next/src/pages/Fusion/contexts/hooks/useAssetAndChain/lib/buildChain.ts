@@ -1,5 +1,6 @@
 import { Caip2ChainId, Chain, TokenType } from '@avalabs/fusion-sdk';
 
+import { isHypercoreNetwork, toFusionCaipId } from '@core/common';
 import { NetworkWithCaipId } from '@core/types';
 
 export const buildChain = (
@@ -19,8 +20,8 @@ export const buildChain = (
       symbol: network.networkToken.symbol,
       type: TokenType.NATIVE,
     },
-    rpcUrl: network.rpcUrl,
-    chainId: network.caipId as Caip2ChainId,
+    rpcUrl: isHypercoreNetwork(network) ? '' : network.rpcUrl,
+    chainId: toFusionCaipId(network.caipId) as Caip2ChainId,
     chainName: network.chainName,
   };
 };

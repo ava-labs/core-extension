@@ -11,9 +11,14 @@ import {
 } from 'react';
 import {
   toast,
+  useAccountsContext,
+  useAnalyticsContext,
+  useBalancesContext,
+  useErrorMessage,
   useFeatureFlagContext,
   useNetworkFeeContext,
   useSettingsContext,
+  useTransferTrackingContext,
 } from '@core/ui';
 import { useHistory } from 'react-router-dom';
 import { ERC_ZERO_ADDRESS, Quote, ServiceType } from '@avalabs/fusion-sdk';
@@ -32,14 +37,8 @@ import {
   resolve,
   stringToBigint,
   getTransferTxHash,
+  FUSION_HYPERCORE_CAIP_ID,
 } from '@core/common';
-import {
-  useAccountsContext,
-  useAnalyticsContext,
-  useBalancesContext,
-  useErrorMessage,
-  useTransferTrackingContext,
-} from '@core/ui';
 
 import { useSwapFormError, useSwapQuery } from '../hooks';
 import { usePriceImpact } from '../hooks/usePriceImpact';
@@ -63,6 +62,7 @@ import {
   useCreateRecurringSwap,
   useRecurringEligibility,
   useRecurringQuote,
+  useHypercoreWithdrawable,
 } from './hooks';
 import { getSwapStatus } from './lib/getSwapStatus';
 import { FusionState } from '../types';
@@ -366,6 +366,17 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     serviceType: isRecurring ? ServiceType.MARKR : undefined,
   });
 
+  const {
+    hypercoreWithdrawableBalance,
+    hypercoreAbstractionMode,
+    exceedsHypercoreWithdrawableAmount,
+  } = useHypercoreWithdrawable({
+    account: activeAccount,
+    sourceToken,
+    sourceTokenList,
+    sourceAmount: sourceAmountBigInt,
+  });
+
   const isAmountHigherThanBalance =
     sourceAmountBigInt > (sourceToken?.balance ?? 0n);
 
@@ -382,6 +393,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
 
   const skipFetching =
     isAmountHigherThanBalance ||
+    exceedsHypercoreWithdrawableAmount ||
     (isAmountBelowMinimumTransferAmount && !shouldAllowBelowMinimumQuote);
 
   // Avoid spamming quoters by debouncing the user amount
@@ -446,9 +458,11 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       });
 
       try {
-        const [fee] = await resolve(
-          getNetworkFee(quoteToUse.sourceChain.chainId),
-        );
+        // HyperCore is read-only — no EVM fee market to query.
+        const [fee] =
+          quoteToUse.sourceChain.chainId === FUSION_HYPERCORE_CAIP_ID
+            ? [null]
+            : await resolve(getNetworkFee(quoteToUse.sourceChain.chainId));
 
         const gasSettings = fee
           ? {
@@ -651,6 +665,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     sourceToken,
     minimumTransferAmount,
     currentRequiredTokens,
+    hypercoreWithdrawableBalance,
     recurring: isRecurringSubmission
       ? {
           numberOfOrders,
@@ -716,6 +731,8 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         formError,
         minimumRequiredTokens,
         currentRequiredTokens,
+        hypercoreWithdrawableBalance,
+        hypercoreAbstractionMode,
       }}
     >
       {children}

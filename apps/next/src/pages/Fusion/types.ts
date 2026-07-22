@@ -5,6 +5,7 @@ import {
   RecurringQuoteFee,
   TransferManager,
 } from '@avalabs/fusion-sdk';
+import { type UserAbstractionMode } from '@avalabs/hypercore-module';
 
 import {
   Account,
@@ -122,4 +123,6 @@ export type FusionState = QueryState & {
   formError: string | React.ReactNode;
   minimumRequiredTokens: RequiredTokenAmounts;
   currentRequiredTokens: RequiredTokenAmounts;
+  hypercoreWithdrawableBalance?: bigint;
+  hypercoreAbstractionMode?: UserAbstractionMode;
 };

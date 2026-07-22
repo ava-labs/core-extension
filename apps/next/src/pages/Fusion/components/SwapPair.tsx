@@ -68,6 +68,7 @@ export const SwapPair = () => {
     selectedQuote,
     currentRequiredTokens,
     minimumRequiredTokens,
+    hypercoreWithdrawableBalance,
   } = useFusionState();
 
   const fromTokenId = sourceToken ? getUniqueTokenId(sourceToken) : queryFromId;
@@ -101,6 +102,7 @@ export const SwapPair = () => {
     currentRequiredTokens.state === 'complete'
       ? currentRequiredTokens
       : minimumRequiredTokens,
+    hypercoreWithdrawableBalance,
   );
   const fee = calculateNativeFee(minimumRequiredTokens);
 

@@ -36,6 +36,7 @@ export const useAssetAndChain = (token?: FungibleTokenBalance) => {
       token.symbol,
       token.decimals,
       tokenAddress,
+      token.coreChainId,
     );
   }, [
     token?.assetType,
