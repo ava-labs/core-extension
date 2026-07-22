@@ -8,6 +8,11 @@ const mockBuilderResult = {
   properties: { txHash: '0xabc', chainId: 43114 },
 };
 
+const mockEthBuilderResult = {
+  name: 'eth_sendTransaction_success',
+  properties: { txHash: '0xdef', chainId: 43114 },
+};
+
 jest.mock('./handlers/avalancheSendTransactionHandler', () => ({
   getAvalancheSendTransactionHandlers: jest.fn(() => ({
     [TransactionStatusEvents.PENDING]: jest.fn(() =>
@@ -17,8 +22,19 @@ jest.mock('./handlers/avalancheSendTransactionHandler', () => ({
   TransactionStatusEventBuilders: {},
 }));
 
+jest.mock('./handlers/ethSendTransactionHandler', () => ({
+  getEthSendTransactionHandlers: jest.fn(() => ({
+    [TransactionStatusEvents.PENDING]: jest.fn(() =>
+      Promise.resolve(mockEthBuilderResult),
+    ),
+  })),
+}));
+
 const { getAvalancheSendTransactionHandlers } = jest.requireMock(
   './handlers/avalancheSendTransactionHandler',
+);
+const { getEthSendTransactionHandlers } = jest.requireMock(
+  './handlers/ethSendTransactionHandler',
 );
 
 describe('TransactionStatusEventsSubscriber', () => {
@@ -97,6 +113,44 @@ describe('TransactionStatusEventsSubscriber', () => {
     );
   });
 
+  it('initializes handlers via getEthSendTransactionHandlers', () => {
+    new TransactionStatusEventsSubscriber(
+      transactionStatusEvents,
+      mockAnalytics as any,
+      mockAccountsService as any,
+      mockNetworkService as any,
+    );
+
+    expect(getEthSendTransactionHandlers).toHaveBeenCalled();
+  });
+
+  it('calls the ETH handler and captures the analytics event', async () => {
+    new TransactionStatusEventsSubscriber(
+      transactionStatusEvents,
+      mockAnalytics as any,
+      mockAccountsService as any,
+      mockNetworkService as any,
+    );
+
+    transactionStatusEvents.emitPending(
+      '0xdef',
+      makeRequest(RpcMethod.ETH_SEND_TRANSACTION) as any,
+    );
+
+    await new Promise(process.nextTick);
+
+    const handlers = getEthSendTransactionHandlers.mock.results[0].value;
+    expect(handlers[TransactionStatusEvents.PENDING]).toHaveBeenCalledTimes(1);
+
+    expect(mockAnalytics.captureEncryptedEvent).toHaveBeenCalledTimes(1);
+    expect(mockAnalytics.captureEncryptedEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'eth_sendTransaction_success',
+        properties: { txHash: '0xdef', chainId: 43114 },
+      }),
+    );
+  });
+
   it('does not capture when no handler matches', async () => {
     new TransactionStatusEventsSubscriber(
       transactionStatusEvents,
@@ -107,7 +161,7 @@ describe('TransactionStatusEventsSubscriber', () => {
 
     transactionStatusEvents.emitConfirmed(
       '0xabc',
-      makeRequest('eth_sendTransaction') as any,
+      makeRequest('eth_signTypedData_v4') as any,
       'https://explorer.avax.network/tx/0xabc',
     );
 

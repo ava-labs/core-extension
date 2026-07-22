@@ -5,20 +5,10 @@ import {
 } from '@avalabs/evm-module';
 import { RpcMethod, RpcRequest } from '@avalabs/vm-module-types';
 
-import {
-  ExtensionConnectionEvent,
-  TransactionStatusEvents,
-  TransactionStatusInfo,
-} from '@core/types';
+import { TransactionStatusEvents } from '@core/types';
 import { measureDuration } from '@core/common';
 
-type AnalyticsEventBuilderFn = (
-  event: ExtensionConnectionEvent<TransactionStatusInfo>,
-) => Promise<{ name: string; properties: Record<string, unknown> } | null>;
-
-type TransactionStatusEventBuilders = Partial<
-  Record<TransactionStatusEvents, AnalyticsEventBuilderFn>
->;
+import { TransactionStatusEventBuilders } from './types';
 
 type EthSendTransactionRequest = RpcRequest & {
   method: RpcMethod.ETH_SEND_TRANSACTION;
