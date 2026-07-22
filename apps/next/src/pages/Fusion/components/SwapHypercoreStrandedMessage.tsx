@@ -1,5 +1,6 @@
 import { Card, Typography } from '@avalabs/k2-alpine';
 import { type UserAbstractionMode } from '@avalabs/hypercore-module';
+import { isNil } from 'lodash';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -33,7 +34,7 @@ export const SwapHypercoreStrandedMessage = ({
     [sourceToken, withdrawableBalance, abstractionMode],
   );
 
-  if (strandedAmount === undefined || sourceToken === undefined) {
+  if (isNil(strandedAmount) || isNil(sourceToken)) {
     return null;
   }
 

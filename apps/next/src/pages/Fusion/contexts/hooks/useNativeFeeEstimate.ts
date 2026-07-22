@@ -29,7 +29,12 @@ export const useNativeFeeEstimate = (
     error: feeError,
     isLoading: isFeeLoading,
   } = useQuery({
-    queryKey: ['useNativeFeeEstimate', selectedQuote?.id],
+    queryKey: [
+      'useNativeFeeEstimate',
+      selectedQuote?.id,
+      canEstimate,
+      manager?.id,
+    ],
     queryFn:
       canEstimate && selectedQuote && manager
         ? async () => {
@@ -77,7 +82,7 @@ export const useNativeFeeEstimate = (
 
   return {
     fee,
-    isFeeLoading: canEstimate && isFeeLoading,
-    feeError: canEstimate ? feeError : null,
+    isFeeLoading,
+    feeError: feeError ?? null,
   };
 };

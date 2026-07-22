@@ -16,6 +16,7 @@ import {
   useMemo,
   useRef,
 } from 'react';
+import { isNil } from 'lodash';
 import { useTranslation } from 'react-i18next';
 
 import { stringToBigint } from '@core/common';
@@ -160,7 +161,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
 
   const handlePresetClick = useCallback(
     (percentage: number) => {
-      if (!token || maxAmount === undefined) return;
+      if (!token || isNil(maxAmount)) return;
 
       // Prefer maxAmount (fee-adjusted / balance-capped) over raw token.balance so
       // presets stay correct for HyperCore withdrawable and native fee reserves.
