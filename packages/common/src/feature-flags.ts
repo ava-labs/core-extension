@@ -63,6 +63,7 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.FUSION_RECURRING_SWAPS]: false,
   [FeatureGates.FUSION_AVALANCHE_CCT]: false,
   [FeatureGates.HYPERLIQUID_FEATURE]: false,
+  [FeatureGates.EERC_TRANSACTION_DISPLAY]: false,
   [FeatureVars.SAE_OVERRIDE]: 'auto', // auto, enabled, disabled
 };
 
@@ -128,6 +129,7 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.FUSION_RECURRING_SWAPS]: true,
   [FeatureGates.FUSION_AVALANCHE_CCT]: true,
   [FeatureGates.HYPERLIQUID_FEATURE]: false,
+  [FeatureGates.EERC_TRANSACTION_DISPLAY]: false,
   [FeatureVars.SAE_OVERRIDE]: 'auto', // auto, enabled, disabled
 };
 
