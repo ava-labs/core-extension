@@ -25,6 +25,7 @@ import { RefreshNftMetadataHandler } from '../../services/balances/handlers/refr
 import { StartBalancesPollingHandler } from '../../services/balances/handlers/startBalancesPolling';
 import { StopBalancesPollingHandler } from '../../services/balances/handlers/stopBalancesPolling';
 import { UpdateBalancesForNetworkHandler } from '../../services/balances/handlers/updateBalancesForNetwork';
+import { GetHypercoreWithdrawableHandler } from '../../services/balances/handlers/getHypercoreWithdrawable';
 import { ContactsUpdatedEvents } from '../../services/contacts/events/contactsUpdatedEvent';
 import { CreateContactHandler } from '../../services/contacts/handlers/createContact';
 import { GetContactsHandler } from '../../services/contacts/handlers/getContacts';
@@ -192,6 +193,10 @@ import { SetBridgeDevEnvHandler } from '~/services/settings/handlers/setBridgeDe
   {
     token: 'ExtensionRequestHandler',
     useToken: UpdateBalancesForNetworkHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetHypercoreWithdrawableHandler,
   },
   { token: 'ExtensionRequestHandler', useToken: GetBalancesHandler },
   { token: 'ExtensionRequestHandler', useToken: CreateContactHandler },

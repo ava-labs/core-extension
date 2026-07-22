@@ -20,6 +20,7 @@ import {
   normalizeTransactionsBatch,
 } from './lib/evmNormalization';
 import { buildRequestContext } from './lib/buildRequestContext';
+import { serializeTypedDataPayload } from './lib/serializeTypedDataPayload';
 
 const getChainIdForBatch = (transactions: readonly EvmTransactionRequest[]) => {
   const chainIds = new Set(transactions.map((tx) => tx.chainId));
@@ -167,22 +168,22 @@ export function getEVMSigner(
     // `chainId` below. The routing `chainId` only selects which network/account
     // signs the message.
     //
-    // fusion-sdk mirrors viem's typed-data shape and omits `EIP712Domain`.
-    // Wagmi/viem inject it via getTypesForEIP712Domain before signing; we do
-    // the same here because eth_signTypedData_v4 / eth-sig-util require it.
-    const payload = {
+    // fusion-sdk omits `EIP712Domain`; eth_signTypedData_v4 requires it.
+    // Hyperliquid withdraw payloads also carry BigInt nonces — serialize via
+    // a BigInt-aware stringify.
+    const payload = serializeTypedDataPayload({
       ...typedData,
       types: {
         EIP712Domain: getTypesForEIP712Domain({ domain: typedData.domain }),
         ...typedData.types,
       },
-    };
+    });
 
     try {
       const result = await request(
         {
           method: RpcMethod.SIGN_TYPED_DATA_V4,
-          params: [address, JSON.stringify(payload)],
+          params: [address, payload],
         },
         {
           scope: chainIdToCaip(Number(chainId)),

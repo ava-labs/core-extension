@@ -9,6 +9,8 @@ import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 
 import { RequiredTokenAmounts } from '../../../types';
 
+import { isHypercoreUsdcToken } from '../../../lib/isHypercoreUsdcToken';
+import { exceedsHypercoreWithdrawable } from '../../../lib/getHypercoreWithdrawableUsd';
 import { sumByPurpose } from '../../../lib/sumByPurpose';
 
 const collapsedTokenAmountProps: Omit<
@@ -35,13 +37,25 @@ export const validateSwapAmount = (
     sourceToken,
     requiredTokens: { state, tokens },
     recurring,
+    hypercoreWithdrawableBalance,
   }: {
     minimumTransferAmount: bigint | undefined;
     sourceToken: FungibleTokenBalance;
     requiredTokens: RequiredTokenAmounts;
     recurring?: RecurringSwapValidation;
+    hypercoreWithdrawableBalance?: bigint;
   },
 ) => {
+  if (
+    isHypercoreUsdcToken(sourceToken) &&
+    exceedsHypercoreWithdrawable({
+      amount: sourceAmountBigInt,
+      withdrawableBalance: hypercoreWithdrawableBalance,
+    })
+  ) {
+    return t('Amount exceeds withdrawable HyperCore balance');
+  }
+
   if (recurring && sourceAmountBigInt > 0n) {
     const totalScheduledSpend =
       sourceAmountBigInt * BigInt(recurring.numberOfOrders);

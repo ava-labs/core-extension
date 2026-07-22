@@ -1,7 +1,7 @@
 import { uniq } from 'lodash';
 import { Transfer, Quote } from '@avalabs/fusion-sdk';
 
-import { isNotNullish } from '@core/common';
+import { fromFusionCaipId, isNotNullish } from '@core/common';
 import { NetworkWithCaipId, PartialBy } from '@core/types';
 
 export const getNetworksForTransfer = (
@@ -13,8 +13,8 @@ export const getNetworksForTransfer = (
   return uniq([
     transferLike.sourceChain.chainId,
     transferLike.targetChain.chainId,
-    transferLike.fees.map((fee) => fee.chainId),
+    ...transferLike.fees.map((fee) => fee.chainId),
   ])
-    .map(getNetwork)
+    .map((caipId) => getNetwork(fromFusionCaipId(caipId)))
     .filter(isNotNullish);
 };

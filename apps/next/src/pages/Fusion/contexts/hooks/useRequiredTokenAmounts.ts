@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Quote, Chain, TokenType, TransferManager } from '@avalabs/fusion-sdk';
 
+import { FUSION_HYPERCORE_CAIP_ID } from '@core/common';
 import { getUniqueTokenId } from '@core/types';
 
 import { RequiredToken, RequiredTokenAmounts } from '../../types';
@@ -32,6 +33,9 @@ const getFeeBuffer = (
 
   return 0.3; // 30% buffer for additive fees
 };
+
+const isHypercoreFusionChain = (chain: Chain) =>
+  chain.chainId === FUSION_HYPERCORE_CAIP_ID;
 
 export const useRequiredTokenAmounts = (
   manager: TransferManager | undefined,
@@ -134,8 +138,13 @@ export const useRequiredTokenAmounts = (
       {},
     );
 
+    // HyperCore withdrawals have no EVM gas on eip155:1337 — fee estimate failures
+    // should not block Max / presets once we have the quote input token.
+    const isHypercoreSource = isHypercoreFusionChain(quote.sourceChain);
+    const isComplete = !isFeeLoading && (!feeError || isHypercoreSource);
+
     return {
-      state: isFeeLoading ? 'loading' : feeError ? 'incomplete' : 'complete',
+      state: isFeeLoading ? 'loading' : isComplete ? 'complete' : 'incomplete',
       tokens: Object.values(aggregatedById),
     };
   }, [quote, tokenLookup, nativeFee, isFeeLoading, feeError]);

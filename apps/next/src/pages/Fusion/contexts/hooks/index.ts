@@ -13,3 +13,4 @@ export * from './useSlippageTolerance';
 export * from './useCreateRecurringSwap';
 export * from './useRecurringEligibility';
 export * from './useRecurringQuote';
+export * from './useHypercoreWithdrawable';

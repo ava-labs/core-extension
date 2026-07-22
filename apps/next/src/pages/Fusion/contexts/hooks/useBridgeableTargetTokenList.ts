@@ -19,6 +19,8 @@ import {
   isPchainNetworkId,
   isXchainNetworkId,
   isChainSupportedByWalletOrAccount,
+  fromFusionCaipId,
+  toFusionCaipId,
 } from '@core/common';
 import {
   type FungibleAssetType,
@@ -52,7 +54,7 @@ const getHasMore = (
   if (!result.meta.hasMore) return false;
   if (search && search.value.length >= MIN_SEARCH_LENGTH) return true;
 
-  const network = getNetwork(targetChainId);
+  const network = getNetwork(fromFusionCaipId(targetChainId));
   const isAvaxCChain = network
     ? isAvalancheChainId(network.chainId as number)
     : false;
@@ -208,52 +210,72 @@ export const useBridgeableTargetTokenList = (
         sourceToken.symbol,
         sourceToken.decimals,
         tokenAddress,
+        sourceToken.coreChainId,
       );
     } catch {
       return undefined;
     }
   }, [sourceToken]);
 
-  const sourceChainId = sourceToken?.chainCaipId;
+  const sourceFusionChainId = sourceToken?.chainCaipId
+    ? toFusionCaipId(sourceToken.chainCaipId)
+    : undefined;
   // The bridgeable set depends on the specific source token, not just its
   // chain — key on the token id so switching tokens within one chain refetches.
   const sourceTokenId = sourceToken ? getUniqueTokenId(sourceToken) : undefined;
 
   // All chains this source token can bridge to — no allowlist, derived from supportedChainsMap
   const allTargetCaipIds = useMemo(() => {
-    if (!sourceToken) return [];
+    if (!sourceToken || !sourceFusionChainId) return [];
 
     const chainIds = supportedChainsMap.get(
-      sourceToken.chainCaipId as `${string}:${string}`,
+      sourceFusionChainId as `${string}:${string}`,
     );
 
-    return (chainIds?.values().toArray() ?? []).filter((caipId) => {
-      const network = getNetwork(caipId);
+    return (chainIds?.values().toArray() ?? []).filter((fusionCaipId) => {
+      const network = getNetwork(fromFusionCaipId(fusionCaipId));
       return (
         network &&
         isChainSupportedByWalletOrAccount(network, walletDetails, active)
       );
     });
-  }, [supportedChainsMap, sourceToken, getNetwork, walletDetails, active]);
+  }, [
+    supportedChainsMap,
+    sourceToken,
+    sourceFusionChainId,
+    getNetwork,
+    walletDetails,
+    active,
+  ]);
 
   const sortedTargetChains = useMemo(() => {
-    const targetChains = allTargetCaipIds.flatMap((caipId) => {
-      const network = getNetwork(caipId);
+    const targetChains = allTargetCaipIds.flatMap((fusionCaipId) => {
+      const network = getNetwork(fromFusionCaipId(fusionCaipId));
       if (!network) {
         return [];
       }
 
       return [
         {
-          caipId: caipId,
-          chainId: caipId,
+          fusionCaipId,
           chainName: network.chainName,
           network,
         },
       ];
     });
 
-    return sortDestinationChains(targetChains);
+    return sortDestinationChains(
+      targetChains.map(({ fusionCaipId, chainName, network }) => ({
+        caipId: fusionCaipId,
+        chainId: fusionCaipId,
+        chainName,
+        network,
+      })),
+    ).map(({ network, caipId: fusionCaipId, chainName }) => ({
+      fusionCaipId,
+      chainName,
+      network,
+    }));
   }, [allTargetCaipIds, getNetwork]);
 
   // Resolve the selected chip value to a single CAIP ID for the API call
@@ -261,21 +283,21 @@ export const useBridgeableTargetTokenList = (
     if (sortedTargetChains.length === 0) return null;
 
     if (!selectedTargetChainId) {
-      return sortedTargetChains[0]?.caipId ?? null;
+      return sortedTargetChains[0]?.fusionCaipId ?? null;
     }
 
     if (selectedTargetChainId === 'avalanche') {
       return (
         sortedTargetChains.find(({ network }) =>
           isAvalancheChainId(network.chainId as number),
-        )?.caipId ?? null
+        )?.fusionCaipId ?? null
       );
     }
 
     return (
       sortedTargetChains.find(
         ({ network }) => network.chainId === selectedTargetChainId,
-      )?.caipId ?? null
+      )?.fusionCaipId ?? null
     );
   }, [selectedTargetChainId, sortedTargetChains]);
 
@@ -305,7 +327,7 @@ export const useBridgeableTargetTokenList = (
   } = useInfiniteQuery({
     queryKey: [
       'bridgeableTargetTokens',
-      sourceChainId,
+      sourceFusionChainId,
       sourceTokenId,
       selectedTargetCaipId,
       effectiveSearch?.type,
@@ -313,12 +335,12 @@ export const useBridgeableTargetTokenList = (
     ],
     initialPageParam: 1,
     queryFn:
-      !manager || !sourceAsset || !sourceChainId || !selectedTargetCaipId
+      !manager || !sourceAsset || !sourceFusionChainId || !selectedTargetCaipId
         ? skipToken
         : async ({ pageParam: page }) => {
             const result = await manager.getBridgeableAssets({
               sourceAsset,
-              sourceChainId: sourceChainId as `${string}:${string}`,
+              sourceChainId: sourceFusionChainId as `${string}:${string}`,
               targetChainId: selectedTargetCaipId as `${string}:${string}`,
               search: effectiveSearch,
               limit: LIMIT,
@@ -343,7 +365,7 @@ export const useBridgeableTargetTokenList = (
       if (!prevData || !prevQuery) return undefined;
       const prevKey = prevQuery.queryKey as unknown[];
       if (
-        prevKey[1] === sourceChainId &&
+        prevKey[1] === sourceFusionChainId &&
         prevKey[2] === sourceTokenId &&
         prevKey[3] === selectedTargetCaipId
       )
@@ -351,13 +373,16 @@ export const useBridgeableTargetTokenList = (
       return undefined;
     },
     enabled:
-      !!manager && !!sourceAsset && !!sourceChainId && !!selectedTargetCaipId,
+      !!manager &&
+      !!sourceAsset &&
+      !!sourceFusionChainId &&
+      !!selectedTargetCaipId,
     staleTime: 30_000,
   });
 
   const tokens = useMemo(() => {
     if (!selectedTargetCaipId) return [];
-    const network = getNetwork(selectedTargetCaipId);
+    const network = getNetwork(fromFusionCaipId(selectedTargetCaipId));
     if (!network) return [];
 
     const cChainAvaxLogoUri = getNetwork(
