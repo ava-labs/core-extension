@@ -25,8 +25,8 @@ import {
 import { getEvmMaxAmount } from './lib';
 import { getBtcMaxAmount } from './lib/getBtcMaxAmount';
 import { getXChainMaxAmount } from './lib/getXChainMaxAmount';
-import { getPChainMaxAmount } from './lib/getPChainMaxAmount';
 import { getSolanaMaxAmount } from './lib/getSolanaMaxAmount';
+import { usePChainMaxAmount } from './usePChainMaxAmount';
 import { useGetXPAddresses } from '../useGetXPAddresses';
 
 type MaxAmountInfo = {
@@ -50,8 +50,22 @@ export const useMaxAmountForTokenSend = (
     estimatedFee: undefined,
   });
 
+  const isPvmSend = Boolean(
+    from && isPvmCapableAccount(from) && token && isPChainToken(token),
+  );
+
+  // P-Chain is handled by a cached query (heavy UTXO packing) instead of the effect below.
+  const pChainMaxAmount = usePChainMaxAmount({
+    from: from && isPvmCapableAccount(from) ? from : undefined,
+    token: token && isPChainToken(token) ? token : undefined,
+    network: token ? getNetwork(token.coreChainId) : undefined,
+    isLedgerWallet,
+    filterSmallUtxos,
+    getAddresses: getXPAddresses('PVM'),
+  });
+
   useEffect(() => {
-    if (!token || !from) return;
+    if (!token || !from || isPvmSend) return;
 
     getNetworkFee(token.coreChainId)
       .then((networkFee) => {
@@ -75,14 +89,6 @@ export const useMaxAmountForTokenSend = (
             isLedgerWallet,
             filterSmallUtxos,
             getXPAddresses('AVM'),
-            getNetwork(token.coreChainId),
-          ).then(setResult);
-        } else if (isPvmCapableAccount(from) && isPChainToken(token)) {
-          getPChainMaxAmount(
-            from,
-            isLedgerWallet,
-            filterSmallUtxos,
-            getXPAddresses('PVM'),
             getNetwork(token.coreChainId),
           ).then(setResult);
         } else if (
@@ -113,7 +119,8 @@ export const useMaxAmountForTokenSend = (
     isLedgerWallet,
     getXPAddresses,
     filterSmallUtxos,
+    isPvmSend,
   ]);
 
-  return result;
+  return isPvmSend ? pChainMaxAmount : result;
 };

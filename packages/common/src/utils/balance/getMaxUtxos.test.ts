@@ -213,9 +213,10 @@ describe('src/pages/Send/utils/getMaxUtxos', () => {
       getUTXOs.mockResolvedValue({
         getUTXOs: () => [smallUtxo, largeUtxo],
       });
+      // Dust is now filtered before sorting, so sort should preserve its (filtered) input.
       jest
         .spyOn(Avalanche, 'sortUTXOsByAmount')
-        .mockReturnValue([smallUtxo, largeUtxo] as any);
+        .mockImplementation((utxos) => utxos as any);
 
       await getMaxUtxoSet({
         isLedgerWallet: false,
@@ -258,7 +259,7 @@ describe('src/pages/Send/utils/getMaxUtxos', () => {
       });
       jest
         .spyOn(Avalanche, 'sortUTXOsByAmount')
-        .mockReturnValue([smallUtxo, largeUtxo] as any);
+        .mockImplementation((utxos) => utxos as any);
 
       await getMaxUtxoSet({
         isLedgerWallet: false,
