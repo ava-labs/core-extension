@@ -43,7 +43,7 @@ export const usePChainMaxAmount = ({
       filterSmallUtxos,
     ],
     queryFn:
-      from && network
+      from && network && token
         ? () =>
             getPChainMaxAmount(
               from,
@@ -53,8 +53,8 @@ export const usePChainMaxAmount = ({
               network,
             )
         : skipToken,
-    // The result only changes when the UTXO set (≈ balance) or fee state changes, both captured
-    // by the key, so keep it fresh for a while to avoid needless recomputation.
+    // The result changes when the UTXO set (≈ balance) changes. Keep it fresh for a while to
+    // avoid needless recomputation on frequent balance polls/renders.
     staleTime: 30_000,
   });
 

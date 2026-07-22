@@ -259,7 +259,7 @@ describe('src/pages/Send/utils/getMaxUtxos', () => {
       });
       jest
         .spyOn(Avalanche, 'sortUTXOsByAmount')
-        .mockReturnValue([smallUtxo, largeUtxo] as any);
+        .mockImplementation((utxos) => utxos as any);
 
       await getMaxUtxoSet({
         isLedgerWallet: false,

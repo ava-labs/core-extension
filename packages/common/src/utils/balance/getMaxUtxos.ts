@@ -44,7 +44,10 @@ export async function getMaxUtxoSet({
         .filter((utxo) => utils.getUtxoInfo(utxo).amount >= DUST_THRESHOLD)
     : utxos.getUTXOs();
 
-  let filteredUtxos = candidateUtxos;
+  // Sorted by amount (descending): used directly for X-Chain, and as a deterministic best-effort
+  // fallback for P-Chain if the size-limited packing below throws (so the later Ledger slice still
+  // picks the largest UTXOs rather than arbitrary ones).
+  let filteredUtxos = Avalanche.sortUTXOsByAmount(candidateUtxos, true);
 
   if (isPchainNetwork(network)) {
     assert(feeState, CommonError.UnknownNetworkFee);
@@ -64,9 +67,6 @@ export async function getMaxUtxoSet({
         utxos,
       });
     }
-  } else {
-    // X-Chain has no size-limited packing step, just order the candidates by amount.
-    filteredUtxos = Avalanche.sortUTXOsByAmount(candidateUtxos, true);
   }
 
   filteredUtxos = isLedgerWallet
