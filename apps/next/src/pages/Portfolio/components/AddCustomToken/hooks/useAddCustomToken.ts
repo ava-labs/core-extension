@@ -43,12 +43,18 @@ export function useAddCustomToken() {
           address: tokenAddress,
         });
 
-        // Fetch the new token's balance from the RPC right away so it shows up in the UI
+        // Fetch the new token's balance from the RPC right away so it shows up in the UI.
+        // Best-effort: neither a CAIP parse error nor a failed refresh should turn a
+        // successful add into a failure, so keep it isolated and non-blocking.
         if (activeAccount) {
-          updateBalanceOnNetworks(
-            [activeAccount],
-            [caipToChainId(network)],
-          ).catch(() => undefined);
+          try {
+            const chainId = caipToChainId(network);
+            void updateBalanceOnNetworks([activeAccount], [chainId]).catch(
+              () => undefined,
+            );
+          } catch {
+            // ignore — the token was already added successfully.
+          }
         }
       } catch (_err: unknown) {
         capture('ManageTokensAddCustomToken', {
