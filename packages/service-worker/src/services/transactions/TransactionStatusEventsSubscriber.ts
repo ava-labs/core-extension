@@ -9,6 +9,7 @@ import {
   getAvalancheSendTransactionHandlers,
   TransactionStatusEventBuilders,
 } from './handlers/avalancheSendTransactionHandler';
+import { getEthSendTransactionHandlers } from './handlers/ethSendTransactionHandler';
 
 /**
  * Subscribes to transaction status events and captures analytics
@@ -26,6 +27,7 @@ export class TransactionStatusEventsSubscriber {
     this.#handlers = {
       [RpcMethod.AVALANCHE_SEND_TRANSACTION]:
         getAvalancheSendTransactionHandlers(accountsService, networkService),
+      [RpcMethod.ETH_SEND_TRANSACTION]: getEthSendTransactionHandlers(),
     };
     this.transactionStatusEvents.addListener(this.#onTransactionStatusEvent);
   }
