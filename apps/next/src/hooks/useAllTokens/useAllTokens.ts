@@ -45,8 +45,8 @@ export const useAllTokens = (
     forceShowAllTokens,
   });
 
-  return useMemo<FungibleTokenBalance[]>(
-    () => [
+  return useMemo<FungibleTokenBalance[]>(() => {
+    const base = [
       ...tokensForAccount,
       ...placeholderTokens.filter(
         (token) =>
@@ -55,12 +55,24 @@ export const useAllTokens = (
               getUniqueTokenId(balanceToken) === getUniqueTokenId(token),
           ),
       ),
-      ...networks.flatMap(({ chainId, caipId }) =>
+    ];
+
+    // Append user-added custom tokens (as zero-balance placeholders), skipping any that are
+    // already present with a fetched balance so held custom tokens aren't listed twice.
+    const customTokensList = networks
+      .flatMap(({ chainId, caipId }) =>
         Object.values(customTokens[chainId] ?? {}).map(
           getTokenMapper(chainId, caipId),
         ),
-      ),
-    ],
-    [customTokens, networks, placeholderTokens, tokensForAccount],
-  );
+      )
+      .filter(
+        (token) =>
+          !base.find(
+            (existing) =>
+              getUniqueTokenId(existing) === getUniqueTokenId(token),
+          ),
+      );
+
+    return [...base, ...customTokensList];
+  }, [customTokens, networks, placeholderTokens, tokensForAccount]);
 };
