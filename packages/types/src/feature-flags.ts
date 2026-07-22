@@ -53,6 +53,7 @@ export enum FeatureGates {
   FUSION_RECURRING_SWAPS = 'fusion-recurring-swaps',
   FUSION_AVALANCHE_CCT = 'fusion-avalanche-cct',
   HYPERLIQUID_FEATURE = 'hyperliquid-feature',
+  EERC_TRANSACTION_DISPLAY = 'eerc-transaction-display',
 }
 
 export enum FeatureVars {
