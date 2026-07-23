@@ -73,6 +73,7 @@ export * from './network/isBitcoinNetwork';
 export * from './network/isEthereumNetwork';
 export * from './network/isSolanaNetwork';
 export * from './network/isHyperliquidNetwork';
+export * from './network/isRobinhoodNetwork';
 export * from './network/fusionCaipConversion';
 export * from './network/isValidHttpHeader';
 export * from './newsletter';
