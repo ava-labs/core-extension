@@ -9,6 +9,7 @@ import {
   useConnectionContext,
   useSettingsContext,
 } from '@core/ui';
+import { uniqWith } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { getNetworkTokens } from './lib/getNetworkTokens';
 import { getTokenMapper } from './lib/getTokenMapper';
@@ -46,33 +47,22 @@ export const useAllTokens = (
   });
 
   return useMemo<FungibleTokenBalance[]>(() => {
-    const base = [
+    const allTokens = [
       ...tokensForAccount,
-      ...placeholderTokens.filter(
-        (token) =>
-          !tokensForAccount.find(
-            (balanceToken) =>
-              getUniqueTokenId(balanceToken) === getUniqueTokenId(token),
-          ),
-      ),
-    ];
-
-    // Append user-added custom tokens (as zero-balance placeholders), skipping any that are
-    // already present with a fetched balance so held custom tokens aren't listed twice.
-    const customTokensList = networks
-      .flatMap(({ chainId, caipId }) =>
+      ...placeholderTokens,
+      // User-added custom tokens (as zero-balance placeholders).
+      ...networks.flatMap(({ chainId, caipId }) =>
         Object.values(customTokens[chainId] ?? {}).map(
           getTokenMapper(chainId, caipId),
         ),
-      )
-      .filter(
-        (token) =>
-          !base.find(
-            (existing) =>
-              getUniqueTokenId(existing) === getUniqueTokenId(token),
-          ),
-      );
+      ),
+    ];
 
-    return [...base, ...customTokensList];
+    // Dedupe by unique token id, keeping the first occurrence. `tokensForAccount` comes first,
+    // so a held token keeps its fetched balance over the zero-balance placeholder/custom entry.
+    return uniqWith(
+      allTokens,
+      (a, b) => getUniqueTokenId(a) === getUniqueTokenId(b),
+    );
   }, [customTokens, networks, placeholderTokens, tokensForAccount]);
 };
