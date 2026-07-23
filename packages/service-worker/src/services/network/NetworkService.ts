@@ -50,7 +50,11 @@ import {
   getProviderForNetwork,
   isSyncDomain,
 } from '@core/common';
-import { isSolanaNetwork, isHyperliquidNetwork } from '@core/common';
+import {
+  isSolanaNetwork,
+  isHyperliquidNetwork,
+  isRobinhoodNetwork,
+} from '@core/common';
 import { GlacierService } from '../glacier/GlacierService';
 import {
   BASE_NETWORK_CONFIG_BY_TYPE,
@@ -59,6 +63,10 @@ import {
   LOGO_BY_ALIAS,
 } from './avalanche-config';
 import { HYPERCORE_NETWORK, HYPEREVM_NETWORK } from './hyperliquid-config';
+import {
+  ROBINHOOD_MAINNET_CHAIN_INFO,
+  ROBINHOOD_TESTNET_CHAIN_INFO,
+} from './robinhood-config';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -171,6 +179,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     const trackedFlags = [
       FeatureGates.SOLANA_SUPPORT,
       FeatureGates.HYPERLIQUID_FEATURE,
+      FeatureGates.ROBINHOOD_FEATURE,
     ];
 
     return Object.fromEntries(
@@ -498,6 +507,8 @@ export class NetworkService implements OnLock, OnStorageReady {
           [ChainId.AVALANCHE_DEVNET_X]: this._getXchainNetwork('devnet'),
           [HYPEREVM_NETWORK.chainId]: HYPEREVM_NETWORK,
           [HYPERCORE_NETWORK.chainId]: HYPERCORE_NETWORK,
+          [ROBINHOOD_MAINNET_CHAIN_INFO.chainId]: ROBINHOOD_MAINNET_CHAIN_INFO,
+          [ROBINHOOD_TESTNET_CHAIN_INFO.chainId]: ROBINHOOD_TESTNET_CHAIN_INFO,
         };
       } else {
         attempt += 1;
@@ -863,13 +874,23 @@ export class NetworkService implements OnLock, OnStorageReady {
       );
     }
 
+    const isAddedByUser = Boolean(this._customNetworks[network.chainId]);
+
     if (isHyperliquidNetwork(network)) {
       return (
         Boolean(
           this.featureFlagService.featureFlags[
             FeatureGates.HYPERLIQUID_FEATURE
           ],
-        ) || Boolean(this._customNetworks[network.chainId])
+        ) || isAddedByUser
+      );
+    }
+
+    if (isRobinhoodNetwork(network)) {
+      return (
+        Boolean(
+          this.featureFlagService.featureFlags[FeatureGates.ROBINHOOD_FEATURE],
+        ) || isAddedByUser
       );
     }
 
