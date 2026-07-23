@@ -493,6 +493,84 @@ describe('src/background/vmModules/ApprovalController', () => {
         expect(await promise).toEqual({ signedData: signedTx });
       });
     });
+
+    describe('SIWE domain mismatch detection', () => {
+      const account = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
+
+      const buildSiweApprovalParams = (
+        siweDomain: string,
+      ): ApprovalParamsWithContext => {
+        const message = `${siweDomain} wants you to sign in with your Ethereum account:
+${account}
+
+Sign in to Example App
+
+URI: https://${siweDomain}/login
+Version: 1
+Chain ID: 1
+Nonce: 32891756
+Issued At: 2021-09-30T16:25:24Z`;
+        const hexMessage = `0x${Buffer.from(message, 'utf8').toString('hex')}`;
+
+        return {
+          request: {
+            chainId: chainIdToCaip(cChain.chainId),
+            method: RpcMethod.PERSONAL_SIGN,
+            requestId: 'requestId',
+            sessionId: 'sessionId',
+            dappInfo,
+            context: {
+              tabId: 1234,
+            },
+            params: [hexMessage, account],
+          },
+          displayData: {
+            title: 'Sign Message',
+            details: [],
+          },
+          signingData: {
+            type: RpcMethod.PERSONAL_SIGN,
+            account,
+            data: hexMessage,
+          },
+        };
+      };
+
+      it('opens the approval window with a DANGER alert when the SIWE domain does not match the dApp origin', async () => {
+        controller.requestApproval(buildSiweApprovalParams('evil.com'));
+
+        await new Promise(process.nextTick);
+
+        expect(openApprovalWindow).toHaveBeenCalledWith(
+          expect.objectContaining({
+            displayData: expect.objectContaining({
+              alert: expect.objectContaining({
+                type: AlertType.DANGER,
+                details: expect.objectContaining({
+                  title: 'Sign-In Request Mismatch',
+                }),
+              }),
+            }),
+          }),
+          'approve/generic',
+        );
+      });
+
+      it('opens the approval window without an alert when the SIWE domain matches the dApp origin', async () => {
+        controller.requestApproval(buildSiweApprovalParams('extension.url'));
+
+        await new Promise(process.nextTick);
+
+        expect(openApprovalWindow).toHaveBeenCalledWith(
+          expect.objectContaining({
+            displayData: expect.not.objectContaining({
+              alert: expect.anything(),
+            }),
+          }),
+          'approve/generic',
+        );
+      });
+    });
   });
 
   describe('requestBatchApproval()', () => {
