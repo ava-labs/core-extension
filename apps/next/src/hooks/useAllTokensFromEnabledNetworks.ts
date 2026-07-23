@@ -1,4 +1,5 @@
 import { useNetworkContext, useSettingsContext } from '@core/ui';
+import { isEvmFungibleToken } from '@core/types';
 import { useAllTokens } from './useAllTokens';
 
 export const useAllTokensFromEnabledNetworks = (
@@ -19,7 +20,11 @@ export const useAllTokensFromEnabledNetworks = (
       return true;
     }
     const address =
-      'address' in token ? token.address?.toLowerCase() : undefined;
+      'address' in token
+        ? isEvmFungibleToken(token)
+          ? token.address.toLowerCase()
+          : token.address
+        : undefined;
     return address
       ? Boolean(customTokens?.[token.coreChainId]?.[address])
       : false;
