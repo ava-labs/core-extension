@@ -3,7 +3,7 @@ import { DisplayData, TokenDiff, TokenType } from '@avalabs/vm-module-types';
 import {
   isAvalanchePrimaryNetwork,
   isBitcoinNetwork,
-  isEthereumNetwork,
+  isEthereumAppRequired,
   isLedgerVersionCompatible,
   isSolanaNetwork,
 } from '@core/common';
@@ -38,7 +38,7 @@ const requiresBlindSigning = (
   network: NetworkWithCaipId,
   action: Action<DisplayData>,
 ) => {
-  if (!isEthereumNetwork(network) || !isTransactionApproval(action)) {
+  if (!isEthereumAppRequired(network) || !isTransactionApproval(action)) {
     return false;
   }
 
@@ -159,7 +159,7 @@ const getRequiredApp = (network: NetworkWithCaipId) => {
     return LedgerAppType.AVALANCHE;
   }
 
-  if (isEthereumNetwork(network)) {
+  if (isEthereumAppRequired(network)) {
     return LedgerAppType.ETHEREUM;
   }
 

@@ -24,7 +24,6 @@ import {
   getLegacyXPDerivationPath,
   getProviderForNetwork,
   hasAtLeastOneElement,
-  isEthereumNetwork,
   isDirectLedgerHyperEvmTransactionUnsupported,
   isNotNullish,
   isPchainNetwork,
@@ -33,6 +32,7 @@ import {
   isXchainNetwork,
   Monitoring,
   omitUndefined,
+  isEthereumAppRequired,
 } from '@core/common';
 import {
   Account,
@@ -692,7 +692,7 @@ export class WalletService implements OnUnlock {
     const transport = this.#requireLedgerTransport();
     await ensureLedgerAppOpen(
       transport,
-      isEthereumNetwork(network) ? 'Ethereum' : 'Avalanche',
+      isEthereumAppRequired(network) ? 'Ethereum' : 'Avalanche',
     );
   }
 
