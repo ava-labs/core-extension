@@ -5042,6 +5042,12 @@
         "buffer": true
       }
     },
+    "external:../common/src/utils/ledger/isEthereumAppRequired.ts": {
+      "packages": {
+        "external:../common/src/utils/network/isEthereumNetwork.ts": true,
+        "external:../common/src/utils/network/isRobinhoodNetwork.ts": true
+      }
+    },
     "external:../common/src/utils/logging.ts": {
       "globals": {
         "console.groupCollapsed": true,
