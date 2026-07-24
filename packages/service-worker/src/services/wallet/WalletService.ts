@@ -685,8 +685,11 @@ export class WalletService implements OnUnlock {
   }
 
   /**
-   * Match approval UI `getRequiredApp`: Ethereum (homestead + listed testnets) →
-   * Ethereum app; Avalanche C/X/P and all other EVM chains → Avalanche app.
+   * Match approval UI `getRequiredApp`:
+   *
+   * - Ethereum (homestead + listed testnets) → Ethereum app
+   * - Robinhood networks → Ethereum app
+   * - all other EVM chains → Avalanche app.
    */
   async #ensureEvmLedgerAppOpenForSigning(network: Network): Promise<void> {
     const transport = this.#requireLedgerTransport();
