@@ -5028,7 +5028,6 @@
     "external:../common/src/utils/jsonRpcEngine.ts": {
       "packages": {
         "eth-json-rpc-middleware": true,
-        "external:../common/src/utils/network/addGlacierAPIKeyIfNeeded.ts": true,
         "json-rpc-engine": true
       }
     },
@@ -5062,17 +5061,6 @@
         "performance.measure": true
       }
     },
-    "external:../common/src/utils/network/addGlacierAPIKeyIfNeeded.ts": {
-      "globals": {
-        "URL": true,
-        "process.env.GLACIER_API_KEY": true,
-        "process.env.GLACIER_URL": true,
-        "process.env.PROXY_URL": true
-      },
-      "packages": {
-        "@rsbuild/plugin-node-polyfill>process": true
-      }
-    },
     "external:../common/src/utils/network/buildCoreEth.ts": {
       "packages": {
         "@avalabs/core-chains-sdk": true
@@ -5080,15 +5068,12 @@
     },
     "external:../common/src/utils/network/getProviderForNetwork.ts": {
       "globals": {
-        "process.env.GLACIER_API_KEY": true,
         "process.env.PROXY_URL": true
       },
       "packages": {
         "@avalabs/core-chains-sdk": true,
         "@avalabs/core-wallets-sdk": true,
-        "ethers": true,
-        "external:../common/src/utils/network/addGlacierAPIKeyIfNeeded.ts": true,
-        "@rsbuild/plugin-node-polyfill>process": true
+        "ethers": true
       }
     },
     "external:../common/src/utils/network/isAvalanchePchainNetwork.ts": {
