@@ -1,10 +1,2 @@
-# These owners will be the default owners for everything in
-# the repo. Unless a later match takes precedence,
-# @ava-labs/core-engineering team will be requested for
-# review when someone opens a pull request.
+# Core Engineering owns the entire repository.
 * @ava-labs/core-engineering
-
-# The @ava-labs/core-engineering team owns the end-to-end tests and can
-# update files in the e2e directory without approval from the
-# default codeowners.
-/e2e/ @ava-labs/core-engineering
