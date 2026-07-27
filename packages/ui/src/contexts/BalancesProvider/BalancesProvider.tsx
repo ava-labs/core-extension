@@ -2,7 +2,6 @@ import { Erc1155Token, Erc721Token } from '@avalabs/glacier-sdk';
 import {
   GetBalancesHandler,
   GetTokenPriceByAddressHandler,
-  RefreshNftMetadataHandler,
   StartBalancesPollingHandler,
   StopBalancesPollingHandler,
   UpdateBalancesForNetworkHandler,
@@ -99,11 +98,6 @@ export type AccountAtomicBalanceState =
 
 const BalancesContext = createContext<{
   balances: BalancesState;
-  refreshNftMetadata(
-    address: string,
-    chainId: string,
-    tokenId: string,
-  ): Promise<void>;
   getTokenPrice(
     address: string,
     lookupNetwork?: NetworkWithCaipId,
@@ -130,7 +124,6 @@ const BalancesContext = createContext<{
   async getTokenPrice() {
     return null;
   },
-  async refreshNftMetadata() {},
   async updateBalanceOnNetworks() {},
   registerSubscriber() {},
   unregisterSubscriber() {},
@@ -391,23 +384,6 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     [network, request],
   );
 
-  const refreshNftMetadata = useCallback(
-    async (address: string, chainId: string, tokenId: string) => {
-      const result = await request<RefreshNftMetadataHandler>({
-        method: ExtensionRequest.NFT_REFRESH_METADATA,
-        params: [address, chainId, tokenId],
-      });
-
-      if (result.metadata) {
-        dispatch({
-          type: BalanceActionType.UPDATE_NFT_METADATA,
-          payload: { address, chainId, tokenId, updates: result },
-        });
-      }
-    },
-    [request],
-  );
-
   const getTotalBalance = useCallback(
     (addressC: string) => {
       const chainIds = [
@@ -518,7 +494,6 @@ export function BalancesProvider({ children }: PropsWithChildren) {
       value={{
         balances,
         getTokenPrice,
-        refreshNftMetadata,
         updateBalanceOnNetworks,
         registerSubscriber,
         unregisterSubscriber,

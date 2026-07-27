@@ -60,7 +60,6 @@ export * from './lowerCaseKeys';
 export * from './ledger/ensureLedgerAppOpen';
 export * from './makeBNLike';
 export * from './measureDuration';
-export * from './network/addGlacierAPIKeyIfNeeded';
 export * from './network/buildCoreEth';
 export * from './network/buildGlacierAuthHeaders';
 export * from './network/getProviderForNetwork';

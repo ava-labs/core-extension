@@ -10,8 +10,6 @@ import { FetchRequest, Network as EthersNetwork } from 'ethers';
 
 import { Network } from '@core/types';
 
-import { addGlacierAPIKeyIfNeeded } from './addGlacierAPIKeyIfNeeded';
-
 export type SupportedProvider =
   | BitcoinProvider
   | JsonRpcBatchInternal
@@ -41,14 +39,9 @@ export const getProviderForNetwork = async (
       `${process.env.PROXY_URL}/proxy/nownodes/${
         network.isTestnet ? 'btc-testnet' : 'btc'
       }`,
-      process.env.GLACIER_API_KEY
-        ? { rltoken: process.env.GLACIER_API_KEY }
-        : {},
     );
   } else if (network.vmName === NetworkVMType.EVM) {
-    const fetchConfig = new FetchRequest(
-      addGlacierAPIKeyIfNeeded(network.rpcUrl),
-    );
+    const fetchConfig = new FetchRequest(network.rpcUrl);
 
     if (network.customRpcHeaders) {
       const headers = Object.entries(network.customRpcHeaders);

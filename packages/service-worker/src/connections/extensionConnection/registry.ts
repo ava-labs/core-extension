@@ -21,7 +21,6 @@ import { GetNativeBalanceHandler } from '../../services/balances/handlers/getNat
 import { GetTokenPriceHandler } from '../../services/balances/handlers/getTokenPrice';
 import { GetTokenPriceByAddressHandler } from '../../services/balances/handlers/getTokenPriceByAddress';
 import { GetTotalBalanceForWalletHandler } from '../../services/balances/handlers/getTotalBalanceForWallet/getTotalBalanceForWallet';
-import { RefreshNftMetadataHandler } from '../../services/balances/handlers/refreshNftMetadata';
 import { StartBalancesPollingHandler } from '../../services/balances/handlers/startBalancesPolling';
 import { StopBalancesPollingHandler } from '../../services/balances/handlers/stopBalancesPolling';
 import { UpdateBalancesForNetworkHandler } from '../../services/balances/handlers/updateBalancesForNetwork';
@@ -405,10 +404,6 @@ import { SetBridgeDevEnvHandler } from '~/services/settings/handlers/setBridgeDe
   {
     token: 'ExtensionRequestHandler',
     useToken: RemoveTotpHandler,
-  },
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: RefreshNftMetadataHandler,
   },
   {
     token: 'ExtensionRequestHandler',

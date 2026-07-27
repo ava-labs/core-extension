@@ -23,7 +23,6 @@ export type { GetNativeBalanceHandler } from './services/balances/handlers/getNa
 export type { GetTokenPriceHandler } from './services/balances/handlers/getTokenPrice';
 export type { GetTokenPriceByAddressHandler } from './services/balances/handlers/getTokenPriceByAddress';
 export type { GetTotalBalanceForWalletHandler } from './services/balances/handlers/getTotalBalanceForWallet/getTotalBalanceForWallet';
-export type { RefreshNftMetadataHandler } from './services/balances/handlers/refreshNftMetadata';
 export type { StartBalancesPollingHandler } from './services/balances/handlers/startBalancesPolling';
 export type { StopBalancesPollingHandler } from './services/balances/handlers/stopBalancesPolling';
 export type { UpdateBalancesForNetworkHandler } from './services/balances/handlers/updateBalancesForNetwork';

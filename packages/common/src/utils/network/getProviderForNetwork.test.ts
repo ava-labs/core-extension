@@ -9,7 +9,6 @@ import {
   Avalanche,
 } from '@avalabs/core-wallets-sdk';
 import { FetchRequest, Network } from 'ethers';
-import { addGlacierAPIKeyIfNeeded } from './addGlacierAPIKeyIfNeeded';
 import { getProviderForNetwork } from './getProviderForNetwork';
 import { decorateWithCaipId } from '../caipConversion';
 
@@ -37,10 +36,6 @@ jest.mock('@avalabs/core-wallets-sdk', () => {
 jest.mock('ethers', () => ({
   ...jest.requireActual('ethers'),
   FetchRequest: jest.fn(),
-}));
-
-jest.mock('./addGlacierAPIKeyIfNeeded', () => ({
-  addGlacierAPIKeyIfNeeded: jest.fn(),
 }));
 
 jest.mock('@avalabs/core-chains-sdk', () => ({
@@ -79,7 +74,6 @@ describe('src/utils/network/getProviderForNetwork', () => {
   const mockMainnetProviderInstance = {};
 
   beforeEach(() => {
-    (addGlacierAPIKeyIfNeeded as jest.Mock).mockImplementation((v) => v);
     (JsonRpcBatchInternal as unknown as jest.Mock).mockReturnValue(
       mockJsonRpcBatchInternalInstance,
     );
@@ -159,26 +153,6 @@ describe('src/utils/network/getProviderForNetwork', () => {
     );
   });
 
-  it('adds glacier api key for glacier urls', async () => {
-    (addGlacierAPIKeyIfNeeded as jest.Mock).mockReturnValue(
-      'https://urlwithglacierkey.example',
-    );
-
-    const mockEVMNetwork = mockNetwork(NetworkVMType.EVM);
-    const provider = await getProviderForNetwork(mockEVMNetwork);
-
-    expect(provider).toBe(mockJsonRpcBatchInternalInstance);
-    expect(addGlacierAPIKeyIfNeeded).toHaveBeenCalledWith(
-      mockEVMNetwork.rpcUrl,
-    );
-    expect(JsonRpcBatchInternal).toHaveBeenCalledTimes(1);
-    expect(JsonRpcBatchInternal).toHaveBeenCalledWith(
-      40,
-      expect.objectContaining({ url: 'https://urlwithglacierkey.example' }),
-      new Network(mockEVMNetwork.chainName, mockEVMNetwork.chainId),
-    );
-  });
-
   it('returns bitcoin provider for BTC testnet', async () => {
     const provider = await getProviderForNetwork(
       decorateWithCaipId(BITCOIN_TEST_NETWORK),
@@ -191,7 +165,6 @@ describe('src/utils/network/getProviderForNetwork', () => {
       undefined,
       `${process.env.PROXY_URL}/proxy/nownodes/btcbook-testnet`,
       `${process.env.PROXY_URL}/proxy/nownodes/btc-testnet`,
-      { rltoken: process.env.GLACIER_API_KEY },
     );
   });
 
@@ -207,7 +180,6 @@ describe('src/utils/network/getProviderForNetwork', () => {
       undefined,
       `${process.env.PROXY_URL}/proxy/nownodes/btcbook`,
       `${process.env.PROXY_URL}/proxy/nownodes/btc`,
-      { rltoken: process.env.GLACIER_API_KEY },
     );
   });
 
