@@ -1,10 +1,10 @@
 # These owners will be the default owners for everything in
 # the repo. Unless a later match takes precedence,
-# @ava-labs/core-web-ext team will be requested for
+# @ava-labs/core-engineering team will be requested for
 # review when someone opens a pull request.
-* @ava-labs/core-web-ext
+* @ava-labs/core-engineering
 
-# The @ava-labs/core-qa team owns the end-to-end tests and can
+# The @ava-labs/core-engineering team owns the end-to-end tests and can
 # update files in the e2e directory without approval from the
 # default codeowners.
-/e2e/ @ava-labs/core-qa @ava-labs/core-web-ext
+/e2e/ @ava-labs/core-engineering
