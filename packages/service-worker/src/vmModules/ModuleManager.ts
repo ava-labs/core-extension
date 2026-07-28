@@ -21,10 +21,9 @@ import {
   AvaxLegacyCaipId,
   BitcoinCaipId,
   isDevelopment,
-  Monitoring,
 } from '@core/common';
 import { NetworkWithCaipId, VMModuleError } from '@core/types';
-import { AppCheckService } from '../services/appcheck/AppCheckService';
+import { getAuthHeaders } from '../services/appcheck/utils/getAuthHeaders';
 import { ApprovalController } from './ApprovalController';
 import { circuitBreakerFetch } from './utils';
 
@@ -36,7 +35,6 @@ const NAMESPACE_REGEX = new RegExp('^[-a-z0-9]{3,8}$');
 export class ModuleManager {
   #_modules: Module[] | undefined;
   #approvalController: BatchApprovalController;
-  #appCheckService: AppCheckService;
 
   isNonRestrictedMethod(module: Module, method: string): boolean {
     const nonRestrictedMethods =
@@ -63,12 +61,8 @@ export class ModuleManager {
     return this.#modules;
   }
 
-  constructor(
-    controller: ApprovalController,
-    appCheckService: AppCheckService,
-  ) {
+  constructor(controller: ApprovalController) {
     this.#approvalController = controller;
-    this.#appCheckService = appCheckService;
   }
 
   async activate(): Promise<void> {
@@ -81,23 +75,6 @@ export class ModuleManager {
     const appInfo: AppInfo = {
       name: AppName.CORE_EXTENSION,
       version: runtime.getManifest().version,
-    };
-
-    const getAuthHeaders = async (): Promise<Record<string, string>> => {
-      try {
-        const appcheckToken = await this.#appCheckService.getAppcheckToken();
-        return appcheckToken
-          ? { 'X-Firebase-AppCheck': appcheckToken.token }
-          : {};
-      } catch (error) {
-        console.error('Error getting AppCheck token:', error);
-        Monitoring.sentryCaptureException(
-          error as Error,
-          Monitoring.SentryExceptionTypes.FIREBASE,
-        );
-
-        return {};
-      }
     };
 
     this.#modules = [
@@ -115,7 +92,6 @@ export class ModuleManager {
       }),
       new BitcoinModule({
         environment,
-
         approvalController: this.#approvalController,
         appInfo,
         runtime: { fetch: circuitBreakerFetch },

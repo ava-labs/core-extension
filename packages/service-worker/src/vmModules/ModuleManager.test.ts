@@ -2,7 +2,6 @@ import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { ModuleManager } from './ModuleManager';
 import { VMModuleError } from '@core/types';
 import { ApprovalController } from './ApprovalController';
-import { AppCheckService } from '../services/appcheck/AppCheckService';
 
 jest.mock('@avalabs/bitcoin-module', () => {
   return {
@@ -129,16 +128,12 @@ jest.mock('@avalabs/hypercore-module', () => {
 describe('ModuleManager', () => {
   let manager: ModuleManager;
   let controller: ApprovalController;
-  let appCheckService: jest.Mocked<AppCheckService>;
 
   beforeEach(() => {
     controller = {
       requestApproval: jest.fn(),
     } as unknown as ApprovalController;
-    appCheckService = {
-      getAppcheckToken: jest.fn(),
-    } as unknown as jest.Mocked<AppCheckService>;
-    manager = new ModuleManager(controller, appCheckService);
+    manager = new ModuleManager(controller);
   });
   describe('when not initialized', () => {
     it('should throw not initialized error', async () => {

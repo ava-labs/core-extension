@@ -4,7 +4,6 @@ import { PrimaryNetworkAssetType } from '@avalabs/glacier-sdk';
 import { GetBalancesResponse, TokenType } from '@avalabs/vm-module-types';
 import { ModuleManager } from '~/vmModules/ModuleManager';
 import { ApprovalController } from '~/vmModules/ApprovalController';
-import { AppCheckService } from '../appcheck/AppCheckService';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import * as Sentry from '@sentry/browser';
 import { SettingsService } from '../settings/SettingsService';
@@ -196,10 +195,7 @@ describe('src/background/services/balances/BalancesService.ts', () => {
     jest.mocked(Sentry.startTransaction).mockReturnValue({
       finish: jest.fn(),
     } as any);
-    moduleManager = new ModuleManager(
-      {} as unknown as ApprovalController,
-      {} as unknown as AppCheckService,
-    );
+    moduleManager = new ModuleManager({} as unknown as ApprovalController);
     jest
       .mocked(moduleManager)
       .loadModuleByNetwork.mockResolvedValue(moduleMock as any);

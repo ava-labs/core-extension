@@ -45,10 +45,10 @@ export class BackgroundRuntime {
     this.connectionService.activate();
     this.lockService.activate();
     this.onboardingService.activate();
+    this.appCheckService.activate();
     this.moduleManager.activate();
 
     this.addressResolver.init(this.moduleManager);
-    this.appCheckService.activate();
     this.recurringSwapNotificationService.activate();
     this.#createOffScreen();
   }

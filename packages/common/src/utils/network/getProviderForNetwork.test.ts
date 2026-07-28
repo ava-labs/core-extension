@@ -165,6 +165,7 @@ describe('src/utils/network/getProviderForNetwork', () => {
       undefined,
       `${process.env.PROXY_URL}/proxy/nownodes/btcbook-testnet`,
       `${process.env.PROXY_URL}/proxy/nownodes/btc-testnet`,
+      { rltoken: process.env.GLACIER_API_KEY },
     );
   });
 
@@ -180,6 +181,7 @@ describe('src/utils/network/getProviderForNetwork', () => {
       undefined,
       `${process.env.PROXY_URL}/proxy/nownodes/btcbook`,
       `${process.env.PROXY_URL}/proxy/nownodes/btc`,
+      { rltoken: process.env.GLACIER_API_KEY },
     );
   });
 
