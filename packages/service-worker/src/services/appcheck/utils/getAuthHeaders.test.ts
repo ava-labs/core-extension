@@ -2,6 +2,7 @@ import { container } from 'tsyringe';
 
 import { Monitoring } from '@core/common';
 
+import { AppCheckService } from '../AppCheckService';
 import { getAuthHeaders } from './getAuthHeaders';
 
 jest.mock('@core/common', () => ({
@@ -20,14 +21,11 @@ describe('src/services/appcheck/utils/getAuthHeaders', () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
-    jest.spyOn(container, 'resolve').mockReturnValue({
-      getAppcheckToken,
-    });
+    jest
+      .spyOn(container, 'resolve')
+      .mockReturnValue({ getAppcheckToken } as unknown as AppCheckService);
 
-    process.env = {
-      ...realEnv,
-      CORE_PROXY_API_KEY: 'core-proxy-api-key',
-    };
+    process.env = { ...realEnv, CORE_PROXY_API_KEY: 'core-proxy-api-key' };
   });
 
   afterAll(() => {
@@ -43,7 +41,16 @@ describe('src/services/appcheck/utils/getAuthHeaders', () => {
     });
   });
 
-  it('omits the AppCheck header but keeps the Core API key header when no token is available', async () => {
+  it('omits the Core API key header when CORE_PROXY_API_KEY is unset', async () => {
+    delete process.env.CORE_PROXY_API_KEY;
+    getAppcheckToken.mockResolvedValue({ token: 'appcheck-token' });
+
+    await expect(getAuthHeaders()).resolves.toEqual({
+      'X-Firebase-AppCheck': 'appcheck-token',
+    });
+  });
+
+  it('returns only the Core API key header when no token is available', async () => {
     getAppcheckToken.mockResolvedValue(undefined);
 
     await expect(getAuthHeaders()).resolves.toEqual({
@@ -51,14 +58,11 @@ describe('src/services/appcheck/utils/getAuthHeaders', () => {
     });
   });
 
-  it('falls back to an empty Core API key header when CORE_PROXY_API_KEY is unset', async () => {
+  it('returns no headers when there is neither a token nor a Core API key', async () => {
     delete process.env.CORE_PROXY_API_KEY;
-    getAppcheckToken.mockResolvedValue({ token: 'appcheck-token' });
+    getAppcheckToken.mockResolvedValue(undefined);
 
-    await expect(getAuthHeaders()).resolves.toEqual({
-      'X-Firebase-AppCheck': 'appcheck-token',
-      'X-Core-Api-Key': '',
-    });
+    await expect(getAuthHeaders()).resolves.toEqual({});
   });
 
   it('reports to Sentry and omits the AppCheck header when fetching the token throws', async () => {

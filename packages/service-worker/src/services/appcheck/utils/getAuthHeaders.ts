@@ -7,10 +7,9 @@ import { AppCheckService } from '../AppCheckService';
 const FIREBASE_APP_CHECK_HEADER = 'X-Firebase-AppCheck';
 const CORE_PROXY_API_KEY_HEADER = 'X-Core-Api-Key';
 
-const CORE_PROXY_API_KEY = process.env.CORE_PROXY_API_KEY;
-
 export const getAuthHeaders = async (): Promise<Record<string, string>> => {
   const appcheckToken = await _getAppcheckToken();
+  const coreProxyApiKey = process.env.CORE_PROXY_API_KEY;
 
   const appcheckHeader: Record<string, string> = appcheckToken
     ? {
@@ -18,9 +17,9 @@ export const getAuthHeaders = async (): Promise<Record<string, string>> => {
       }
     : {};
 
-  const coreProxyApiKeyHeader: Record<string, string> = CORE_PROXY_API_KEY
+  const coreProxyApiKeyHeader: Record<string, string> = coreProxyApiKey
     ? {
-        [CORE_PROXY_API_KEY_HEADER]: CORE_PROXY_API_KEY,
+        [CORE_PROXY_API_KEY_HEADER]: coreProxyApiKey,
       }
     : {};
 
