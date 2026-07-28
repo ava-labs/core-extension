@@ -9,9 +9,11 @@ import {
   Avalanche,
 } from '@avalabs/core-wallets-sdk';
 import { FetchRequest, Network } from 'ethers';
-import { addGlacierAPIKeyIfNeeded } from './addGlacierAPIKeyIfNeeded';
 import { getProviderForNetwork } from './getProviderForNetwork';
+import { addGlacierAPIKeyIfNeeded } from './addGlacierAPIKeyIfNeeded';
 import { decorateWithCaipId } from '../caipConversion';
+
+jest.mock('./addGlacierAPIKeyIfNeeded');
 
 jest.mock('@avalabs/core-wallets-sdk', () => {
   const BitcoinProviderMock = jest.fn();
@@ -37,10 +39,6 @@ jest.mock('@avalabs/core-wallets-sdk', () => {
 jest.mock('ethers', () => ({
   ...jest.requireActual('ethers'),
   FetchRequest: jest.fn(),
-}));
-
-jest.mock('./addGlacierAPIKeyIfNeeded', () => ({
-  addGlacierAPIKeyIfNeeded: jest.fn(),
 }));
 
 jest.mock('@avalabs/core-chains-sdk', () => ({
@@ -79,7 +77,7 @@ describe('src/utils/network/getProviderForNetwork', () => {
   const mockMainnetProviderInstance = {};
 
   beforeEach(() => {
-    (addGlacierAPIKeyIfNeeded as jest.Mock).mockImplementation((v) => v);
+    jest.mocked(addGlacierAPIKeyIfNeeded).mockImplementation((url) => url);
     (JsonRpcBatchInternal as unknown as jest.Mock).mockReturnValue(
       mockJsonRpcBatchInternalInstance,
     );
@@ -160,9 +158,9 @@ describe('src/utils/network/getProviderForNetwork', () => {
   });
 
   it('adds glacier api key for glacier urls', async () => {
-    (addGlacierAPIKeyIfNeeded as jest.Mock).mockReturnValue(
-      'https://urlwithglacierkey.example',
-    );
+    jest
+      .mocked(addGlacierAPIKeyIfNeeded)
+      .mockReturnValue('https://urlwithglacierkey.example');
 
     const mockEVMNetwork = mockNetwork(NetworkVMType.EVM);
     const provider = await getProviderForNetwork(mockEVMNetwork);
