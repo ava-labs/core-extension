@@ -16,5 +16,6 @@ export const getBtcProvider = (network: NetworkWithCaipId) => {
     `${process.env.PROXY_URL}/proxy/nownodes/${
       network.isTestnet ? 'btc-testnet' : 'btc'
     }`,
+    process.env.GLACIER_API_KEY ? { rltoken: process.env.GLACIER_API_KEY } : {},
   );
 };
