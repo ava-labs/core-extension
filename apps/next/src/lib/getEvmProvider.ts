@@ -2,11 +2,14 @@ import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { FetchRequest, Network as EthersNetwork } from 'ethers';
 
 import { NetworkWithCaipId } from '@core/types';
+import { addGlacierAPIKeyIfNeeded } from '@core/common';
 
 const MAX_CALLS = 40;
 
 export const getEvmProvider = (network: NetworkWithCaipId) => {
-  const fetchConfig = new FetchRequest(network.rpcUrl);
+  const fetchConfig = new FetchRequest(
+    addGlacierAPIKeyIfNeeded(network.rpcUrl),
+  );
 
   if (network.customRpcHeaders) {
     const headers = Object.entries(network.customRpcHeaders);
