@@ -132,7 +132,7 @@ describe('ModuleManager', () => {
   beforeEach(() => {
     controller = {
       requestApproval: jest.fn(),
-    } as any;
+    } as unknown as ApprovalController;
     manager = new ModuleManager(controller);
   });
   describe('when not initialized', () => {

@@ -23,6 +23,7 @@ import {
   isDevelopment,
 } from '@core/common';
 import { NetworkWithCaipId, VMModuleError } from '@core/types';
+import { getAuthHeaders } from '../services/appcheck/utils/getAuthHeaders';
 import { ApprovalController } from './ApprovalController';
 import { circuitBreakerFetch } from './utils';
 
@@ -81,13 +82,13 @@ export class ModuleManager {
         environment,
         approvalController: this.#approvalController,
         appInfo,
-        runtime: { fetch: circuitBreakerFetch },
+        runtime: { fetch: circuitBreakerFetch, getAuthHeaders },
       }),
       new AvalancheModule({
         environment,
         approvalController: this.#approvalController,
         appInfo,
-        runtime: { fetch: circuitBreakerFetch },
+        runtime: { fetch: circuitBreakerFetch, getAuthHeaders },
       }),
       new BitcoinModule({
         environment,

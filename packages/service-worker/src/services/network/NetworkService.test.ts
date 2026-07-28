@@ -45,11 +45,6 @@ jest.mock('ethers', () => ({
   FetchRequest: jest.fn(),
 }));
 
-jest.mock('@core/common', () => ({
-  ...jest.requireActual('@core/common'),
-  addGlacierAPIKeyIfNeeded: jest.fn(),
-}));
-
 jest.mock('@avalabs/core-chains-sdk', () => ({
   ...jest.requireActual('@avalabs/core-chains-sdk'),
   getChainsAndTokens: jest.fn(),
