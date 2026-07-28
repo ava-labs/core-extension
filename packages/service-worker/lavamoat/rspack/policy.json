@@ -5068,12 +5068,14 @@
     },
     "external:../common/src/utils/network/getProviderForNetwork.ts": {
       "globals": {
+        "process.env.GLACIER_API_KEY": true,
         "process.env.PROXY_URL": true
       },
       "packages": {
         "@avalabs/core-chains-sdk": true,
         "@avalabs/core-wallets-sdk": true,
-        "ethers": true
+        "ethers": true,
+        "@rsbuild/plugin-node-polyfill>process": true
       }
     },
     "external:../common/src/utils/network/isAvalanchePchainNetwork.ts": {
