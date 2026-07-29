@@ -279,8 +279,13 @@ class LavaMoatRspackPlugin {
             'canonicalNameMap',
             'pathsCollected',
             'pathsProcessed',
-            'generatorCalled:repeats',
-            'runtimeAdded:repeats',
+            // Rspack doesn't guarantee module codegen (generatorCalled, via
+            // Rsdoctor moduleSources) runs before a runtime chunk's requirements
+            // (runtimeAdded, via additionalTreeRuntimeRequirements). Enabling
+            // source maps shifts that order, so these two must be interchangeable
+            // or the build fails nondeterministically depending on config/host.
+            'generatorCalled:repeats:unordered',
+            'runtimeAdded:repeats:unordered',
             'finish',
           ],
         });
