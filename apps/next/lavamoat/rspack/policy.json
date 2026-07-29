@@ -2,7 +2,7 @@
   "resources": {
     "@avalabs/avalanchejs": {
       "globals": {
-        "TextDecoder": false,
+        "TextDecoder": true,
         "TextEncoder": true,
         "console.log": true,
         "crypto": true,
