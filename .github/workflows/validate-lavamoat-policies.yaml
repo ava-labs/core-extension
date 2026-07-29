@@ -97,15 +97,14 @@ jobs:
         run: |
           yarn install --check-cache
           yarn allow-scripts
-      # Mirrors `main_branch.yaml`'s shipping command so we're regenerating
-      # under the same rsbuild config that produces the alpha bundles.
-      # Functionally identical to `yarn build` today (both alpha and prod
-      # configs use `generateLavaMoatPolicy: true` + `getEnvVars('production')`),
-      # but parity protects us if the two configs ever diverge.
+      # Must match `main_branch.yaml`'s shipping command exactly, including
+      # source maps. Source map generation changes Rspack's codegen/runtime
+      # module ordering, which the LavaMoat plugin is sensitive to — disabling
+      # them here (e.g. via NO_SOURCE_MAPS for speed) would let this gate pass
+      # on a build that then fails when the release workflow ships with source
+      # maps enabled.
       - name: Build (regenerates LavaMoat policies)
         run: yarn build:alpha
-        env:
-          NO_SOURCE_MAPS: 'true'
       - name: Detect policy drift
         id: drift
         # The pathspec matches `policy.json` under any `lavamoat/rspack/`

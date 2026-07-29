@@ -3055,6 +3055,7 @@ __metadata:
     "@rspack/lite-tapable": "npm:1.0.1"
     "@types/browser-resolve": "npm:2.0.5"
     browser-resolve: "npm:2.0.0"
+    jest: "npm:29.7.0"
     lavamoat-core: "npm:18.0.0"
     ses: "npm:1.15.0"
   peerDependencies:

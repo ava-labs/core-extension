@@ -19,7 +19,18 @@ const diag = require('./diagnostics');
  */
 
 /**
- * Monitors progress along a linear sequence of steps.
+ * Monitors progress along an ordered sequence of steps.
+ *
+ * A step may carry `:`-separated flags after its name:
+ *
+ * - `repeats`: the step may be reported more than once without erroring.
+ * - `unordered`: the step belongs to a group whose members may be reported in
+ *   any order relative to one another. Consecutive `unordered` steps form a
+ *   single group; the sequence only advances past the group once every member
+ *   has been reported. This exists because bundler hook firing order isn't
+ *   guaranteed for some phases (e.g. Rspack can emit runtime requirements for a
+ *   chunk before any covered module's source is generated), so requiring a
+ *   fixed order between such steps would make the build fail nondeterministically.
  *
  * @param {object} options
  * @param {string[]} options.steps
@@ -39,15 +50,40 @@ function progress({ steps }) {
   };
   const canRepeat = new Set();
 
-  steps = steps.map((step) => {
-    const [st, info] = step.split(':');
-    if (info === 'repeats') {
-      canRepeat.add(st);
+  /** @type {{ members: string[]; unordered: boolean }[]} */
+  const slots = [];
+  /** @type {Map<string, number>} */
+  const slotByStep = new Map();
+
+  steps.forEach((step) => {
+    const [name, ...flags] = step.split(':');
+    if (flags.includes('repeats')) {
+      canRepeat.add(name);
     }
-    return st;
+    const unordered = flags.includes('unordered');
+    const lastSlot = slots[slots.length - 1];
+    if (unordered && lastSlot?.unordered) {
+      lastSlot.members.push(name);
+    } else {
+      slots.push({ members: [name], unordered });
+    }
+    slotByStep.set(name, slots.length - 1);
   });
-  let currentStep = 0;
+
+  let currentSlot = 0;
   const done = new Set();
+
+  /**
+   * @param {number} slotIndex
+   */
+  const describeSlot = (slotIndex) => {
+    const slot = slots[slotIndex];
+    if (!slot) {
+      return String(undefined);
+    }
+    const pending = slot.members.filter((member) => !done.has(member));
+    return (pending.length > 0 ? pending : slot.members).join(' or ');
+  };
 
   const API = {};
 
@@ -57,34 +93,48 @@ function progress({ steps }) {
    * @param {string} step - The step to report progress for.
    */
   API.report = (step) => {
-    if (canRepeat.has(step) && steps[currentStep] === step) {
+    const slotIndex = slotByStep.get(step);
+    const nextSlot = currentSlot + 1;
+
+    if (
+      canRepeat.has(step) &&
+      done.has(step) &&
+      (slotIndex === currentSlot || slotIndex === nextSlot)
+    ) {
       diag.rawDebug(4, `  progress  Reporting ${step} again`);
       return;
     }
-    done.add(step);
-    if (steps[currentStep + 1] !== step) {
+
+    if (slotIndex !== nextSlot) {
       reportError(
         Error(
-          `LavaMoatPlugin: Progress reported '${step}' but the next step was expected to be '${
-            steps[currentStep + 1]
-          }'`,
+          `LavaMoatPlugin: Progress reported '${step}' but the next step was expected to be '${describeSlot(
+            nextSlot,
+          )}'`,
         ),
       );
-    } else {
-      diag.rawDebug(2, `  progress  ${steps[currentStep]}->${step}`);
-      currentStep += 1;
+      return;
+    }
+
+    done.add(step);
+    if (slots[nextSlot].members.every((member) => done.has(member))) {
+      diag.rawDebug(
+        2,
+        `  progress  ${describeSlot(currentSlot)}->${describeSlot(nextSlot)}`,
+      );
+      currentSlot = nextSlot;
     }
   };
   /**
    * @param {string} query - Step name
    */
   API.is = (query) => {
-    const current = steps[currentStep];
+    const current = describeSlot(currentSlot);
     diag.rawDebug(3, `  progress  Checking (${current}).is(${query})`);
-    return current === query;
+    return slots[currentSlot]?.members.includes(query) ?? false;
   };
   API.get = () => {
-    return steps[currentStep];
+    return describeSlot(currentSlot);
   };
   /**
    * @param {string} query - Step name
@@ -101,7 +151,9 @@ function progress({ steps }) {
     }
     reportError(
       Error(
-        `LavaMoatPlugin: Expected '${query}' to be done, but we're at '${steps[currentStep]}'`,
+        `LavaMoatPlugin: Expected '${query}' to be done, but we're at '${describeSlot(
+          currentSlot,
+        )}'`,
       ),
     );
   };
@@ -119,7 +171,7 @@ function progress({ steps }) {
   };
   API.isCancelled = () => cancelled;
 
-  diag.rawDebug(2, `  progress  ${steps[currentStep]}`);
+  diag.rawDebug(2, `  progress  ${describeSlot(currentSlot)}`);
 
   return API;
 }
