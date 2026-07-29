@@ -4,6 +4,10 @@
   "description": "LavaMoat Rspack plugin for running dependencies in Compartments without eval",
   "main": "src/plugin.js",
   "types": "types/plugin.d.ts",
+  "scripts": {
+    "test": "yarn jest",
+    "test:watch": "yarn jest --watch"
+  },
   "exports": {
     ".": {
       "types": "./types/plugin.d.ts",
@@ -40,6 +44,7 @@
     "ses": "1.15.0"
   },
   "devDependencies": {
-    "@types/browser-resolve": "2.0.5"
+    "@types/browser-resolve": "2.0.5",
+    "jest": "29.7.0"
   }
 }
