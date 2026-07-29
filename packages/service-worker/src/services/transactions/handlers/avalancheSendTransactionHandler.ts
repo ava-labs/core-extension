@@ -1,23 +1,14 @@
 import {
   Account,
-  ExtensionConnectionEvent,
   NetworkWithCaipId,
   TransactionStatusEvents,
-  TransactionStatusInfo,
 } from '@core/types';
 
 import { getAddressForChain, measureDuration } from '@core/common';
 import { RpcRequest } from '@avalabs/vm-module-types';
 import { AccountsService } from '~/services/accounts/AccountsService';
 import { NetworkService } from '~/services/network/NetworkService';
-
-type AnalyticsEventBuilderFn = (
-  event: ExtensionConnectionEvent<TransactionStatusInfo>,
-) => Promise<{ name: string; properties: Record<string, unknown> } | null>;
-
-export type TransactionStatusEventBuilders = Partial<
-  Record<TransactionStatusEvents, AnalyticsEventBuilderFn>
->;
+import { TransactionStatusEventBuilders } from './types';
 
 async function getUsedAccount(
   request: RpcRequest,
