@@ -9,7 +9,6 @@ import {
   useConnectionContext,
   useSettingsContext,
 } from '@core/ui';
-import { uniqWith } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { getNetworkTokens } from './lib/getNetworkTokens';
 import { getTokenMapper } from './lib/getTokenMapper';
@@ -60,9 +59,13 @@ export const useAllTokens = (
 
     // Dedupe by unique token id, keeping the first occurrence. `tokensForAccount` comes first,
     // so a held token keeps its fetched balance over the zero-balance placeholder/custom entry.
-    return uniqWith(
-      allTokens,
-      (a, b) => getUniqueTokenId(a) === getUniqueTokenId(b),
-    );
+    const byUniqueId = new Map<string, FungibleTokenBalance>();
+    for (const token of allTokens) {
+      const id = getUniqueTokenId(token);
+      if (!byUniqueId.has(id)) {
+        byUniqueId.set(id, token);
+      }
+    }
+    return Array.from(byUniqueId.values());
   }, [customTokens, networks, placeholderTokens, tokensForAccount]);
 };
