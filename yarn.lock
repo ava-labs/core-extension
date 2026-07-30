@@ -3013,8 +3013,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core/inpage@workspace:packages/inpage"
   dependencies:
-    "@avalabs/evm-module": "npm:3.13.0"
-    "@avalabs/svm-module": "npm:3.13.0"
+    "@avalabs/evm-module": "npm:4.0.1"
+    "@avalabs/svm-module": "npm:4.0.1"
     "@core/common": "workspace:*"
     "@core/messaging": "workspace:*"
     "@core/types": "workspace:*"
