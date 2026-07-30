@@ -2,14 +2,23 @@ import { useMemo } from 'react';
 
 import {
   useAccountsContext,
+  useFeatureFlagContext,
   useNetworkContext,
   useWalletContext,
 } from '@core/ui';
-import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';
+import {
+  FeatureGates,
+  FungibleTokenBalance,
+  getUniqueTokenId,
+} from '@core/types';
 
 import { useAllTokens } from '@/hooks/useAllTokens';
 import { GetSupportedChainsResult } from '@avalabs/fusion-sdk';
-import { isChainSupportedByWalletOrAccount, isNotNullish } from '@core/common';
+import {
+  isChainSupportedByWalletOrAccount,
+  isHypercoreNetwork,
+  isNotNullish,
+} from '@core/common';
 import { getConstrainedTargetTokenId } from '../../lib/getConstrainedTargetTokenId';
 
 /**
@@ -26,6 +35,7 @@ export const useSwapTargetTokenList = (
   const {
     accounts: { active },
   } = useAccountsContext();
+  const { isFlagEnabled } = useFeatureFlagContext();
 
   const supportedTargetChainIds = useMemo(() => {
     if (sourceToken) {
@@ -49,8 +59,13 @@ export const useSwapTargetTokenList = (
         // Hide chains the active wallet can't sign for (e.g. Solana on Keystone).
         .filter((network) =>
           isChainSupportedByWalletOrAccount(network, walletDetails, active),
+        )
+        .filter(
+          (network) =>
+            !isHypercoreNetwork(network) ||
+            isFlagEnabled(FeatureGates.HYPERCORE_ON_SWAP),
         ),
-    [getNetwork, supportedTargetChainIds, walletDetails, active],
+    [getNetwork, supportedTargetChainIds, walletDetails, active, isFlagEnabled],
   );
 
   const allTokens = useAllTokens(supportedTargetNetworks, true);
