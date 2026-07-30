@@ -271,7 +271,7 @@ export const useBridgeableTargetTokenList = (
       .filter(
         ({ network }) =>
           !isHypercoreNetwork(network) ||
-          isFlagEnabled(FeatureGates.HYPERCORE_ON_SWAP),
+          isFlagEnabled(FeatureGates.HYPERCORE_AS_TARGET_ON_SWAP),
       );
 
     return sortDestinationChains(
