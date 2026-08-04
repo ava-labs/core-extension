@@ -11,6 +11,7 @@ import { useMemo, useRef } from 'react';
 
 import {
   useAccountsContext,
+  useFeatureFlagContext,
   useNetworkContext,
   useWalletContext,
 } from '@core/ui';
@@ -21,8 +22,10 @@ import {
   isChainSupportedByWalletOrAccount,
   fromFusionCaipId,
   toFusionCaipId,
+  isHypercoreNetwork,
 } from '@core/common';
 import {
+  FeatureGates,
   type FungibleAssetType,
   type FungibleTokenBalance,
   type NetworkWithCaipId,
@@ -172,6 +175,7 @@ export const useBridgeableTargetTokenList = (
 ): BridgeableTargetTokenListResult => {
   const { getNetwork } = useNetworkContext();
   const { walletDetails } = useWalletContext();
+  const { isFlagEnabled } = useFeatureFlagContext();
   const {
     accounts: { active },
   } = useAccountsContext();
@@ -249,20 +253,26 @@ export const useBridgeableTargetTokenList = (
   ]);
 
   const sortedTargetChains = useMemo(() => {
-    const targetChains = allTargetCaipIds.flatMap((fusionCaipId) => {
-      const network = getNetwork(fromFusionCaipId(fusionCaipId));
-      if (!network) {
-        return [];
-      }
+    const targetChains = allTargetCaipIds
+      .flatMap((fusionCaipId) => {
+        const network = getNetwork(fromFusionCaipId(fusionCaipId));
+        if (!network) {
+          return [];
+        }
 
-      return [
-        {
-          fusionCaipId,
-          chainName: network.chainName,
-          network,
-        },
-      ];
-    });
+        return [
+          {
+            fusionCaipId,
+            chainName: network.chainName,
+            network,
+          },
+        ];
+      })
+      .filter(
+        ({ network }) =>
+          !isHypercoreNetwork(network) ||
+          isFlagEnabled(FeatureGates.HYPERCORE_AS_TARGET_ON_SWAP),
+      );
 
     return sortDestinationChains(
       targetChains.map(({ fusionCaipId, chainName, network }) => ({
@@ -276,7 +286,7 @@ export const useBridgeableTargetTokenList = (
       chainName,
       network,
     }));
-  }, [allTargetCaipIds, getNetwork]);
+  }, [allTargetCaipIds, getNetwork, isFlagEnabled]);
 
   // Resolve the selected chip value to a single CAIP ID for the API call
   const selectedTargetCaipId = useMemo(() => {
