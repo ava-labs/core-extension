@@ -3,7 +3,7 @@ export const measureDuration = (
 ): {
   measurementId: string;
   start: () => void;
-  end: () => number;
+  end: () => number | undefined;
 } => {
   const measurementId = id ?? crypto.randomUUID();
 
@@ -11,16 +11,20 @@ export const measureDuration = (
     performance.mark(`${measurementId}-start`);
   };
 
-  const end = (): number => {
-    const measurement = performance.measure(
-      `${measurementId}-measurement`,
-      `${measurementId}-start`,
-    );
+  const end = (): number | undefined => {
+    try {
+      const measurement = performance.measure(
+        `${measurementId}-measurement`,
+        `${measurementId}-start`,
+      );
 
-    performance.clearMarks(`${measurementId}-start`);
-    performance.clearMeasures(`${measurementId}-measurement`);
+      performance.clearMarks(`${measurementId}-start`);
+      performance.clearMeasures(`${measurementId}-measurement`);
 
-    return measurement.duration;
+      return measurement.duration;
+    } catch {
+      return undefined;
+    }
   };
 
   return { measurementId, start, end };
