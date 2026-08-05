@@ -1,7 +1,9 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
+import { DEFAULT_FLAGS } from '@core/common';
 import { ModuleManager } from './ModuleManager';
 import { VMModuleError } from '@core/types';
 import { ApprovalController } from './ApprovalController';
+import { FeatureFlagService } from '../services/featureFlags/FeatureFlagService';
 
 jest.mock('@avalabs/bitcoin-module', () => {
   return {
@@ -132,8 +134,12 @@ describe('ModuleManager', () => {
   beforeEach(() => {
     controller = {
       requestApproval: jest.fn(),
-    } as unknown as ApprovalController;
-    manager = new ModuleManager(controller);
+    } as any;
+    const featureFlagService = {
+      featureFlags: DEFAULT_FLAGS,
+      addListener: jest.fn(),
+    } as unknown as FeatureFlagService;
+    manager = new ModuleManager(controller, featureFlagService);
   });
   describe('when not initialized', () => {
     it('should throw not initialized error', async () => {

@@ -22,9 +22,16 @@ import {
   BitcoinCaipId,
   isDevelopment,
 } from '@core/common';
-import { NetworkWithCaipId, VMModuleError } from '@core/types';
 import { getAuthHeaders } from '../services/appcheck/utils/getAuthHeaders';
+import {
+  FeatureFlagEvents,
+  FeatureFlags,
+  FeatureGates,
+  NetworkWithCaipId,
+  VMModuleError,
+} from '@core/types';
 import { ApprovalController } from './ApprovalController';
+import { FeatureFlagService } from '../services/featureFlags/FeatureFlagService';
 import { circuitBreakerFetch } from './utils';
 
 // https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md
@@ -35,6 +42,7 @@ const NAMESPACE_REGEX = new RegExp('^[-a-z0-9]{3,8}$');
 export class ModuleManager {
   #_modules: Module[] | undefined;
   #approvalController: BatchApprovalController;
+  #featureFlagService: FeatureFlagService;
 
   isNonRestrictedMethod(module: Module, method: string): boolean {
     const nonRestrictedMethods =
@@ -61,8 +69,12 @@ export class ModuleManager {
     return this.#modules;
   }
 
-  constructor(controller: ApprovalController) {
+  constructor(
+    controller: ApprovalController,
+    featureFlagService: FeatureFlagService,
+  ) {
     this.#approvalController = controller;
+    this.#featureFlagService = featureFlagService;
   }
 
   async activate(): Promise<void> {
@@ -77,13 +89,24 @@ export class ModuleManager {
       version: runtime.getManifest().version,
     };
 
+    const evmModule = new EvmModule({
+      environment,
+      approvalController: this.#approvalController,
+      appInfo,
+      runtime: {
+        fetch: circuitBreakerFetch,
+        getAuthHeaders,
+        features: {
+          encryptedERCs:
+            this.#featureFlagService.featureFlags[
+              FeatureGates.EERC_TRANSACTION_DISPLAY
+            ],
+        },
+      },
+    });
+
     this.#modules = [
-      new EvmModule({
-        environment,
-        approvalController: this.#approvalController,
-        appInfo,
-        runtime: { fetch: circuitBreakerFetch, getAuthHeaders },
-      }),
+      evmModule,
       new AvalancheModule({
         environment,
         approvalController: this.#approvalController,
@@ -115,6 +138,19 @@ export class ModuleManager {
         runtime: { fetch: circuitBreakerFetch },
       }),
     ];
+
+    // Modules are constructed once, so push the relevant flag changes to the EVM
+    // module when they update.
+    this.#featureFlagService.addListener(
+      FeatureFlagEvents.FEATURE_FLAG_UPDATED,
+      (flags: FeatureFlags) => {
+        evmModule.updateRuntimeParams({
+          features: {
+            encryptedERCs: flags[FeatureGates.EERC_TRANSACTION_DISPLAY],
+          },
+        });
+      },
+    );
   }
 
   async loadModule(caipId: string, method?: string): Promise<Module> {
