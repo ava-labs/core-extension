@@ -414,7 +414,13 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
         hypercoreChainIds.length > 0
           ? this.#fetchBalances(hypercoreChainIds, accounts, tokenTypes)
               .then(({ tokens }) => tokens)
-              .catch(() => ({}))
+              .catch((error) => {
+                Monitoring.sentryCaptureException(
+                  error,
+                  Monitoring.SentryExceptionTypes.BALANCES,
+                );
+                return {};
+              })
           : Promise.resolve<Balances>({});
 
       const apiErrorHandler = async (error: Error) => {
