@@ -12,6 +12,7 @@ import {
   NETWORK_LIST_STORAGE_KEY,
   NETWORK_OVERRIDES_STORAGE_KEY,
   NETWORK_STORAGE_KEY,
+  NETWORKS_ENABLED_BY_DEFAULT,
   FeatureGates,
 } from '@core/types';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
@@ -1047,6 +1048,68 @@ describe('background/services/network/NetworkService', () => {
         ).length;
 
         expect(duplicateCount).toBe(1);
+      });
+    });
+
+    describe('API-driven enablement flags', () => {
+      it('treats a network flagged isAlwaysEnabled as non-disableable', async () => {
+        const alwaysOnChainId = 424242;
+
+        // Simulate the chainlist arriving with the API flag set. This updates
+        // the derived always-enabled set via the _allNetworks subscription.
+        service['_allNetworks'].dispatch({
+          [alwaysOnChainId]: mockNetwork(NetworkVMType.EVM, false, {
+            chainId: alwaysOnChainId,
+            isAlwaysEnabled: true,
+          }),
+        });
+
+        // Attempting to disable it keeps it enabled, as the always-enabled set
+        // is unioned back in by the enabled-networks setter.
+        await service.disableNetwork(alwaysOnChainId);
+
+        expect(service['_enabledNetworks']).toContain(alwaysOnChainId);
+      });
+
+      it('does not persist availability for a network flagged isAlwaysEnabled', async () => {
+        const alwaysOnChainId = 424242;
+
+        service['_allNetworks'].dispatch({
+          [alwaysOnChainId]: mockNetwork(NetworkVMType.EVM, false, {
+            chainId: alwaysOnChainId,
+            isAlwaysEnabled: true,
+          }),
+        });
+
+        await service.enableNetwork(alwaysOnChainId);
+
+        expect(service.updateNetworkState).not.toHaveBeenCalled();
+        expect(
+          service['_networkAvailability'][alwaysOnChainId],
+        ).toBeUndefined();
+      });
+    });
+
+    describe('getNetworksEnabledByDefault', () => {
+      it('returns the hardcoded default networks augmented with API-flagged ones', async () => {
+        const defaultOnChainId = 555555;
+
+        jest.spyOn(service.allNetworks, 'promisify').mockResolvedValue(
+          Promise.resolve({
+            [ethMainnet.chainId]: ethMainnet,
+            [defaultOnChainId]: mockNetwork(NetworkVMType.EVM, false, {
+              chainId: defaultOnChainId,
+              isEnabledByDefault: true,
+            }),
+          }),
+        );
+
+        const result = await service.getNetworksEnabledByDefault();
+
+        expect(result).toEqual(
+          expect.arrayContaining(NETWORKS_ENABLED_BY_DEFAULT),
+        );
+        expect(result).toContain(defaultOnChainId);
       });
     });
   });
