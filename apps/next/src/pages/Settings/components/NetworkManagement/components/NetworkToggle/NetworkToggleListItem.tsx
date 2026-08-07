@@ -11,7 +11,7 @@ import { NetworkAvatar } from '../NetworkAvatar/NetworkAvatar';
 type NetworkToggleListItemProps = {
   network: NetworkWithCaipId;
   isEnabled: boolean;
-  isDefault: boolean;
+  isAlwaysEnabled: boolean;
   onToggle: () => void;
   onClick: () => void;
 };
@@ -19,7 +19,7 @@ type NetworkToggleListItemProps = {
 export const NetworkToggleListItem = ({
   network,
   isEnabled,
-  isDefault,
+  isAlwaysEnabled: isDefault,
   onToggle,
   onClick,
 }: NetworkToggleListItemProps) => {

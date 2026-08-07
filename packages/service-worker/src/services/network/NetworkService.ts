@@ -48,6 +48,8 @@ import {
   getSyncDomain,
   getExponentialBackoffDelay,
   getProviderForNetwork,
+  getAlwaysEnabledNetworkIds,
+  getDefaultEnabledNetworkIds,
   isSyncDomain,
 } from '@core/common';
 import { isSolanaNetwork, isHyperliquidNetwork } from '@core/common';
@@ -68,6 +70,11 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   // Complete list of enabled networks ID
   private _enabledNetworks: number[] = [...NETWORKS_ENABLED_FOREVER];
+  // Networks that cannot be disabled by the user. Used synchronously by the
+  // enabled-networks setter, so it is cached rather than derived on demand.
+  // Derived from the chainlist (API `isAlwaysEnabled` flag) with the hardcoded
+  // list as a floor.
+  #alwaysEnabledNetworks: number[] = [...NETWORKS_ENABLED_FOREVER];
   // Network data that is stored in storage
   private _networkAvailability: Record<number, { isEnabled: boolean }> = {};
 
@@ -150,6 +157,11 @@ export class NetworkService implements OnLock, OnStorageReady {
     private glacierService: GlacierService,
   ) {
     this._initChainList();
+
+    // Keep the always/default enabled sets in sync with the chainlist, so the
+    // API `isAlwaysEnabled`/`isEnabledByDefault` flags are honored as soon as
+    // the chainlist is available (and before storage-driven availability is applied).
+    this._allNetworks.add(this.#updateEnablementFromChainList);
 
     this.allNetworks = this._allNetworks
       .cache(new ValueCache<ChainList>())
@@ -257,7 +269,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   private set enabledNetworks(networkIds: number[]) {
     const uniqueNetworkIds = [
-      ...new Set([...NETWORKS_ENABLED_FOREVER, ...networkIds]),
+      ...new Set([...this.#alwaysEnabledNetworks, ...networkIds]),
     ];
 
     this._enabledNetworks = uniqueNetworkIds;
@@ -276,6 +288,15 @@ export class NetworkService implements OnLock, OnStorageReady {
     return this.#filterByEnvironment(this._enabledNetworks);
   }
 
+  /**
+   * Networks that should be enabled by default on onboarding. Derived from the
+   * chainlist (API `isEnabledByDefault` flag) with the hardcoded list as a floor.
+   */
+  async getNetworksEnabledByDefault(): Promise<number[]> {
+    const chainList = await this.allNetworks.promisify();
+    return getDefaultEnabledNetworkIds(chainList);
+  }
+
   public get customNetworks() {
     return this._customNetworks;
   }
@@ -283,7 +304,7 @@ export class NetworkService implements OnLock, OnStorageReady {
   async enableNetwork(chainId: number) {
     if (
       this._enabledNetworks.includes(chainId) ||
-      NETWORKS_ENABLED_FOREVER.includes(chainId)
+      this.#alwaysEnabledNetworks.includes(chainId)
     ) {
       return this._enabledNetworks;
     }
@@ -313,6 +334,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     this.uiActiveNetwork = undefined;
     this._customNetworks = {};
     this._enabledNetworks = [];
+    this.#alwaysEnabledNetworks = [...NETWORKS_ENABLED_FOREVER];
     this._networkAvailability = {};
     this.#dappScopes = {};
     this.#avalancheDevnetMode = DEFAULT_AVALANCHE_DEVNET_MODE;
@@ -813,7 +835,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       .filter(
         (chainId) =>
           this._networkAvailability[chainId] === undefined &&
-          !NETWORKS_ENABLED_FOREVER.includes(Number(chainId)),
+          !this.#alwaysEnabledNetworks.includes(Number(chainId)),
       )
       .map(Number);
     unknownChains.forEach((chainId) => {
@@ -930,6 +952,14 @@ export class NetworkService implements OnLock, OnStorageReady {
         decorateWithCaipId(network),
       ]),
     );
+  };
+
+  #updateEnablementFromChainList = (chainList?: ChainList) => {
+    if (!chainList) {
+      return;
+    }
+
+    this.#alwaysEnabledNetworks = getAlwaysEnabledNetworkIds(chainList);
   };
 
   #convertNetworkAvailabilityToEnabledNetworks = (

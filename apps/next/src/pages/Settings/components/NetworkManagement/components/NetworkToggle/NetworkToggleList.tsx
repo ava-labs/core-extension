@@ -14,7 +14,7 @@ type NetworkToggleListProps = {
   networks: NetworkWithCaipId[];
 };
 
-const defaultNetworkSet = new Set(NETWORKS_ENABLED_FOREVER);
+const alwaysEnabledNetworkSet = new Set(NETWORKS_ENABLED_FOREVER);
 export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
   const { enabledNetworks, enableNetwork, disableNetwork } =
     useNetworkContext();
@@ -104,7 +104,10 @@ export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
           key={network.chainId}
           network={network}
           isEnabled={enabledNetworksArray.includes(network.chainId)}
-          isDefault={defaultNetworkSet.has(network.chainId)}
+          isAlwaysEnabled={
+            Boolean(network.isAlwaysEnabled) ||
+            alwaysEnabledNetworkSet.has(network.chainId)
+          }
           onToggle={() => {
             if (enabledNetworksArray.includes(network.chainId)) {
               disableNetwork(network.chainId);
