@@ -139,6 +139,7 @@
     "@avalabs/hypercore-module": "4.0.1",
     "@solana/kit": "5.4.0",
     "cipher-base": "1.0.5",
+    "crypto-js": "4.2.0",
     "elliptic": "6.6.1",
     "form-data@npm:^4.0.0": "4.0.5",
     "form-data@npm:^4.0.4": "4.0.5",
