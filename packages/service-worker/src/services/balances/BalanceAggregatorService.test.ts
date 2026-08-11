@@ -644,6 +644,118 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     });
   });
 
+  describe('HyperCore with balance service integration on', () => {
+    const HYPERCORE_CHAIN_ID = 9999;
+
+    const hypercoreNetwork = {
+      chainName: 'HyperCore',
+      chainId: HYPERCORE_CHAIN_ID,
+      vmName: NetworkVMType.EVM,
+      rpcUrl: '',
+      explorerUrl: 'https://app.hyperliquid.xyz/explorer',
+      networkToken: networkToken1,
+      logoUri: '',
+      primaryColor: 'green',
+    } as Network;
+
+    const hypercoreBalance = {
+      [account1.addressC]: {
+        USDC: {
+          ...networkToken1,
+          symbol: 'USDC',
+          type: TokenType.NATIVE,
+          balance: 500n,
+          balanceDisplayValue: '5',
+          coingeckoId: 'usd-coin',
+        },
+      },
+    };
+
+    let service: BalanceAggregatorService;
+
+    beforeEach(() => {
+      tokenPricesServiceMock.getPriceChangesData.mockResolvedValue({});
+      networkServiceMock.activeNetworks.promisify.mockResolvedValue({
+        ...accounts,
+        [HYPERCORE_CHAIN_ID]: hypercoreNetwork,
+      });
+
+      balancesServiceMock.getBalancesForNetwork.mockImplementation(
+        (network: Network) => {
+          if (network.chainId === HYPERCORE_CHAIN_ID) {
+            return Promise.resolve(hypercoreBalance);
+          }
+          if (network.chainId === network2.chainId) {
+            return Promise.resolve(balanceForNetwork2);
+          }
+          return Promise.resolve({});
+        },
+      );
+
+      jest.mocked(createGetBalancePayload).mockResolvedValue([]);
+      // No `stream` → convertStreamToArray resolves to empty, so the balance
+      // service contributes nothing and we can assert HyperCore came from the
+      // VM module.
+      jest
+        .mocked(postV1BalanceGetBalances)
+        .mockResolvedValue({ stream: undefined } as any);
+
+      service = new BalanceAggregatorService(
+        balancesServiceMock,
+        networkServiceMock,
+        lockService,
+        storageService,
+        settingsServiceMock,
+        {
+          featureFlags: {
+            [FeatureGates.BALANCE_SERVICE_INTEGRATION]: true,
+          },
+        } as any,
+        mockSecretsService,
+        addressResolverMock,
+        tokenPricesServiceMock,
+      );
+    });
+
+    it('excludes the HyperCore chain from the balance service payload', async () => {
+      await service.getBalancesForNetworks({
+        chainIds: [network2.chainId, HYPERCORE_CHAIN_ID],
+        accounts: [account1],
+        tokenTypes: [
+          TokenType.NATIVE,
+          TokenType.ERC20,
+          TokenType.HYPERCORE_SPOT,
+        ],
+      });
+
+      expect(createGetBalancePayload).toHaveBeenCalledWith(
+        expect.objectContaining({ chainIds: [network2.chainId] }),
+      );
+    });
+
+    it('fetches HyperCore balances via the VM module and merges them in', async () => {
+      const tokenTypes = [
+        TokenType.NATIVE,
+        TokenType.ERC20,
+        TokenType.HYPERCORE_SPOT,
+      ];
+
+      const { tokens } = await service.getBalancesForNetworks({
+        chainIds: [network2.chainId, HYPERCORE_CHAIN_ID],
+        accounts: [account1],
+        tokenTypes,
+      });
+
+      expect(balancesServiceMock.getBalancesForNetwork).toHaveBeenCalledWith(
+        hypercoreNetwork,
+        [account1],
+        tokenTypes,
+        {},
+      );
+      expect(tokens[HYPERCORE_CHAIN_ID]).toEqual(hypercoreBalance);
+    });
+  });
+
   describe('filterSmallUtxos setting', () => {
     it('should pass filterSmallUtxos from settings to createGetBalancePayload', async () => {
       const settingsWithFilterSmallUtxos = {

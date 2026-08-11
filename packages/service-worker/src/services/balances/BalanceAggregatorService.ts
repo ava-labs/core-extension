@@ -12,6 +12,7 @@ import {
   caipToChainId,
   groupTokensByType,
   isFulfilled,
+  isHypercoreNetwork,
   isPchainNetworkId,
   isRejected,
   isXchainNetworkId,
@@ -370,6 +371,11 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     }, {});
   }
 
+  async #getHypercoreChainIds(chainIds: number[]): Promise<number[]> {
+    const networks = await this.networkService.activeNetworks.promisify();
+    return chainIds.filter((chainId) => isHypercoreNetwork(networks[chainId]));
+  }
+
   async #getTokenBalances({
     chainIds,
     accounts,
@@ -393,6 +399,30 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     ) {
       const selectedCurrency = settings.currency.toLowerCase();
 
+      // HyperCore is only served by the Hypercore VM module.
+      // Adding it to the Core Balance API request and letting it then fallback to
+      // VM Modules is a no-go, since that breaks the API request schema and the whole
+      // request fails.
+      //
+      // So instead we always fetch it through the VM module directly and drop it from
+      // the balance-service request.
+      const hypercoreChainIds = await this.#getHypercoreChainIds(chainIds);
+      const balanceServiceChainIds = chainIds.filter(
+        (chainId) => !hypercoreChainIds.includes(chainId),
+      );
+      const hypercoreTokensPromise: Promise<Balances> =
+        hypercoreChainIds.length > 0
+          ? this.#fetchBalances(hypercoreChainIds, accounts, tokenTypes)
+              .then(({ tokens }) => tokens)
+              .catch((error) => {
+                Monitoring.sentryCaptureException(
+                  error,
+                  Monitoring.SentryExceptionTypes.BALANCES,
+                );
+                return {};
+              })
+          : Promise.resolve<Balances>({});
+
       const apiErrorHandler = async (error: Error) => {
         if (requestId) {
           await setErrorForRequestInSessionStorage(
@@ -409,7 +439,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       try {
         const getBalancesRequestBodies = await createGetBalancePayload({
           accounts,
-          chainIds,
+          chainIds: balanceServiceChainIds,
           currency: selectedCurrency as Currency,
           secretsService: this.secretsService,
           addressResolver: this.addressResolver,
@@ -493,18 +523,21 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
 
         const missingCustomTokenBalances =
           await this.#fetchMissingCustomTokenBalances({
-            chainIds,
+            chainIds: balanceServiceChainIds,
             accounts,
             currentBalances: balanceObject,
             excludedChainIds: erroredChainIds,
             tokenTypes,
           });
 
+        const hypercoreTokens = await hypercoreTokensPromise;
+
         // Apply local dust filtering to ensure consistency regardless of API behavior
         const mergedTokens = merge(
           balanceObject,
           fallbackBalanceResponse,
           missingCustomTokenBalances,
+          hypercoreTokens,
         );
         const filteredTokens = settings.filterSmallUtxos
           ? this.#filterDustUtxosFromBalances(mergedTokens)
