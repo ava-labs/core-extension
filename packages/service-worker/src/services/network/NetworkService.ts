@@ -176,6 +176,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       .map(this.#filterBasedOnFeatureFlags)
       .map(this.#applyOverrides)
       .map(this.#applyChainAgnosticIds)
+      .map(this.#applyEnablementFlags)
       .readOnly();
   }
 
@@ -320,6 +321,10 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   async disableNetwork(chainId: number) {
+    if (this.#alwaysEnabledNetworks.includes(chainId)) {
+      return this._enabledNetworks;
+    }
+
     this.networkAvailability = {
       ...this._networkAvailability,
       [chainId]: {
@@ -950,6 +955,28 @@ export class NetworkService implements OnLock, OnStorageReady {
       Object.entries(chainList ?? {}).map(([chainId, network]) => [
         chainId,
         decorateWithCaipId(network),
+      ]),
+    );
+  };
+
+  #applyEnablementFlags = async (
+    chainListPromise: Promise<ChainListWithCaipIds>,
+  ): Promise<ChainListWithCaipIds> => {
+    const chainList = await chainListPromise;
+
+    if (!chainList) {
+      return chainList;
+    }
+
+    const alwaysEnabledIds = new Set(getAlwaysEnabledNetworkIds(chainList));
+
+    return Object.fromEntries(
+      Object.entries(chainList).map(([chainId, network]) => [
+        chainId,
+        {
+          ...network,
+          isAlwaysEnabled: alwaysEnabledIds.has(network.chainId),
+        },
       ]),
     );
   };
