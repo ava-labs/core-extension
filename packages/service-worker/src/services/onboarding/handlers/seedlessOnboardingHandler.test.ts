@@ -75,6 +75,7 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
   const networkServiceMock = {
     enableNetwork: jest.fn(),
     getAvalancheNetwork: jest.fn(),
+    getNetworksEnabledByDefault: jest.fn(),
     setNetwork: jest.fn(),
   } as unknown as NetworkService;
   const secretsServiceMock = {
@@ -119,6 +120,9 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
     jest
       .mocked(networkServiceMock.getAvalancheNetwork)
       .mockResolvedValue({ chainId: 43114 } as any);
+    jest
+      .mocked(networkServiceMock.getNetworksEnabledByDefault)
+      .mockResolvedValue([]);
   });
 
   it('sets up seedless wallets correctly', async () => {
