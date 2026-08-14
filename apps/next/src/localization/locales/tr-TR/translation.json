@@ -746,7 +746,7 @@
   "Reset recovery phrase": "Kurtarma ifadesini sıfırla",
   "Resetting the RPC URL will set it back to its default URL": "RPC URL'sini sıfırlamak, varsayılan URL'ye geri döndürecek",
   "Resource unavailable": "Kaynak mevcut değil",
-  "Resume": "Devamını",
+  "Resume": "Devam et",
   "Resumes the recurring {{from}} → {{to}} schedule. Remaining fills will execute on the original cadence once this transaction confirms on-chain.": "Yinelenen {{from}} → {{to}} programını devam ettirir. Bu işlem zincir üzerinde onaylandıktan sonra kalan dolgular orijinal kadans üzerinde yürütülür.",
   "Resuming": "Devamlama",
   "Retry": "Tekrar dene",
