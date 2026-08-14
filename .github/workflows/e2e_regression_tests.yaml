@@ -46,6 +46,9 @@ on:
           - 'false'
         default: 'true'
 
+permissions:
+  contents: read
+
 jobs:
   download:
     name: Download or Build Extension
