@@ -7,6 +7,8 @@ import { useConnectionContext } from '@core/ui';
 import type { UpdateActionTxDataHandler } from '@core/service-worker';
 import { Action, EnsureDefined, ExtensionRequest } from '@core/types';
 
+import { useTxDataUpdate } from '@/pages/Approve/contexts';
+
 import { DetailsSection } from '../../../generic/DetailsSection';
 import { TxDetailsRow } from '../../../generic/DetailsItem/items/DetailRow';
 
@@ -31,6 +33,7 @@ export const CustomApprovalLimit: FC<CustomApprovalLimitProps> = ({
 }) => {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
+  const { trackTxDataUpdate } = useTxDataUpdate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { tokenValue } = approvalValue;
@@ -46,14 +49,16 @@ export const CustomApprovalLimit: FC<CustomApprovalLimitProps> = ({
     const limitAmount =
       spendLimit.type === 'unlimited' ? MaxUint256 : (spendLimit.value ?? 0n);
 
-    request<UpdateActionTxDataHandler>({
-      method: ExtensionRequest.ACTION_UPDATE_TX_DATA,
-      params: [
-        action.actionId,
-        { approvalLimit: `0x${limitAmount.toString(16)}` },
-      ],
-    });
-  }, [request, action.actionId, spendLimit]);
+    trackTxDataUpdate(
+      request<UpdateActionTxDataHandler>({
+        method: ExtensionRequest.ACTION_UPDATE_TX_DATA,
+        params: [
+          action.actionId,
+          { approvalLimit: `0x${limitAmount.toString(16)}` },
+        ],
+      }),
+    );
+  }, [request, action.actionId, spendLimit, trackTxDataUpdate]);
 
   const handleSave = () => {
     setIsDialogOpen(false);
@@ -66,7 +71,7 @@ export const CustomApprovalLimit: FC<CustomApprovalLimitProps> = ({
 
   return (
     <>
-      <DetailsSection>
+      <DetailsSection data-testid="approval-spend-limit-section">
         <TxDetailsRow label={t('Spend limit')}>
           <CustomLimitTrigger
             approval={approval}

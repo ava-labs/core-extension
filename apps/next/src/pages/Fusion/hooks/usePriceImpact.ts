@@ -50,14 +50,18 @@ export function usePriceImpact(
   const sourcePrice = useTokenPrice(
     sourceToken && isNativeToken(sourceToken)
       ? sourceToken.symbol
-      : sourceToken?.address,
+      : sourceToken && 'address' in sourceToken
+        ? sourceToken.address
+        : undefined,
     sourceToken && getNetwork(sourceToken?.chainCaipId),
   );
 
   const targetPrice = useTokenPrice(
     targetToken && isNativeToken(targetToken)
       ? targetToken.symbol
-      : targetToken?.address,
+      : targetToken && 'address' in targetToken
+        ? targetToken.address
+        : undefined,
     targetToken && getNetwork(targetToken?.chainCaipId),
   );
 

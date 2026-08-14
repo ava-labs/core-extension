@@ -55,6 +55,10 @@ builds
 .DS_Store
 todo.*
 
+# Playwright run output (when tests are invoked from the repo root)
+test-results/
+playwright-report/
+
 # snyk
 .dccache
 
@@ -63,3 +67,7 @@ e2e/helpers/storage-snapshots/
 
 # CLI
 .sentryclirc
+
+# yalc
+.yalc/
+yalc.lock

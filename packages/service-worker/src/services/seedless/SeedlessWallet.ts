@@ -34,6 +34,7 @@ import {
   hasAtLeastOneElement,
   isBitcoinNetwork,
   isTokenExpiredError,
+  Monitoring,
 } from '@core/common';
 import {
   AddressPublicKeyJson,
@@ -598,12 +599,22 @@ export class SeedlessWallet {
   ): Promise<string | Buffer> {
     assertPresent(this.#networkService, CommonError.UnknownNetwork); // TODO: is networkService actually needed? why is #network not enough?
     if (!this.#firstAddressPublicKey) {
-      throw new Error('Public key not available');
+      const err = new Error('Public key not available');
+      Monitoring.sentryCaptureException(
+        err,
+        Monitoring.SentryExceptionTypes.SEEDLESS,
+      );
+      throw err;
     }
 
     if (messageType === MessageType.AVALANCHE_SIGN) {
       if (!this.#firstAddressPublicKey.key) {
-        throw new Error('X/P public key not available');
+        const err = new Error('X/P public key not available');
+        Monitoring.sentryCaptureException(
+          err,
+          Monitoring.SentryExceptionTypes.SEEDLESS,
+        );
+        throw err;
       }
 
       const xpProvider = await this.#networkService.getAvalanceProviderXP();
@@ -694,6 +705,14 @@ export class SeedlessWallet {
       // Prevent leaking user information outside of extension
       // (original error message contains the user id).
       err.message = 'Session has expired';
+    } else {
+      // Token-expired errors flow through `notifyTokenExpired`; report
+      // everything else (key-lookup failures, signing failures, etc.) so
+      // regressions in the seedless signing path don't fail silently.
+      Monitoring.sentryCaptureException(
+        err as Error,
+        Monitoring.SentryExceptionTypes.SEEDLESS,
+      );
     }
 
     throw err;

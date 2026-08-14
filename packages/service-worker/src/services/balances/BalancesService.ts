@@ -4,6 +4,7 @@ import {
   TokenType,
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
+import type { NetworkContractToken } from '@avalabs/core-chains-sdk';
 import {
   getPriceChangeValues,
   isNotNullish,
@@ -32,6 +33,18 @@ export class BalancesService {
     accounts: Account[],
     tokenTypes: TokenType[],
     priceChanges?: TokensPriceShortData,
+    options?: {
+      /**
+       * When provided, these tokens are used instead of the ones stored in
+       * settings. Useful for back-filling a specific subset of custom tokens.
+       */
+      customTokens?: NetworkContractToken[];
+      /**
+       * When true, only the balances for the custom tokens are fetched,
+       * queried directly from the chain via RPC.
+       */
+      customTokensOnly?: boolean;
+    },
   ): Promise<Record<string, Record<string, TokenWithBalance>>> {
     const sentryTracker = Sentry.startTransaction(
       {
@@ -45,8 +58,9 @@ export class BalancesService {
 
     const settings = await this.settingsService.getSettings();
     const currency = settings.currency.toLowerCase();
-    const customTokens = Object.values(
-      settings.customTokens[network.chainId] ?? {},
+    const customTokens = (
+      options?.customTokens ??
+      Object.values(settings.customTokens[network.chainId] ?? {})
     ).map((t) => ({ ...t, type: TokenType.ERC20 as const }));
 
     const addresses = await Promise.all(
@@ -116,6 +130,7 @@ export class BalancesService {
       network: network as Network, // TODO: Remove this cast after SVM network type appears in vm-module-types
       currency,
       customTokens,
+      customTokensOnly: options?.customTokensOnly,
       tokenTypes,
       storage: cacheStorage,
     });

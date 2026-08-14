@@ -2,6 +2,21 @@ import { test, expect } from '../fixtures/extension.fixture';
 import { OnboardingPage } from '../pages/extension/OnboardingPage';
 import { INVALID_RECOVERY_PHRASE_12, TEST_WALLET_NAMES } from '../constants';
 
+// All languages exposed by useLanguage() (packages/ui/src/hooks/useLanguages.ts).
+const EXPECTED_LANGUAGE_CODES = [
+  'en',
+  'zh-CN',
+  'zh-TW',
+  'de-DE',
+  'fr-FR',
+  'hi-IN',
+  'ja-JP',
+  'ko-KR',
+  'ru-RU',
+  'es-ES',
+  'tr-TR',
+];
+
 const WALLET_PASSWORD = process.env.WALLET_PASSWORD || 'password#123';
 const RECOVERY_PHRASE_12_WORDS =
   process.env.RECOVERY_PHRASE_12_WORDS?.split(' ') || [];
@@ -35,6 +50,63 @@ test.describe('Onboarding Tests', () => {
       await expect(onboardingPage.continueWithAppleButton).toBeVisible();
       await expect(onboardingPage.createWalletButton).toBeVisible();
       await expect(onboardingPage.importWalletButton).toBeVisible();
+    },
+  );
+
+  test(
+    'As a CORE ext user, on the onboarding page, I can check the language dropdown box and verify all languages are selectable',
+    {
+      tag: ['@regression'],
+      annotation: [
+        {
+          type: 'snapshot',
+          description: 'none',
+        },
+        {
+          type: 'testrail_case_field',
+          description: 'custom_automation_id:ONB-008',
+        },
+      ],
+    },
+    async ({ extensionPage }) => {
+      test.setTimeout(120000);
+      const onboardingPage = new OnboardingPage(extensionPage);
+
+      await extensionPage.waitForTimeout(3000);
+      expect(await onboardingPage.isOnOnboardingPage()).toBe(true);
+
+      // The selector is gated behind the LANGUAGES feature flag; enable it via
+      // the SW storage override. Skip if it never renders (no POSTHOG_KEY).
+      const enabled = await onboardingPage.enableLanguagesFlag();
+      test.skip(
+        !enabled,
+        'LANGUAGES feature flag unavailable (POSTHOG_KEY missing / offline)',
+      );
+
+      // The dropdown exposes every supported language.
+      await onboardingPage.openLanguageDropdown();
+      for (const code of EXPECTED_LANGUAGE_CODES) {
+        const row = onboardingPage.languageMenuItem(code);
+        await expect(row, `language ${code} should be listed`).toBeVisible();
+        await expect(row.getByRole('button')).toBeEnabled();
+      }
+
+      // English is the default selection.
+      expect(await onboardingPage.isLanguageOptionSelected('en')).toBe(true);
+
+      // Every listed language is actually selectable: choosing it marks it
+      // selected (verified locale-independently via the menu item's state).
+      for (const code of EXPECTED_LANGUAGE_CODES) {
+        await onboardingPage.selectLanguage(code);
+        await onboardingPage.openLanguageDropdown();
+        expect(
+          await onboardingPage.isLanguageOptionSelected(code),
+          `selecting ${code} should mark it as the active language`,
+        ).toBe(true);
+      }
+
+      // Restore the default so the dropdown ends in a known state.
+      await onboardingPage.selectLanguage('en');
     },
   );
 

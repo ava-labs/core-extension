@@ -37,6 +37,8 @@ export const NETWORKS_ENABLED_BY_DEFAULT = [
   10, //Optimism Mainnet
   8453, //Base Mainnet
   137, //Polygon Mainnet
+  999, //HyperEVM
+  9999, //HyperCore
 ];
 
 export interface NetworkAvailability {
@@ -49,6 +51,7 @@ export interface NetworkStorage {
   customNetworks: Record<number, Network>;
   dappScopes: Record<string, string>;
   networkAvailability: NetworkAvailability;
+  avalancheDevnetMode: AvalancheDevnetMode;
 }
 
 export interface AddEthereumChainParameter {
@@ -68,6 +71,7 @@ export interface AddEthereumChainParameter {
 
 export type Network = _Network &
   AdvancedNetworkConfig & {
+    isDevnet?: boolean;
     caipId?: string;
   };
 
@@ -94,6 +98,19 @@ export type AddEthereumChainDisplayData = {
   options: {
     requiresGlacierApiKey: boolean;
   };
+};
+
+export type AvalancheNetworkType = 'mainnet' | 'testnet' | 'devnet';
+export type AvalancheDevnetMode = {
+  enabled: boolean;
+  rpcUrl: string;
+  explorerUrl: string;
+};
+
+export const DEFAULT_AVALANCHE_DEVNET_MODE: AvalancheDevnetMode = {
+  enabled: false,
+  rpcUrl: 'http://localhost:9650',
+  explorerUrl: 'https://explorer-xp.avax-dev.network/',
 };
 
 export const PLACEHOLDER_RPC_HEADERS = { '': '' };
@@ -127,9 +144,11 @@ export const isCoreEthNetwork = (
   network: NetworkWithCaipId,
 ): network is CoreEthNetwork => network.vmName === NetworkVMType.CoreEth;
 
-export const isAvalancheNetwork = (
-  network: NetworkWithCaipId,
-): network is AvalancheNetwork =>
+export const isAvalancheNetwork = <T extends Network>(
+  network: T,
+): network is T & {
+  vmName: NetworkVMType.AVM | NetworkVMType.PVM | NetworkVMType.CoreEth;
+} =>
   network.vmName === NetworkVMType.AVM ||
   network.vmName === NetworkVMType.PVM ||
   network.vmName === NetworkVMType.CoreEth;

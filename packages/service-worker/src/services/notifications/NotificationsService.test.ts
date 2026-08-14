@@ -4,6 +4,7 @@ import { FirebaseEvents } from '@core/types';
 import { StorageService } from '../storage/StorageService';
 import { BalanceNotificationService } from './BalanceNotificationService';
 import { NewsNotificationService } from './NewsNotificationService';
+import { RecurringSwapNotificationService } from './RecurringSwapNotificationService';
 import { NotificationsService } from './NotificationsService';
 import { sendRequest } from './utils/sendRequest';
 import { NOTIFICATIONS_CLIENT_ID_STORAGE_KEY } from './constants';
@@ -37,6 +38,9 @@ describe('NotificationsService', () => {
     sendNewsNotification: jest.fn(),
     init: jest.fn(),
   };
+  const recurringSwapNotificationServiceMock = {
+    init: jest.fn(),
+  };
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -50,6 +54,7 @@ describe('NotificationsService', () => {
       firebaseServiceMock as unknown as FirebaseService,
       balanceNotificationServiceMock as unknown as BalanceNotificationService,
       newsNotificationServiceMock as unknown as NewsNotificationService,
+      recurringSwapNotificationServiceMock as unknown as RecurringSwapNotificationService,
     );
   });
 
@@ -137,6 +142,10 @@ describe('NotificationsService', () => {
       expect.any(Function),
     );
     expect(newsNotificationServiceMock.init).toHaveBeenCalledWith(
+      'deviceArn',
+      expect.any(Function),
+    );
+    expect(recurringSwapNotificationServiceMock.init).toHaveBeenCalledWith(
       'deviceArn',
       expect.any(Function),
     );

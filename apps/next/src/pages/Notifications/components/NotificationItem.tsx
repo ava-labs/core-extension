@@ -1,9 +1,11 @@
 import { FC } from 'react';
+import { isRecurringSwapNotification } from '@core/types';
 import { isPriceAlertWithData } from '../lib/isPriceAlertWithData';
 import { isBalanceChangeWithData } from '../lib/isBalanceChangeWithData';
 import { PriceAlertItem } from './PriceAlertItem';
 import { BalanceChangeItem } from './BalanceChangeItem';
 import { GenericNotificationItem } from './GenericNotificationItem';
+import { RecurringSwapItem } from './RecurringSwapItem';
 import { TransferItem } from './TransferItem';
 import { CombinedActivityItem } from '../types';
 import { LegacyTransferItem } from './LegacyTransferItem';
@@ -24,6 +26,15 @@ export const NotificationItem: FC<NotificationItemProps> = ({
   if (item.type === 'legacy-transfer') {
     return (
       <LegacyTransferItem transfer={item.item} showSeparator={showSeparator} />
+    );
+  }
+
+  if (isRecurringSwapNotification(item.item)) {
+    return (
+      <RecurringSwapItem
+        notification={item.item}
+        showSeparator={showSeparator}
+      />
     );
   }
 

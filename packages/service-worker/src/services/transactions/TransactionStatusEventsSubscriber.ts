@@ -5,10 +5,9 @@ import { AccountsService } from '../accounts/AccountsService';
 import { NetworkService } from '../network/NetworkService';
 import { TransactionStatusEvents } from './events/transactionStatusEvents';
 import { ExtensionConnectionEvent, TransactionStatusInfo } from '@core/types';
-import {
-  getAvalancheSendTransactionHandlers,
-  TransactionStatusEventBuilders,
-} from './handlers/avalancheSendTransactionHandler';
+import { getAvalancheSendTransactionHandlers } from './handlers/avalancheSendTransactionHandler';
+import { getEthSendTransactionHandlers } from './handlers/ethSendTransactionHandler';
+import { TransactionStatusEventBuilders } from './handlers/types';
 
 /**
  * Subscribes to transaction status events and captures analytics
@@ -26,6 +25,7 @@ export class TransactionStatusEventsSubscriber {
     this.#handlers = {
       [RpcMethod.AVALANCHE_SEND_TRANSACTION]:
         getAvalancheSendTransactionHandlers(accountsService, networkService),
+      [RpcMethod.ETH_SEND_TRANSACTION]: getEthSendTransactionHandlers(),
     };
     this.transactionStatusEvents.addListener(this.#onTransactionStatusEvent);
   }

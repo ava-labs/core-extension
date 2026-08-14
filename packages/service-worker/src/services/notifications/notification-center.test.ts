@@ -57,6 +57,12 @@ describe('mapTypeToCategory', () => {
   it('maps NEWS to NEWS', () => {
     expect(mapTypeToCategory('NEWS')).toBe(NotificationCategory.NEWS);
   });
+
+  it('maps RECURRING_SWAP to TRANSACTION', () => {
+    expect(mapTypeToCategory('RECURRING_SWAP')).toBe(
+      NotificationCategory.TRANSACTION,
+    );
+  });
 });
 
 describe('filterByTab', () => {
@@ -197,6 +203,37 @@ describe('transformNotification', () => {
     expect(result.type).toBe('NEWS');
     expect(result.category).toBe(NotificationCategory.NEWS);
     expect(result.deepLinkUrl).toBe('https://example.com/news');
+  });
+
+  it('transforms RECURRING_SWAP notification and coerces numeric metadata', () => {
+    const response: NotificationResponse = {
+      notificationId: 'rs-1',
+      type: 'RECURRING_SWAP',
+      title: 'Recurring swap executed',
+      body: 'Swap 1 of 0xIn to 0xOut complete',
+      createdAt: 1700000004,
+      metadata: {
+        orderId:
+          '0x1111111111111111111111111111111111111111111111111111111111111111',
+        chainId: '43114',
+        numberOfOrders: 5,
+        executedOrders: 1,
+        remainingOrders: 4,
+        status: 'active',
+        url: 'core://swap/recurring/schedules?orderId=0x1111',
+      },
+    };
+
+    const result = transformNotification(response);
+
+    expect(result.id).toBe('rs-1');
+    expect(result.type).toBe('RECURRING_SWAP');
+    expect(result.category).toBe(NotificationCategory.TRANSACTION);
+    if (result.type === 'RECURRING_SWAP') {
+      expect(result.data?.chainId).toBe('43114');
+      expect(result.data?.executedOrders).toBe(1);
+      expect(result.data?.status).toBe('active');
+    }
   });
 
   it('transforms NEWS-wrapped PRICE_ALERTS to PRICE_ALERTS type', () => {

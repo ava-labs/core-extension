@@ -6,14 +6,26 @@ import { useLiveBalance } from '@core/ui';
 
 import { Page } from '@/components/Page';
 
-import { FusionStateContextProvider, useFusionState } from './contexts';
+import {
+  FusionStateContextProvider,
+  RecurringSwapContextProvider,
+  useFusionState,
+} from './contexts';
+import {
+  isNumberOfOrdersAboveMax,
+  isNumberOfOrdersBelowMin,
+  useRecurringSwapState,
+} from './contexts/RecurringSwapContext';
 import { SwapContent } from './SwapContent';
 import { SwapProviderNotice } from './components/SwapProviderNotice';
+import { SwapCctTransactionWarning } from './components/SwapCctTransactionWarning';
+import { SwapHypercoreStrandedMessage } from './components/SwapHypercoreStrandedMessage';
 
 const POLLED_BALANCES = [
   VmTokenType.NATIVE,
   VmTokenType.ERC20,
   VmTokenType.SPL,
+  VmTokenType.HYPERCORE_SPOT,
 ] as VmTokenType[];
 
 const FusionPage = () => {
@@ -21,14 +33,35 @@ const FusionPage = () => {
 
   const { t } = useTranslation();
 
-  const { isConfirming, transfer, status, priceImpactSeverity, formError } =
-    useFusionState();
+  const {
+    isConfirming,
+    transfer,
+    createRecurringSwap,
+    isCreatingRecurringSwap,
+    recurringEligibility,
+    status,
+    priceImpactSeverity,
+    formError,
+    sourceToken,
+    hypercoreWithdrawableBalance,
+    hypercoreAbstractionMode,
+  } = useFusionState();
+  const { isRecurring, numberOfOrders } = useRecurringSwapState();
+
+  const isRecurringMode = isRecurring && recurringEligibility.isEligible;
+
+  const hasInvalidNumberOfOrders =
+    isRecurringMode &&
+    (isNumberOfOrdersAboveMax(numberOfOrders) ||
+      isNumberOfOrdersBelowMin(numberOfOrders));
 
   const isCriticalPriceImpact = priceImpactSeverity === 'critical';
   const isSwapDisabled =
     isConfirming ||
+    isCreatingRecurringSwap ||
     status !== 'ready-to-transfer' ||
     isCriticalPriceImpact ||
+    hasInvalidNumberOfOrders ||
     Boolean(formError);
 
   return (
@@ -38,6 +71,11 @@ const FusionPage = () => {
       contentProps={{ justifyContent: 'flex-start', alignItems: 'stretch' }}
     >
       <SwapContent />
+      <SwapHypercoreStrandedMessage
+        sourceToken={sourceToken}
+        withdrawableBalance={hypercoreWithdrawableBalance}
+        abstractionMode={hypercoreAbstractionMode}
+      />
       <SwapActionButtonsContainer>
         <Stack
           width="100%"
@@ -46,6 +84,7 @@ const FusionPage = () => {
           gap={1}
           textAlign="center"
         >
+          <SwapCctTransactionWarning />
           <SwapProviderNotice />
           <Tooltip
             title={
@@ -62,11 +101,13 @@ const FusionPage = () => {
                 size="extension"
                 variant="contained"
                 color="primary"
-                onClick={() => transfer()}
+                onClick={() =>
+                  isRecurringMode ? createRecurringSwap() : transfer()
+                }
                 disabled={isSwapDisabled}
-                loading={isConfirming}
+                loading={isConfirming || isCreatingRecurringSwap}
               >
-                {t('Swap')}
+                {isRecurringMode ? t('Start recurring swap') : t('Swap')}
               </Button>
             </span>
           </Tooltip>
@@ -78,9 +119,11 @@ const FusionPage = () => {
 
 export const Fusion = () => {
   return (
-    <FusionStateContextProvider>
-      <FusionPage />
-    </FusionStateContextProvider>
+    <RecurringSwapContextProvider>
+      <FusionStateContextProvider>
+        <FusionPage />
+      </FusionStateContextProvider>
+    </RecurringSwapContextProvider>
   );
 };
 
@@ -88,7 +131,7 @@ const SwapActionButtonsContainer = styled(Stack)(({ theme }) => ({
   position: 'sticky',
   bottom: 0,
   zIndex: 100,
-  height: '100px',
+  minHeight: '100px',
   marginLeft: `-${theme.spacing(1.5)}`,
   marginRight: `-${theme.spacing(1.5)}`,
   paddingTop: theme.spacing(1),

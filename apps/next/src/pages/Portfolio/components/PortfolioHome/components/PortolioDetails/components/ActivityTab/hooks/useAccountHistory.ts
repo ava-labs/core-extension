@@ -1,5 +1,10 @@
 import { Network, TxHistoryItem } from '@core/types';
-import { useWalletContext } from '@core/ui';
+import {
+  useAccountsContext,
+  useIsHyperliquidEnabled,
+  useWalletContext,
+} from '@core/ui';
+import { HYPERCORE_CHAIN_ID } from '@core/common';
 import { useQuery } from '@tanstack/react-query';
 
 export const PORTFOLIO_ACTIVITY_HISTORY_QUERY_KEY = 'portfolioActivityHistory';
@@ -8,16 +13,28 @@ export function useAccountHistory(
   networkId: Network['chainId'],
 ): TxHistoryItem[] | null {
   const { getTransactionHistory } = useWalletContext();
+  const {
+    accounts: { active },
+  } = useAccountsContext();
+  const isHyperliquidEnabled = useIsHyperliquidEnabled();
+
   const numericNetworkId = Number(networkId);
+  const isHypercore = numericNetworkId === HYPERCORE_CHAIN_ID;
   const queryEnabled =
-    Number.isFinite(numericNetworkId) && numericNetworkId > 0;
+    Number.isFinite(numericNetworkId) &&
+    numericNetworkId > 0 &&
+    (!isHypercore || (isHyperliquidEnabled && Boolean(active?.addressC)));
 
   const {
     data: rawData,
     isPending,
     isError,
   } = useQuery({
-    queryKey: [PORTFOLIO_ACTIVITY_HISTORY_QUERY_KEY, numericNetworkId],
+    queryKey: [
+      PORTFOLIO_ACTIVITY_HISTORY_QUERY_KEY,
+      numericNetworkId,
+      isHypercore ? active?.addressC : undefined,
+    ],
     queryFn: () => getTransactionHistory(numericNetworkId),
     enabled: queryEnabled,
     structuralSharing: false,

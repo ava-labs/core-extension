@@ -1,5 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { createMockRpcServer } from '../helpers/mockRpcServer';
+import { MOCK_RPC_PORT } from '../types/swap';
 
 export default async function globalSetup() {
   console.log('\n🚀 Starting E2E test setup...\n');
@@ -42,6 +44,32 @@ export default async function globalSetup() {
       console.log(`✓ Created directory: ${dir}`);
     }
   }
+
+  // Start mock RPC server for swap tests
+  console.log(`Starting mock RPC server on port ${MOCK_RPC_PORT}...`);
+  const server = createMockRpcServer(MOCK_RPC_PORT);
+
+  // Ensure server shuts down when the process exits
+  process.on('exit', () => {
+    try {
+      server.close();
+    } catch {
+      // already closed
+    }
+  });
+
+  // Wait for server to be listening (or handle EADDRINUSE)
+  await new Promise<void>((resolve) => {
+    server.on('listening', () => {
+      console.log(`✓ Mock RPC server started on port ${MOCK_RPC_PORT}`);
+      resolve();
+    });
+    server.on('error', () => {
+      // EADDRINUSE handled inside createMockRpcServer, just continue
+      resolve();
+    });
+    if (server.listening) resolve();
+  });
 
   console.log('\n✅ E2E setup complete!\n');
 }

@@ -110,6 +110,9 @@ export const KeystoreFilePassword = ({
         error={!!unlockError}
         helperText={unlockError}
         fullWidth
+        slotProps={{
+          htmlInput: { 'data-testid': 'keystore-password-input' },
+        }}
       />
 
       <Stack sx={{ mt: 'auto', rowGap: '10px', width: '100%' }}>
@@ -120,6 +123,7 @@ export const KeystoreFilePassword = ({
           disabled={!filePassword || isImporting}
           onClick={submit}
           size="small"
+          data-testid="keystore-import-button"
         >
           {t('Import Keystore file')}
         </Button>

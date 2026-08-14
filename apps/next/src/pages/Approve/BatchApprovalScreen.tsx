@@ -5,14 +5,19 @@ import { ActionStatus, MultiTxAction, NetworkWithCaipId } from '@core/types';
 import {
   useBatchApproveAction,
   useGetRequestId,
-  useNetworkContext,
   useLiveBalance,
+  useNetworkContext,
+  useWalletContext,
 } from '@core/ui';
 import { DisplayData, TokenType } from '@avalabs/vm-module-types';
 import { useTranslation } from 'react-i18next';
-import { hasDefined } from '@core/common';
+import {
+  hasDefined,
+  isDirectLedgerHyperEvmTransactionUnsupported,
+} from '@core/common';
 
 import { NoScrollStack } from '@/components/NoScrollStack';
+import { SimulationAlertBox } from '@/components/SimulationAlertBox';
 import { useIsUsingHardwareWallet } from '@/hooks/useIsUsingHardwareWallet';
 
 import {
@@ -26,11 +31,16 @@ import {
   NoteWarning,
   Styled,
 } from './components';
+import { TxDataUpdateProvider, useTxDataUpdate } from './contexts';
 import { useApprovalHelpers } from './hooks';
 import { hasNoteWarning, hasOverlayWarning } from './lib';
 import { CancelActionFn, UpdateActionFn, ActionError } from './types';
 
-const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
+const POLLED_BALANCES = [
+  TokenType.NATIVE,
+  TokenType.ERC20,
+  TokenType.HYPERCORE_SPOT,
+];
 
 type BatchAction = MultiTxAction & {
   actionId: string;
@@ -67,6 +77,10 @@ const BatchApprovalContent: FC<BatchApprovalContentProps> = ({
   useLiveBalance(POLLED_BALANCES);
 
   const { isUsingHardwareWallet, deviceType } = useIsUsingHardwareWallet();
+  const { walletDetails } = useWalletContext();
+  const { isUpdating: isUpdatingTxData } = useTxDataUpdate();
+  const isDirectLedgerHyperEvmTransactionBlocked =
+    isDirectLedgerHyperEvmTransactionUnsupported(network, walletDetails?.type);
 
   const approve = useCallback(async () => {
     updateAction(
@@ -103,6 +117,17 @@ const BatchApprovalContent: FC<BatchApprovalContentProps> = ({
 
         {hasNoteWarning(action) && (
           <NoteWarning alert={action.displayData.alert} />
+        )}
+        {isDirectLedgerHyperEvmTransactionBlocked && (
+          <Stack px={2} mt={1.5} mb={1.5}>
+            <SimulationAlertBox
+              textLines={[
+                t(
+                  'Transactions on HyperEVM are not supported for Ledger wallets.',
+                ),
+              ]}
+            />
+          </Stack>
         )}
 
         {/* Transaction Navigation */}
@@ -155,6 +180,7 @@ const BatchApprovalContent: FC<BatchApprovalContentProps> = ({
               }
               updateAction={updateAction}
               error={error}
+              disableGasless
             />
           )}
         </Stack>
@@ -163,6 +189,9 @@ const BatchApprovalContent: FC<BatchApprovalContentProps> = ({
           approve={handleApproval}
           reject={handleRejection}
           isProcessing={isProcessing}
+          isDisabled={
+            isUpdatingTxData || isDirectLedgerHyperEvmTransactionBlocked
+          }
           withConfirmationSwitch={hasOverlayWarning(action)}
         />
       </NoScrollStack>
@@ -224,12 +253,14 @@ export const BatchApprovalScreen = () => {
   }
 
   return (
-    <BatchApprovalContent
-      action={action}
-      network={network}
-      updateAction={updateAction}
-      cancelHandler={cancelHandler}
-      error={error}
-    />
+    <TxDataUpdateProvider>
+      <BatchApprovalContent
+        action={action}
+        network={network}
+        updateAction={updateAction}
+        cancelHandler={cancelHandler}
+        error={error}
+      />
+    </TxDataUpdateProvider>
   );
 };

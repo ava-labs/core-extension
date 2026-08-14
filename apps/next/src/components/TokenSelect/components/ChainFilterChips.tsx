@@ -13,6 +13,7 @@ type ChainFilterChipsProps = {
   chainOptions: ChainOption[];
   selectedChainId: number | 'avalanche' | null;
   onChainSelect: (chainId: number | 'avalanche' | null) => void;
+  showAllNetworksChip?: boolean;
 };
 
 const ChipsContainer = styled(Stack)(({ theme }) => ({
@@ -60,6 +61,7 @@ export const ChainFilterChips: FC<ChainFilterChipsProps> = ({
   chainOptions,
   selectedChainId,
   onChainSelect,
+  showAllNetworksChip = true,
 }) => {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -101,14 +103,16 @@ export const ChainFilterChips: FC<ChainFilterChipsProps> = ({
       }}
     >
       <ChipsContainer direction="row">
-        <FilterChip
-          selected={selectedChainId === null}
-          onClick={() => onChainSelect(null)}
-          variant="outlined"
-          size="small"
-        >
-          {t('All networks')}
-        </FilterChip>
+        {showAllNetworksChip && (
+          <FilterChip
+            selected={selectedChainId === null}
+            onClick={() => onChainSelect(null)}
+            variant="outlined"
+            size="small"
+          >
+            {t('All networks')}
+          </FilterChip>
+        )}
         {chainOptions.map(({ chainId, chainName }) => (
           <FilterChip
             key={chainId}

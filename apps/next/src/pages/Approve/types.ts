@@ -21,6 +21,7 @@ export type ActionDetailsProps = {
   action: Action<DisplayData>;
   updateAction: ApproveActionResult['updateAction'];
   error: ApproveActionResult['error'];
+  disableGasless?: boolean;
 };
 
 export type MessageDetailsProps = ActionDetailsProps & {

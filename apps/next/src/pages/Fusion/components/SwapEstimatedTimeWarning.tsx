@@ -19,6 +19,7 @@ const SwapEstimatedTimeWarning: FC<Props> = ({ hours }) => {
       justifyContent="center"
       textAlign="center"
       gap={1}
+      data-testid="fusion-cross-chain-eta-warning"
     >
       <Typography variant="caption" color={theme.palette.error.main}>
         {t('This operation can take up to {{hours}} hours', {

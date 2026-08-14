@@ -9,7 +9,7 @@ import {
   styled,
 } from '@avalabs/k2-alpine';
 import { useGoBack, useOnline } from '@core/ui';
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
 import { HEADER_HEIGHT } from '@/config/constants';
 
 import { OverflowingTypography } from './OverflowingTypography';
@@ -32,7 +32,7 @@ const StickyPageTopBar = styled(Stack)(({ theme }) => ({
 type Props = {
   showBack?: boolean;
   onBackClicked?: () => void;
-  title?: string;
+  title?: ReactNode;
   isObserving?: boolean;
   isIntersecting?: boolean;
   showViewSwitcher?: boolean;

@@ -3,6 +3,7 @@ import {
   isChainSupportedByWallet,
 } from '@core/common';
 import { Account, NetworkWithCaipId, WalletDetails } from '@core/types';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 
 export function isChainSupportedByWalletOrAccount(
   network: NetworkWithCaipId | undefined,
@@ -14,6 +15,10 @@ export function isChainSupportedByWalletOrAccount(
   }
 
   return wallet
-    ? isChainSupportedByWallet(network.vmName, wallet.type)
+    ? // chains-sdk NetworkVMType lags vm-module-types (e.g. HYPERCORE); values are identical strings.
+      isChainSupportedByWallet(
+        network.vmName as unknown as NetworkVMType,
+        wallet.type,
+      )
     : isChainSupportedByAccount(network, account);
 }

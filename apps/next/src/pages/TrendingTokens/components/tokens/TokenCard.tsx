@@ -97,6 +97,7 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
 
   return (
     <Stack
+      data-testid="trending-token-row"
       width="100%"
       direction="row"
       alignItems="center"
@@ -169,6 +170,7 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
               alignItems="flex-end"
             >
               <Button
+                data-testid="trending-token-buy-button"
                 size="xsmall"
                 variant="contained"
                 color="secondary"
@@ -185,13 +187,18 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
               </Button>
             </Box>
             <Stack
+              data-testid="trending-token-price-change"
               alignItems="flex-end"
               display={showBuyButton ? 'none' : 'flex'}
             >
               <Typography color="text.primary" variant="body3">
                 {formattedPrice}
               </Typography>
-              <Stack direction="row" gap={1}>
+              <Stack
+                data-testid="trending-token-percent"
+                direction="row"
+                gap={1}
+              >
                 <img src={percentChangeIcon} alt="percent change" />
                 <Typography color="text.secondary" variant="body3">
                   {formattedPercent}

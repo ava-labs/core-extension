@@ -1,0 +1,118 @@
+diff --git a/date/mini.cjs b/date/mini.cjs
+index c2068a7a46ae2b61a8775837cc81c3e0197d060e..5500d7e8fd93aadd49699038e3ed576b37b03d29 100644
+--- a/date/mini.cjs
++++ b/date/mini.cjs
+@@ -77,24 +77,37 @@ Object.getOwnPropertyNames(Date.prototype).forEach(method => {
+   // Filter out methods without UTC counterparts
+   if (!TZDateMini.prototype[utcMethod]) return;
+   if (method.startsWith("get")) {
+-    // Delegate to internal date's UTC method
+-    TZDateMini.prototype[method] = function () {
+-      return this.internal[utcMethod]();
+-    };
++    // Delegate to internal date's UTC method (defineProperty avoids SES [[Set]] failure on subclass prototype)
++    Object.defineProperty(TZDateMini.prototype, method, {
++      value: function () {
++        return this.internal[utcMethod]();
++      },
++      writable: true,
++      configurable: true,
++      enumerable: false,
++    });
+   } else {
+-    // Assign regular setter
+-    TZDateMini.prototype[method] = function () {
+-      Date.prototype[utcMethod].apply(this.internal, arguments);
+-      syncFromInternal(this);
+-      return +this;
+-    };
+-
+-    // Assign UTC setter
+-    TZDateMini.prototype[utcMethod] = function () {
+-      Date.prototype[utcMethod].apply(this, arguments);
+-      syncToInternal(this);
+-      return +this;
+-    };
++    Object.defineProperty(TZDateMini.prototype, method, {
++      value: function () {
++        Date.prototype[utcMethod].apply(this.internal, arguments);
++        syncFromInternal(this);
++        return +this;
++      },
++      writable: true,
++      configurable: true,
++      enumerable: false,
++    });
++
++    Object.defineProperty(TZDateMini.prototype, utcMethod, {
++      value: function () {
++        Date.prototype[utcMethod].apply(this, arguments);
++        syncToInternal(this);
++        return +this;
++      },
++      writable: true,
++      configurable: true,
++      enumerable: false,
++    });
+   }
+ });
+ 
+diff --git a/date/mini.js b/date/mini.js
+index 67ca5b82149bcf2d12ee62978d44d1b2f850ded5..a6101e9014722f304763bdbd5fd0e3bb63c803a1 100644
+--- a/date/mini.js
++++ b/date/mini.js
+@@ -73,24 +73,37 @@ Object.getOwnPropertyNames(Date.prototype).forEach(method => {
+   // Filter out methods without UTC counterparts
+   if (!TZDateMini.prototype[utcMethod]) return;
+   if (method.startsWith("get")) {
+-    // Delegate to internal date's UTC method
+-    TZDateMini.prototype[method] = function () {
+-      return this.internal[utcMethod]();
+-    };
++    // Delegate to internal date's UTC method (defineProperty avoids SES [[Set]] failure on subclass prototype)
++    Object.defineProperty(TZDateMini.prototype, method, {
++      value: function () {
++        return this.internal[utcMethod]();
++      },
++      writable: true,
++      configurable: true,
++      enumerable: false,
++    });
+   } else {
+-    // Assign regular setter
+-    TZDateMini.prototype[method] = function () {
+-      Date.prototype[utcMethod].apply(this.internal, arguments);
+-      syncFromInternal(this);
+-      return +this;
+-    };
+-
+-    // Assign UTC setter
+-    TZDateMini.prototype[utcMethod] = function () {
+-      Date.prototype[utcMethod].apply(this, arguments);
+-      syncToInternal(this);
+-      return +this;
+-    };
++    Object.defineProperty(TZDateMini.prototype, method, {
++      value: function () {
++        Date.prototype[utcMethod].apply(this.internal, arguments);
++        syncFromInternal(this);
++        return +this;
++      },
++      writable: true,
++      configurable: true,
++      enumerable: false,
++    });
++
++    Object.defineProperty(TZDateMini.prototype, utcMethod, {
++      value: function () {
++        Date.prototype[utcMethod].apply(this, arguments);
++        syncToInternal(this);
++        return +this;
++      },
++      writable: true,
++      configurable: true,
++      enumerable: false,
++    });
+   }
+ });
+ 

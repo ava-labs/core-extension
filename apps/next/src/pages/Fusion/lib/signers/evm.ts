@@ -1,5 +1,6 @@
 import { hex, utf8 } from '@scure/base';
 import { TFunction } from 'react-i18next';
+import { getTypesForEIP712Domain } from 'viem';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import {
   EvmSignerWithMessage,
@@ -19,6 +20,7 @@ import {
   normalizeTransactionsBatch,
 } from './lib/evmNormalization';
 import { buildRequestContext } from './lib/buildRequestContext';
+import { serializeTypedDataPayload } from './lib/serializeTypedDataPayload';
 
 const getChainIdForBatch = (transactions: readonly EvmTransactionRequest[]) => {
   const chainIds = new Set(transactions.map((tx) => tx.chainId));
@@ -155,10 +157,52 @@ export function getEVMSigner(
     }
   };
 
+  const signTypedData: NonNullable<
+    EvmSignerWithMessage['signTypedData']
+  > = async ({ typedData, address, chainId }, stepDetails) => {
+    assert(address, UnifiedBridgeError.InvalidTxPayload);
+    assert(chainId, UnifiedBridgeError.MissingChainId);
+
+    // The typed data's own `domain.chainId` (e.g. 1337 internally for a Hyperliquid L1
+    // action) is signed verbatim — it is NOT overridden with the routing
+    // `chainId` below. The routing `chainId` only selects which network/account
+    // signs the message.
+    //
+    // fusion-sdk omits `EIP712Domain`; eth_signTypedData_v4 requires it.
+    // Hyperliquid withdraw payloads also carry BigInt nonces — serialize via
+    // a BigInt-aware stringify.
+    const payload = serializeTypedDataPayload({
+      ...typedData,
+      types: {
+        EIP712Domain: getTypesForEIP712Domain({ domain: typedData.domain }),
+        ...typedData.types,
+      },
+    });
+
+    try {
+      const result = await request(
+        {
+          method: RpcMethod.SIGN_TYPED_DATA_V4,
+          params: [address, payload],
+        },
+        {
+          scope: chainIdToCaip(Number(chainId)),
+          context: buildRequestContext(stepDetails),
+        },
+      );
+
+      return result as `0x${string}`;
+    } catch (err) {
+      console.error(`[fusion::evmSigner.signTypedData]`, err);
+      throw err;
+    }
+  };
+
   return {
     signBatch:
       isAutoSignSupported && isQuickSwapsEnabled ? signBatch : undefined,
     sign,
     signMessage,
+    signTypedData,
   };
 }

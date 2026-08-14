@@ -27,6 +27,7 @@ export const MaxBuySelector = ({
 
   return (
     <SelectButton
+      data-testid="settings-max-buy"
       renderValue={
         <Typography variant="subtitle2" color="text.secondary">
           {selectedOption

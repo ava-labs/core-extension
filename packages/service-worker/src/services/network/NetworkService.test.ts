@@ -45,11 +45,6 @@ jest.mock('ethers', () => ({
   FetchRequest: jest.fn(),
 }));
 
-jest.mock('@core/common', () => ({
-  ...jest.requireActual('@core/common'),
-  addGlacierAPIKeyIfNeeded: jest.fn(),
-}));
-
 jest.mock('@avalabs/core-chains-sdk', () => ({
   ...jest.requireActual('@avalabs/core-chains-sdk'),
   getChainsAndTokens: jest.fn(),
@@ -189,6 +184,108 @@ describe('background/services/network/NetworkService', () => {
     it('works with caip ids', async () => {
       expect(await service.getNetwork('eip155:1')).toEqual(ethMainnet);
       expect(await service.getNetwork('eip155:43114')).toEqual(avaxMainnet);
+    });
+
+    it('returns undefined for Hyperliquid networks when the feature flag is off', async () => {
+      const hyperliquidFeatureFlagsServiceMock =
+        jest.mocked<FeatureFlagService>({
+          featureFlags: {
+            [FeatureGates.HYPERLIQUID_FEATURE]: false,
+          },
+          addListener: jest.fn(),
+        } as any);
+
+      const networkService = new NetworkService(
+        storageServiceMock,
+        hyperliquidFeatureFlagsServiceMock,
+        glacierServiceMock,
+      );
+
+      const hyperEvmNetwork = mockNetwork(NetworkVMType.EVM, false, {
+        chainId: 999,
+        chainName: 'HyperEVM',
+      });
+
+      jest.spyOn(networkService.allNetworks, 'promisify').mockResolvedValue(
+        Promise.resolve({
+          [ethMainnet.chainId]: ethMainnet,
+          [hyperEvmNetwork.chainId]: hyperEvmNetwork,
+        }),
+      );
+
+      expect(await networkService.getNetwork(ethMainnet.chainId)).toEqual(
+        ethMainnet,
+      );
+      expect(
+        await networkService.getNetwork(hyperEvmNetwork.chainId),
+      ).toBeUndefined();
+      expect(await networkService.getNetwork('eip155:999')).toBeUndefined();
+    });
+
+    it('resolves Hyperliquid networks when the feature flag is on', async () => {
+      const hyperliquidFeatureFlagsServiceMock =
+        jest.mocked<FeatureFlagService>({
+          featureFlags: {
+            [FeatureGates.HYPERLIQUID_FEATURE]: true,
+          },
+          addListener: jest.fn(),
+        } as any);
+
+      const networkService = new NetworkService(
+        storageServiceMock,
+        hyperliquidFeatureFlagsServiceMock,
+        glacierServiceMock,
+      );
+
+      const hyperEvmNetwork = mockNetwork(NetworkVMType.EVM, false, {
+        chainId: 999,
+        chainName: 'HyperEVM',
+      });
+
+      jest.spyOn(networkService.allNetworks, 'promisify').mockResolvedValue(
+        Promise.resolve({
+          [hyperEvmNetwork.chainId]: hyperEvmNetwork,
+        }),
+      );
+
+      expect(await networkService.getNetwork(999)).toEqual(hyperEvmNetwork);
+    });
+
+    it('still resolves custom Hyperliquid networks when the feature flag is off', async () => {
+      const hyperliquidFeatureFlagsServiceMock =
+        jest.mocked<FeatureFlagService>({
+          featureFlags: {
+            [FeatureGates.HYPERLIQUID_FEATURE]: false,
+          },
+          addListener: jest.fn(),
+        } as any);
+
+      const networkService = new NetworkService(
+        storageServiceMock,
+        hyperliquidFeatureFlagsServiceMock,
+        glacierServiceMock,
+      );
+
+      const customHyperEvmNetwork = mockNetwork(NetworkVMType.EVM, false, {
+        chainId: 999,
+        chainName: 'HyperEVM',
+      });
+
+      // eslint-disable-next-line
+      // @ts-expect-error
+      networkService._customNetworks = {
+        [customHyperEvmNetwork.chainId]: customHyperEvmNetwork,
+      };
+
+      jest.spyOn(networkService.allNetworks, 'promisify').mockResolvedValue(
+        Promise.resolve({
+          [customHyperEvmNetwork.chainId]: customHyperEvmNetwork,
+        }),
+      );
+
+      expect(await networkService.getNetwork(999)).toEqual(
+        customHyperEvmNetwork,
+      );
     });
   });
 
@@ -629,6 +726,32 @@ describe('background/services/network/NetworkService', () => {
         'customRpcHeaders' in networkWithoutHeaders,
       );
     });
+
+    it('enables the new chainId BEFORE dispatching the chainlist update', async () => {
+      // Regression test: `_allNetworks.dispatch` is what triggers
+      // `NETWORKS_UPDATED_EVENT` to the UI. If we dispatched before
+      // `enableNetwork` ran, the event would carry a stale `enabledNetworks`
+      // list and balances for the just-added network would not be polled
+      // until the user toggled it manually.
+      const enabledAtDispatch: number[][] = [];
+      const allNetworks = service['_allNetworks'];
+      const originalDispatch = allNetworks.dispatch.bind(allNetworks);
+      const spy = jest
+        .spyOn(allNetworks, 'dispatch')
+        .mockImplementation((value) => {
+          enabledAtDispatch.push([...service['_enabledNetworks']]);
+          originalDispatch(value);
+        });
+
+      try {
+        await service.saveCustomNetwork(customNetwork);
+
+        expect(enabledAtDispatch).toHaveLength(1);
+        expect(enabledAtDispatch[0]).toContain(customNetwork.chainId);
+      } finally {
+        spy.mockRestore();
+      }
+    });
   });
   describe('when chain list is not available through Glacier', () => {
     beforeEach(() => {
@@ -660,7 +783,34 @@ describe('background/services/network/NetworkService', () => {
       expect(storageServiceMock.load).toHaveBeenCalledWith(
         NETWORK_LIST_STORAGE_KEY,
       );
-      expect(dispatchSpy).toHaveBeenCalledWith(cachedChainList);
+      expect(dispatchSpy).toHaveBeenCalledWith(
+        expect.objectContaining(cachedChainList),
+      );
+    });
+  });
+
+  describe('Hyperliquid networks injection', () => {
+    it('injects HyperEVM and HyperCore into the fetched chain list', async () => {
+      jest.mocked(getChainsAndTokens).mockResolvedValue({});
+
+      const freshService = new NetworkService(
+        storageServiceMock,
+        featureFlagsServiceMock,
+        glacierServiceMock,
+      );
+
+      const fetched = await freshService['_initChainList']();
+
+      expect(fetched[999]).toEqual(
+        expect.objectContaining({ chainName: 'HyperEVM', chainId: 999 }),
+      );
+      expect(fetched[9999]).toEqual(
+        expect.objectContaining({
+          chainName: 'HyperCore',
+          chainId: 9999,
+          rpcUrl: '',
+        }),
+      );
     });
   });
 
@@ -978,9 +1128,7 @@ describe('background/services/network/NetworkService', () => {
       glacierServiceMock,
     );
 
-    jest
-      .spyOn(networkService, 'uiActiveNetwork', 'get')
-      .mockReturnValue({ isTestnet: false } as any);
+    jest.spyOn(networkService, 'isMainnet').mockReturnValue(true);
 
     const allNetworks = {
       '1': {
@@ -1011,9 +1159,7 @@ describe('background/services/network/NetworkService', () => {
       },
     });
 
-    jest
-      .spyOn(networkService, 'uiActiveNetwork', 'get')
-      .mockReturnValue({ isTestnet: true } as any);
+    jest.spyOn(networkService, 'isMainnet').mockReturnValue(false);
     // eslint-disable-next-line
     // @ts-expect-error
     networkService._allNetworks.dispatch(allNetworks);
@@ -1031,57 +1177,295 @@ describe('background/services/network/NetworkService', () => {
     });
   });
 
-  it('filters pchain network by feature flag when dispatching allNetowrks signal', async () => {
-    const allNetworks = {
-      '1': {
-        vmName: NetworkVMType.EVM,
-        chainId: 1,
-        caipId: 'eip155:1',
-        isTestnet: false,
-      },
-      [ChainId.AVALANCHE_P]: {
-        chainId: ChainId.AVALANCHE_P,
-        vmName: NetworkVMType.PVM,
-        caipId: 'avax:11111111111111111111111111111111LpoYY',
-        isTestnet: false,
-      },
-    } as any;
-    const networkService = new NetworkService(
-      storageServiceMock,
-      featureFlagsServiceMock,
-      glacierServiceMock,
-    );
+  describe('#filterBasedOnFeatureFlags (via activeNetworks signal)', () => {
+    it('hides Hyperliquid networks when hyperliquid-feature is disabled', async () => {
+      const hyperliquidFeatureFlagsServiceMock =
+        jest.mocked<FeatureFlagService>({
+          featureFlags: {
+            [FeatureGates.HYPERLIQUID_FEATURE]: false,
+          },
+          addListener: jest.fn(),
+        } as any);
 
-    jest
-      .spyOn(networkService, 'uiActiveNetwork', 'get')
-      .mockReturnValue({ isTestnet: false } as any);
+      const networkService = new NetworkService(
+        storageServiceMock,
+        hyperliquidFeatureFlagsServiceMock,
+        glacierServiceMock,
+      );
+      jest.spyOn(networkService, 'isMainnet').mockReturnValue(true);
 
-    // Feature flag turned on. Should include Pchain
+      const hyperEvmNetwork = mockNetwork(NetworkVMType.EVM, false, {
+        chainId: 999,
+        chainName: 'HyperEVM',
+      });
+      const hyperCoreNetwork = mockNetwork(NetworkVMType.EVM, false, {
+        chainId: 42,
+        chainName: 'HyperCore',
+      });
 
-    // eslint-disable-next-line
-    // @ts-expect-error
-    networkService._allNetworks.dispatch(allNetworks);
+      // eslint-disable-next-line
+      // @ts-expect-error
+      networkService._allNetworks.dispatch({
+        [ethMainnet.chainId]: ethMainnet,
+        [hyperEvmNetwork.chainId]: hyperEvmNetwork,
+        [hyperCoreNetwork.chainId]: hyperCoreNetwork,
+      });
 
-    const result1 = await networkService.activeNetworks.promisify();
-    expect(await result1).toEqual(allNetworks);
+      const activeNetworks = await networkService.activeNetworks.promisify();
 
-    featureFlagsServiceMock.featureFlags[FeatureGates.IN_APP_SUPPORT_P_CHAIN] =
-      false;
+      expect(await activeNetworks[ethMainnet.chainId]).toBeDefined();
+      expect(await activeNetworks[hyperEvmNetwork.chainId]).toBeUndefined();
+      expect(await activeNetworks[hyperCoreNetwork.chainId]).toBeUndefined();
+    });
 
-    // Feature flag turned off. Should not include Pchain
+    it('does not filter networks by chain id alone', async () => {
+      const hyperliquidFeatureFlagsServiceMock =
+        jest.mocked<FeatureFlagService>({
+          featureFlags: {
+            [FeatureGates.HYPERLIQUID_FEATURE]: false,
+          },
+          addListener: jest.fn(),
+        } as any);
 
-    // eslint-disable-next-line
-    // @ts-expect-error
-    networkService._allNetworks.dispatch(allNetworks);
+      const networkService = new NetworkService(
+        storageServiceMock,
+        hyperliquidFeatureFlagsServiceMock,
+        glacierServiceMock,
+      );
+      jest.spyOn(networkService, 'isMainnet').mockReturnValue(true);
 
-    const result2 = await networkService.activeNetworks.promisify();
-    expect(await result2).toEqual({
-      '1': {
-        caipId: 'eip155:1',
-        vmName: 'EVM',
-        chainId: 1,
-        isTestnet: false,
-      },
+      const localNetwork = mockNetwork(NetworkVMType.EVM, false, {
+        chainId: 1337,
+        chainName: 'Local Devnet',
+      });
+
+      // eslint-disable-next-line
+      // @ts-expect-error
+      networkService._allNetworks.dispatch({
+        [localNetwork.chainId]: localNetwork,
+      });
+
+      const activeNetworks = await networkService.activeNetworks.promisify();
+
+      expect(await activeNetworks[localNetwork.chainId]).toBeDefined();
+    });
+
+    it('does not hide custom Hyperliquid networks when hyperliquid-feature is disabled', async () => {
+      const hyperliquidFeatureFlagsServiceMock =
+        jest.mocked<FeatureFlagService>({
+          featureFlags: {
+            [FeatureGates.HYPERLIQUID_FEATURE]: false,
+          },
+          addListener: jest.fn(),
+        } as any);
+
+      const networkService = new NetworkService(
+        storageServiceMock,
+        hyperliquidFeatureFlagsServiceMock,
+        glacierServiceMock,
+      );
+      jest.spyOn(networkService, 'isMainnet').mockReturnValue(true);
+
+      const customHyperEvmNetwork = mockNetwork(NetworkVMType.EVM, false, {
+        chainId: 999,
+        chainName: 'HyperEVM',
+      });
+
+      // eslint-disable-next-line
+      // @ts-expect-error
+      networkService._customNetworks = {
+        [customHyperEvmNetwork.chainId]: customHyperEvmNetwork,
+      };
+
+      // eslint-disable-next-line
+      // @ts-expect-error
+      networkService._allNetworks.dispatch({
+        [customHyperEvmNetwork.chainId]: customHyperEvmNetwork,
+      });
+
+      const activeNetworks = await networkService.activeNetworks.promisify();
+
+      expect(await activeNetworks[customHyperEvmNetwork.chainId]).toBeDefined();
+    });
+
+    it('shows Hyperliquid networks when hyperliquid-feature is enabled', async () => {
+      const hyperliquidFeatureFlagsServiceMock =
+        jest.mocked<FeatureFlagService>({
+          featureFlags: {
+            [FeatureGates.HYPERLIQUID_FEATURE]: true,
+          },
+          addListener: jest.fn(),
+        } as any);
+
+      const networkService = new NetworkService(
+        storageServiceMock,
+        hyperliquidFeatureFlagsServiceMock,
+        glacierServiceMock,
+      );
+      jest.spyOn(networkService, 'isMainnet').mockReturnValue(true);
+
+      const hyperEvmNetwork = mockNetwork(NetworkVMType.EVM, false, {
+        chainId: 999,
+        chainName: 'HyperEVM',
+      });
+
+      // eslint-disable-next-line
+      // @ts-expect-error
+      networkService._allNetworks.dispatch({
+        [ethMainnet.chainId]: ethMainnet,
+        [hyperEvmNetwork.chainId]: hyperEvmNetwork,
+      });
+
+      const activeNetworks = await networkService.activeNetworks.promisify();
+
+      expect(await activeNetworks[hyperEvmNetwork.chainId]).toBeDefined();
+    });
+  });
+
+  describe('Avalanche Devnet Mode', () => {
+    const ethSepolia = mockNetwork(NetworkVMType.EVM, true, {
+      chainId: 11155111,
+    });
+    const avaxFujiP = mockNetwork(NetworkVMType.PVM, true, {
+      chainId: ChainId.AVALANCHE_TEST_P,
+    });
+    const avaxFujiX = mockNetwork(NetworkVMType.AVM, true, {
+      chainId: ChainId.AVALANCHE_TEST_X,
+    });
+    const avaxDevnetP = mockNetwork(NetworkVMType.PVM, true, {
+      chainId: ChainId.AVALANCHE_DEVNET_P,
+      isDevnet: true,
+    });
+    const avaxDevnetX = mockNetwork(NetworkVMType.AVM, true, {
+      chainId: ChainId.AVALANCHE_DEVNET_X,
+      isDevnet: true,
+    });
+
+    const testnetChainList = {
+      [ethSepolia.chainId]: ethSepolia,
+      [avaxFujiP.chainId]: avaxFujiP,
+      [avaxFujiX.chainId]: avaxFujiX,
+      [avaxDevnetP.chainId]: avaxDevnetP,
+      [avaxDevnetX.chainId]: avaxDevnetX,
+    };
+
+    const newDevnetMode = {
+      enabled: true,
+      rpcUrl: 'http://localhost:9999',
+      explorerUrl: 'https://example.test/',
+    };
+
+    let networkService: NetworkService;
+
+    beforeEach(() => {
+      networkService = new NetworkService(
+        storageServiceMock,
+        featureFlagsServiceMock,
+        glacierServiceMock,
+      );
+      // Put service in testnet mode so `isAvalancheDevnetMode` can become true.
+      jest.spyOn(networkService, 'isMainnet').mockReturnValue(false);
+      // eslint-disable-next-line
+      // @ts-expect-error
+      networkService._allNetworks.dispatch(testnetChainList);
+    });
+
+    describe('updateAvalancheDevnetMode()', () => {
+      it('persists the new devnet mode to storage', async () => {
+        await networkService.updateAvalancheDevnetMode(newDevnetMode);
+
+        expect(storageServiceMock.save).toHaveBeenCalledWith(
+          NETWORK_STORAGE_KEY,
+          expect.objectContaining({
+            avalancheDevnetMode: newDevnetMode,
+          }),
+        );
+        expect(networkService.avalancheDevnetMode).toEqual(newDevnetMode);
+      });
+
+      it('re-dispatches the chainlist so the UI picks up new RPC/explorer URLs', async () => {
+        const dispatchSpy = jest.spyOn(
+          networkService['_allNetworks'],
+          'dispatch',
+        );
+
+        await networkService.updateAvalancheDevnetMode(newDevnetMode);
+
+        expect(dispatchSpy).toHaveBeenCalledWith(
+          expect.objectContaining(testnetChainList),
+        );
+      });
+
+      it('notifies subscribers of developer mode change after the chainlist rebuild', async () => {
+        const onDevModeChange = jest.fn();
+        networkService.developerModeChanged.add(onDevModeChange);
+
+        await networkService.updateAvalancheDevnetMode(newDevnetMode);
+
+        expect(onDevModeChange).toHaveBeenCalled();
+      });
+
+      it('is a no-op when the devnet mode is unchanged', async () => {
+        await networkService.updateAvalancheDevnetMode(newDevnetMode);
+        jest.clearAllMocks();
+
+        await networkService.updateAvalancheDevnetMode({ ...newDevnetMode });
+
+        expect(storageServiceMock.save).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('isAvalancheDevnetMode getter', () => {
+      it('returns false when in mainnet mode regardless of the persisted flag', async () => {
+        jest.spyOn(networkService, 'isMainnet').mockReturnValue(true);
+        await networkService.updateAvalancheDevnetMode({
+          ...newDevnetMode,
+          enabled: true,
+        });
+
+        expect(networkService.isAvalancheDevnetMode).toBe(false);
+      });
+
+      it('returns true only when in testnet mode with devnet enabled', async () => {
+        await networkService.updateAvalancheDevnetMode({
+          ...newDevnetMode,
+          enabled: true,
+        });
+
+        expect(networkService.isAvalancheDevnetMode).toBe(true);
+      });
+    });
+
+    describe('#filterBasedOnDevMode (via activeNetworks signal)', () => {
+      it('shows only Fuji Avalanche networks when devnet mode is disabled', async () => {
+        await networkService.updateAvalancheDevnetMode({
+          ...newDevnetMode,
+          enabled: false,
+        });
+
+        // `activeNetworks` is a `ReadableSignal<Promise<ChainList>>`,
+        // so `promisify()` returns `Promise<Promise<ChainList>>`.
+        const activeNetworks = await networkService.activeNetworks.promisify();
+
+        expect(await activeNetworks[avaxFujiP.chainId]).toBeDefined();
+        expect(await activeNetworks[avaxFujiX.chainId]).toBeDefined();
+        expect(await activeNetworks[avaxDevnetP.chainId]).toBeUndefined();
+        expect(await activeNetworks[avaxDevnetX.chainId]).toBeUndefined();
+      });
+
+      it('shows only devnet Avalanche networks when devnet mode is enabled', async () => {
+        await networkService.updateAvalancheDevnetMode({
+          ...newDevnetMode,
+          enabled: true,
+        });
+
+        const activeNetworks = await networkService.activeNetworks.promisify();
+
+        expect(await activeNetworks[avaxDevnetP.chainId]).toBeDefined();
+        expect(await activeNetworks[avaxDevnetX.chainId]).toBeDefined();
+        expect(await activeNetworks[avaxFujiP.chainId]).toBeUndefined();
+        expect(await activeNetworks[avaxFujiX.chainId]).toBeUndefined();
+      });
     });
   });
 });

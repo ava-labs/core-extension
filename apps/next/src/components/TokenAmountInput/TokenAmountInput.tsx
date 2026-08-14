@@ -1,5 +1,6 @@
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import {
+  ButtonProps,
   CircularProgress,
   Collapse,
   Grow,
@@ -9,28 +10,28 @@ import {
 import {
   FC,
   FocusEventHandler,
+  ReactNode,
   useCallback,
   useEffect,
   useMemo,
   useRef,
 } from 'react';
+import { isNil } from 'lodash';
 import { useTranslation } from 'react-i18next';
 
 import { stringToBigint } from '@core/common';
-import {
-  FungibleTokenBalance,
-  getUniqueTokenId,
-  isNativeToken,
-} from '@core/types';
+import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';
 import { useConvertedCurrencyFormatter } from '@core/ui';
 
 import { TokenSelect } from '@/components/TokenSelect';
-import { getAvailableBalance } from '@/lib/getAvailableBalance';
+import { ChainFilterMode } from '@/components/TokenSelect/types';
+import { type ChainOption } from '@/components/TokenSelect/components/ChainFilterChips';
 
 import { AmountPresetButton, InvisibleAmountInput } from './components';
 
 type TokenAmountInputProps = {
   id: string;
+  'data-testid'?: string;
   estimatedFee?: bigint;
   alwaysApplyFee?: boolean;
   tokenId: string;
@@ -48,6 +49,17 @@ type TokenAmountInputProps = {
   onFocus?: FocusEventHandler;
   onBlur?: FocusEventHandler;
   disabled?: boolean;
+  chainFilterMode?: ChainFilterMode;
+  presetButtonsStartSlot?: ReactNode;
+  presetButtonSx?: ButtonProps['sx'];
+  onEndReached?: () => void;
+  defaultChainId?: number | 'avalanche' | null;
+  externalChainOptions?: ChainOption[];
+  onChainChange?: (chainId: number | 'avalanche' | null) => void;
+  selectedChainId?: number | 'avalanche' | null;
+  onOpenChange?: (isOpen: boolean) => void;
+  isLoadingTokens?: boolean;
+  selectedTokenFallback?: FungibleTokenBalance;
 } & AmountInputProps;
 
 type AmountInputProps =
@@ -70,6 +82,7 @@ type AmountInputProps =
 
 export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   id,
+  'data-testid': testId,
   maxAmount,
   minAmount = 0n,
   estimatedFee,
@@ -89,6 +102,17 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   onFocus,
   onBlur,
   disabled,
+  chainFilterMode,
+  presetButtonsStartSlot,
+  presetButtonSx,
+  onEndReached,
+  defaultChainId,
+  externalChainOptions,
+  onChainChange,
+  selectedChainId,
+  onOpenChange,
+  isLoadingTokens,
+  selectedTokenFallback,
 }) => {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -97,8 +121,10 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   const previousTokenIdRef = useRef<string>(tokenId);
 
   const token = useMemo(
-    () => tokensForAccount.find((tok) => getUniqueTokenId(tok) === tokenId),
-    [tokensForAccount, tokenId],
+    () =>
+      tokensForAccount.find((tok) => getUniqueTokenId(tok) === tokenId) ??
+      selectedTokenFallback,
+    [tokensForAccount, tokenId, selectedTokenFallback],
   );
 
   // Auto-focus the input when a token is selected for THIS specific component
@@ -135,17 +161,15 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
 
   const handlePresetClick = useCallback(
     (percentage: number) => {
-      if (!token) return;
+      if (!token || isNil(maxAmount)) return;
 
-      const tokenUnit = new TokenUnit(
-        getAvailableBalance(token, false),
-        token.decimals,
-        token.symbol,
-      );
+      // Prefer maxAmount (fee-adjusted / balance-capped) over raw token.balance so
+      // presets stay correct for HyperCore withdrawable and native fee reserves.
+      const tokenUnit = new TokenUnit(maxAmount, token.decimals, token.symbol);
 
-      // If sending the max. amount of a native token, we need to subtract the estimated fee.
-      const shouldSubtractFee =
-        alwaysApplyFee || (percentage === 100 && isNativeToken(token));
+      // maxAmount from Swap/Send is already fee-adjusted; only subtract again when
+      // a caller explicitly opts in via alwaysApplyFee.
+      const shouldSubtractFee = Boolean(alwaysApplyFee);
       const amountToSubtract = shouldSubtractFee
         ? estimatedFeeWithBuffer(estimatedFee)
         : 0n;
@@ -161,6 +185,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
     },
     [
       token,
+      maxAmount,
       alwaysApplyFee,
       estimatedFee,
       onAmountChange,
@@ -184,7 +209,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
     isLoading || disabled || !token || !maxAmount || maxAmount <= 0n;
 
   return (
-    <Stack py={1} px={1.5} gap={1}>
+    <Stack py={1} px={1.5} gap={1} data-testid={testId}>
       <Stack
         id={id}
         display="grid"
@@ -204,6 +229,15 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
           onQueryChange={onQueryChange}
           hint={tokenHint}
           disabled={disabled}
+          chainFilterMode={chainFilterMode}
+          onEndReached={onEndReached}
+          defaultChainId={defaultChainId}
+          externalChainOptions={externalChainOptions}
+          onChainChange={onChainChange}
+          selectedChainId={selectedChainId}
+          onOpenChange={onOpenChange}
+          isLoadingTokens={isLoadingTokens}
+          selectedTokenFallback={selectedTokenFallback}
         />
         <Grow in={Boolean(token)} mountOnEnter unmountOnExit>
           <InvisibleAmountInput
@@ -218,6 +252,9 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
             slotProps={{
               htmlInput: {
                 ref: amountInputRef,
+                ...(testId && {
+                  'data-testid': `${testId}-amount`,
+                }),
               },
               input: {
                 onFocus,
@@ -237,7 +274,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
         <Stack
           direction="row"
           width="100%"
-          justifyContent="end"
+          justifyContent={presetButtonsStartSlot ? 'space-between' : 'end'}
           alignItems="center"
           gap={1}
           onFocus={onFocus}
@@ -247,25 +284,31 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
             transition: theme.transitions.create('opacity'),
           }}
         >
-          <AmountPresetButton
-            onClick={() => handlePresetClick(25)}
-            disabled={arePresetButtonsDisabled}
-          >
-            {t('25%')}
-          </AmountPresetButton>
-          <AmountPresetButton
-            onClick={() => handlePresetClick(50)}
-            disabled={arePresetButtonsDisabled}
-          >
-            {t('50%')}
-          </AmountPresetButton>
-          <AmountPresetButton
-            data-testid="amount-preset-max"
-            onClick={() => handlePresetClick(100)}
-            disabled={arePresetButtonsDisabled}
-          >
-            {t('Max')}
-          </AmountPresetButton>
+          {presetButtonsStartSlot}
+          <Stack direction="row" alignItems="center" gap={1}>
+            <AmountPresetButton
+              onClick={() => handlePresetClick(25)}
+              disabled={arePresetButtonsDisabled}
+              sx={presetButtonSx}
+            >
+              {t('25%')}
+            </AmountPresetButton>
+            <AmountPresetButton
+              onClick={() => handlePresetClick(50)}
+              disabled={arePresetButtonsDisabled}
+              sx={presetButtonSx}
+            >
+              {t('50%')}
+            </AmountPresetButton>
+            <AmountPresetButton
+              data-testid="amount-preset-max"
+              onClick={() => handlePresetClick(100)}
+              disabled={arePresetButtonsDisabled}
+              sx={presetButtonSx}
+            >
+              {t('Max')}
+            </AmountPresetButton>
+          </Stack>
         </Stack>
       </Collapse>
     </Stack>

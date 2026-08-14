@@ -1,6 +1,7 @@
 import { Stack } from '@avalabs/k2-alpine';
 import {
   useAccountsContext,
+  useBalanceTotalInCurrency,
   useBalancesContext,
   useNetworkContext,
 } from '@core/ui';
@@ -14,14 +15,15 @@ import { PortfolioTabs } from './components/PortfolioTabs';
 export const PortfolioHome: FC = () => {
   const { accounts } = useAccountsContext();
   const { isDeveloperMode } = useNetworkContext();
-  const { totalBalance, balances } = useBalancesContext();
+  const { balances } = useBalancesContext();
+  const accountBalance = useBalanceTotalInCurrency(accounts.active);
 
   return (
     <>
       <Stack gap={2.5} px={1.5} mb={2.5}>
         <AccountInfo
           account={accounts.active}
-          balance={totalBalance}
+          balance={accountBalance}
           isDeveloperMode={isDeveloperMode}
           hasBalanceError={!!balances.error}
           isLoading={balances.loading}

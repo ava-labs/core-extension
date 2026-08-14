@@ -16,6 +16,7 @@
     "@core/messaging": "workspace:*"
   },
   "devDependencies": {
+    "@core/lavamoat-rspack": "workspace:*",
     "@rsbuild/core": "1.3.3",
     "@rsbuild/plugin-node-polyfill": "1.3.0",
     "@rsbuild/plugin-react": "1.1.1",

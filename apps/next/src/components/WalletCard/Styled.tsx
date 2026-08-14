@@ -10,8 +10,10 @@ import {
 } from '@avalabs/k2-alpine';
 import { MdError } from 'react-icons/md';
 
-export const Accordion = styled(K2Accordion)(({ theme }) => ({
-  marginBottom: theme.spacing(0),
+export const Accordion = styled(K2Accordion, {
+  shouldForwardProp: (prop) => prop !== 'stickinessMargin',
+})<{ stickinessMargin?: number }>(({ theme, stickinessMargin }) => ({
+  marginBottom: stickinessMargin ? 0 : theme.spacing(0),
   borderRadius: theme.shape.mediumBorderRadius,
   boxShadow: '0 5px 30px 0 rgba(0, 0, 0, 0.15)',
   backgroundColor:
@@ -21,7 +23,8 @@ export const Accordion = styled(K2Accordion)(({ theme }) => ({
   [`&.${accordionClasses.expanded} .${accordionSummaryClasses.root}`]: {
     overflow: 'hidden',
     position: 'sticky',
-    top: HEADER_HEIGHT,
+    top:
+      typeof stickinessMargin === 'number' ? stickinessMargin : HEADER_HEIGHT,
     zIndex: 1,
     backdropFilter: 'blur(30px)',
     WebkitBackdropFilter: 'blur(30px)',

@@ -2,8 +2,9 @@ import { Stack } from '@avalabs/k2-alpine';
 import { TokenType } from '@avalabs/vm-module-types';
 import { FC, useCallback, useEffect, useRef } from 'react';
 
+import { isDirectLedgerHyperEvmTransactionUnsupported } from '@core/common';
 import { ActionStatus, GaslessPhase, NetworkWithCaipId } from '@core/types';
-import { useLiveBalance } from '@core/ui';
+import { useLiveBalance, useWalletContext } from '@core/ui';
 import { useTranslation } from 'react-i18next';
 
 import { NoScrollStack } from '@/components/NoScrollStack';
@@ -13,14 +14,21 @@ import { useIsUsingHardwareWallet } from '@/hooks/useIsUsingHardwareWallet';
 import {
   ActionDetails,
   ActionDrawer,
+  ApprovalContextNote,
   ApprovalScreenTitle,
   HardwareApprovalOverlay,
   MaliciousTxOverlay,
   NoteWarning,
   Styled,
 } from './components';
+import { TxDataUpdateProvider, useTxDataUpdate } from './contexts';
 import { useApprovalHelpers, useGasless } from './hooks';
-import { hasNoteWarning, hasOverlayWarning } from './lib';
+import {
+  getRecurringSwapsNote,
+  hasNoteWarning,
+  hasOverlayWarning,
+  hasRecurringSwapsContext,
+} from './lib';
 import {
   ActionError,
   CancelActionFn,
@@ -28,7 +36,11 @@ import {
   UpdateActionFn,
 } from './types';
 
-const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20]; // Approval screen should always have the latest balance
+const POLLED_BALANCES = [
+  TokenType.NATIVE,
+  TokenType.ERC20,
+  TokenType.HYPERCORE_SPOT,
+]; // Approval screen should always have the latest balance
 
 type TransactionApprovalScreenProps = {
   action: TransactionSigningRequest;
@@ -38,7 +50,15 @@ type TransactionApprovalScreenProps = {
   error: ActionError;
 };
 
-export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
+export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = (
+  props,
+) => (
+  <TxDataUpdateProvider>
+    <TransactionApprovalScreenContent {...props} />
+  </TxDataUpdateProvider>
+);
+
+const TransactionApprovalScreenContent: FC<TransactionApprovalScreenProps> = ({
   action,
   network,
   updateAction,
@@ -51,6 +71,10 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
   useLiveBalance(POLLED_BALANCES);
 
   const { isUsingHardwareWallet, deviceType } = useIsUsingHardwareWallet();
+  const { walletDetails } = useWalletContext();
+  const { isUpdating: isUpdatingTxData } = useTxDataUpdate();
+  const isDirectLedgerHyperEvmTransactionBlocked =
+    isDirectLedgerHyperEvmTransactionUnsupported(network, walletDetails?.type);
 
   const { tryFunding, setGaslessDefaultValues, gaslessPhase } = useGasless({
     action,
@@ -93,9 +117,14 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
     gaslessPhase === GaslessPhase.ERROR || gaslessUnavailable.current;
 
   return (
-    <Styled.ApprovalScreenPage>
+    <Styled.ApprovalScreenPage data-testid="approval-screen">
       <NoScrollStack stackProps={{ sx: { mt: 3 } }}>
         <ApprovalScreenTitle title={action.displayData.title} />
+        {hasRecurringSwapsContext(action.context) && (
+          <ApprovalContextNote
+            {...getRecurringSwapsNote(action.context.recurringSwaps, t)}
+          />
+        )}
         {hasNoteWarning(action) && (
           <NoteWarning alert={action.displayData.alert} />
         )}
@@ -105,6 +134,17 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
               textLines={[
                 t(
                   'Core was unable to fund the gas. You will need to pay the fee for this transaction.',
+                ),
+              ]}
+            />
+          </Stack>
+        )}
+        {isDirectLedgerHyperEvmTransactionBlocked && (
+          <Stack px={2} mt={1.5} mb={1.5}>
+            <SimulationAlertBox
+              textLines={[
+                t(
+                  'Transactions on HyperEVM are not supported for Ledger wallets.',
                 ),
               ]}
             />
@@ -123,6 +163,9 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
           approve={() => tryFunding(handleApproval)}
           reject={handleRejection}
           isProcessing={isProcessing}
+          isDisabled={
+            isUpdatingTxData || isDirectLedgerHyperEvmTransactionBlocked
+          }
           withConfirmationSwitch={hasOverlayWarning(action)}
         />
       </NoScrollStack>

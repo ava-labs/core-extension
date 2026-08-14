@@ -15,6 +15,15 @@ import { Monitoring } from '@core/common';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { getUserEnvironment } from './utils/getUserEnvironment';
 
+// These fields are extracted from the encrypted payload and sent as plain properties
+// so PostHog can filter/segment by network without requiring decryption.
+const CHAIN_ID_PROP_KEYS = new Set([
+  'chainId',
+  'networkChainId',
+  'sourceChainId',
+  'targetChainId',
+]);
+
 @singleton()
 export class AnalyticsServicePosthog {
   private http = new HttpClient(
@@ -72,11 +81,23 @@ export class AnalyticsServicePosthog {
     const extensionVersion = chrome.runtime.getManifest().version;
     const featureFlagsData = this.getFeatureFlagsData();
 
-    const preppedProperties = event.properties
+    // When encrypting, pull chain ID fields out so they remain readable in
+    // PostHog without needing decryption (useful for real-time network analysis).
+    const { chainIdProps, encryptableProps } =
+      useEncryption && event.properties
+        ? this.#splitChainIdProps(event.properties)
+        : { chainIdProps: {}, encryptableProps: event.properties };
+
+    const shouldEncryptProps =
+      useEncryption &&
+      !!encryptableProps &&
+      Object.keys(encryptableProps).length > 0;
+
+    const preppedProperties = encryptableProps
       ? await this.prepProperties(
           event.windowId,
-          event.properties,
-          useEncryption,
+          encryptableProps,
+          shouldEncryptProps,
         )
       : {};
 
@@ -85,6 +106,7 @@ export class AnalyticsServicePosthog {
       event: event.name,
       properties: {
         ...preppedProperties,
+        ...chainIdProps,
         ...featureFlagsData,
         distinct_id: analyticsState.userId,
         $user_id: analyticsState.userId,
@@ -128,8 +150,30 @@ export class AnalyticsServicePosthog {
     };
   }
 
+  #splitChainIdProps(properties: Record<string, unknown>): {
+    chainIdProps: Record<string, unknown>;
+    encryptableProps: Record<string, unknown>;
+  } {
+    const chainIdProps: Record<string, unknown> = {};
+    const encryptableProps: Record<string, unknown> = {};
+
+    for (const [key, value] of Object.entries(properties)) {
+      if (CHAIN_ID_PROP_KEYS.has(key)) {
+        chainIdProps[key] = this.updateChainIdIfNeeded(value);
+      } else {
+        encryptableProps[key] = value;
+      }
+    }
+
+    return { chainIdProps, encryptableProps };
+  }
+
   // TODO update with real value
-  private updateChainIdIfNeeded(original: number) {
+  private updateChainIdIfNeeded(original: unknown) {
+    if (typeof original !== 'number') {
+      return original;
+    }
+
     if (original === ChainId.AVALANCHE_P) {
       return BlockchainId.P_CHAIN;
     } else if (original === ChainId.AVALANCHE_TEST_P) {
@@ -144,7 +188,7 @@ export class AnalyticsServicePosthog {
 
   private async prepProperties(
     windowId: string,
-    properties: Record<string, any>,
+    properties: Record<string, unknown>,
     useEncryption = false,
   ) {
     const userEnv = await getUserEnvironment();

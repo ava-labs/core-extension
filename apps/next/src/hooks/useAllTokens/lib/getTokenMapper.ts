@@ -3,9 +3,13 @@ import { TokenType } from '@avalabs/vm-module-types';
 import { FungibleTokenBalance } from '@core/types';
 import { memoize } from 'lodash';
 
+type NetworkContractTokenWithVerified = NetworkContractToken & {
+  isVerified?: boolean | null;
+};
+
 export const getTokenMapper = memoize(
   (chainId: number, caip2Id: string) =>
-    (tokenData: NetworkContractToken): FungibleTokenBalance => ({
+    (tokenData: NetworkContractTokenWithVerified): FungibleTokenBalance => ({
       type: tokenData.contractType === 'SPL' ? TokenType.SPL : TokenType.ERC20,
       address: tokenData.address,
       name: tokenData.name,
@@ -18,5 +22,6 @@ export const getTokenMapper = memoize(
       coreChainId: chainId,
       chainCaipId: caip2Id,
       logoUri: tokenData.logoUri,
+      isVerified: tokenData.isVerified,
     }),
 );

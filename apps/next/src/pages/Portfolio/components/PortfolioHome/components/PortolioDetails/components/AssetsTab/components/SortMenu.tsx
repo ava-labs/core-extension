@@ -34,7 +34,9 @@ export const SortMenu: FC<SortMenuProps> = ({ id, sort, onSortChange }) => {
               (sort === null && option.value === 'default')
             }
           >
-            {option.label}
+            <span data-testid={`sort-option-${option.value}`}>
+              {option.label}
+            </span>
           </PopoverItem>
         ))}
       </DropdownMenu>

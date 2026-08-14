@@ -52,18 +52,35 @@ export function initializeProvider(
   const multiWalletProxy = createMultiWalletProxy(evmProvider);
 
   globalObject.addEventListener('eip6963:announceProvider', (event: any) => {
-    multiWalletProxy.addProvider(
-      new Proxy(
-        {
-          info: { ...event.detail.info },
-          ...event.detail.provider,
-        },
-        {
-          deleteProperty: () => true,
-          set: () => true,
-        },
-      ),
-    );
+    const detail = event?.detail;
+    if (!detail || typeof detail !== 'object') {
+      return;
+    }
+
+    const rawInfo = detail.info;
+    const provider = detail.provider;
+    if (!rawInfo || !provider) {
+      return;
+    }
+
+    // Read only a fixed, known set of EIP-6963 info fields with a type guard.
+    // Individual property reads still go through any `get` trap on a hostile
+    // Proxy, but we avoid spreading/enumerating the foreign info or provider
+    // object - that would invoke `ownKeys` plus a `get` for every key the
+    // foreign object claims to own, which has been observed to stall the
+    // renderer when another wallet's provider is itself a recursive Proxy.
+    const info = {
+      uuid: typeof rawInfo.uuid === 'string' ? rawInfo.uuid : '',
+      name: typeof rawInfo.name === 'string' ? rawInfo.name : '',
+      icon: typeof rawInfo.icon === 'string' ? rawInfo.icon : '',
+      rdns: typeof rawInfo.rdns === 'string' ? rawInfo.rdns : '',
+    };
+
+    if (!info.uuid) {
+      return;
+    }
+
+    multiWalletProxy.addProvider({ info, provider });
   });
 
   setGlobalProvider(evmProvider, globalObject, multiWalletProxy);

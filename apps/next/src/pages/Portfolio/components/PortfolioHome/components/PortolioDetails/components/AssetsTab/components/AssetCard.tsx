@@ -7,7 +7,6 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
-import { TokenType } from '@avalabs/vm-module-types';
 import { FC } from 'react';
 import { useHistory } from 'react-router-dom';
 
@@ -15,9 +14,10 @@ import { Card } from '@/components/Card';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 import { OverflowingTypography } from '@/components/OverflowingTypography';
 import { TokenAvatar } from '@/components/TokenAvatar';
-import { FungibleTokenBalance } from '@core/types';
+import { FungibleTokenBalance, getFungibleTokenKey } from '@core/types';
 import { useSettingsContext } from '@core/ui';
 import { ProfitAndLoss } from '../../ProfitAndLoss';
+import { isAvaxToken } from '@/lib/tokens';
 
 interface AssetCardProps {
   asset: FungibleTokenBalance;
@@ -42,15 +42,17 @@ export const AssetCard: FC<AssetCardProps> = ({ asset }) => {
   const history = useHistory();
   const { privacyMode } = useSettingsContext();
   const handleClick = () => {
-    const tokenAddress =
-      asset.type === TokenType.NATIVE ? asset.symbol : asset.address;
-    history.push(`/asset/${asset.coreChainId}/${tokenAddress}`);
+    history.push(`/asset/${asset.coreChainId}/${getFungibleTokenKey(asset)}`);
   };
 
   const badgeBorderColor = getBadgeBorderColor(theme);
 
   return (
     <Card
+      data-testid="asset-card"
+      data-asset-name={asset.name}
+      data-asset-balance={String(asset.balanceInCurrency ?? 0)}
+      data-asset-is-avax={String(isAvaxToken(asset))}
       sx={{
         width: '100%',
         borderRadius: CARD_BORDER_RADIUS,
@@ -82,6 +84,7 @@ export const AssetCard: FC<AssetCardProps> = ({ asset }) => {
 
         <Stack flexGrow={1} minWidth={0} gap={0}>
           <Typography
+            data-testid="asset-card-name"
             variant="subtitle3"
             noWrap
             fontWeight="600"

@@ -20,6 +20,7 @@ export * from './useInterval';
 export * from './useIsFunctionAvailable';
 export * from './useIsMainnet';
 export * from './useIsSolanaEnabled';
+export * from './useIsHyperliquidEnabled';
 export * from './useIsUsingFireblocksAccount';
 export * from './useIsUsingKeystoneWallet';
 export * from './useIsUsingKeystone3Wallet';

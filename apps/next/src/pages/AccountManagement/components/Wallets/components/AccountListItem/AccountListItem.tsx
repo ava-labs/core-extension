@@ -118,7 +118,11 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
   };
 
   return (
-    <ListItem disablePadding className="account-item">
+    <ListItem
+      disablePadding
+      className="account-item"
+      data-testid="account-list-item"
+    >
       <Tooltip title={isManageMode ? nonSelectableHint : ''}>
         <span style={{ width: '100%' }}>
           <Styled.ListItemButton

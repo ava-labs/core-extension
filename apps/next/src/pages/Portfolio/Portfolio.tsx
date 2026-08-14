@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Stack } from '@avalabs/k2-alpine';
+import { Stack, useTheme } from '@avalabs/k2-alpine';
 import { Route, Switch, useLocation } from 'react-router-dom';
 import { AddCustomToken } from './components/AddCustomToken/AddCustomToken';
 import { ManageTokens } from './components/ManageTokens';
@@ -10,6 +10,7 @@ import { Header } from '@/components/Header';
 import { NoScrollStack } from '@/components/NoScrollStack';
 import { HEADER_HEIGHT } from '@/config';
 import { useIsIntersecting } from '@/hooks/useIsIntersecting';
+import { useApprovalsContext } from '@core/ui';
 
 export const Portfolio: FC = () => {
   const { pathname } = useLocation();
@@ -20,7 +21,8 @@ export const Portfolio: FC = () => {
     pathname.startsWith('/wallet');
 
   const { isIntersecting, ref, isObserving } = useIsIntersecting();
-
+  const { approval } = useApprovalsContext();
+  const theme = useTheme();
   const withConciergePrompt = displayHeader && isObserving && isIntersecting;
 
   return (
@@ -31,10 +33,10 @@ export const Portfolio: FC = () => {
           width={1}
           position="sticky"
           top={0}
-          zIndex={10}
+          zIndex={theme.zIndex.tooltip}
           id="header-container"
         >
-          <Header withConciergePrompt={withConciergePrompt} />
+          {!approval && <Header withConciergePrompt={withConciergePrompt} />}
         </Stack>
       )}
       <Stack flexGrow={1} data-scroll-container>

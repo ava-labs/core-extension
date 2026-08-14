@@ -45,22 +45,27 @@ export const useAllTokens = (
     forceShowAllTokens,
   });
 
-  return useMemo<FungibleTokenBalance[]>(
-    () => [
+  return useMemo<FungibleTokenBalance[]>(() => {
+    const allTokens = [
       ...tokensForAccount,
-      ...placeholderTokens.filter(
-        (token) =>
-          !tokensForAccount.find(
-            (balanceToken) =>
-              getUniqueTokenId(balanceToken) === getUniqueTokenId(token),
-          ),
-      ),
+      ...placeholderTokens,
+      // User-added custom tokens (as zero-balance placeholders).
       ...networks.flatMap(({ chainId, caipId }) =>
         Object.values(customTokens[chainId] ?? {}).map(
           getTokenMapper(chainId, caipId),
         ),
       ),
-    ],
-    [customTokens, networks, placeholderTokens, tokensForAccount],
-  );
+    ];
+
+    // Dedupe by unique token id, keeping the first occurrence. `tokensForAccount` comes first,
+    // so a held token keeps its fetched balance over the zero-balance placeholder/custom entry.
+    const byUniqueId = new Map<string, FungibleTokenBalance>();
+    for (const token of allTokens) {
+      const id = getUniqueTokenId(token);
+      if (!byUniqueId.has(id)) {
+        byUniqueId.set(id, token);
+      }
+    }
+    return Array.from(byUniqueId.values());
+  }, [customTokens, networks, placeholderTokens, tokensForAccount]);
 };

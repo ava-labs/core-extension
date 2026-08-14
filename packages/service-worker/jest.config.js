@@ -15,6 +15,7 @@ module.exports = {
     '^@shared/(.*)': '<rootDir>/../../src/$1',
     '\\.(css|less|scss)$': 'identity-obj-proxy',
     '^uuid$': require.resolve('uuid'),
+    '^@avalabs/crypto-wasm$': '<rootDir>/../../src/tests/mocks/cryptoWasm.js',
   },
   transform: {
     '^.+\\.(js|jsx)$': 'babel-jest',

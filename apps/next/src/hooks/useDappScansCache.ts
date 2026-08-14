@@ -25,6 +25,14 @@ export const useDappScansCache = () => {
     [get, set],
   );
 
+  const removeMaliciousDappDomains = useCallback(
+    async (dappDomains: string[]) => {
+      const results = await get<Record<string, boolean>>(STORAGE_KEY);
+      await set(STORAGE_KEY, omit(results, dappDomains));
+    },
+    [get, set],
+  );
+
   const storeMaliciousDappDomain = useCallback(
     async (dappDomain: string) => {
       const results = await get<Record<string, boolean>>(STORAGE_KEY);
@@ -39,6 +47,7 @@ export const useDappScansCache = () => {
   return {
     isMaliciousDapp,
     removeMaliciousDappDomain,
+    removeMaliciousDappDomains,
     storeMaliciousDappDomain,
   };
 };

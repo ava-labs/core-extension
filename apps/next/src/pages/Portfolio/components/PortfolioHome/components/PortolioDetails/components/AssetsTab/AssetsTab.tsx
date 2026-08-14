@@ -26,7 +26,6 @@ import {
   getAvailableNetworksFromAssets,
   sortAssets,
 } from './utils';
-
 const selectedNetworkStateInitializer = () => new Set<number>();
 
 export const AssetsTab: FC = () => {

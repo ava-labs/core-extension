@@ -7,7 +7,7 @@ import { FallbackTokenAvatar } from './FallbackTokenAvatar';
 type TokenAvatarProps = {
   size: number;
   badgeSize: number;
-  token: FungibleTokenBalance;
+  token: Pick<FungibleTokenBalance, 'symbol' | 'coreChainId' | 'logoUri'>;
   badgeSx?: SxProps;
 };
 

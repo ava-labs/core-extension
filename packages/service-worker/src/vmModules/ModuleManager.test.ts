@@ -1,7 +1,9 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
+import { DEFAULT_FLAGS } from '@core/common';
 import { ModuleManager } from './ModuleManager';
 import { VMModuleError } from '@core/types';
 import { ApprovalController } from './ApprovalController';
+import { FeatureFlagService } from '../services/featureFlags/FeatureFlagService';
 
 jest.mock('@avalabs/bitcoin-module', () => {
   return {
@@ -103,6 +105,27 @@ jest.mock('@avalabs/svm-module', () => {
     }),
   };
 });
+jest.mock('@avalabs/hypercore-module', () => {
+  return {
+    HypercoreModule: jest.fn().mockImplementation(() => {
+      return {
+        getManifest: jest.fn().mockReturnValue({
+          name: 'HyperCore',
+          network: {
+            chainIds: ['hlcore:mainnet'],
+            namespaces: ['hlcore'],
+          },
+          permissions: {
+            rpc: {
+              methods: [],
+              dapps: false,
+            },
+          },
+        }),
+      };
+    }),
+  };
+});
 
 describe('ModuleManager', () => {
   let manager: ModuleManager;
@@ -112,7 +135,11 @@ describe('ModuleManager', () => {
     controller = {
       requestApproval: jest.fn(),
     } as any;
-    manager = new ModuleManager(controller);
+    const featureFlagService = {
+      featureFlags: DEFAULT_FLAGS,
+      addListener: jest.fn(),
+    } as unknown as FeatureFlagService;
+    manager = new ModuleManager(controller, featureFlagService);
   });
   describe('when not initialized', () => {
     it('should throw not initialized error', async () => {

@@ -212,6 +212,8 @@ type VMAccountTypeMap = {
   [NetworkVMType.HVM]: HvmCapableAccount;
   [NetworkVMType.BITCOIN]: BtcCapableAccount;
   [NetworkVMType.CoreEth]: CoreEthCapableAccount;
+  // HyperCore uses the EVM address (addressC).
+  [NetworkVMType.HYPERCORE]: EvmCapableAccount;
 };
 
 export const isPvmCapableAccount = (
@@ -253,6 +255,8 @@ export const isVMCapableAccount = <V extends NetworkVMType>(
       return isHvmCapableAccount(account);
     case NetworkVMType.CoreEth:
       return isCoreEthCapableAccount(account);
+    case NetworkVMType.HYPERCORE:
+      return Boolean(account?.addressC);
     default:
       return true;
   }

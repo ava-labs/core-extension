@@ -620,6 +620,18 @@ describe('background/services/wallet/WalletService.ts', () => {
       ).rejects.toThrow('Wallet not found');
     });
 
+    it('blocks Ledger transactions on HyperEVM', async () => {
+      mockLedgerWallet();
+
+      await expect(
+        walletService.sign(
+          txMock,
+          { chainId: 999, chainName: 'HyperEVM' } as Network,
+          tabId,
+        ),
+      ).rejects.toThrow('Ledger transactions are not supported on HyperEVM');
+    });
+
     it('throws if there is no wallet for btc tx', async () => {
       spyOnGetWallet().mockResolvedValueOnce(walletMock);
 
@@ -828,7 +840,7 @@ describe('background/services/wallet/WalletService.ts', () => {
             },
             {
               ...networkMock,
-              vmName: NetworkVMType.PVM,
+              vmName: NetworkVMType.PVM as (typeof networkMock)['vmName'],
             },
           );
 
@@ -838,6 +850,63 @@ describe('background/services/wallet/WalletService.ts', () => {
                 mockedPublicKeys[0],
                 mockedPublicKeys[1],
               ]),
+            }),
+          );
+        });
+      });
+
+      describe('on a non-zero active account with no external indices', () => {
+        const mockedPublicKeys: AddressPublicKeyJson[] = [
+          {
+            curve: 'secp256k1',
+            derivationPath: "m/44'/9000'/0'/0/0",
+            type: 'address-pubkey',
+            key: '0x0000',
+          },
+          {
+            curve: 'secp256k1',
+            derivationPath: "m/44'/9000'/1'/0/0",
+            type: 'address-pubkey',
+            key: '0x0101',
+          },
+        ];
+
+        it('resolves the derivation path with addressIndex 0, not the active account index', async () => {
+          // Regression for CP-14284: prior to this fix, the fallback was
+          // `[secrets.account.index]`, which made the address index equal
+          // the active account index and produced a non-existent path of
+          // `m/44'/9000'/<acct>'/0/<acct>` for any non-zero account.
+          mockSeedlessWallet({ publicKeys: mockedPublicKeys }, {
+            index: 1,
+          } as any);
+
+          const getPathsSpy = jest
+            .spyOn(addressResolver, 'getDerivationPathsByVM')
+            .mockResolvedValueOnce({
+              [NetworkVMType.PVM]: "m/44'/9000'/1'/0/0",
+              [NetworkVMType.AVM]: "m/44'/9000'/1'/0/0",
+            });
+
+          jest
+            .spyOn(SeedlessWallet.prototype, 'signAvalancheTx')
+            .mockResolvedValueOnce(unsignedTxMock);
+
+          await walletService.sign(avalancheTxMock, {
+            ...networkMock,
+            vmName: NetworkVMType.PVM as (typeof networkMock)['vmName'],
+            isTestnet: true,
+          });
+
+          expect(getPathsSpy).toHaveBeenCalledWith(
+            1, // BIP-44 account segment = active account
+            undefined, // derivationPathSpec (not relevant to this regression)
+            [NetworkVMType.AVM],
+            0, // address segment must default to 0, not the active account index
+          );
+
+          expect(SeedlessWallet).toHaveBeenCalledWith(
+            expect.objectContaining({
+              addressPublicKeys: expect.arrayContaining([mockedPublicKeys[1]]),
             }),
           );
         });
@@ -1015,6 +1084,18 @@ describe('background/services/wallet/WalletService.ts', () => {
       ).rejects.toThrow('Wallet not found');
     });
 
+    it('blocks Ledger transaction batches on HyperEVM', async () => {
+      mockLedgerWallet();
+
+      await expect(
+        walletService.signTransactionBatch(
+          [{ from: '0x1', to: '0x2', value: 10n }],
+          { chainId: 999, chainName: 'HyperEVM' } as Network,
+          tabId,
+        ),
+      ).rejects.toThrow('Ledger transactions are not supported on HyperEVM');
+    });
+
     it.each([
       ['WalletConnect wallets', Object.create(WalletConnectSigner.prototype)],
       ['Ledger wallets', Object.create(LedgerSigner.prototype)],
@@ -1170,6 +1251,18 @@ describe('background/services/wallet/WalletService.ts', () => {
       ).resolves.toBe('0x00002');
       expect(evmLedgerSignerMock.signMessage).toHaveBeenCalledTimes(2);
       expect(evmLedgerSignerMock.signMessage).toHaveBeenNthCalledWith(2, {});
+    });
+
+    it('blocks Ledger message signing on HyperEVM', async () => {
+      mockLedgerWallet();
+      jest.spyOn(networkService, 'getNetwork').mockResolvedValue({
+        chainId: 999,
+        chainName: 'HyperEVM',
+      } as any);
+
+      await expect(
+        walletService.signMessage(MessageType.PERSONAL_SIGN, action),
+      ).rejects.toThrow('Ledger transactions are not supported on HyperEVM');
     });
 
     it('signs typed data with Ledger', async () => {

@@ -12,6 +12,7 @@ import {
   caipToChainId,
   groupTokensByType,
   isFulfilled,
+  isHypercoreNetwork,
   isPchainNetworkId,
   isRejected,
   isXchainNetworkId,
@@ -36,10 +37,7 @@ import {
   GetBalancesResponseError,
   postV1BalanceGetBalances,
 } from '~/api-clients/balance-api';
-import {
-  convertStreamToArray,
-  reconstructAccountFromError,
-} from '~/api-clients/helpers';
+import { convertStreamToArray } from '~/api-clients/helpers';
 import {
   convertBalanceResponsesToCacheBalanceObject,
   convertBalanceResponseToAtomicCacheBalanceObject,
@@ -248,6 +246,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
 
   async #fallbackOnBalanceServiceErrors(
     errors: GetBalancesResponseError[],
+    accounts: Account[],
     tokenTypes: TokenType[],
   ): Promise<Balances> {
     if (errors.length === 0) {
@@ -258,15 +257,22 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       ({ error }) => !error.includes('Rate limit exceeded'),
     );
 
-    // TODO: if we need to differentiate between chains we can filter based on the networkType
-    const accounts = nonRateLimitsErrors.map(reconstructAccountFromError);
-    const chainIds = nonRateLimitsErrors.map(({ caip2Id }) =>
-      caipToChainId(caip2Id),
+    if (nonRateLimitsErrors.length === 0) {
+      return {};
+    }
+
+    // Use the real accounts already in scope — `BalancesService` picks the
+    // right address (`addressC`, `addressBTC`, …) per the network's VM via
+    // the loaded VM module, so no synthetic account is needed. This also
+    // lets the EVM module's built-in RPC fallback handle chains the balance
+    // service doesn't support (custom networks, new L1s/L2s like Monad).
+    const chainIds = Array.from(
+      new Set(nonRateLimitsErrors.map(({ caip2Id }) => caipToChainId(caip2Id))),
     );
 
     try {
       const { tokens } = await this.#fetchBalances(
-        Array.from(new Set(chainIds)),
+        chainIds,
         accounts,
         tokenTypes,
       );
@@ -274,6 +280,100 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     } catch (_error) {
       return {};
     }
+  }
+
+  /**
+   * The Core Balance API only returns balances for tokens it indexes. Custom
+   * tokens the user added manually may not be indexed, so their balances are
+   * absent from the response even on supported chains. For those tokens we
+   * fall back to the VM module, querying the chain directly (RPC) for just the
+   * missing custom tokens.
+   */
+  async #fetchMissingCustomTokenBalances({
+    chainIds,
+    accounts,
+    currentBalances,
+    excludedChainIds,
+    tokenTypes,
+  }: {
+    chainIds: number[];
+    accounts: Account[];
+    currentBalances: Balances;
+    excludedChainIds: Set<number>;
+    tokenTypes: TokenType[];
+  }): Promise<Balances> {
+    if (!tokenTypes.includes(TokenType.ERC20)) {
+      return {};
+    }
+
+    const settings = await this.settingsService.getSettings();
+
+    const networks = Object.values(
+      await this.networkService.activeNetworks.promisify(),
+    ).filter(
+      (network) =>
+        chainIds.includes(network.chainId) &&
+        !excludedChainIds.has(network.chainId),
+    );
+
+    if (networks.length === 0) {
+      return {};
+    }
+
+    const priceChangesData =
+      await this.tokenPricesService.getPriceChangesData();
+
+    const results = await Promise.allSettled(
+      networks.map(async (network) => {
+        const customTokensForChain = Object.values(
+          settings.customTokens?.[network.chainId] ?? {},
+        );
+
+        if (customTokensForChain.length === 0) {
+          return null;
+        }
+
+        const presentTokenKeys = new Set<string>();
+        for (const accountBalances of Object.values(
+          currentBalances[network.chainId] ?? {},
+        )) {
+          for (const tokenKey of Object.keys(accountBalances)) {
+            presentTokenKeys.add(tokenKey.toLowerCase());
+          }
+        }
+
+        const missingCustomTokens = customTokensForChain.filter(
+          (token) => !presentTokenKeys.has(token.address.toLowerCase()),
+        );
+
+        if (missingCustomTokens.length === 0) {
+          return null;
+        }
+
+        const networkBalances =
+          await this.balancesService.getBalancesForNetwork(
+            network,
+            accounts,
+            [TokenType.ERC20],
+            priceChangesData,
+            { customTokens: missingCustomTokens, customTokensOnly: true },
+          );
+
+        return { chainId: network.chainId, networkBalances };
+      }),
+    );
+
+    return results.filter(isFulfilled).reduce<Balances>((acc, { value }) => {
+      if (value) {
+        acc[value.chainId] = value.networkBalances;
+      }
+      return acc;
+    }, {});
+  }
+
+  async #getHypercoreChainIds(chainIds: number[]): Promise<number[]> {
+    const networks = await this.networkService.activeNetworks.promisify();
+    return chainIds.filter((chainId) => isHypercoreNetwork(networks[chainId]));
   }
 
   async #getTokenBalances({
@@ -299,6 +399,30 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     ) {
       const selectedCurrency = settings.currency.toLowerCase();
 
+      // HyperCore is only served by the Hypercore VM module.
+      // Adding it to the Core Balance API request and letting it then fallback to
+      // VM Modules is a no-go, since that breaks the API request schema and the whole
+      // request fails.
+      //
+      // So instead we always fetch it through the VM module directly and drop it from
+      // the balance-service request.
+      const hypercoreChainIds = await this.#getHypercoreChainIds(chainIds);
+      const balanceServiceChainIds = chainIds.filter(
+        (chainId) => !hypercoreChainIds.includes(chainId),
+      );
+      const hypercoreTokensPromise: Promise<Balances> =
+        hypercoreChainIds.length > 0
+          ? this.#fetchBalances(hypercoreChainIds, accounts, tokenTypes)
+              .then(({ tokens }) => tokens)
+              .catch((error) => {
+                Monitoring.sentryCaptureException(
+                  error,
+                  Monitoring.SentryExceptionTypes.BALANCES,
+                );
+                return {};
+              })
+          : Promise.resolve<Balances>({});
+
       const apiErrorHandler = async (error: Error) => {
         if (requestId) {
           await setErrorForRequestInSessionStorage(
@@ -315,7 +439,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       try {
         const getBalancesRequestBodies = await createGetBalancePayload({
           accounts,
-          chainIds,
+          chainIds: balanceServiceChainIds,
           currency: selectedCurrency as Currency,
           secretsService: this.secretsService,
           addressResolver: this.addressResolver,
@@ -374,15 +498,47 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
         });
 
         const fallbackBalanceResponse =
-          await this.#fallbackOnBalanceServiceErrors(errors, tokenTypes);
+          await this.#fallbackOnBalanceServiceErrors(
+            errors,
+            accounts,
+            tokenTypes,
+          );
 
         const balanceObject =
           convertBalanceResponsesToCacheBalanceObject(balances);
         const atomicBalanceObject =
           convertBalanceResponseToAtomicCacheBalanceObject(balances);
 
+        // Chains that errored are already fully re-fetched (all tokens,
+        // including custom ones) by `#fallbackOnBalanceServiceErrors`, so we
+        // skip them here to avoid duplicate work.
+        const erroredChainIds = new Set<number>();
+        for (const { caip2Id } of errors) {
+          try {
+            erroredChainIds.add(caipToChainId(caip2Id));
+          } catch {
+            /* ignore chains we can't map (e.g. CoreEth) */
+          }
+        }
+
+        const missingCustomTokenBalances =
+          await this.#fetchMissingCustomTokenBalances({
+            chainIds: balanceServiceChainIds,
+            accounts,
+            currentBalances: balanceObject,
+            excludedChainIds: erroredChainIds,
+            tokenTypes,
+          });
+
+        const hypercoreTokens = await hypercoreTokensPromise;
+
         // Apply local dust filtering to ensure consistency regardless of API behavior
-        const mergedTokens = merge(balanceObject, fallbackBalanceResponse);
+        const mergedTokens = merge(
+          balanceObject,
+          fallbackBalanceResponse,
+          missingCustomTokenBalances,
+          hypercoreTokens,
+        );
         const filteredTokens = settings.filterSmallUtxos
           ? this.#filterDustUtxosFromBalances(mergedTokens)
           : mergedTokens;

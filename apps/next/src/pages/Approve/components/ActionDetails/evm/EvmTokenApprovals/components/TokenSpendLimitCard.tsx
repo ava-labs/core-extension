@@ -108,7 +108,7 @@ const ERC20ApprovalHeader = ({
 
   const { tokenValue, isUnlimited, currencyValue } = approvalValue;
   return (
-    <Stack width="100%" textAlign="center">
+    <Stack width="100%" textAlign="center" data-testid="approval-spend-amount">
       <Stack
         direction="row"
         alignItems="start"
@@ -121,7 +121,9 @@ const ERC20ApprovalHeader = ({
         ) : (
           <CollapsedTokenAmount amount={tokenValue.toString()} />
         )}
-        <Typography variant="subtitle1">{approval.token.symbol}</Typography>
+        <Typography variant="subtitle1" data-testid="approval-spend-symbol">
+          {approval.token.symbol}
+        </Typography>
       </Stack>
       {isUnlimited ? (
         <Typography variant="caption" color="text.secondary">

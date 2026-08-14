@@ -27,6 +27,7 @@ import {
   UnifiedTransferSigners,
 } from '@core/types';
 import {
+  AvalancheFunctions,
   getExponentialBackoffDelay,
   hasAtLeastOneElement,
   Monitoring,
@@ -63,6 +64,11 @@ export class TransferTrackingService implements OnStorageReady {
 
   get state() {
     return this.#state;
+  }
+
+  /** Read-only Fusion manager (dummy signers), reused for background reads. */
+  getManager(): TransferManager | undefined {
+    return this.#manager;
   }
 
   constructor(
@@ -144,6 +150,14 @@ export class TransferTrackingService implements OnStorageReady {
       signMessage: sign,
       signAndSend: sign,
     };
+    const avalancheFunctions: AvalancheFunctions = {
+      avalancheSendTx: sign,
+      getAtomicUtxos: sign,
+      getCoreEthAddress: sign,
+      getUtxos: sign,
+      getWalletAddressesForChainAlias: sign,
+      getWalletChangeAddressForChainAlias: sign,
+    };
 
     const signers: UnifiedTransferSigners = {
       evm: dummySigner,
@@ -154,7 +168,7 @@ export class TransferTrackingService implements OnStorageReady {
     const enabledServices = getEnabledTransferServices(this.#flagStates);
 
     return enabledServices.map((type) =>
-      getServiceInitializer(type, bitcoinProvider, signers),
+      getServiceInitializer(type, bitcoinProvider, signers, avalancheFunctions),
     );
   }
 

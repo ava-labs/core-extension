@@ -13,6 +13,7 @@ type SwapQuery = {
   toId: string;
   toQuery: string;
   userAmount: string;
+  isRecurring: string;
 };
 
 type UpdatePayload = Partial<Record<keyof FusionQueryTokens, string>>;
@@ -30,6 +31,7 @@ export const useSwapQuery: UseSwapQuery = () => {
   const toId = searchParams.get(FUSION_QUERY_TOKENS.to) ?? '';
   const toQuery = searchParams.get(FUSION_QUERY_TOKENS.toQuery) ?? '';
   const userAmount = searchParams.get(FUSION_QUERY_TOKENS.userAmount) ?? '';
+  const isRecurring = searchParams.get(FUSION_QUERY_TOKENS.isRecurring) ?? '';
 
   const update = useCallback(
     (payload: UpdatePayload) => {
@@ -54,5 +56,6 @@ export const useSwapQuery: UseSwapQuery = () => {
     toId,
     toQuery,
     userAmount,
+    isRecurring,
   };
 };

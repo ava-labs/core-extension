@@ -145,6 +145,41 @@ export const test = base.extend<ExtensionFixtures>({
 
     await use(context);
 
+    // Take screenshots on failure before closing
+    if (testInfo.status !== testInfo.expectedStatus) {
+      const pages = context.pages();
+      for (let i = 0; i < pages.length; i++) {
+        const page = pages[i];
+        const screenshotDir = path.resolve(
+          __dirname,
+          '..',
+          'test-results',
+          'screenshots',
+        );
+
+        if (!fs.existsSync(screenshotDir)) {
+          fs.mkdirSync(screenshotDir, { recursive: true });
+        }
+
+        const title = testInfo.title.replace(/[^a-z0-9]/gi, '_');
+        const filename = `${title}-page${i}-${Date.now()}.png`;
+
+        try {
+          await page.screenshot({
+            path: path.join(screenshotDir, filename),
+            fullPage: true,
+          });
+
+          testInfo.annotations.push({
+            type: 'testrail_attachment',
+            description: `./e2e/test-results/screenshots/${filename}`,
+          });
+        } catch (_e) {
+          // Page may already be closed
+        }
+      }
+    }
+
     // Cleanup
     await context.close();
   },
@@ -210,37 +245,3 @@ export const test = base.extend<ExtensionFixtures>({
 
 // Re-export expect from Playwright
 export { expect } from '@playwright/test';
-
-/**
- * Test hook to take screenshots on failure
- */
-test.afterEach(async ({ context }, testInfo) => {
-  if (testInfo.status !== testInfo.expectedStatus) {
-    // Take screenshot on failure
-    const pages = context.pages();
-    for (let i = 0; i < pages.length; i++) {
-      const page = pages[i];
-      const screenshotDir = path.resolve(
-        __dirname,
-        '..',
-        'test-results',
-        'screenshots',
-      );
-
-      if (!fs.existsSync(screenshotDir)) {
-        fs.mkdirSync(screenshotDir, { recursive: true });
-      }
-
-      const filename = `${testInfo.title.replace(/[^a-z0-9]/gi, '_')}-page${i}-${Date.now()}.png`;
-      await page.screenshot({
-        path: path.join(screenshotDir, filename),
-        fullPage: true,
-      });
-
-      testInfo.annotations.push({
-        type: 'testrail_attachment',
-        description: `./e2e/test-results/screenshots/${filename}`,
-      });
-    }
-  }
-});

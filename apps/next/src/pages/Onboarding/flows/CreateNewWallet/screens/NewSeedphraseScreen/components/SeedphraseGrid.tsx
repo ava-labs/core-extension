@@ -7,11 +7,17 @@ type SeedphraseGridProps = {
 };
 
 export const SeedphraseGrid: FC<SeedphraseGridProps> = ({ phrase }) => {
-  const theme = useTheme();
   const words = phrase.split(/\s+/);
-
+  const theme = useTheme();
   return (
-    <Paper sx={{ px: 3, borderRadius: theme.shape.mediumBorderRadius }}>
+    <Paper
+      elevation={0}
+      sx={{
+        px: 3,
+        borderRadius: theme.shape.mediumBorderRadius,
+        backgroundColor: 'background.navBarItem',
+      }}
+    >
       <Grid2 container spacing={1.5} component="ol">
         {Array.from({ length: words.length }, (_, i) => {
           const isFakeBeforeReal = Math.random() < 0.5;
@@ -28,6 +34,7 @@ export const SeedphraseGrid: FC<SeedphraseGridProps> = ({ phrase }) => {
                 variant="body2"
                 color="text.primary"
                 data-testid="seedphrase-word"
+                fontWeight={500}
               >
                 {words[i]}
               </Typography>

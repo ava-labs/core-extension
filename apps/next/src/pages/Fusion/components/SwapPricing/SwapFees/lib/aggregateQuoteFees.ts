@@ -1,14 +1,26 @@
 import { bigintToBig } from '@core/common';
 import { AggregatedFees, TokenAmount } from '../types';
 import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';
-import { lookupTokenByAssetInfo } from '@/pages/Fusion/lib/lookupTokenByAssetInfo';
+import {
+  AssetLike,
+  lookupTokenByAssetInfo,
+} from '@/pages/Fusion/lib/lookupTokenByAssetInfo';
 import { Quote } from '@avalabs/fusion-sdk';
+
+// Minimal fee shape the aggregator needs — shared by quote fees and any extra
+// fees (e.g. the recurring schedule fee) folded into the same breakdown.
+export type AggregatableFee = {
+  chainId: string;
+  token: AssetLike;
+  amount: bigint;
+};
 
 export const aggregateQuoteFees = (
   quote: Quote,
   tokenLookup: Record<string, FungibleTokenBalance[]>,
+  extraFees: ReadonlyArray<AggregatableFee> = [],
 ) =>
-  quote.fees.reduce(
+  [...quote.fees, ...extraFees].reduce(
     (acc, fee) => {
       const assetInfo = lookupTokenByAssetInfo(
         tokenLookup[fee.chainId] ?? [],

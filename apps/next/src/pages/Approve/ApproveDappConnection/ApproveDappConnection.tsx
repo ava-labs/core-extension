@@ -88,7 +88,6 @@ export const ApproveDappConnection: FC = () => {
         <DappAccountSelector
           action={action}
           activeAccount={activeAccount}
-          permissions={permissions}
           updateAction={updateAction}
           cancelHandler={cancelHandler}
           error={error}

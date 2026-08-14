@@ -8,7 +8,7 @@ import {
   JsonRpcRequestParams,
   NetworkWithCaipId,
 } from '@core/types';
-import { canSkipApproval } from '@core/common';
+import { canSkipApproval, isHypercoreNetwork } from '@core/common';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
@@ -56,6 +56,18 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler<
       Number(targetChainID),
     );
     const currentActiveNetwork = await this.networkService.getNetwork(scope);
+
+    // HyperCore is display-only (synthetic, no RPC), so dApps cannot switch to
+    // and transact on it despite it being modeled as an EVM network.
+    if (isHypercoreNetwork(supportedNetwork)) {
+      return {
+        ...request,
+        error: ethErrors.provider.custom({
+          code: 4901,
+          message: `Chain ID "${targetChainID}" is not available for dApp connections.`,
+        }),
+      };
+    }
 
     // If switch ethereum network is called, we need to verify the wallet
     // is not currently on the requested network. If it is, we just need to return early

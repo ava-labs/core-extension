@@ -21,6 +21,7 @@ export enum ExtensionRequest {
   NETWORK_REMOVE_CUSTOM = 'network_removeCustomNetwork',
   NETWORKS_GET_STATE = 'networks_get_state',
   NETWORK_UPDATE_DEFAULT = 'network_update_default',
+  NETWORK_UPDATE_AVALANCHE_DEVNET_MODE = 'network_update_avalanche_devnet_mode',
 
   ACCOUNT_GET_ACCOUNTS = 'account_get',
   ACCOUNT_SELECT = 'account_select',
@@ -62,6 +63,7 @@ export enum ExtensionRequest {
   ACTION_UPDATE_TX_DATA = 'action_updateTxData',
 
   PERMISSIONS_REVOKE_ADDRESS_ACCESS_FOR_DOMAIN = 'permissions_revokeAddressAccessForDomain',
+  PERMISSIONS_REVOKE_ADDRESS_ACCESS_FOR_DOMAINS = 'permissions_revokeAddressAccessForDomains',
   PERMISSIONS_GET_PERMISSIONS = 'permissions_getPermissionsForDomain',
   PERMISSIONS_GET_ALL_PERMISSIONS = 'permissions_getAllPermissions',
 
@@ -147,6 +149,8 @@ export enum ExtensionRequest {
   CURRENCIES_GET_EXCHANGE_RATES = 'currencies_get_exchange_rates',
 
   GET_NETWORK_TOKENS = 'get_network_tokens',
+  GET_MARKR_TARGET_CHAIN_ASSETS = 'get_markr_target_chain_assets',
+  HYPERCORE_GET_WITHDRAWABLE = 'hypercore_get_withdrawable',
   LOOKUP_TOKEN = 'lookup_token',
 
   WALLET_CONNECT_ESTABLISH_REQUIRED_SESSION = 'wallet_connect_establish_required_session',
@@ -191,6 +195,7 @@ export enum ExtensionRequest {
   NOTIFICATION_SUBSCRIBE = 'notification_subscribe',
   NOTIFICATION_UNSUBSCRIBE = 'notification_unsubscribe',
   NOTIFICATION_GET_SUBSCRIPTIONS = 'notification_get_subscriptions',
+  NOTIFICATION_DISCOVER_RECURRING_SWAPS = 'notification_discover_recurring_swaps',
 
   NOTIFICATION_CENTER_GET_LIST = 'notification_center_get_list',
   NOTIFICATION_CENTER_MARK_AS_READ = 'notification_center_mark_as_read',

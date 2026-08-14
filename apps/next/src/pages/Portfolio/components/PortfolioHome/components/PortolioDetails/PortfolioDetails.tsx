@@ -17,7 +17,7 @@ type TabConfig = {
 const tabConfig: Record<TabName, TabConfig> = {
   assets: {
     TabComponent: AssetsTab,
-    balancesFor: [TokenType.NATIVE, TokenType.ERC20],
+    balancesFor: [TokenType.NATIVE, TokenType.ERC20, TokenType.HYPERCORE_SPOT],
   },
   collectibles: {
     TabComponent: CollectiblesTab,
@@ -31,7 +31,6 @@ export const PortfolioDetails: FC<Props> = ({ tab }) => {
   const { TabComponent, balancesFor } = tabConfig[tab];
   useLiveBalance(balancesFor);
   const { avaxNetworkC } = useNetworkContext();
-
   return (
     <Stack gap="4px" flexGrow={1}>
       <PortfolioActionButtons network={avaxNetworkC} />

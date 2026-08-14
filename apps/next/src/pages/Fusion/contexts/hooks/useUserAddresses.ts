@@ -2,7 +2,7 @@ import { Chain } from '@avalabs/fusion-sdk';
 
 import { Account } from '@core/types';
 import { useNetworkContext } from '@core/ui';
-import { getAddressForChain } from '@core/common';
+import { getAddressForChain, fromFusionCaipId } from '@core/common';
 
 type UserAddresses = {
   fromAddress: string | undefined;
@@ -17,11 +17,17 @@ export const useUserAddresses = (
   const { getNetwork } = useNetworkContext();
 
   const fromAddress = sourceChain
-    ? getAddressForChain(getNetwork(sourceChain.chainId), account)
+    ? getAddressForChain(
+        getNetwork(fromFusionCaipId(sourceChain.chainId)),
+        account,
+      )
     : undefined;
 
   const toAddress = targetChain
-    ? getAddressForChain(getNetwork(targetChain.chainId), account)
+    ? getAddressForChain(
+        getNetwork(fromFusionCaipId(targetChain.chainId)),
+        account,
+      )
     : undefined;
 
   return {

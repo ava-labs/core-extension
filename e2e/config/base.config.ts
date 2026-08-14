@@ -50,6 +50,7 @@ const fullyParallel = !process.env.CI;
 
 export const baseConfig: PlaywrightTestConfig = {
   globalSetup: path.resolve(__dirname, 'global-setup.ts'),
+  globalTeardown: path.resolve(__dirname, 'global-teardown.ts'),
   testDir: path.resolve(__dirname, '..', 'tests'),
   testMatch: '**/*.spec.ts',
   outputDir: path.resolve(__dirname, '..', 'test-results'),

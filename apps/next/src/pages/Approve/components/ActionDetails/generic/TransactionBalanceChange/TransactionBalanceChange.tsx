@@ -34,7 +34,7 @@ export const TransactionBalanceChange: FC<TransactionBalanceChangeProps> = ({
   return (
     <>
       {hasSomeBalanceChangeInfo && (
-        <DetailsSection>
+        <DetailsSection data-testid="approval-balance-change">
           {outs.map(({ token, items }) =>
             items.length <= 1 ? (
               <SingleTokenBalanceChange

@@ -112,9 +112,7 @@ export function AnalyticsContextProvider({ children }: PropsWithChildren) {
     )
       .pipe(first())
       .subscribe((ids) => {
-        if (!ids) {
-          setIsInitialized(!!ids);
-        }
+        setIsInitialized(Boolean(ids));
         capture('WindowOpened', {
           path: window.location.pathname,
         });

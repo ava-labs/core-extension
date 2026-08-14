@@ -41,34 +41,37 @@ export const Concierge = () => {
           overflow: 'hidden',
         }}
       >
-        <Stack
-          sx={{
-            backgroundImage: 'url(/images/ai-prompt-bg.svg)',
-            backgroundSize: 'cover',
-            position: 'absolute',
-            bottom: '-300px',
-            left: '-200px',
-            width: '600px',
-            height: '600px',
-            animation: `15s ${promptBackgroundAnimation} ease-in infinite`,
-          }}
-        />
         <Page
           title={t('Core Concierge')}
           showContentTitle={false}
           withBackButton
           px={0}
+          containerProps={{
+            mt: 0,
+            pb: 0,
+          }}
         >
+          <Stack
+            sx={{
+              backgroundImage: 'url(/images/ai-prompt-bg.svg)',
+              backgroundSize: 'cover',
+              position: 'fixed',
+              bottom: '-300px',
+              left: '-200px',
+              zIndex: 0,
+              width: '600px',
+              height: '600px',
+              animation: `15s ${promptBackgroundAnimation} ease-in infinite`,
+            }}
+          />
           <Stack
             sx={{
               height: '100%',
               width: '100%',
+              zIndex: 10,
             }}
           >
-            <Scrollbars
-              ref={scrollbarRef}
-              style={{ height: '100%', width: '100%' }}
-            >
+            <Stack style={{ height: '100%', width: '100%' }}>
               <Stack
                 sx={{ p: 1.5, minHeight: '100%', justifyContent: 'flex-end' }}
               >
@@ -93,8 +96,19 @@ export const Concierge = () => {
                 })}
                 {isTyping && <TypingAvatar />}
               </Stack>
-            </Scrollbars>
-            <Stack sx={{ pt: 1.5, px: 1.5 }}>
+            </Stack>
+            <Stack
+              sx={{
+                pt: 1.5,
+                pb: 1.5,
+                px: 1.5,
+                position: 'sticky',
+                bottom: 0,
+                zIndex: 10,
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(30px)',
+              }}
+            >
               <UserInput
                 input={input}
                 setInput={setInput}

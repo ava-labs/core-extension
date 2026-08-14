@@ -21,10 +21,10 @@ import { GetNativeBalanceHandler } from '../../services/balances/handlers/getNat
 import { GetTokenPriceHandler } from '../../services/balances/handlers/getTokenPrice';
 import { GetTokenPriceByAddressHandler } from '../../services/balances/handlers/getTokenPriceByAddress';
 import { GetTotalBalanceForWalletHandler } from '../../services/balances/handlers/getTotalBalanceForWallet/getTotalBalanceForWallet';
-import { RefreshNftMetadataHandler } from '../../services/balances/handlers/refreshNftMetadata';
 import { StartBalancesPollingHandler } from '../../services/balances/handlers/startBalancesPolling';
 import { StopBalancesPollingHandler } from '../../services/balances/handlers/stopBalancesPolling';
 import { UpdateBalancesForNetworkHandler } from '../../services/balances/handlers/updateBalancesForNetwork';
+import { GetHypercoreWithdrawableHandler } from '../../services/balances/handlers/getHypercoreWithdrawable';
 import { ContactsUpdatedEvents } from '../../services/contacts/events/contactsUpdatedEvent';
 import { CreateContactHandler } from '../../services/contacts/handlers/createContact';
 import { GetContactsHandler } from '../../services/contacts/handlers/getContacts';
@@ -73,6 +73,7 @@ import { RemoveCustomNetworkHandler } from '../../services/network/handlers/remo
 import { SaveCustomNetworkHandler } from '../../services/network/handlers/saveCustomNetwork';
 import { SetActiveNetworkHandler } from '../../services/network/handlers/setActiveNetwork';
 import { SetDevelopermodeNetworkHandler } from '../../services/network/handlers/setDeveloperMode';
+import { UpdateAvalancheDevnetModeHandler } from '../../services/network/handlers/updateAvalancheDevnetMode';
 import { UpdateDefaultNetworkHandler } from '../../services/network/handlers/updateDefaultNetwork';
 import { GetNetworkFeeHandler } from '../../services/networkFee/handlers/getNetworkFee';
 import { OnboardingUpdatedEvents } from '../../services/onboarding/events/onboardingUpdatedEvent';
@@ -86,6 +87,7 @@ import { PermissionStateUpdateEvents } from '../../services/permissions/events/p
 import { GetAllPermissionsHandler } from '../../services/permissions/handlers/getAllPermissions';
 import { GetPermissionsForDomainHandler } from '../../services/permissions/handlers/getPermissionsForDomain';
 import { RevokeAddressPermissionsForDomainHandler } from '../../services/permissions/handlers/revokeAddressPermissionsForDomain';
+import { RevokeAddressPermissionsForDomainsHandler } from '../../services/permissions/handlers/revokeAddressPermissionsForDomains';
 import { WalletUpdatedEvents } from '../../services/secrets/events/WalletUpdatedEvent';
 import { SeedlessMfaEvents } from '../../services/seedless/events/seedlessMfaEvents';
 import { SeedlessTokenEvents } from '../../services/seedless/events/seedlessTokenEvents';
@@ -116,6 +118,7 @@ import { UpdateShowNoBalanceHandler } from '../../services/settings/handlers/upd
 import { UpdateThemeHandler } from '../../services/settings/handlers/updateTheme';
 import { UpdateTokensVisiblityHandler } from '../../services/settings/handlers/updateTokensVisibility';
 import { ResetExtensionStateHandler } from '../../services/storage/handlers/resetExtensionState';
+import { GetMarkrTargetChainAssetsHandler } from '../../services/tokens/handlers/getMarkrTargetChainAssets';
 import { GetTokensListHandler } from '../../services/tokens/handlers/getTokenList';
 import { CheckIfWalletExists } from '~/services/wallet/handlers/checkIfWalletExists';
 import { GetBtcWalletPolicyDetails } from '../../services/wallet/handlers/getBtcWalletPolicyDetails';
@@ -139,6 +142,7 @@ import { GetNotificationSubscriptions } from '../../services/notifications/handl
 import { MarkAllNotificationsAsRead } from '../../services/notifications/handlers/markAllNotificationsAsRead';
 import { MarkNotificationAsRead } from '../../services/notifications/handlers/markNotificationAsRead';
 import { SubscribeToNotification } from '../../services/notifications/handlers/subscribe';
+import { DiscoverRecurringSwaps } from '../../services/notifications/handlers/discoverRecurringSwaps';
 import { UnsubscribeFromNotification } from '../../services/notifications/handlers/unsubscribe';
 import { AppendSolanaPublicKeysHandler } from '../../services/secrets/handlers/appendSolanaPublicKeys';
 import { DeriveMissingKeysHandler } from '../../services/seedless/handlers/deriveMissingKeys';
@@ -189,6 +193,10 @@ import { SetBridgeDevEnvHandler } from '~/services/settings/handlers/setBridgeDe
     token: 'ExtensionRequestHandler',
     useToken: UpdateBalancesForNetworkHandler,
   },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetHypercoreWithdrawableHandler,
+  },
   { token: 'ExtensionRequestHandler', useToken: GetBalancesHandler },
   { token: 'ExtensionRequestHandler', useToken: CreateContactHandler },
   { token: 'ExtensionRequestHandler', useToken: GetContactsHandler },
@@ -222,6 +230,10 @@ import { SetBridgeDevEnvHandler } from '~/services/settings/handlers/setBridgeDe
   },
   {
     token: 'ExtensionRequestHandler',
+    useToken: UpdateAvalancheDevnetModeHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
     useToken: EnableNetworkHandler,
   },
   {
@@ -250,6 +262,10 @@ import { SetBridgeDevEnvHandler } from '~/services/settings/handlers/setBridgeDe
   {
     token: 'ExtensionRequestHandler',
     useToken: RevokeAddressPermissionsForDomainHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: RevokeAddressPermissionsForDomainsHandler,
   },
   { token: 'ExtensionRequestHandler', useToken: GetAllPermissionsHandler },
   {
@@ -308,6 +324,10 @@ import { SetBridgeDevEnvHandler } from '~/services/settings/handlers/setBridgeDe
   {
     token: 'ExtensionRequestHandler',
     useToken: GetTokensListHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetMarkrTargetChainAssetsHandler,
   },
   {
     token: 'ExtensionRequestHandler',
@@ -387,10 +407,6 @@ import { SetBridgeDevEnvHandler } from '~/services/settings/handlers/setBridgeDe
   },
   {
     token: 'ExtensionRequestHandler',
-    useToken: RefreshNftMetadataHandler,
-  },
-  {
-    token: 'ExtensionRequestHandler',
     useToken: StartBalancesPollingHandler,
   },
   {
@@ -448,6 +464,10 @@ import { SetBridgeDevEnvHandler } from '~/services/settings/handlers/setBridgeDe
   {
     token: 'ExtensionRequestHandler',
     useToken: GetNotificationSubscriptions,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: DiscoverRecurringSwaps,
   },
   {
     token: 'ExtensionRequestHandler',

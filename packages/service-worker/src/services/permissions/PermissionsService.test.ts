@@ -403,6 +403,123 @@ describe('background/services/permissions/PermissionsService.ts', () => {
     });
   });
 
+  describe('revokePermissionsForDomains', () => {
+    const addressA = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+    const addressB = '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+    const domain1 = 'site1.example';
+    const domain2 = 'site2.example';
+
+    const twoDomainsPermissions = {
+      [domain1]: {
+        domain: domain1,
+        accounts: { [addressA]: NetworkVMType.EVM },
+      },
+      [domain2]: {
+        domain: domain2,
+        accounts: {
+          [addressA]: NetworkVMType.EVM,
+          [addressB]: NetworkVMType.EVM,
+        },
+      },
+    };
+
+    it('removes the given addresses from all specified domains in one storage write', async () => {
+      const permissionService = new PermissionsService(storageService);
+
+      (storageService.load as jest.Mock).mockResolvedValue({
+        permissions: twoDomainsPermissions,
+      });
+
+      await permissionService.revokePermissionsForDomains(
+        [domain1, domain2],
+        [addressA],
+      );
+
+      expect(storageService.save).toHaveBeenCalledTimes(1);
+      const saved = (storageService.save as jest.Mock).mock.calls[0][1];
+      expect(saved.permissions[domain1]).toBeUndefined();
+      expect(saved.permissions[domain2]?.accounts).not.toHaveProperty(addressA);
+      expect(saved.permissions[domain2]?.accounts).toHaveProperty(addressB);
+    });
+
+    it('removes a domain entirely when no accounts remain', async () => {
+      const permissionService = new PermissionsService(storageService);
+
+      (storageService.load as jest.Mock).mockResolvedValue({
+        permissions: twoDomainsPermissions,
+      });
+
+      await permissionService.revokePermissionsForDomains(
+        [domain1, domain2],
+        [addressA, addressB],
+      );
+
+      expect(storageService.save).toHaveBeenCalledTimes(1);
+      const saved = (storageService.save as jest.Mock).mock.calls[0][1];
+      expect(saved.permissions[domain1]).toBeUndefined();
+      expect(saved.permissions[domain2]).toBeUndefined();
+    });
+
+    it('skips domains that are not in permissions', async () => {
+      const permissionService = new PermissionsService(storageService);
+
+      (storageService.load as jest.Mock).mockResolvedValue({
+        permissions: twoDomainsPermissions,
+      });
+
+      await permissionService.revokePermissionsForDomains(
+        ['unknown.example', domain1],
+        [addressA],
+      );
+
+      expect(storageService.save).toHaveBeenCalledTimes(1);
+      const saved = (storageService.save as jest.Mock).mock.calls[0][1];
+      expect(saved.permissions[domain1]).toBeUndefined();
+      expect(saved.permissions[domain2]).toEqual(
+        twoDomainsPermissions[domain2],
+      );
+    });
+
+    it('does nothing when given an empty domain list', async () => {
+      const permissionService = new PermissionsService(storageService);
+
+      (storageService.load as jest.Mock).mockResolvedValue({
+        permissions: twoDomainsPermissions,
+      });
+
+      await permissionService.revokePermissionsForDomains([], [addressA]);
+
+      expect(storageService.save).not.toHaveBeenCalled();
+    });
+
+    it('emits an update after revoking', async () => {
+      const permissionService = new PermissionsService(storageService);
+
+      (storageService.load as jest.Mock).mockResolvedValue({
+        permissions: twoDomainsPermissions,
+      });
+
+      await permissionService.getPermissions();
+      const eventListener = jest.fn();
+      permissionService.addListener(
+        PermissionEvents.PERMISSIONS_STATE_UPDATE,
+        eventListener,
+      );
+
+      await permissionService.revokePermissionsForDomains(
+        [domain1],
+        [addressA],
+      );
+
+      expect(eventListener).toHaveBeenCalledTimes(1);
+      const [emittedPermissions] = eventListener.mock.calls[0];
+      expect(emittedPermissions[domain1]).toBeUndefined();
+      expect(emittedPermissions[domain2]).toEqual(
+        twoDomainsPermissions[domain2],
+      );
+    });
+  });
+
   describe('grantPermission', () => {
     it('adds domain if missing', async () => {
       const permissionService = new PermissionsService(storageService);

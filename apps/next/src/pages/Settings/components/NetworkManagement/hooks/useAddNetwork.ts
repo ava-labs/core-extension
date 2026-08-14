@@ -24,7 +24,7 @@ const defaultNetworkValues: Network & AdvancedNetworkConfig = {
 };
 
 export const useAddNetwork = () => {
-  const { saveCustomNetwork } = useNetworkContext();
+  const { saveCustomNetwork, isDeveloperMode } = useNetworkContext();
   const { capture } = useAnalyticsContext();
 
   const [network, setNetwork] = useState<Network & AdvancedNetworkConfig>(
@@ -36,9 +36,12 @@ export const useAddNetwork = () => {
     setNetwork(defaultNetworkValues);
   }, [setNetwork]);
   const submit = useCallback(async () => {
-    await saveCustomNetwork(network);
+    await saveCustomNetwork({
+      ...network,
+      isTestnet: isDeveloperMode ?? false,
+    });
     capture('CustomNetworkAdded');
-  }, [network, saveCustomNetwork, capture]);
+  }, [network, saveCustomNetwork, capture, isDeveloperMode]);
 
   const fieldInfo: NetworkFormFieldInfo = useMemo(() => {
     const dynamicFields: DynamicFields = {

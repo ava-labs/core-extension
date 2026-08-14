@@ -1,0 +1,53 @@
+{
+  "pair": {
+    "from": {
+      "id": "SPL:9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump:4503599627369476",
+      "symbol": "Fartcoin",
+      "chain": "solana",
+      "chainId": 4503599627369476,
+      "decimals": 6,
+      "address": "9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump"
+    },
+    "to": {
+      "id": "NATIVE:SOL:4503599627369476",
+      "symbol": "SOL",
+      "chain": "solana",
+      "chainId": 4503599627369476,
+      "decimals": 9
+    },
+    "amount": "1",
+    "fixture": "fartcoin-sol",
+    "chain": "solana"
+  },
+  "quote": [
+    {
+      "uuid": "7ddd0532-eee6-449a-91db-bf52d0fcbc43",
+      "aggregator": {
+        "id": "jupiter",
+        "name": "Jupiter",
+        "logo_url": "https://markr-token-images.s3.eu-central-1.amazonaws.com/aggregators/jupiter_128.png"
+      },
+      "chainId": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+      "tokenIn": "9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump",
+      "tokenOut": "11111111111111111111111111111111",
+      "amountIn": "100000",
+      "amountOut": "202508",
+      "gasEstimate": 5000,
+      "expiredAt": 1783358497,
+      "tokenInDecimals": 6,
+      "tokenOutDecimals": 9,
+      "recommendedSlippage": 100
+    },
+    {
+      "done": true
+    }
+  ],
+  "jupiterSwapTx": {
+    "swapTransaction": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDBBQWOH6Ccz5wKuERRESRdSxWSxFR4noJHc+VxXxNFKIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMGRm/lIRcy/+ytunLDm+e8jOW7xfcSayxDmzpAAAAAbQreB/SHw7Sgz3BaIaqm1sHEzIiPxJsunRBHwzqSVIYBAgIAAQwCAAAAoIYBAAAAAAA=",
+    "simulationError": null
+  },
+  "swapTx": {
+    "chainType": "svm",
+    "swapTransaction": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQAGDtJGcCFFUCUzrQJ5Ll5huPSaE6BI8whShsdOzu7alwLPFJ6YBtn028ZlXLkwi1+jjvpY3bc7yKufDsKU0FldfCN3BHo4HDkVOPejukK6/oQdRT8m1S5xpmRD9q8e3XSK/awa49CH8pI3BiVI9wxMBK7CqZVpSYbny7RnUgYh04Yw0jR3ucQ0MSCjWuGfA/ldEKGBWEGe2Sr24/MMNEM82Xzp1EiLB/45mxqRVeWCG2l9QwFsCjxPO7yir7QdAWMwV/q/NM1fTQ5w1YQS27LiNn9shJPRq/hIRty100nmy4zb+8Ghqnf/1WuCfdBmLigQ0FEYmlCLfYtpRyR94SH+G0wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMGRm/lIRcy/+ytunLDm+e8jOW7xfcSayxDmzpAAAAABHnVW/IxwG7udMVuzmgVB/2xst6j9I5RArHNola8E48G3fbh12Whk9nL4UbO63msHLSF7V9bN5E6jPWFfv8AqYyXJY9OJInxuz0QKRSODYMLWhOZ2v8QhASOe9jb6fhZtD/6J/XX9kp0wJsfKVh53ksJqzbfyd1RSzIap7OM5ejRcN6uf9XHSiEKdTw2zOBSOhNFLsMRIXoqiZ9D+MH3agUJAAUCFU0DAAkACQOZDQcAAAAAAAwGAAYAGggLAQEKKAsDAAEHAgYeGgQKDQocFBMdFRYHBR4fAwsbIBwYFxAZDxIDBQIRDgsowSCbM0HWnIEFAgAAAIJkAAEwZAECoIYBAAAAAAAMFwMAAAAAAGQAVQsDBgAAAQkCD426La5P7U2ZI5iKXZ5DR8PMNGlo1ELnW1nSjqdO0g8FETY4EzIDFBAzP4jgucHA67gwoGRQUNSY1+0bc/8c2mylyqkDcAW2megEjoqSkAcSJI+MkQWU"
+  }
+}

@@ -41,5 +41,4 @@ export const BTCB_ADDRESS_MAINNET =
 export const BTCB_ADDRESS_TESTNET =
   '0x71ba2b8dc58e7ca1b6d81a60729e31aefa37ae02' as const;
 
-export const SOLANA_TO_EVM_NATIVE_FEE_MULTIPLIER = 12;
 export const MAX_AMOUNT_ADDITIONAL_NATIVE_FEE_BUFFER = 0.2;

@@ -11,6 +11,7 @@ import { ethErrors } from 'eth-rpc-errors';
 
 import { ModuleManager } from '../../vmModules/ModuleManager';
 import { Middleware } from './models';
+import { getKnownOrWhitelistedContext } from './utils/getKnownOrWhitelistedContext';
 
 export function DAppRequestHandlerMiddleware(
   handlers: DAppRequestHandler[],
@@ -82,9 +83,10 @@ export function DAppRequestHandlerMiddleware(
             method: context.request.params.request.method,
             params: context.request.params.request.params,
             // Do not pass context from unknown sources.
-            // This field is for our internal use only (only used with extension's direct connection)
+            // This field is for our internal use only (only used with extension's own & Core Web's connection)
             context: {
               account: context.account,
+              ...getKnownOrWhitelistedContext(context),
             },
           },
           context.network,

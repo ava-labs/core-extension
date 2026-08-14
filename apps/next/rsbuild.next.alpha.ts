@@ -1,10 +1,14 @@
 import { defineConfig, mergeRsbuildConfig } from '@rsbuild/core';
 import { CopyRspackPlugin } from '@rspack/core';
-import commonConfig from './rsbuild.next.common.ts';
+import buildCommonConfig from './rsbuild.next.common.ts';
 import { transformManifestFiles } from '../../build-scripts/manifestHelpers.js';
 import { getEnvVars } from '../../build-scripts/getEnvVars.ts';
 
 const skipSourceMap = process.env.NO_SOURCE_MAPS === 'true';
+
+// Alpha builds ship through CI alongside prod, so they regenerate the policy
+// for the same drift-detection reason.
+const commonConfig = buildCommonConfig({ generateLavaMoatPolicy: true });
 
 export default defineConfig((...args) =>
   mergeRsbuildConfig(commonConfig(...args), {

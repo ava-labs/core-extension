@@ -119,7 +119,7 @@ export function CollectiblesTab() {
   }, []);
 
   return (
-    <Stack gap={1.25} height={1}>
+    <Stack gap={1.25} height={1} data-testid="collectibles-tab">
       <Stack
         direction="row"
         alignItems="center"

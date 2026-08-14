@@ -31,6 +31,7 @@ export class NetworksUpdatedEvents implements ExtensionEventEmitter {
           ),
           customNetworks: this.networkService.customNetworks,
           enabledNetworks: await this.networkService.getEnabledNetworks(),
+          avalancheDevnetMode: this.networkService.avalancheDevnetMode,
         },
       });
     });

@@ -38,6 +38,7 @@ export const AddAccountButton: FC = () => {
           variant="contained"
           color="secondary"
           size="small"
+          data-testid="add-account-button"
           disabled={!canAddNewAccount}
           onClick={() =>
             addAccount()

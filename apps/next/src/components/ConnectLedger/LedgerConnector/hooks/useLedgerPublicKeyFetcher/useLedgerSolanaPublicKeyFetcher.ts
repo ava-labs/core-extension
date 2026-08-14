@@ -73,6 +73,13 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
       } catch (err) {
         console.error(err);
         popDeviceSelection();
+        // Surface 'retrieval-failed' on the hook so the connector stops
+        // seeing status='ready' and the auto-fetch effect doesn't loop.
+        // The dedicated error type lets the hook's auto-connect effect
+        // distinguish a retrieval failure (must not auto-recover) from a
+        // transport/app-switch error (which can).
+        setStatus('error');
+        setError('retrieval-failed');
         throw err;
       }
     },
@@ -81,7 +88,13 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
 
   // Attempt to automatically connect as soon as we establish the transport.
   useEffect(() => {
-    if (error === 'duplicated-wallet' || status === 'needs-user-gesture') {
+    // Same guard as the Avalanche fetcher: never re-flip status back to
+    // 'ready' from the SOLANA branch below when a retrieval has failed.
+    if (
+      error === 'duplicated-wallet' ||
+      error === 'retrieval-failed' ||
+      status === 'needs-user-gesture'
+    ) {
       return;
     }
 
@@ -147,6 +160,7 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     try {
       await popDeviceSelection();
       await initLedgerTransport();
+      setError(undefined);
       setStatus('waiting');
     } catch {
       setStatus('error');

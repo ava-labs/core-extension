@@ -131,9 +131,18 @@ export const loadWalletSnapshot = async (
       }
       console.log(`Using extension ID: ${extensionId}`);
 
-      // Create a new page and navigate to the extension popup
+      // Create a new page and navigate to the extension's home page.
+      //
+      // We intentionally use home.html (not popup.html) here: on a fresh, not-
+      // yet-onboarded profile the popup's OnboardingProvider force-redirects to
+      // a home.html tab and calls window.close() on itself as soon as the
+      // service worker reports `isOnBoarded: false`. That self-close races the
+      // snapshot write below — on fast machines the popup closes first and the
+      // page-closed error is thrown, while slow/CI runs happen to win the race.
+      // home.html sets `isHome`, which skips that redirect entirely, so the page
+      // stays alive deterministically while we seed chrome.storage.
       extensionPage = await context.newPage();
-      const extensionUrl = `chrome-extension://${extensionId}/popup.html`;
+      const extensionUrl = `chrome-extension://${extensionId}/home.html`;
       await extensionPage.goto(extensionUrl, { waitUntil: 'domcontentloaded' });
 
       // Wait for the extension to fully initialize
@@ -198,9 +207,16 @@ export const loadWalletSnapshot = async (
 
     console.log(`✓ Wallet snapshot "${snapshotName}" loaded successfully`);
 
-    // Reload the extension page to pick up the new storage data
-    console.log('Reloading extension to apply snapshot data...');
-    await extensionPage.reload({ waitUntil: 'domcontentloaded' });
+    // Load popup.html to pick up the new storage data. We seeded storage from
+    // home.html (to avoid the not-onboarded popup self-close), but now that the
+    // wallet exists the popup won't redirect — and unlike an onboarded
+    // home.html, popup.html renders the lock screen immediately, so the
+    // readiness check below resolves fast instead of timing out.
+    console.log('Loading popup to apply snapshot data...');
+    // Note: for chrome-extension:// URLs, URL.origin is "null" in Node, so build
+    // the popup URL from the host (the extension id) instead.
+    const popupUrl = `chrome-extension://${new URL(extensionPage.url()).host}/popup.html`;
+    await extensionPage.goto(popupUrl, { waitUntil: 'domcontentloaded' });
 
     // Wait for the extension to fully initialize with the new data
     // This waits for the loading spinner to disappear and actual UI to appear

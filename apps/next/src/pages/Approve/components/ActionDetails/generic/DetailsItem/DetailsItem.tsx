@@ -11,6 +11,7 @@ import { CurrencyDetail } from './items/CurrencyDetail';
 import { NodeIdDetail } from './items/NodeIdDetail';
 import { DateDetail } from './items/DateDetail';
 import { NetworkWithCaipId } from '@core/types';
+import { AddressListDetail } from './items/AddressListDetail';
 
 type DetailsItemProps = {
   item: DetailItem;
@@ -28,6 +29,9 @@ export const DetailsItem = ({ item, network }: DetailsItemProps) => {
 
     case DetailItemType.ADDRESS:
       return <AddressDetail item={item} network={network} />;
+
+    case DetailItemType.ADDRESS_LIST:
+      return <AddressListDetail item={item} />;
 
     case DetailItemType.LINK:
       return <LinkDetail item={item} />;

@@ -21,6 +21,7 @@ type EvmActionDetailsProps = Omit<ActionDetailsProps, 'network'> & {
 export const EvmActionDetails = ({
   action,
   network,
+  disableGasless,
 }: EvmActionDetailsProps) => {
   // Extract NFTs from balanceChange outs (NFTs being sent/received)
   const nftDiffs =
@@ -52,7 +53,9 @@ export const EvmActionDetails = ({
         outs={action.displayData.balanceChange?.outs ?? []}
         isSimulationSuccessful={action.displayData.isSimulationSuccessful}
       />
-      {hasTokenApprovals(action) && <EvmTokenApprovals action={action} />}
+      {hasTokenApprovals(action) && (
+        <EvmTokenApprovals action={action} network={network} />
+      )}
       {action.displayData.details.map((section) => (
         <DetailsSection key={section.title}>
           {section.items.map((item, index) => (
@@ -61,7 +64,11 @@ export const EvmActionDetails = ({
         </DetailsSection>
       ))}
       {action.displayData.networkFeeSelector && (
-        <EvmNetworkFeeWidget action={action} network={network} />
+        <EvmNetworkFeeWidget
+          action={action}
+          network={network}
+          disableGasless={disableGasless}
+        />
       )}
     </Stack>
   );

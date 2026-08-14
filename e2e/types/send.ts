@@ -12,7 +12,7 @@ export interface SendTransactionData {
   /** Search term typed into the token-select popover (defaults to tokenSymbol). */
   tokenSearchTerm?: string;
   /** Alt text on the chain badge icon used to disambiguate tokens across chains. */
-  chainBadgeAltText?: string;
+  chainBadgeAltText?: string | RegExp;
   /** Regex or string to match the chain-filter chip button in the token popover. */
   chainFilterChip?: string | RegExp;
   /** Network name shown on the approval screen. */

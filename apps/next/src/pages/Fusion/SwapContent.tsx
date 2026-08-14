@@ -1,4 +1,4 @@
-import { Stack } from '@avalabs/k2-alpine';
+import { Collapse, Stack } from '@avalabs/k2-alpine';
 
 import { LoadingScreen } from '@/components/LoadingScreen';
 
@@ -11,9 +11,17 @@ import {
 import { useFusionState } from './contexts/FusionStateContext';
 import { SwapPartnerFee } from './components/SwapPartnerFee';
 import { SwapHelperText } from './components/SwapHelperText';
+import {
+  RecurringSwapsEntryCard,
+  RecurringSwapToggleCard,
+} from './components/RecurringSwap';
+import { useIsRecurringSwapsEnabled, useRecurringSwapOrders } from './hooks';
 
 export const SwapContent = () => {
   const { status } = useFusionState();
+  const isRecurringSwapsEnabled = useIsRecurringSwapsEnabled();
+  const { scheduledCount } = useRecurringSwapOrders();
+  const hasScheduledSwaps = scheduledCount > 0;
 
   switch (status) {
     case 'loading':
@@ -25,11 +33,18 @@ export const SwapContent = () => {
     default:
       return (
         <Stack width="100%" flexGrow={1} gap={0.5}>
-          <Stack gap={1}>
+          <Stack gap={1} mb={1}>
             <SwapAccountSelect />
+            <Collapse in={isRecurringSwapsEnabled && hasScheduledSwaps}>
+              <RecurringSwapsEntryCard
+                scheduledCount={scheduledCount}
+                action="manage"
+              />
+            </Collapse>
             <SwapPair />
+            <SwapHelperText />
+            {isRecurringSwapsEnabled && <RecurringSwapToggleCard />}
           </Stack>
-          <SwapHelperText />
           <SwapSettings />
           <SwapPartnerFee />
         </Stack>

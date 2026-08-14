@@ -1,8 +1,11 @@
 import { defineConfig, mergeRsbuildConfig } from '@rsbuild/core';
-import commonConfig from './rsbuild.worker.common';
+import buildCommonConfig from './rsbuild.worker.common';
 import { getEnvVars } from '../../build-scripts/getEnvVars';
 
 const skipSourceMap = process.env.NO_SOURCE_MAPS === 'true';
+// Production builds regenerate the policy so PR CI can detect drift between
+// the checked-in policy.json and what the actual bundle would need.
+const commonConfig = buildCommonConfig({ generateLavaMoatPolicy: true });
 
 export default defineConfig((...args) =>
   mergeRsbuildConfig(commonConfig(...args), {

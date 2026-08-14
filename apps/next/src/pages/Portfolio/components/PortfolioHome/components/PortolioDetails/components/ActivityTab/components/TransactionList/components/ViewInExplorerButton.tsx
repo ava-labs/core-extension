@@ -32,6 +32,8 @@ export const ViewInExplorerButton: FC<Props> = ({
           window.open(explorerLink, '_blank', 'noreferrer');
         }}
         data-testid="explorer-link"
+        data-explorer-link={explorerLink}
+        data-chain-id={String(chainId)}
       >
         <OutboundIcon size={16} viewBox="0 0 24 24" />
       </Styled.SecondaryActionButton>

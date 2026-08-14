@@ -49,7 +49,12 @@ export const CollectiblesManagePopup = ({
     });
   }, [collectibles, searchQuery]);
   return (
-    <Dialog fullScreen={true} open={open} onClose={onClose}>
+    <Dialog
+      fullScreen={true}
+      open={open}
+      onClose={onClose}
+      sx={{ zIndex: (theme) => theme.zIndex.tooltip + 2 }}
+    >
       <Page
         title={t('Manage Collectibles')}
         withBackButton={true}
@@ -66,6 +71,7 @@ export const CollectiblesManagePopup = ({
         >
           <SearchField
             autoFocus
+            data-testid="collectibles-manage-search"
             placeholder={t('Search')}
             size="small"
             sx={{ width: '100%' }}
@@ -85,6 +91,7 @@ export const CollectiblesManagePopup = ({
                 {t('Hide unreachable collectibles')}
               </Typography>
               <Switch
+                data-testid="collectibles-hide-unreachable"
                 checked={hideUnreachable}
                 onChange={toggleHideUnreachable}
                 size="small"
@@ -102,6 +109,7 @@ export const CollectiblesManagePopup = ({
                 {t('Hide NFTs without media')}
               </Typography>
               <Switch
+                data-testid="collectibles-hide-no-media"
                 checked={hideBrokenImages}
                 onChange={() => setHideBrokenImages(!hideBrokenImages)}
                 size="small"

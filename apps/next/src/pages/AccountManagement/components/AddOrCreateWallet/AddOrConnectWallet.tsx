@@ -45,12 +45,14 @@ export const AddOrConnectWallet: FC = () => {
             primary={t('Import a private key')}
             secondary={t('Manually enter your private key to import')}
             onClick={goToImportPrivateKey}
+            testId="add-wallet-private-key-option"
           />
           <FeatureFlaggedListItem
             featureFlag={FeatureGates.ADD_WALLET_WITH_SEEDPHRASE}
             Icon={MdList}
             primary={t('Import a recovery phrase')}
             secondary={t('Enter your recovery phrase to import a wallet')}
+            testId="add-wallet-recovery-phrase-option"
             onClick={() => {
               capture('AddWalletWithSeedphrase_Clicked');
               openFullscreenTab('import-wallet/seedphrase');
@@ -62,6 +64,7 @@ export const AddOrConnectWallet: FC = () => {
             Icon={LedgerIcon}
             primary={t('Import Ledger wallet')}
             secondary={t('Use Ledger to connect')}
+            testId="add-wallet-ledger-option"
             onClick={() => {
               capture('AddWalletWithLedger_Clicked');
               openFullscreenTab('import-wallet/ledger');
@@ -83,6 +86,7 @@ export const AddOrConnectWallet: FC = () => {
             Icon={MdTopic}
             primary={t('Import a keystore file')}
             secondary={t('Upload a JSON file to import')}
+            testId="add-wallet-keystore-option"
             onClick={goToImportKeystoreFileScreen}
           />
           <FeatureFlaggedListItem

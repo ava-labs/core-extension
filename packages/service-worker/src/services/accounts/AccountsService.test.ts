@@ -473,6 +473,7 @@ describe('background/services/accounts/AccountsService', () => {
           [NetworkVMType.CoreEth]: coreEthAddress,
           [NetworkVMType.HVM]: otherEvmAddress,
           [NetworkVMType.SVM]: '',
+          [NetworkVMType.HYPERCORE]: otherEvmAddress,
         });
 
       await accountsService.refreshAddressesForAccount(

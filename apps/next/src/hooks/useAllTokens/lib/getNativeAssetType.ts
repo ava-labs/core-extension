@@ -6,13 +6,13 @@ export const getNativeAssetType = (
 ): FungibleAssetType => {
   switch (network.vmName) {
     case NetworkVMType.EVM:
-      return 'evm_erc20';
+      return 'evm_native';
     case NetworkVMType.PVM:
       return 'pvm_native';
     case NetworkVMType.AVM:
       return 'avm_native';
     case NetworkVMType.SVM:
-      return 'svm_spl';
+      return 'svm_native';
     case NetworkVMType.BITCOIN:
       return 'btc_native';
     default:

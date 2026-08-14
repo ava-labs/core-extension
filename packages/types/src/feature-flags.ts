@@ -50,6 +50,11 @@ export enum FeatureGates {
   FUSION_AVALANCHE_EVM = 'fusion-avalanche-evm',
   FUSION_LOMBARD_BTC_TO_AVA = 'fusion-lombard-btc-to-ava',
   FUSION_LOMBARD_AVA_TO_BTC = 'fusion-lombard-ava-to-btc',
+  FUSION_RECURRING_SWAPS = 'fusion-recurring-swaps',
+  FUSION_AVALANCHE_CCT = 'fusion-avalanche-cct',
+  HYPERLIQUID_FEATURE = 'hyperliquid-feature',
+  EERC_TRANSACTION_DISPLAY = 'eerc-transaction-display',
+  HYPERCORE_AS_TARGET_ON_SWAP = 'hypercore-as-target-on-swap',
 }
 
 export enum FeatureVars {

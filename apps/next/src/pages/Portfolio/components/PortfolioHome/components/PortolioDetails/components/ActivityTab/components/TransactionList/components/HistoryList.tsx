@@ -43,7 +43,7 @@ export const HistoryList: FC<Props> = ({ filter, transactionHistory }) => {
               }
             >
               {transactions.map((tx, index, self) => (
-                <Fragment key={tx.hash}>
+                <Fragment key={`${tx.hash}-${tx.timestamp}-${index}`}>
                   <TransactionItem transaction={tx} />
                   {index < self.length - 1 && (
                     <Styled.Divider variant="inset" />

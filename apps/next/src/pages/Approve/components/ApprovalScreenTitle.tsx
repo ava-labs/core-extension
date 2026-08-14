@@ -15,7 +15,9 @@ export const ApprovalScreenTitle = ({
   return (
     <>
       <Stack px={2} mt={1.5} mb={3} {...props} ref={ref}>
-        <Typography variant="h2">{title}</Typography>
+        <Typography variant="h2" data-testid="approval-title">
+          {title}
+        </Typography>
       </Stack>
       <StickyHeader isIntersecting={isIntersecting} isObserving={isObserving}>
         <OverflowingTypography variant="h6" lineHeight="1">

@@ -1,5 +1,5 @@
 import { singleton } from 'tsyringe';
-import { merge, omit, pick } from 'lodash';
+import { isEqual, merge, omit, pick } from 'lodash';
 import { OnLock, OnStorageReady } from '../../runtime/lifecycleCallbacks';
 import { StorageService } from '../storage/StorageService';
 import {
@@ -12,15 +12,16 @@ import {
   ChainList,
   ChainListWithCaipIds,
   NetworkWithCaipId,
-  SigningResult,
   FeatureFlagEvents,
   FeatureFlags,
   FeatureGates,
   NETWORKS_ENABLED_FOREVER,
+  AvalancheDevnetMode,
+  AvalancheNetworkType,
+  DEFAULT_AVALANCHE_DEVNET_MODE,
+  isAvalancheNetwork,
 } from '@core/types';
 import {
-  AVALANCHE_XP_NETWORK,
-  AVALANCHE_XP_TEST_NETWORK,
   AvalancheCaip2ChainId,
   BITCOIN_NETWORK,
   BITCOIN_TEST_NETWORK,
@@ -37,9 +38,8 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import { resolve, wait } from '@avalabs/core-utils-sdk';
 import { Network as EthersNetwork } from 'ethers';
-import { buildCoreEth, isPchainNetwork } from '@core/common';
+import { buildCoreEth } from '@core/common';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
-import { isXchainNetwork } from '@core/common';
 import { runtime } from 'webextension-polyfill';
 import {
   caipToChainId,
@@ -50,8 +50,15 @@ import {
   getProviderForNetwork,
   isSyncDomain,
 } from '@core/common';
-import { isSolanaNetwork } from '@core/common';
+import { isSolanaNetwork, isHyperliquidNetwork } from '@core/common';
 import { GlacierService } from '../glacier/GlacierService';
+import {
+  BASE_NETWORK_CONFIG_BY_TYPE,
+  getXPChainId,
+  getXPExplorerUrl,
+  LOGO_BY_ALIAS,
+} from './avalanche-config';
+import { HYPERCORE_NETWORK, HYPEREVM_NETWORK } from './hyperliquid-config';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -78,6 +85,26 @@ export class NetworkService implements OnLock, OnStorageReady {
   // config overrides applied to it).
   private _rawNetworks = this._allNetworks.cache(new ValueCache<ChainList>());
   private _uiActiveNetwork: NetworkWithCaipId | undefined;
+
+  #avalancheDevnetMode: AvalancheDevnetMode = DEFAULT_AVALANCHE_DEVNET_MODE;
+
+  get avalancheDevnetMode(): AvalancheDevnetMode {
+    return this.#avalancheDevnetMode;
+  }
+
+  set avalancheDevnetMode(next: AvalancheDevnetMode) {
+    const prev = this.#avalancheDevnetMode;
+
+    if (isEqual(prev, next)) {
+      return;
+    }
+
+    this.#avalancheDevnetMode = next;
+  }
+
+  get isAvalancheDevnetMode() {
+    return !this.isMainnet() && this.#avalancheDevnetMode.enabled;
+  }
 
   #dappScopes: Record<string, string> = {};
 
@@ -142,9 +169,8 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   #getTrackedFeatureFlags(flags: FeatureFlags): Partial<FeatureFlags> {
     const trackedFlags = [
-      FeatureGates.IN_APP_SUPPORT_P_CHAIN,
-      FeatureGates.IN_APP_SUPPORT_X_CHAIN,
       FeatureGates.SOLANA_SUPPORT,
+      FeatureGates.HYPERLIQUID_FEATURE,
     ];
 
     return Object.fromEntries(
@@ -289,6 +315,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     this._enabledNetworks = [];
     this._networkAvailability = {};
     this.#dappScopes = {};
+    this.#avalancheDevnetMode = DEFAULT_AVALANCHE_DEVNET_MODE;
   }
 
   onStorageReady(): void {
@@ -333,6 +360,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       dappScopes: this.#dappScopes,
       customNetworks: this._customNetworks,
       networkAvailability: this._networkAvailability,
+      avalancheDevnetMode: this.#avalancheDevnetMode,
     });
   }
 
@@ -341,6 +369,8 @@ export class NetworkService implements OnLock, OnStorageReady {
       await this.storageService.load<NetworkStorage>(NETWORK_STORAGE_KEY);
 
     this.#dappScopes = storedState?.dappScopes ?? {};
+    this.#avalancheDevnetMode =
+      storedState?.avalancheDevnetMode ?? DEFAULT_AVALANCHE_DEVNET_MODE;
 
     // At this point the chainlist from Glacier should already be available,
     // as it is fetched when service worker starts (so before extension is unlocked).
@@ -358,6 +388,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     this._customNetworks = storedState?.customNetworks || {};
     const fullChainlist = {
       ...chainlist,
+      ...this.#buildDevnetEntries(),
       ...this._customNetworks,
     };
 
@@ -387,50 +418,58 @@ export class NetworkService implements OnLock, OnStorageReady {
     return networkList;
   }
 
-  private _getPchainNetwork(isTestnet: boolean): NetworkWithCaipId {
-    const network = isTestnet
-      ? AVALANCHE_XP_TEST_NETWORK
-      : AVALANCHE_XP_NETWORK;
+  #buildDevnetEntries(): ChainList {
+    return {
+      [ChainId.AVALANCHE_DEVNET_P]: this._getPchainNetwork('devnet'),
+      [ChainId.AVALANCHE_DEVNET_X]: this._getXchainNetwork('devnet'),
+    };
+  }
+
+  private _getPchainNetwork(type: AvalancheNetworkType): NetworkWithCaipId {
+    const network = BASE_NETWORK_CONFIG_BY_TYPE[type];
+
+    const isDevnet = type === 'devnet';
+    const isTestnet = type === 'testnet' || isDevnet;
+
     return decorateWithCaipId({
       ...network,
+      chainName: `${network.chainName} (P-Chain)`,
       isTestnet,
+      isDevnet,
+      chainId: getXPChainId(type, 'p'),
+      logoUri: LOGO_BY_ALIAS.p,
       vmName: NetworkVMType.PVM,
-      chainId: isTestnet ? ChainId.AVALANCHE_TEST_P : ChainId.AVALANCHE_P,
-      chainName: 'Avalanche (P-Chain)',
-      logoUri:
-        'https://images.ctfassets.net/gcj8jwzm6086/42aMwoCLblHOklt6Msi6tm/1e64aa637a8cead39b2db96fe3225c18/pchain-square.svg', // from contentful
-      networkToken: {
-        ...network.networkToken,
-        logoUri:
-          'https://images.ctfassets.net/gcj8jwzm6086/5VHupNKwnDYJvqMENeV7iJ/3e4b8ff10b69bfa31e70080a4b142cd0/avalanche-avax-logo.svg', // from contentful
-      },
-      explorerUrl: isTestnet
-        ? 'https://subnets-test.avax.network/p-chain'
-        : 'https://subnets.avax.network/p-chain',
+      rpcUrl: isDevnet ? this.#avalancheDevnetMode.rpcUrl : network.rpcUrl,
+      explorerUrl: getXPExplorerUrl(
+        type,
+        'p',
+        this.#avalancheDevnetMode.explorerUrl,
+      ),
     });
   }
 
-  private _getXchainNetwork(isTestnet: boolean): NetworkWithCaipId {
-    const network = isTestnet
-      ? AVALANCHE_XP_TEST_NETWORK
-      : AVALANCHE_XP_NETWORK;
+  private _getXchainNetwork(
+    type: 'mainnet' | 'testnet' | 'devnet',
+  ): NetworkWithCaipId {
+    const network = BASE_NETWORK_CONFIG_BY_TYPE[type];
+
+    const isDevnet = type === 'devnet';
+    const isTestnet = type === 'testnet' || isDevnet;
 
     return decorateWithCaipId({
       ...network,
-      chainId: isTestnet ? ChainId.AVALANCHE_TEST_X : ChainId.AVALANCHE_X,
+      chainName: `${network.chainName} (X-Chain)`,
       isTestnet,
+      isDevnet,
+      chainId: getXPChainId(type, 'x'),
+      logoUri: LOGO_BY_ALIAS.x,
       vmName: NetworkVMType.AVM,
-      chainName: 'Avalanche (X-Chain)',
-      logoUri:
-        'https://images.ctfassets.net/gcj8jwzm6086/5xiGm7IBR6G44eeVlaWrxi/1b253c4744a3ad21a278091e3119feba/xchain-square.svg', // from contentful
-      networkToken: {
-        ...network.networkToken,
-        logoUri:
-          'https://images.ctfassets.net/gcj8jwzm6086/5VHupNKwnDYJvqMENeV7iJ/3e4b8ff10b69bfa31e70080a4b142cd0/avalanche-avax-logo.svg', // from contentful
-      },
-      explorerUrl: isTestnet
-        ? 'https://subnets-test.avax.network/x-chain'
-        : 'https://subnets.avax.network/x-chain',
+      rpcUrl: isDevnet ? this.#avalancheDevnetMode.rpcUrl : network.rpcUrl,
+      explorerUrl: getXPExplorerUrl(
+        type,
+        'x',
+        this.#avalancheDevnetMode.explorerUrl,
+      ),
     });
   }
 
@@ -451,10 +490,14 @@ export class NetworkService implements OnLock, OnStorageReady {
           ...result,
           [BITCOIN_NETWORK.chainId]: BITCOIN_NETWORK,
           [BITCOIN_TEST_NETWORK.chainId]: BITCOIN_TEST_NETWORK,
-          [ChainId.AVALANCHE_TEST_P]: this._getPchainNetwork(true),
-          [ChainId.AVALANCHE_P]: this._getPchainNetwork(false),
-          [ChainId.AVALANCHE_TEST_X]: this._getXchainNetwork(true),
-          [ChainId.AVALANCHE_X]: this._getXchainNetwork(false),
+          [ChainId.AVALANCHE_P]: this._getPchainNetwork('mainnet'),
+          [ChainId.AVALANCHE_X]: this._getXchainNetwork('mainnet'),
+          [ChainId.AVALANCHE_TEST_P]: this._getPchainNetwork('testnet'),
+          [ChainId.AVALANCHE_TEST_X]: this._getXchainNetwork('testnet'),
+          [ChainId.AVALANCHE_DEVNET_P]: this._getPchainNetwork('devnet'),
+          [ChainId.AVALANCHE_DEVNET_X]: this._getXchainNetwork('devnet'),
+          [HYPEREVM_NETWORK.chainId]: HYPEREVM_NETWORK,
+          [HYPERCORE_NETWORK.chainId]: HYPERCORE_NETWORK,
         };
       } else {
         attempt += 1;
@@ -492,22 +535,42 @@ export class NetworkService implements OnLock, OnStorageReady {
           : caipToChainId(scopeOrChainId)
         : scopeOrChainId;
 
-    const activeNetworks = await this.allNetworks.promisify();
-    return activeNetworks?.[chainId];
+    const networks = await this.allNetworks.promisify();
+    const network = networks?.[chainId];
+
+    // Feature-gated chains stay in `allNetworks` (e.g. for UI config), but
+    // callers of getNetwork should only resolve networks that are enabled.
+    if (!network || !this.isNetworkEnabledByFeatureFlags(network)) {
+      return undefined;
+    }
+
+    return network;
   }
 
   /**
    * Returns the network object for Avalanche P-Chain
    */
   getAvalancheNetworkP() {
-    return this._getPchainNetwork(!this.isMainnet());
+    return this._getPchainNetwork(
+      this.isAvalancheDevnetMode
+        ? 'devnet'
+        : this.isMainnet()
+          ? 'mainnet'
+          : 'testnet',
+    );
   }
 
   /**
    * Returns the network object for Avalanche X-Chain
    */
   getAvalancheNetworkX() {
-    return this._getXchainNetwork(!this.isMainnet());
+    return this._getXchainNetwork(
+      this.isAvalancheDevnetMode
+        ? 'devnet'
+        : this.isMainnet()
+          ? 'mainnet'
+          : 'testnet',
+    );
   }
 
   async getAvalancheNetwork() {
@@ -572,33 +635,6 @@ export class NetworkService implements OnLock, OnStorageReady {
     return (await getProviderForNetwork(network)) as BitcoinProvider;
   }
 
-  /**
-   * Sends a signed transaction if needed.
-   * @returns the transaction hash
-   */
-  async sendTransaction(
-    { txHash, signedTx }: SigningResult,
-    network: Network,
-  ): Promise<string> {
-    // Sometimes we'll receive the TX hash directly from the wallet
-    // device that signed the transaction (it's the case for WalletConnect).
-    // In that scenario, we can just return early here with the hash we received.
-    if (typeof txHash === 'string') {
-      return txHash;
-    }
-
-    const provider = await getProviderForNetwork(network);
-    if (provider instanceof JsonRpcBatchInternal) {
-      return (await provider.broadcastTransaction(signedTx)).hash;
-    }
-
-    if (provider instanceof BitcoinProvider) {
-      return await provider.issueRawTx(signedTx);
-    }
-
-    throw new Error('No provider found');
-  }
-
   async isValidRPCUrl(chainId: number, url: string): Promise<boolean> {
     const provider = new JsonRpcBatchInternal(
       {
@@ -639,15 +675,44 @@ export class NetworkService implements OnLock, OnStorageReady {
       [chainId]: customNetwork,
     };
 
+    // Auto-favorite the new network BEFORE announcing the chainlist update.
+    // `_allNetworks.dispatch` is what triggers `NETWORKS_UPDATED_EVENT` (via
+    // the `activeNetworks` signal). If we dispatched first, the event would
+    // carry a stale `enabledNetworks` list — without the new chainId — and
+    // the UI would not poll balances for it until the user toggled it
+    // manually. Enabling first makes the single subsequent event carry the
+    // correct state for every consumer (UI balances, network state, etc.).
+    await this.enableNetwork(chainId);
+
     this._allNetworks.dispatch({
       ...chainlist,
       ...this._customNetworks,
     });
 
-    // Automatically favorite the newly added network
-    await this.enableNetwork(chainId);
-
     return customNetwork;
+  }
+
+  async updateAvalancheDevnetMode(devnetMode: AvalancheDevnetMode) {
+    if (isEqual(this.#avalancheDevnetMode, devnetMode)) {
+      return;
+    }
+
+    this.#avalancheDevnetMode = devnetMode;
+
+    await this.updateNetworkState();
+
+    // Dispatch _allNetworks signal so the changes are reflected in the UI.
+    // The devnet entries embed the devnet RPC/explorer URLs at build time,
+    // so they must be rebuilt from the updated mode.
+    const chainlist = await this._rawNetworks.promisify();
+    this._allNetworks.dispatch({
+      ...chainlist,
+      ...this.#buildDevnetEntries(),
+    });
+
+    // Only dispatch the developer mode changed signal after chainlist has been rebuilt,
+    // so the services depending on it can react to the updated configs.
+    this.developerModeChanged.dispatch(this.uiActiveNetwork?.isTestnet);
   }
 
   async updateNetworkOverrides(network: NetworkOverrides) {
@@ -714,10 +779,12 @@ export class NetworkService implements OnLock, OnStorageReady {
       delete chainlist[chainID];
     }
 
-    // Update the lsit of all networks.
-    this._allNetworks.dispatch({ ...chainlist, ...this._customNetworks });
+    // Disable BEFORE announcing the chainlist update so the resulting
+    // `NETWORKS_UPDATED_EVENT` carries the correct `enabledNetworks`. See
+    // `saveCustomNetwork` for the same ordering rationale.
+    await this.disableNetwork(chainID);
 
-    // Switch to Avalanache Mainnet or Fuji if the active network was removed.
+    // Switch to Avalanche Mainnet or Fuji if the active network was removed.
     if (this.uiActiveNetwork?.chainId === chainID) {
       const network = await this.getNetwork(
         wasTestnet
@@ -730,7 +797,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       }
     }
 
-    await this.disableNetwork(chainID);
+    this._allNetworks.dispatch({ ...chainlist, ...this._customNetworks });
   }
 
   async getUnknownUsedNetwork(addressC: string) {
@@ -759,12 +826,27 @@ export class NetworkService implements OnLock, OnStorageReady {
    * networks. Otherwise we want only mainnet networks.
    */
   #filterBasedOnDevMode = (chainList?: ChainList) => {
+    const isMainnetMode = this.isMainnet();
+
     return Object.values(chainList ?? {})
-      .filter(
-        (network) =>
-          Boolean(this.uiActiveNetwork?.isTestnet) ===
-          Boolean(network.isTestnet),
-      )
+      .filter((network) => {
+        // When in mainnet mode, only show mainnet networks.
+        if (isMainnetMode) {
+          return !network.isTestnet;
+        }
+
+        // When in testnet mode with Avalanche Devnet Mode enabled,
+        // for Avalanche networks only show devnets.
+        if (this.isAvalancheDevnetMode) {
+          return isAvalancheNetwork(network)
+            ? network.isDevnet
+            : network.isTestnet;
+        }
+
+        // When in testnet mode with Avalanche Devnet Mode disabled,
+        // for Avalanche networks skip all devnets.
+        return network.isTestnet && !network.isDevnet;
+      })
       .reduce(
         (acc, network) => ({
           ...acc,
@@ -774,29 +856,29 @@ export class NetworkService implements OnLock, OnStorageReady {
       );
   };
 
+  isNetworkEnabledByFeatureFlags = (network: Network) => {
+    if (isSolanaNetwork(network)) {
+      return Boolean(
+        this.featureFlagService.featureFlags[FeatureGates.SOLANA_SUPPORT],
+      );
+    }
+
+    if (isHyperliquidNetwork(network)) {
+      return (
+        Boolean(
+          this.featureFlagService.featureFlags[
+            FeatureGates.HYPERLIQUID_FEATURE
+          ],
+        ) || Boolean(this._customNetworks[network.chainId])
+      );
+    }
+
+    return true;
+  };
+
   #filterBasedOnFeatureFlags = (chainList?: ChainList) => {
     return Object.values(chainList ?? {})
-      .filter((network) => {
-        return (
-          !isPchainNetwork(network) ||
-          this.featureFlagService.featureFlags[
-            FeatureGates.IN_APP_SUPPORT_P_CHAIN
-          ]
-        );
-      })
-      .filter((network) => {
-        return (
-          !isXchainNetwork(network) ||
-          this.featureFlagService.featureFlags[
-            FeatureGates.IN_APP_SUPPORT_X_CHAIN
-          ]
-        );
-      })
-      .filter(
-        (network) =>
-          !isSolanaNetwork(network) ||
-          this.featureFlagService.featureFlags[FeatureGates.SOLANA_SUPPORT],
-      )
+      .filter((network) => this.isNetworkEnabledByFeatureFlags(network))
       .reduce(
         (acc, network) => ({
           ...acc,
@@ -863,9 +945,28 @@ export class NetworkService implements OnLock, OnStorageReady {
     const isMainnet = this.isMainnet();
     const filteredNetworks = networkIds.filter((id) => {
       if (allNetworks) {
-        return isMainnet
-          ? !allNetworks[id]?.isTestnet
-          : allNetworks[id]?.isTestnet;
+        const network = allNetworks[id];
+
+        if (!network) {
+          return false;
+        }
+
+        // On Mainnet, skip all testnet/devnet networks.
+        if (isMainnet) {
+          return !network?.isTestnet;
+        }
+
+        // In testnet mode with Avalanche Devnet Mode enabled,
+        // skip all Avalanche networks that are not devnets.
+        if (this.isAvalancheDevnetMode) {
+          return isAvalancheNetwork(network)
+            ? network.isDevnet
+            : network.isTestnet;
+        }
+
+        // In testnet mode with Avalanche Devnet Mode disabled,
+        // only show Fuji network for Avalanche networks.
+        return network.isTestnet && !network.isDevnet;
       }
       return false;
     });

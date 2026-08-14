@@ -1,7 +1,7 @@
 import { FC, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Button, Collapse, Stack } from '@avalabs/k2-alpine';
+import { Box, Button, Collapse, Stack } from '@avalabs/k2-alpine';
 import { FailedTransfer, Transfer } from '@avalabs/fusion-sdk';
 
 import {
@@ -62,18 +62,30 @@ export const IssuedSwapDetails: FC<Props> = ({ transfer, isRead }) => {
   const swappedTokens = useSwappedTokens(transfer);
 
   return (
-    <Stack width="100%" gap={3} flexGrow={1} justifyContent="space-between">
+    <Stack
+      width="100%"
+      gap={3}
+      flexGrow={1}
+      justifyContent="space-between"
+      data-testid="fusion-cross-chain-progress-page"
+    >
       <Stack gap={1}>
         <Card noPadding>
           <Stack divider={<Styled.Divider />}>
             {swappedTokens.map(({ token, amount, tokenId, type }) => (
-              <TokemAmountInfoBox
+              <Box
                 key={tokenId}
-                token={token}
-                amount={type === 'paid' ? -amount : amount}
-                size={24}
-                badgeSize={14}
-              />
+                data-testid={`fusion-transfer-summary-row-${type}`}
+                data-token-symbol={token?.symbol}
+                data-token-chain-id={token?.coreChainId}
+              >
+                <TokemAmountInfoBox
+                  token={token}
+                  amount={type === 'paid' ? -amount : amount}
+                  size={24}
+                  badgeSize={14}
+                />
+              </Box>
             ))}
           </Stack>
         </Card>
@@ -94,6 +106,11 @@ export const IssuedSwapDetails: FC<Props> = ({ transfer, isRead }) => {
           color="primary"
           fullWidth
           onClick={goBack}
+          data-testid={
+            isConcluded
+              ? 'fusion-cross-chain-close-button'
+              : 'fusion-cross-chain-notify-button'
+          }
         >
           {isConcluded ? t('Close') : t('Notify me when it’s done')}
         </Button>

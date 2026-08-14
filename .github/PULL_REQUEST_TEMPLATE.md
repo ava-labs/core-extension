@@ -1,24 +1,24 @@
-## Description
+# Summary
 
-<!--- Describe your changes -->
-<!--- Link and relevant resources e.g JIRA ticket, Figma Designs, PRs -->
+Jira ticket:
+Figma:
 
-## Changes
+<!-- Describe the changes -->
+<!-- Link the Jira ticket and Figma designs. Prefer listing expectations vs. linking large docs like PRD -->
 
-<!--- What types of changes does your code introduce? -->
+## Notes
+
+<!-- Additional notes and context. Explain non-synchronized design, product, or architectural design decisions -->
 
 ## Testing
 
-<!--- Describe in detail how your changes were tested. -->
-<!--- Repeatable Steps to derive the desired output -->
+<!-- Add high-level testing information for the reviewer to properly QA (wallet setup, local storage overrides, etc.) -->
 
-## Screenshots:
+## Testing Instructions
 
-<!-- Additional Visual Tools like Screen recordings, Screenshots to showcase changes -->
+<!-- Add expected testing steps - be specific about whether or not you have a wallet connected, new routes, etc. -->
 
-## Checklist for the author
+## Media
 
-Tick each of them when done or if not applicable.
-
-- [ ] I've covered new/modified business logic with Jest test cases.
-- [ ] I've tested the changes myself before sending it to code review and QA.
+<!-- Add screenshots and videos of the feature/changes. Great opportunity to self-QA before sharing PR -->
+<!-- Bonus points for including a Loom demoing features and explaining code changes -->

@@ -66,6 +66,22 @@ describe('background/services/network/handlers/wallet_getEthereumChain.ts', () =
     expect(result.isTestnet).toEqual(true);
   });
 
+  it('handleAuthenticated rejects HyperCore (display-only)', async () => {
+    const networkServiceHypercore = {
+      getNetwork: () => ({ ...BITCOIN_NETWORK, chainName: 'HyperCore' }),
+    } as any;
+    const handler = new WalletGetEthereumChainHandler(networkServiceHypercore);
+    const result = await handler.handleAuthenticated(
+      buildRpcCall(getChainRequest),
+    );
+    expect(result).toEqual({
+      ...getChainRequest,
+      error: ethErrors.rpc.resourceUnavailable({
+        message: 'no active network',
+      }),
+    });
+  });
+
   it('handleUnauthenticated', async () => {
     const handler = new WalletGetEthereumChainHandler(
       networkServiceMockMainnet,

@@ -1,13 +1,14 @@
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { TransferManager, Quote } from '@avalabs/fusion-sdk';
 
+import { FUSION_HYPERCORE_CAIP_ID, fromFusionCaipId } from '@core/common';
 import { FeatureVars } from '@core/types';
 import { useFeatureFlagContext, useNetworkFeeContext } from '@core/ui';
 
 import { EstimatedFeeResult } from '../../types';
-import { applyBuffer } from '../../lib/applyBuffer';
-import { isSolanaToEvm } from '../../lib/isSolanaToEvm';
-import { SOLANA_TO_EVM_NATIVE_FEE_MULTIPLIER } from '../../fusion-config';
+
+const isHypercoreFusionSource = (quote: Quote) =>
+  quote.sourceChain.chainId === FUSION_HYPERCORE_CAIP_ID;
 
 export const useNativeFeeEstimate = (
   manager: TransferManager | undefined,
@@ -15,18 +16,31 @@ export const useNativeFeeEstimate = (
 ): EstimatedFeeResult => {
   const { getNetworkFee } = useNetworkFeeContext();
   const { selectFeatureFlag } = useFeatureFlagContext();
+
+  // HyperCore is a read-only module — no EVM gas rates. Skip entirely so we
+  // don't hit `getNetworkFee` (throws) or block Max / presets on feeError.
+  const canEstimate =
+    selectedQuote !== null &&
+    manager !== undefined &&
+    !isHypercoreFusionSource(selectedQuote);
+
   const {
     data: fee,
     error: feeError,
     isLoading: isFeeLoading,
   } = useQuery({
-    queryKey: ['useNativeFeeEstimate', selectedQuote?.id],
+    queryKey: [
+      'useNativeFeeEstimate',
+      selectedQuote?.id,
+      canEstimate,
+      manager?.id,
+    ],
     queryFn:
-      selectedQuote && manager
+      canEstimate && selectedQuote && manager
         ? async () => {
             try {
               const fees = await getNetworkFee(
-                selectedQuote?.sourceChain.chainId,
+                fromFusionCaipId(selectedQuote.sourceChain.chainId),
               )
                 .then((presets) => ({
                   maxFeePerGas: presets?.high.maxFeePerGas,
@@ -63,24 +77,12 @@ export const useNativeFeeEstimate = (
           }
         : skipToken,
     retry: false,
-    select: (estimate) => {
-      const totalFee = estimate.totalFee;
-
-      if (selectedQuote && isSolanaToEvm(selectedQuote)) {
-        return applyBuffer(
-          totalFee,
-          selectedQuote.sourceChain.networkToken.decimals,
-          SOLANA_TO_EVM_NATIVE_FEE_MULTIPLIER,
-        );
-      }
-
-      return totalFee;
-    },
+    select: (estimate) => estimate.totalFee,
   });
 
   return {
     fee,
     isFeeLoading,
-    feeError,
+    feeError: feeError ?? null,
   };
 };

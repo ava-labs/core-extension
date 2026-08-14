@@ -17,6 +17,7 @@ import network_v5 from './migrations/network_v5';
 import settings_v3 from './migrations/settings_v3';
 import wallet_v7 from './migrations/wallet_v7/wallet_v7';
 import transfer_tracking_v2 from './migrations/transfer_tracking_v2';
+import network_v6 from './migrations/network_v6';
 
 export const SCHEMA_MAP = {
   ['accounts']: {
@@ -62,7 +63,7 @@ export const SCHEMA_MAP = {
     ],
   },
   ['NETWORK_STORAGE_KEY']: {
-    latestVersion: 5,
+    latestVersion: 6,
     migrations: [
       {
         version: 2,
@@ -79,6 +80,10 @@ export const SCHEMA_MAP = {
       {
         version: 5,
         migration: network_v5,
+      },
+      {
+        version: 6,
+        migration: network_v6,
       },
     ],
   },

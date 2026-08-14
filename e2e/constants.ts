@@ -16,6 +16,47 @@ export const TEST_CONFIG = {
     password: process.env.WALLET_PASSWORD || 'TestPassword123!',
     recoveryPhrase12: process.env.RECOVERY_PHRASE_12_WORDS?.split(' ') || [],
     recoveryPhrase24: process.env.RECOVERY_PHRASE_24_WORDS?.split(' ') || [],
+    /** Raw private key used for the Import Private Key account-management flow. */
+    privateKey: process.env.PRIVATE_KEY_IMPORT || '',
+    /**
+     * Private key of the mainnet primary wallet's account. Importing it triggers
+     * the "This account has already been imported" duplicate confirmation.
+     */
+    privateKeyMain: process.env.PRIVATE_KEY_MAIN_EXT_WALLET || '',
+    /**
+     * X/P-Chain private key of the mainnet primary wallet. Importing it derives
+     * the X/P-Chain (AVM) address in `privateKeyXpExpectedAvmAddress`.
+     */
+    privateKeyXp: process.env.XP_PRIVATE_KEY_MAIN_EXT_WALLET || '',
+    /** Expected X/P-Chain address after importing `privateKeyXp`. */
+    privateKeyXpExpectedAvmAddress:
+      'avax1hypjnfr5fzqlpj5jrh2gqex2arujfl2lk9n9r5',
+  },
+  /**
+   * Keystore files used by the Import Keystore File account-management flow.
+   *
+   * The JSON files are stored in S3 under
+   * `s3://core-qa-automation-snapshots/ext/keystores/` and synced by the E2E
+   * workflows into `TEST_CONFIG.keystore.dir` (see below). Each file has its own
+   * password, provided via GitHub Actions secrets / local `.env`:
+   *   • keystore-v4.json            → PASSWORD_KEYSTORE_V4
+   *   • keystore-v6-private-key.json → PASSWORD_KEYSTORE_V6
+   */
+  keystore: {
+    /** Local directory (relative to the `e2e/` root) the S3 keystores sync into. */
+    dir: 'helpers/keystores',
+    v4: {
+      fileName: 'keystore-v4.json',
+      password: process.env.PASSWORD_KEYSTORE_V4 || '',
+    },
+    v6: {
+      fileName: 'keystore-v6-private-key.json',
+      password: process.env.PASSWORD_KEYSTORE_V6 || '',
+    },
+    /** Unsupported (v3) keystore used for the negative import test. */
+    invalid: {
+      fileName: 'invalid-keystore.json',
+    },
   },
   timeouts: {
     short: 5000,
@@ -26,6 +67,7 @@ export const TEST_CONFIG = {
   snapshots: {
     mainnet: 'mainnetPrimaryExtWallet',
     mainnetMonadNetwork: 'mainnetMonadNetworkExtWallet',
+    mainnetEmpty: 'mainnetEmptyExtWallet',
     testnet: 'testnetPrimaryExtWallet',
   },
 };
@@ -36,6 +78,12 @@ export const TEST_CONFIG = {
 export const TEST_TAGS = {
   SMOKE: '@smoke',
   REGRESSION: '@regression',
+  /**
+   * Live cross-chain swap tests. Runs ~20 min per pair, real on-chain txns.
+   * Excluded from the daily scheduled regression run. Opt in via the
+   * `include-cross-chain-swaps: true` dropdown in the regression workflow.
+   */
+  SWAP_CROSS_CHAIN: '@swap-cross-chain',
 };
 
 /**
@@ -109,8 +157,12 @@ export const TEST_SEND = {
    */
   PCHAIN_AVAX: {
     tokenSymbol: 'AVAX',
-    /** Must match `chainName` on P-Chain network (ChainBadge `alt` in token list). */
-    chainBadgeAltText: 'Avalanche (P-Chain)',
+    /**
+     * Matches `chainName` on the P-Chain network (ChainBadge `alt` in token list).
+     * Network names are environment-dependent — e.g. `Avalanche (P-Chain)` on mainnet
+     * and `Avalanche Fuji Testnet (P-Chain)` on testnet — so match the stable suffix.
+     */
+    chainBadgeAltText: /\(P-Chain\)/i,
     amount: '0.001',
     recipientAccount: 'Account 2',
   },
@@ -120,7 +172,7 @@ export const TEST_SEND = {
    */
   XCHAIN_AVAX: {
     tokenSymbol: 'AVAX',
-    chainBadgeAltText: 'Avalanche (X-Chain)',
+    chainBadgeAltText: /\(X-Chain\)/i,
     amount: '0.001',
     recipientAccount: 'Account 2',
   },
@@ -168,11 +220,15 @@ export const TEST_SEND = {
    * Uses `testnetPrimaryExtWallet` snapshot (testnet).
    */
   SEPOLIA_USDC: {
+    // Search by symbol ("USDC") so it matches whether the token is named
+    // "USDC" or "USD Coin". Match the network by /Ethereum/i so it works on
+    // both "Ethereum" (mainnet snapshot) and "Ethereum Sepolia" (testnet
+    // snapshot), which differ across alpha/dev builds.
     tokenSymbol: 'USDC',
-    tokenSearchTerm: 'USD Coin',
-    chainBadgeAltText: 'Ethereum Sepolia',
-    chainFilterChip: /Ethereum Sepolia/i,
-    networkLabel: 'Ethereum Sepolia',
+    tokenSearchTerm: 'USDC',
+    chainBadgeAltText: /Ethereum/i,
+    chainFilterChip: /Ethereum/i,
+    networkLabel: 'Ethereum',
     feeSymbol: 'ETH',
     amount: '0.01',
     recipientAccount: 'Account 2',

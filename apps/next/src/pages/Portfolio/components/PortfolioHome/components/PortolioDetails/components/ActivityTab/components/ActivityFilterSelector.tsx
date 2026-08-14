@@ -33,7 +33,7 @@ export const ActivityFilterSelector: FC<Props> = ({
   }, [exclude]);
 
   return (
-    <Box ref={ref}>
+    <Box ref={ref} data-testid="activity-filter-trigger">
       <DropdownMenu label={t('Filter')}>
         {filteredActivityFilters.map((filterName) => (
           <PopoverItem
@@ -41,7 +41,9 @@ export const ActivityFilterSelector: FC<Props> = ({
             onClick={() => onChange(filterName)}
             selected={filterName === selected}
           >
-            {filterName.replace('_', ' ')}
+            <span data-testid={`activity-filter-option-${filterName}`}>
+              {filterName.replace('_', ' ')}
+            </span>
           </PopoverItem>
         ))}
       </DropdownMenu>

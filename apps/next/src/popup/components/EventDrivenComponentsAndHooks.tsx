@@ -5,6 +5,7 @@ import { useSeedlessMissingKeysDerivation } from '@/hooks/seedless';
 import { SeedlessAuthPrompt } from '@/components/Seedless/SeedlessAuthPrompt';
 import { useNavigationRequests } from '@/hooks/useNavigationRequests';
 import { useConciergeHotkey } from '@/hooks/useConciergeHotkey';
+import { useRecurringSwapExecutionToast } from '@/pages/Notifications/hooks/useRecurringSwapExecutionToast';
 import { useImportMissingKeysFromLedger } from '@core/ui';
 
 /**
@@ -26,6 +27,7 @@ export const EventDrivenComponentsAndHooks: FC = () => {
   useNavigationRequests();
   useImportMissingKeysFromLedger();
   useConciergeHotkey();
+  useRecurringSwapExecutionToast();
 
   return (
     <>

@@ -17,6 +17,7 @@ import {
   PromptSolana,
   Troubleshooting,
 } from '@/components/ConnectLedger';
+import { classifyLedgerConnectionError } from '@/components/ConnectLedger/LedgerConnector/hooks/useLedgerPublicKeyFetcher/classifyLedgerConnectionError';
 import { FeatureGates } from '@core/types';
 
 type ImportPhase =
@@ -64,7 +65,10 @@ export const ConnectLedgerScreen: FC<ConnectLedgerScreenProps> = ({
   const avalancheConnectorCallbacks = useMemo(
     () => ({
       onConnectionSuccess: () => capture('OnboardingLedgerConnected'),
-      onConnectionFailed: () => capture('OnboardingLedgerConnectionFailed'),
+      onConnectionFailed: (err: Error) =>
+        capture('OnboardingLedgerConnectionFailed', {
+          reason: classifyLedgerConnectionError(err),
+        }),
       onConnectionRetry: () => capture('OnboardingLedgerRetry'),
     }),
     [capture],
@@ -73,7 +77,10 @@ export const ConnectLedgerScreen: FC<ConnectLedgerScreenProps> = ({
   const solanaConnectorCallbacks = useMemo(
     () => ({
       onConnectionSuccess: () => capture('OnboardingLedgerSolanaKeysDerived'),
-      onConnectionFailed: () => capture('OnboardingLedgerSolanaKeysFailed'),
+      onConnectionFailed: (err: Error) =>
+        capture('OnboardingLedgerSolanaKeysFailed', {
+          reason: classifyLedgerConnectionError(err),
+        }),
       onConnectionRetry: () => capture('OnboardingLedgerSolanaKeysRetry'),
     }),
     [capture],

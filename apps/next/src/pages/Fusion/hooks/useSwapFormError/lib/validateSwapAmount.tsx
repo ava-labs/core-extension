@@ -1,6 +1,7 @@
 import { ComponentProps } from 'react';
 import { TFunction, Trans } from 'react-i18next';
 import { bigintToBig } from '@avalabs/core-utils-sdk';
+import { TokenType } from '@avalabs/vm-module-types';
 
 import { FungibleTokenBalance } from '@core/types';
 
@@ -8,6 +9,8 @@ import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 
 import { RequiredTokenAmounts } from '../../../types';
 
+import { isHypercoreUsdcToken } from '../../../lib/isHypercoreUsdcToken';
+import { exceedsHypercoreWithdrawable } from '../../../lib/getHypercoreWithdrawableUsd';
 import { sumByPurpose } from '../../../lib/sumByPurpose';
 
 const collapsedTokenAmountProps: Omit<
@@ -19,6 +22,13 @@ const collapsedTokenAmountProps: Omit<
   showApproximationSign: false,
 };
 
+export type RecurringSwapValidation = {
+  numberOfOrders: number;
+  scheduleFeeNativeAmount: bigint;
+  isFrequencyBelowMinimum: boolean;
+  minFrequencyMinutes: number;
+};
+
 export const validateSwapAmount = (
   sourceAmountBigInt: bigint,
   t: TFunction,
@@ -26,12 +36,39 @@ export const validateSwapAmount = (
     minimumTransferAmount,
     sourceToken,
     requiredTokens: { state, tokens },
+    recurring,
+    hypercoreWithdrawableBalance,
   }: {
     minimumTransferAmount: bigint | undefined;
     sourceToken: FungibleTokenBalance;
     requiredTokens: RequiredTokenAmounts;
+    recurring?: RecurringSwapValidation;
+    hypercoreWithdrawableBalance?: bigint;
   },
 ) => {
+  if (
+    isHypercoreUsdcToken(sourceToken) &&
+    exceedsHypercoreWithdrawable({
+      amount: sourceAmountBigInt,
+      withdrawableBalance: hypercoreWithdrawableBalance,
+    })
+  ) {
+    return t('Amount exceeds withdrawable HyperCore balance');
+  }
+
+  if (recurring && sourceAmountBigInt > 0n) {
+    const totalScheduledSpend =
+      sourceAmountBigInt * BigInt(recurring.numberOfOrders);
+    const isNativeSource = sourceToken.type === TokenType.NATIVE;
+    const budget = isNativeSource
+      ? sourceToken.balance - recurring.scheduleFeeNativeAmount
+      : sourceToken.balance;
+
+    if (totalScheduledSpend > budget) {
+      return t('Insufficient funds');
+    }
+  }
+
   if (state === 'loading') {
     return null;
   }
@@ -99,6 +136,24 @@ export const validateSwapAmount = (
         }}
       />
     );
+  }
+
+  if (
+    recurring &&
+    recurring.scheduleFeeNativeAmount > 0n &&
+    sourceToken.type !== TokenType.NATIVE
+  ) {
+    const nativeRequired = tokens.find(
+      (requiredToken) => requiredToken.token.type === TokenType.NATIVE,
+    );
+
+    if (
+      nativeRequired &&
+      nativeRequired.token.balance <
+        nativeRequired.total + recurring.scheduleFeeNativeAmount
+    ) {
+      return t('Insufficient funds to cover fees');
+    }
   }
 
   return null;

@@ -18,7 +18,7 @@ export const DeFiProtocolDetailsHeader: FC<DeFiProtocolDetailsHeaderProps> = ({
   const formatValue = useConvertedCurrencyFormatter();
 
   return (
-    <Stack direction="column" gap={2} mb={5}>
+    <Stack direction="column" gap={2} mb={5} data-testid="defi-details-header">
       <DeFiProtocolAvatar protocol={protocol} />
       <Stack direction="column" gap={0.5}>
         <Typography variant="h2" color="text.secondary">

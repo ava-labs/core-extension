@@ -23,7 +23,6 @@ export type { GetNativeBalanceHandler } from './services/balances/handlers/getNa
 export type { GetTokenPriceHandler } from './services/balances/handlers/getTokenPrice';
 export type { GetTokenPriceByAddressHandler } from './services/balances/handlers/getTokenPriceByAddress';
 export type { GetTotalBalanceForWalletHandler } from './services/balances/handlers/getTotalBalanceForWallet/getTotalBalanceForWallet';
-export type { RefreshNftMetadataHandler } from './services/balances/handlers/refreshNftMetadata';
 export type { StartBalancesPollingHandler } from './services/balances/handlers/startBalancesPolling';
 export type { StopBalancesPollingHandler } from './services/balances/handlers/stopBalancesPolling';
 export type { UpdateBalancesForNetworkHandler } from './services/balances/handlers/updateBalancesForNetwork';
@@ -67,6 +66,7 @@ export type { DisableNetworkHandler as RemoveEnabledNetworkHandler } from './ser
 export type { SaveCustomNetworkHandler } from './services/network/handlers/saveCustomNetwork';
 export type { SetActiveNetworkHandler } from './services/network/handlers/setActiveNetwork';
 export type { SetDevelopermodeNetworkHandler } from './services/network/handlers/setDeveloperMode';
+export type { UpdateAvalancheDevnetModeHandler } from './services/network/handlers/updateAvalancheDevnetMode';
 export type { UpdateDefaultNetworkHandler } from './services/network/handlers/updateDefaultNetwork';
 export type { GetNetworkFeeHandler } from './services/networkFee/handlers/getNetworkFee';
 export type { GetNotificationCenterList } from './services/notifications/handlers/getNotificationCenterList';
@@ -75,6 +75,7 @@ export type { GetNotificationSubscriptions } from './services/notifications/hand
 export type { MarkAllNotificationsAsRead } from './services/notifications/handlers/markAllNotificationsAsRead';
 export type { MarkNotificationAsRead } from './services/notifications/handlers/markNotificationAsRead';
 export type { SubscribeToNotification } from './services/notifications/handlers/subscribe';
+export type { DiscoverRecurringSwaps } from './services/notifications/handlers/discoverRecurringSwaps';
 export type { UnsubscribeFromNotification } from './services/notifications/handlers/unsubscribe';
 export type { GetIsOnboardedHandler } from './services/onboarding/handlers/getIsOnBoarded';
 export type { OpenExtensionPopupWindowHandler } from './services/onboarding/handlers/openExtensionPopupWindow';
@@ -87,6 +88,7 @@ export type { SeedlessOnboardingHandler } from './services/onboarding/handlers/s
 export type { GetAllPermissionsHandler } from './services/permissions/handlers/getAllPermissions';
 export type { GetPermissionsForDomainHandler } from './services/permissions/handlers/getPermissionsForDomain';
 export type { RevokeAddressPermissionsForDomainHandler } from './services/permissions/handlers/revokeAddressPermissionsForDomain';
+export type { RevokeAddressPermissionsForDomainsHandler } from './services/permissions/handlers/revokeAddressPermissionsForDomains';
 export type { AppendSolanaPublicKeysHandler } from './services/secrets/handlers/appendSolanaPublicKeys';
 export type { AvalancheRenameWalletHandler } from './services/secrets/handlers/avalanche_renameWallet';
 export type { AddFidoDeviceHandler } from './services/seedless/handlers/addFidoDevice';
@@ -140,3 +142,6 @@ export type { TransferTrackingGetState } from './services/transferTracking/handl
 export type { TrackUnifiedTransfer } from './services/transferTracking/handlers/trackUnifiedTransfer';
 export type { MarkTransferAsRead } from './services/transferTracking/handlers/markTransferAsRead';
 export type { ClearHistoricalTransfers } from './services/transferTracking/handlers/clearHistoricalTransfers';
+export type { GetMarkrTargetChainAssetsHandler } from './services/tokens/handlers/getMarkrTargetChainAssets';
+export type { GetHypercoreWithdrawableHandler } from './services/balances/handlers/getHypercoreWithdrawable';
+export type { HypercoreWithdrawableResult } from './services/balances/handlers/getHypercoreWithdrawable';

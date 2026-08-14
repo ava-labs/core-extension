@@ -7,6 +7,7 @@ type Props = {
   onClick: () => void;
   isDisabled?: boolean;
   title: string;
+  'data-testid'?: string;
 };
 
 /**
@@ -18,13 +19,14 @@ export const TxButton = ({
   onClick,
   isDisabled: isDisabledParam = false,
   title,
+  'data-testid': testId,
 }: Props) => {
   const { isOnline } = useOnline();
   const isDisabled = isDisabledParam || !isOnline;
   return (
     <OfflineTooltip>
       <Button
-        data-testid="tx-submit-button"
+        data-testid={testId ?? 'tx-submit-button'}
         variant="contained"
         color="primary"
         size="extension"

@@ -1,9 +1,7 @@
-import { Account, AccountType } from '@core/types';
 import {
   GetBalancesResponse,
   GetBalancesResponseError,
 } from '~/api-clients/balance-api';
-import { Caip2IdAccountTypeMap } from '~/api-clients/constants';
 import { BalanceResponse } from '~/api-clients/types';
 import { isErrorResponse } from '~/api-clients/utils';
 
@@ -41,22 +39,4 @@ export const normalizeXPAddress = (address: string) => {
     throw new Error('Invalid X/P address');
   }
   return withoutPrefix;
-};
-
-export const reconstructAccountFromError = (
-  error: GetBalancesResponseError,
-): Account => {
-  return {
-    index: 0,
-    walletId: 'N/A',
-    type: AccountType.PRIMARY,
-    name: 'N/A',
-    id: error.id,
-    // these will be overwritten if the error happened with the respective chain
-    addressBTC: undefined as unknown as string,
-    addressC: undefined as unknown as string,
-    addressCoreEth: undefined as unknown as string,
-    // the id in the error is the account address
-    [Caip2IdAccountTypeMap[error.caip2Id] ?? '']: error.id,
-  };
 };
