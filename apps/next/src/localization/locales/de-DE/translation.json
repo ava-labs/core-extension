@@ -396,7 +396,7 @@
   "Hindi": "Hindi",
   "Hour": "Stunde",
   "Hours": "Stunden",
-  "How often the recurring swap will execute. Minimum is 5 minutes between executions.": "Wie oft der wiederkehrende Swap ausgeführt wird. Zwischen den Hinrichtungen liegen mindestens 5 Minuten.",
+  "How often the recurring swap will execute. Minimum is 5 minutes between executions.": "Wie oft der wiederkehrende Swap ausgeführt wird. Das Minimum beträgt 5 Minuten zwischen den Ausführungen.",
   "How would you like to access your existing wallet?": "Wie möchten Sie auf Ihre bestehende Wallet zugreifen?",
   "I have read and agree to the <termLink>Terms of Use</termLink>": "Ich habe die <termLink>Nutzungsbedingungen</termLink> gelesen und stimme ihnen zu",
   "I understand losing this phrase will result in lost funds.<br/>I have stored it in a secure place.": "Ich verstehe, dass der Verlust dieser Phrase zu einem Geldverlust führt.<br/>Ich habe sie an einem sicheren Ort gespeichert.",
