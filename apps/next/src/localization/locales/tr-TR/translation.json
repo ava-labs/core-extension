@@ -396,7 +396,7 @@
   "Hindi": "Hintçe",
   "Hour": "Saat",
   "Hours": "Saatler",
-  "How often the recurring swap will execute. Minimum is 5 minutes between executions.": "Yinelenen takasın ne sıklıkla yürütüleceği. İnfazlar arasında en az 5 dakikadır.",
+  "How often the recurring swap will execute. Minimum is 5 minutes between executions.": "Yinelenen takasın ne sıklıkla yürütüleceği. Yürütmeler arasında en az 5 dakika olmalıdır.",
   "How would you like to access your existing wallet?": "Mevcut cüzdanınıza nasıl erişmek istersiniz?",
   "I have read and agree to the <termLink>Terms of Use</termLink>": "<termLink>Kullanım Koşulları</termLink>'nı okudum ve kabul ediyorum",
   "I understand losing this phrase will result in lost funds.<br/>I have stored it in a secure place.": "Bu ifadeyi kaybetmenin fon kaybına yol açacağını anlıyorum.<br/>Güvenli bir yerde sakladım.",
