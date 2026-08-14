@@ -746,7 +746,7 @@
   "Reset recovery phrase": "重置恢复助记词",
   "Resetting the RPC URL will set it back to its default URL": "重置 RPC URL 将恢复为默认 URL",
   "Resource unavailable": "资源不可用",
-  "Resume": "简历",
+  "Resume": "恢复",
   "Resumes the recurring {{from}} → {{to}} schedule. Remaining fills will execute on the original cadence once this transaction confirms on-chain.": "恢复循环的 {{from}} → {{to}} 时间表。一旦这笔交易在链上得到确认，剩余的填充将按照原始节奏执行。",
   "Resuming": "恢复",
   "Retry": "重试",
