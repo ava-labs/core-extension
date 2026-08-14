@@ -1108,7 +1108,7 @@
   "Your transaction will fail if the price changes more than the slippage": "Tu transacción fallará si el precio cambia más que el slippage",
   "Your wallet's recovery phrase will be visible in": "La frase de recuperación de tu cartera será visible en",
   "YubiKeys are physical, hardware-based protection and strong authentication.": "Las YubiKeys ofrecen protección física basada en hardware y autenticación sólida.",
-  "Yubikey": "Cayo Yubi",
+  "Yubikey": "YubiKey",
   "Yubikey setup": "Configuración de Yubikey",
   "account": "cuenta",
   "accounts": "cuentas",
