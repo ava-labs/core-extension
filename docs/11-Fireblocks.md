@@ -64,104 +64,56 @@ Each policy will decide how many people out of the people listed in the policy n
 
 ## Limitations
 
-Bitcoin Testnet Support
+### Bitcoin testnet
+
 Fireblocks testnet and mainnet workspaces have completely different addresses & configurations, so we can't really use the same connections & API keys to handle both.
 Because of this, we have decided to only support mainnet in production.
 
-## Transaction Troubleshooting
+### API credentials cannot be edited
 
-Below are some of the issues I encountered so far while creating transactions and solutions to those problems.
+API credentials can't be added, edited, or deleted separately. Changing them requires deleting the imported Fireblocks account and re-importing it.
 
-### **`Bad source id`**
+## Transaction troubleshooting
 
-Even though vault accounts have numerical IDs, make sure you're passing them as a string. For example:
+### `Bad source id`
 
-#### ❌ Bad
+Even though vault accounts have numerical IDs, they must be passed as a string:
 
-```
+```js
+// Bad
 { id: 0, type: PeerType.VAULT_ACCOUNT }
-```
 
-#### ✅ Good
-
-```
+// Good
 { id: '0', type: PeerType.VAULT_ACCOUNT }
 ```
 
-### **`Signer not found`**
+### `Signer not found`
 
-#### **Error message**
-
-> Fireblocks couldn’t find a signer for the transaction. This may happen when:
+> Fireblocks couldn't find a signer for the transaction. This may happen when:
 >
-> - The signer doesn’t have permission to sign transactions.
+> - The signer doesn't have permission to sign transactions.
 > - The transaction authorization policy (TAP) rule has multiple designated signers, but none has signing privileges.
 
-#### **Solution**
+Transactions initiated by a user with the `Editor` role have to be signed by a different user — only `Owner`, `Admin`, and `Signer` roles can sign. If the workspace policy does not name a designated signer for `Editor`-initiated transactions, Fireblocks has nobody to route the approval to.
 
-I was using an API User that has an `Editor` role assigned, but our policy did not state a designated signer for transactions like that.
+Two ways to resolve it:
 
-To explain a bit better, transactions initiated by users with an `Editor` role have to be signed by a different user: an `Owner`, an `Admin` or a `Signer`, since those are the only roles that can actually sign shit.
+- Modify the transaction policy so that transactions initiated by the API user have at least one designated signer assigned, or
+- Use an `API User: Signer` instead of an `API User: Editor`. The transaction initiator is its own designated signer by default, so no policy change is needed.
 
-So to make it work, I had to modify our transaction policy so that all transactions initiated by our `API User: Editor` have at least one designated signer assigned.
+## Asset IDs
 
-A different workaround here would be to not use the `API User: Editor`, but rather `API User: Signer`.
-Since the transaction initiator is its designated signer by default, this setup just works.
+Fireblocks uses its own symbols for each asset — Avalanche Fuji is `AVAXTEST`, for example. Bitcoin only has two: `BTC` for mainnet and `BTC_TEST` for testnet, which is all the current integration needs.
 
-## open questions
+This becomes a problem only if EVM support ever moves from WalletConnect to the Fireblocks API. The `/supported_assets` endpoint does not expose contract addresses for network-native tokens, so there is no reliable way to map them.
 
-### Importing accounts
+## Bridging BTC to BTC.b
 
-When user submits the API Key and the Secret Key, we’ll possibly get access to multiple vault accounts.
-
-These accounts then have dedicated wallets for different assets. Each of these asset wallets then will have _at least_ one address. Some may have multiple addresses (i.e. BTC).
-
-Also, newly created vault accounts will have no asset wallets added and therefore will have no addresses defined at all.
-
-So there are multiple questions here:
-
-- How do we choose which vault account to import?
-- Should we allow importing multiple vault accounts?
-- How do we ensure the selected vault account(s) have at least the EVM address defined?
-- If an asset (i.e. BTC) has multiple addresses defined, how do we choose the proper one?
-  - Here, we should probably choose the address denoted as `permanent`.
-- _probably more will arise_
-
-### Asset IDs
-
-Fireblocks have their own "symbols" for each asset. For example:
-
-- ETH Goerli is `ETH_TEST3`
-- Avalanche Fuji is `AVAXTEST`.
-
-For BTC this is not an issue, because there are only two symbols: `BTC` for mainnet and `BTC_TEST` for testnet.
-
-If we use WalletConnect for EVM transactions, things are still simple - nothing to worry about here.
-
-However, if we ever want to support EVM through Fireblocks API - things get complicated, as we have no way of knowing the Fireblocks asset IDs for network-native tokens.
-
-There is a `/supported_assets` on the API, but it's only helpful for non-native tokens. For native assets, it does not show the contract address that we could use to match the tokens.
-
-### Avalanche Bridge
-
-Bridging `BTC` -> `BTC.b` _SimplyWorks™_, but the `BTC.b` token does not show up in the Fireblocks console automatically.
-
-The token needs to be added manually by doing the following:
+Bridging works, but the resulting `BTC.b` token does not show up in the Fireblocks console automatically. It has to be added manually:
 
 1. Go to a vault account
 2. Click `+ Asset Wallet`
 3. Type random characters in the search field until it shows an `Add a non-listed ERC20 asset` option
-4. In the dialog:
-   - **For Fuji:** specify `Avalanche Fuji` as the Blockchain Network and `0x0f2071079315Ba5a1c6d5b532a01a132c157AC83` as the contract address.
-   - **For Mainnet:** specify `Avalanche` as the Blockchain Network and `0x152b9d0FdC40C096757F570A51E494bd4b943E50` as the contract address.
-
-We should probably inform the users about that when they start bridging using Fireblocks account.
-
-## Soon to Come
-
-We are going to introduce 2 features in the future.
-
-1. Pending fireblocks tx tracker
-   We would like to let users to be able to use the extension while they wait when the approval process in Fireblocks is taking awhile.
-2. API credential editor
-   We would like to let users add, update, and delete the API credential whenever they would like. Right not, they would have to delete then re-import the fireblocks account.
+4. In the dialog, specify the blockchain network and contract address:
+   - **Fuji:** `Avalanche Fuji` / `0x0f2071079315Ba5a1c6d5b532a01a132c157AC83`
+   - **Mainnet:** `Avalanche` / `0x152b9d0FdC40C096757F570A51E494bd4b943E50`

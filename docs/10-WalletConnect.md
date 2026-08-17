@@ -10,7 +10,7 @@ The diagram below shows a simplified data flow of the WalletConnect pairing proc
 
 <img src="images/wallet-connect-pairing.png" />
 
-1. Pairing process is initiated by Core extension, which generates a URI and displays a corresponding QR code for the user to scan with their. If the remote wallet is not equipped with a camera (e.g. it's a desktop app), the user can also copy the URI and paste it in the wallet app.
+1. Pairing process is initiated by Core extension, which generates a URI and displays a corresponding QR code for the user to scan with their wallet app. If the remote wallet is not equipped with a camera (e.g. it's a desktop app), the user can also copy the URI and paste it in the wallet app.
 2. Upon scanning the QR code, the wallet app can obtain information about the Core extension and the access it requests (i.e. chains, accounts, events, methods). The wallet app should then present that information to the users and let them choose whether they want to continue or abort the pairing process.
    - Upon denial, an error message is shown.
      - Upon approval, Core extension fetches the obtained account address and adds it to the list of imported accounts.
@@ -44,13 +44,13 @@ BTC signing is not supported at the moment, as none of the known wallets support
 Some apps (i.e. Metamask Mobile), do not accept multiple chains to be requested in a session proposal payload - they will automatically reject such a request.
 
 Since we don't know which wallet app the user will use when we initiate the pairing, we must always specify only a single chain in the session proposal - and we default to the currently active chain.
-Most of the time, new chains can added to the session at a later point and we do it on demand, when the user actually tries to sign a message or transaction on a different chain. For more information on that, please refer to a well-documented `establishRequiredSession` method of the [`WalletConnectService`](../src/background/services/walletConnect/WalletConnectService.ts).
+Most of the time, new chains can added to the session at a later point and we do it on demand, when the user actually tries to sign a message or transaction on a different chain. For more information on that, please refer to a well-documented `establishRequiredSession` method of the [`WalletConnectService`](../packages/service-worker/src/services/walletConnect/WalletConnectService.ts).
 
 ## Data storage
 
 By default, the WalletConnect SDK uses `localStorage` for storing session data. In the extension realm, though, it is not accessible.
 
-Fortunately, the WalletConnect SDK allows us to pass a custom implementation of storage to accommodate those needs. Hence we introduced a [`WalletConnectStorage`](../src/background/services/walletConnect/WalletConnectStorage.ts) class that builds on top of our `StorageService`.
+Fortunately, the WalletConnect SDK allows us to pass a custom implementation of storage to accommodate those needs. Hence we introduced a [`WalletConnectStorage`](../packages/service-worker/src/services/walletConnect/WalletConnectStorage.ts) class that builds on top of our `StorageService`.
 
 Also, since there is a lot of read & write operations and `chrome.storage` is a bit slow, we namespace all of the related data under one `chrome.storage` key. This allows us the WalletConnect SDK to iterate over saved data much quicker.
 
@@ -65,4 +65,4 @@ Also, since there is a lot of read & write operations and `chrome.storage` is a 
 
 - **DO NOT** assume you have an active session or that the session has sufficient permissions.
 - **DO NOT** assume the request reached the device. **DO** allow for the request to be re-sent.
-- **DO NOT** assume the response is a signature. Depending on the request method (e.g. `avalanche_sendTransaction` vs `avalanche_signTransaction`), the transaction will either be dispatched by the remote wallet app and you'll receive the hash, or it won't be dispatched and you'll receive a signature.\
+- **DO NOT** assume the response is a signature. Depending on the request method (e.g. `avalanche_sendTransaction` vs `avalanche_signTransaction`), the transaction will either be dispatched by the remote wallet app and you'll receive the hash, or it won't be dispatched and you'll receive a signature.

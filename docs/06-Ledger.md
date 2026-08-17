@@ -6,11 +6,11 @@ Core provides Ledger support since the very early versions. Core supports both B
 
 ## Connection to the device
 
-Due to some Manifest V3 restrictions, namely the lack of WebUSB access on the background script, there is a special `LedgerTransport` object on the background script. It implements Ledger's Transport interface and makes relaying the requests to the Ledger device possible through the frontend.
+Due to some Manifest V3 restrictions, namely the lack of WebUSB access on the service worker, there is a special `LedgerTransport` object (`packages/service-worker/src/services/ledger/LedgerTransport.ts`) on the service worker. It implements Ledger's Transport interface and makes relaying the requests to the Ledger device possible through the frontend.
 
 <img src="images/ledger-architecture.png"/>
 
-To avoid some unnecessary `frontend -> background -> frontend -> ledger -> frontend -> background` loops, we decided to expose a very limited set of Ledger interactions directly on the LedgerProvider on the frontend. These are meant for collecting all the public key and account information needed for Ledger onboarding.
+To avoid some unnecessary `frontend -> service worker -> frontend -> ledger -> frontend -> service worker` loops, we decided to expose a very limited set of Ledger interactions directly on the LedgerProvider on the frontend. These are meant for collecting all the public key and account information needed for Ledger onboarding.
 
 ### Limitations
 
@@ -31,5 +31,5 @@ The diagram below shows the generic data flow of signing a transaction. The gene
 
 ## DOs and DON'Ts
 
-- **DO NOT** sign transactions on Ledger directly on the frontend. All signing should go through the WalletService on the background script.
+- **DO NOT** sign transactions on Ledger directly on the frontend. All signing should go through the `WalletService` on the service worker.
 - **DO** assume the Ledger device can be disconnected and reconnected at any time.

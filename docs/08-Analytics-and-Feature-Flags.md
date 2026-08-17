@@ -18,7 +18,7 @@ The Extension uses 2 separate Posthog projects. The main reasons behind this dua
 1. Be able to toggle feature flags separately
 2. Access control. Only give production access to a limited set of people.
 
-- Local development, the main branch build, and the Blue builds are hooked up to the `TEST Posthog organization`
+- Local development and the alpha builds produced from the `main` branch are hooked up to the `TEST Posthog organization`
 - Production is using the `production Posthog organization`. Access is provisioned separately.
 
 ## Reporting events
@@ -26,9 +26,9 @@ The Extension uses 2 separate Posthog projects. The main reasons behind this dua
 Core Extension directly communicates with the Posthog APIs, without using their libraries.
 
 - It eliminates accidental data tracking. No auto capture.
-- The nature of the background and frontend lifecycle of the app made it difficult for the SDK to identify sessions.
-- The SDK was using XMLHttpRequest which is unavailable on the background script
-- We wanted to limit fetching the feature flags to one place, which is the background script.
+- The nature of the service worker and frontend lifecycle of the app made it difficult for the SDK to identify sessions.
+- The SDK was using XMLHttpRequest which is unavailable on the service worker
+- We wanted to limit fetching the feature flags to one place, which is the service worker.
 
 ### To report events
 
@@ -40,7 +40,7 @@ const { capture } = useAnalyticsContext();
 capture(`BuyClicked`);
 ```
 
-On the background script, use the AnalyticsServicePosthog object to report events:
+On the service worker, use the `AnalyticsServicePosthog` object (`packages/service-worker/src/services/analytics/AnalyticsServicePosthog.ts`) to report events:
 
 ```js
     constructor(private analyticsServicePosthog: AnalyticsServicePosthog) {}
@@ -52,15 +52,15 @@ On the background script, use the AnalyticsServicePosthog object to report event
 
 ## Feature flags
 
-The feature flags are fetched and updated periodically by the `FeatureFlagService` on the background script.
+The feature flags are fetched and updated periodically by the `FeatureFlagService` (`packages/service-worker/src/services/featureFlags/FeatureFlagService.ts`) on the service worker.
 
-To use a feature flag on the background script you can either use `FeatureFlagService.ensureFlagEnabled` which throws an Exception if the feature is disabled or use the `FeatureFlagService.featureFlags` getter to get a list of all flags.
+To use a feature flag on the service worker you can either use `FeatureFlagService.ensureFlagEnabled` which throws an Exception if the feature is disabled or use the `FeatureFlagService.featureFlags` getter to get a list of all flags.
 
 On the frontend, use the `useFeatureFlagContext` hook to get flags from the `FeatureFlagProvider`.
 
 ## Reporting errors
 
-We use Sentry.io for exception tracking, error reporting, and alerting. Sentry is initialized on both the background and the frontend script separately.
+We use Sentry.io for exception tracking, error reporting, and alerting. Sentry is initialized on both the service worker and the frontend script separately.
 It can be used for transaction monitoring as well, to see how long a given task took.
 On top of the restrictions applied to the sentry library, make sure proper data scrubbing is set up on your Sentry project.
 
