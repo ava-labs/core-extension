@@ -6,9 +6,11 @@ import {
 
 /**
  * Hybrid resolution (always-enabled networks):
- *   - the hardcoded `NETWORKS_ENABLED_FOREVER` is the base set
- *   - the API's `isAlwaysEnabled` flag overrides the base set: `true` adds a
- *     network, `false` removes it, `undefined` leaves the base set untouched
+ *   - the hardcoded `NETWORKS_ENABLED_FOREVER` is a floor that the API cannot
+ *     remove from. `/tokenlist` always sends `isAlwaysEnabled` as a boolean
+ *     (never `undefined`); untagged chains come back `false`, so honoring
+ *     `false` would make C-Chain / ETH user-disableable after a Contentful miss.
+ *   - `true` adds a network; `false` / `undefined` leave the floor untouched.
  *
  * Hybrid resolution (default-enabled networks):
  *   - the hardcoded `NETWORKS_ENABLED_BY_DEFAULT` is the base set
@@ -23,8 +25,6 @@ export function getAlwaysEnabledNetworkIds(chainList: ChainList): number[] {
   for (const network of Object.values(chainList)) {
     if (network.isAlwaysEnabled === true) {
       ids.add(network.chainId);
-    } else if (network.isAlwaysEnabled === false) {
-      ids.delete(network.chainId);
     }
   }
 

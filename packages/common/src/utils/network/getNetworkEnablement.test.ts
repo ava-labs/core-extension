@@ -1,4 +1,4 @@
-import { NetworkVMType } from '@avalabs/core-chains-sdk';
+import { NetworkVMType, ChainId } from '@avalabs/core-chains-sdk';
 import {
   ChainList,
   Network,
@@ -66,13 +66,17 @@ describe('getAlwaysEnabledNetworkIds', () => {
     expect(result.filter((id) => id === firstForeverId)).toHaveLength(1);
   });
 
-  it('removes floor ids when the API flags them isAlwaysEnabled false', () => {
-    const firstForeverId = NETWORKS_ENABLED_FOREVER[0]!;
+  it('keeps C-Chain in the floor when the API sends isAlwaysEnabled false', () => {
     const chainList = buildChainList([
-      buildNetwork({ chainId: firstForeverId, isAlwaysEnabled: false }),
+      buildNetwork({
+        chainId: ChainId.AVALANCHE_MAINNET_ID,
+        isAlwaysEnabled: false,
+      }),
     ]);
 
-    expect(getAlwaysEnabledNetworkIds(chainList)).not.toContain(firstForeverId);
+    expect(getAlwaysEnabledNetworkIds(chainList)).toContain(
+      ChainId.AVALANCHE_MAINNET_ID,
+    );
   });
 
   it('keeps floor ids when the API flag is undefined', () => {

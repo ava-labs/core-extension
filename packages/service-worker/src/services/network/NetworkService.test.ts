@@ -13,6 +13,7 @@ import {
   NETWORK_OVERRIDES_STORAGE_KEY,
   NETWORK_STORAGE_KEY,
   NETWORKS_ENABLED_BY_DEFAULT,
+  NETWORKS_ENABLED_FOREVER,
   FeatureGates,
 } from '@core/types';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
@@ -918,7 +919,7 @@ describe('background/services/network/NetworkService', () => {
 
         expect(signalSpy).toHaveBeenCalled();
         expect(signalSpy).toHaveBeenCalledWith(
-          expect.arrayContaining([chainId]),
+          expect.arrayContaining([chainId, ...NETWORKS_ENABLED_FOREVER]),
         );
       });
     });
@@ -1059,8 +1060,6 @@ describe('background/services/network/NetworkService', () => {
       it('treats a network flagged isAlwaysEnabled as non-disableable', async () => {
         const alwaysOnChainId = 424242;
 
-        // Simulate the chainlist arriving with the API flag set. This updates
-        // the derived always-enabled set via the _allNetworks subscription.
         service['_allNetworks'].dispatch({
           [alwaysOnChainId]: mockNetwork(NetworkVMType.EVM, false, {
             chainId: alwaysOnChainId,
@@ -1068,15 +1067,10 @@ describe('background/services/network/NetworkService', () => {
           }),
         });
 
-        // Enabling any network runs the enabled-networks setter, which unions
-        // the always-enabled set in (mirrors what init/storage load does).
-        await service.enableNetwork(1337);
         expect(service['_enabledNetworks']).toContain(alwaysOnChainId);
 
         jest.clearAllMocks();
 
-        // Disabling an always-enabled network is a no-op: it stays enabled and
-        // no stale disabled record is persisted.
         await service.disableNetwork(alwaysOnChainId);
 
         expect(service['_enabledNetworks']).toContain(alwaysOnChainId);
@@ -1103,6 +1097,24 @@ describe('background/services/network/NetworkService', () => {
           service['_networkAvailability'][alwaysOnChainId],
         ).toBeUndefined();
       });
+
+      it('does not treat a feature-gated network as always-enabled', async () => {
+        const hyperEvm = mockNetwork(NetworkVMType.EVM, false, {
+          chainId: 999,
+          chainName: 'HyperEVM',
+          isAlwaysEnabled: true,
+        });
+
+        service['_allNetworks'].dispatch({
+          [hyperEvm.chainId]: hyperEvm,
+        });
+
+        expect(service['_enabledNetworks']).not.toContain(hyperEvm.chainId);
+
+        await service.disableNetwork(hyperEvm.chainId);
+
+        expect(service.updateNetworkState).toHaveBeenCalled();
+      });
     });
 
     describe('getNetworksEnabledByDefault', () => {
@@ -1125,6 +1137,25 @@ describe('background/services/network/NetworkService', () => {
           expect.arrayContaining(NETWORKS_ENABLED_BY_DEFAULT),
         );
         expect(result).toContain(defaultOnChainId);
+      });
+
+      it('does not default-enable feature-gated networks', async () => {
+        const hyperEvm = mockNetwork(NetworkVMType.EVM, false, {
+          chainId: 999,
+          chainName: 'HyperEVM',
+          isEnabledByDefault: true,
+        });
+
+        jest.spyOn(service.allNetworks, 'promisify').mockResolvedValue(
+          Promise.resolve({
+            [ethMainnet.chainId]: ethMainnet,
+            [hyperEvm.chainId]: hyperEvm,
+          }),
+        );
+
+        const result = await service.getNetworksEnabledByDefault();
+
+        expect(result).not.toContain(hyperEvm.chainId);
       });
     });
   });
@@ -1293,7 +1324,7 @@ describe('background/services/network/NetworkService', () => {
       );
     });
 
-    it('lets the API isAlwaysEnabled:false override the hardcoded floor', async () => {
+    it('keeps C-Chain always-enabled when the API sends isAlwaysEnabled: false', async () => {
       const networkService = new NetworkService(
         storageServiceMock,
         featureFlagsServiceMock,
@@ -1301,22 +1332,19 @@ describe('background/services/network/NetworkService', () => {
       );
       jest.spyOn(networkService, 'isMainnet').mockReturnValue(true);
 
-      // ChainId 1 (Ethereum) is part of NETWORKS_ENABLED_FOREVER, but the API
-      // explicitly opts it out.
-      const overriddenFloorNetwork = mockNetwork(NetworkVMType.EVM, false, {
-        chainId: 1,
+      const cChain = mockNetwork(NetworkVMType.EVM, false, {
+        chainId: ChainId.AVALANCHE_MAINNET_ID,
         isAlwaysEnabled: false,
       });
 
       networkService['_allNetworks'].dispatch({
-        [overriddenFloorNetwork.chainId]: overriddenFloorNetwork,
+        [cChain.chainId]: cChain,
       });
 
       const activeNetworks = await networkService.activeNetworks.promisify();
 
-      expect(
-        activeNetworks[overriddenFloorNetwork.chainId]?.isAlwaysEnabled,
-      ).toBe(false);
+      expect(activeNetworks[cChain.chainId]?.isAlwaysEnabled).toBe(true);
+      expect(networkService['_enabledNetworks']).toContain(cChain.chainId);
     });
   });
 

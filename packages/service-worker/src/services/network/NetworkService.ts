@@ -72,8 +72,8 @@ export class NetworkService implements OnLock, OnStorageReady {
   private _enabledNetworks: number[] = [...NETWORKS_ENABLED_FOREVER];
   // Networks that cannot be disabled by the user. Used synchronously by the
   // enabled-networks setter, so it is cached rather than derived on demand.
-  // Derived from the chainlist (API `isAlwaysEnabled` flag) with the hardcoded
-  // list as a floor.
+  // Derived from the feature-flag-filtered chainlist (API `isAlwaysEnabled`
+  // is additive) with `NETWORKS_ENABLED_FOREVER` as a floor.
   #alwaysEnabledNetworks: number[] = [...NETWORKS_ENABLED_FOREVER];
   // Network data that is stored in storage
   private _networkAvailability: Record<number, { isEnabled: boolean }> = {};
@@ -274,7 +274,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     ];
 
     this._enabledNetworks = uniqueNetworkIds;
-    this.enabledNetworksUpdated.dispatch(networkIds);
+    this.enabledNetworksUpdated.dispatch(uniqueNetworkIds);
   }
 
   private set networkAvailability(
@@ -289,13 +289,15 @@ export class NetworkService implements OnLock, OnStorageReady {
     return this.#filterByEnvironment(this._enabledNetworks);
   }
 
-  /**
-   * Networks that should be enabled by default on onboarding. Derived from the
-   * chainlist (API `isEnabledByDefault` flag) with the hardcoded list as a floor.
-   */
   async getNetworksEnabledByDefault(): Promise<number[]> {
     const chainList = await this.allNetworks.promisify();
-    return getDefaultEnabledNetworkIds(chainList);
+    // Feature-gated ids are excluded so onboarding cannot persist them as already-on.
+    return getDefaultEnabledNetworkIds(
+      this.#filterBasedOnFeatureFlags(chainList),
+    ).filter((id) => {
+      const network = chainList[id];
+      return !network || this.isNetworkEnabledByFeatureFlags(network);
+    });
   }
 
   public get customNetworks() {
@@ -968,7 +970,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       return chainList;
     }
 
-    const alwaysEnabledIds = new Set(getAlwaysEnabledNetworkIds(chainList));
+    const alwaysEnabledIds = new Set(this.#alwaysEnabledNetworks);
 
     return Object.fromEntries(
       Object.entries(chainList).map(([chainId, network]) => [
@@ -986,7 +988,14 @@ export class NetworkService implements OnLock, OnStorageReady {
       return;
     }
 
-    this.#alwaysEnabledNetworks = getAlwaysEnabledNetworkIds(chainList);
+    this.#alwaysEnabledNetworks = getAlwaysEnabledNetworkIds(
+      this.#filterBasedOnFeatureFlags(chainList),
+    );
+    // Re-run the setter so a chainlist that arrives after init() still unions
+    // newly always-enabled ids into `_enabledNetworks`.
+    this.enabledNetworks = this.#convertNetworkAvailabilityToEnabledNetworks(
+      this._networkAvailability,
+    );
   };
 
   #convertNetworkAvailabilityToEnabledNetworks = (
