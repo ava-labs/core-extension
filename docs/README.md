@@ -16,9 +16,7 @@
 7. [Localization](07-Localization.md)
 8. [Analytics and feature flags](08-Analytics-and-Feature-Flags.md)
 9. [Keystone](09-Keystone.md)
-10. [WalletConnect](10-WalletConnect.md)
-11. [Fireblocks](11-Fireblocks.md)
-12. [Seedless](12-Seedless.md)
+10. [Seedless](10-Seedless.md)
 
 ## Guides
 

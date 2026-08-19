@@ -16,7 +16,7 @@ The scanner is configured in `apps/next/i18next-scanner.config.js`. It scans `ap
 
 1. Run the `i18next-scanner` via the `yarn scanner` command. It will regenerate `locales/en/translation.json` by scanning through all of the source files.
 2. Create your PR. The PR will fail if you have changes to texts that are not in `locales/en/translation.json`.
-3. Merging the PR onto Main will upload the new language file to Crowdin
+3. Merging the PR onto `main` will upload the new language file to Crowdin
 4. Localizations are not automatic at the moment. You need to request them in Crowdin from our vendor.
 5. When there are new localizations available in Crowdin, the `crowdin_sync` action will automatically create a new PR to the extension repo. The action runs after each merge to the main branch and at midnight each day.
 6. Test localization correctness and test the app with the new texts.

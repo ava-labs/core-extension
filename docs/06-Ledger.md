@@ -17,6 +17,20 @@ To avoid some unnecessary `frontend -> service worker -> frontend -> ledger -> f
 Since the Ledger devices can only handle one WebUSB connection at a time, we always have to make sure, we have 1 and only 1 connection active to the device. Otherwise, sign requests can be unreliable. For example, an "old" window can be closed by the user unknowing that it was the one actually communicating with the device.<br/>
 To get ahead of this issue, the browser extension closes all non-active windows, making sure it only has one open at a time.
 
+## Bitcoin: why Core asks for the `Bitcoin Recovery` app
+
+Core keeps a Ledger wallet's Bitcoin addresses on the same account as its EVM addresses, so the wallet policy it registers on the device is derived from an Ethereum coin type: `44'/60'/0'` for BIP44 wallets and `44'/60'/n'` for LedgerLive ones (see [`useRegisterBtcWalletPolicy`](../packages/ui/src/hooks/useRegisterBtcWalletPolicy.ts)). No Bitcoin BIP describes that path, which makes it a non-standard one from the Bitcoin app's point of view.
+
+Ledger's `Bitcoin` app stopped accepting non-standard derivation paths in version `2.4.3`, which locks Core out of it. `MAX_BITCOIN_APP_VERSION` in [`LedgerProvider`](../packages/ui/src/contexts/LedgerProvider/LedgerProvider.tsx) therefore pins the last usable version at `2.4.2`; on anything newer the approval overlay renders the `unsupported-btc-version` state and links users to the [support article](https://support.core.app/en/articles/13145665-why-doesn-t-my-bitcoin-ledger-application-work-with-core) instead of prompting for a signature.
+
+The way around it is Ledger's `Bitcoin Recovery` app, which is still shipped without the path restriction. So `getRequiredApp()` in [`useLedgerApprovalState`](../apps/next/src/pages/Approve/components/hardware/ledger/useLedgerApprovalState.ts) asks for `Bitcoin Recovery` on Bitcoin networks, while `isCompatibleApp()` keeps accepting a plain `Bitcoin` app as long as it is on `2.4.2` or below — users who have not updated do not need to install anything new.
+
+### Wallet policy registration
+
+Signing a Bitcoin transaction needs a registered wallet policy (`wpkh(@0/**)`) on the device. Core decides whether to run the registration by asking the service worker for the stored master fingerprint via `WALLET_GET_BTC_WALLET_POLICY_DETAILS` — no fingerprint means the policy has not been registered for that wallet yet. `LedgerPolicyRegistrationStateContext` then fetches the extended public key for the path above, calls `registerWallet` and the user confirms it on the device once per wallet. Until that is done, the approval overlay sits in the `btc-policy-needed` state.
+
+Registration only runs on a compatible Bitcoin app, so a user on `Bitcoin` 2.4.3+ sees the unsupported-version screen rather than a policy prompt.
+
 ## Signing flow
 
 The diagram below shows the generic data flow of signing a transaction. The generic idea is the same for all types of transactions, the only difference is the UI and the handler.
@@ -26,7 +40,7 @@ The diagram below shows the generic data flow of signing a transaction. The gene
 ## Most common issues
 
 - Ledger Live app is open. When Ledger Live is open it can grab the connection for the device, making the browser unable to connect.
-- Using the wrong app. Core requires the Avalanche app for all EVM, X, and P chain interactions and the Bitcoin app for Bitcoin interactions.
+- Using the wrong app. `getRequiredApp()` asks for the Ethereum app on Ethereum mainnet and its testnets, the Solana app on Solana, `Bitcoin Recovery` on Bitcoin, and the Avalanche app everywhere else — including EVM chains other than Ethereum.
 - Signing typed data is not yet supported on the Avalanche app.
 
 ## DOs and DON'Ts
