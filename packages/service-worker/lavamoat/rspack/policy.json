@@ -128,15 +128,6 @@
         "bn.js": true
       }
     },
-    "@avalabs/core-wallets-sdk>@avalabs/core-utils-sdk": {
-      "globals": {
-        "AbortController": true,
-        "URLSearchParams": true,
-        "clearTimeout": true,
-        "fetch": true,
-        "setTimeout": true
-      }
-    },
     "@avalabs/evm-module>@avalabs/core-utils-sdk": {
       "globals": {
         "URL": true
@@ -168,9 +159,9 @@
       },
       "packages": {
         "@avalabs/avalanchejs": true,
-        "@avalabs/core-wallets-sdk>@avalabs/core-chains-sdk": true,
-        "@avalabs/core-wallets-sdk>@avalabs/core-utils-sdk": true,
-        "@avalabs/core-wallets-sdk>@avalabs/glacier-sdk": true,
+        "@avalabs/core-chains-sdk": true,
+        "@avalabs/core-utils-sdk": true,
+        "@avalabs/glacier-sdk": true,
         "@avalabs/hw-app-avalanche": true,
         "@ledgerhq/hw-app-btc": true,
         "@ledgerhq/hw-app-eth": true,
@@ -307,21 +298,6 @@
       }
     },
     "@avalabs/glacier-sdk": {
-      "globals": {
-        "AbortController": true,
-        "Buffer.from": true,
-        "FormData": true,
-        "Headers": true,
-        "btoa": true,
-        "console.error": true,
-        "console.warn": true,
-        "fetch": true
-      },
-      "packages": {
-        "buffer": true
-      }
-    },
-    "@avalabs/core-wallets-sdk>@avalabs/glacier-sdk": {
       "globals": {
         "AbortController": true,
         "Buffer.from": true,
