@@ -6,16 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Core Extension is a non-custodial browser extension for Chromium browsers built using Manifest V3. It enables users to seamlessly and securely interact with Web3 applications powered by Avalanche, supporting Bitcoin, Ethereum, and Solana networks.
 
-The project uses a monorepo structure with yarn workspaces and contains two main applications:
-
-- **Next**: The next-generation version (React 19, modern architecture) in `apps/next/`
+The project uses a monorepo structure with yarn workspaces. The frontend lives in `apps/next/` (React 19); everything else is a package under `packages/`.
 
 ## Essential Commands
 
 ### Development
 
 ```bash
-# Start development (defaults to legacy)
+# Start development
 yarn dev
 yarn start
 
@@ -68,7 +66,7 @@ Built with Rsbuild (Rspack-based) instead of Webpack. Each package has its own b
 The extension follows the standard Manifest V3 architecture with 4 isolated components:
 
 1. **Service Worker** (`packages/service-worker/`): Background script handling business logic, network communication, transaction signing, and encrypted storage
-2. **Frontend** (`apps/legacy/` or `apps/next/`): React UI for onboarding, main interface, and approval windows
+2. **Frontend** (`apps/next/`): React UI for onboarding, main interface, and approval windows
 3. **Content Script** (`packages/content-script/`): Bridge between service worker and injected provider
 4. **Injected Provider** (`packages/inpage/`): EIP-1193 compliant provider injected into web pages for dApp communication
 
@@ -140,7 +138,7 @@ The frontend supports multiple contexts determined by `isSpecificContextContaine
 
 ### Component Library
 
-- Uses [K2 Components](https://k2-components.pages.dev/) for UI consistency
+- Uses the K2 Alpine component library (`@avalabs/k2-alpine`) for UI consistency
 - Avoid overriding MUI classes - update K2 or Figma instead
 - Ask in `k2-product-design-system` Slack for design system questions
 

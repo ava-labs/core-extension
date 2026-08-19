@@ -21,6 +21,10 @@
 
 <hr>
 
+## Documentation
+
+Architecture and integration docs live in [`docs/`](docs/README.md) — start there for how the extension is put together, how the service worker, frontend, content script, and injected provider fit together, and how the hardware wallet and seedless integrations work.
+
 ## Development Setup
 
 ### Prerequisites

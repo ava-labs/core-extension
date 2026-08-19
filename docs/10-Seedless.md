@@ -22,12 +22,12 @@ During the implementation you will meet 4 types of tokens:
 
 ### OIDC token
 
-OIDC tokens are JWT tokens aquired from the integrated authentication providers like Google. They are used for registration and authentication of the user. Users usually have to be prompted via authentication popups so that they can select the account they want to use. During the onboarding flow they are exchanged for Signer and Management tokens.
+OIDC tokens are JWT tokens acquired from the integrated authentication providers like Google. They are used for registration and authentication of the user. Users usually have to be prompted via authentication popups so that they can select the account they want to use. During the onboarding flow they are exchanged for Signer and Management tokens.
 
 ### Signer session token
 
 Provided by CubeSigner to be used for signing transactions and messages.
-They can be aquired either via exchanging the OIDC token and using the configured MFA devices or via regular login flow for non OIDC users.
+They can be acquired either via exchanging the OIDC token and using the configured MFA devices or via regular login flow for non OIDC users.
 
 Signer session tokens expire either if the session lifetime expires (maximalized in 1y) or if a refresh token expires before a new one is generated.
 
@@ -36,12 +36,12 @@ The two most important tokens in the signer session token are:
 - `id_token`: has a very limited lifetime (5 min), used for authentication to CubeSigner
 - `refresh_token`: used for refreshing the `id_token`. When refreshing the `id_token`, the `refresh_token` is also updated. It has a longer (90 day) lifetime. If this token expires, for example Core was not used in the past 90 days, the user has to re-authenticate using OIDC.
 
-### Managment token
+### Management token
 
 Provided by CubeSigner to be used for management purposes. Depending on the role of the user they can be VERY powerful. For regular users it's used to manage their MFA settings and their own policies.
 The owner and non OIDC accounts' management token is way more powerful. The owner account can set policies for the entire organization, create new users, keys, move keys between users, deleting OIDC users, etc. Pretty much can do anything CubeSigner provides. Regular users are a bit less strong, they still can be used for creating new users and new keys, but they are not able to delete users or set org-wide policies.
 
-They can be aquired either via exchanging the OIDC token and using the configured MFA devices or via regular login flow for non OIDC users.
+They can be acquired either via exchanging the OIDC token and using the configured MFA devices or via regular login flow for non OIDC users.
 
 ### Limited scoped management token
 
@@ -102,10 +102,22 @@ Using raw blob signing requires adding the `AllowRawBlobSigning` policy to the u
 
 <img src="images/seedless-signing-flow.png" />
 
+## Recovery phrase export
+
+Seedless users can export their mnemonic, but CubeSigner enforces a mandatory waiting period before the key material can be decrypted. The flow is driven by the `ExportState` machine in `packages/ui/src/hooks/useSeedlessMnemonicExport.ts`, backed by four handlers in `packages/service-worker/src/services/seedless/handlers/` (`init`, `complete`, `cancel`, and `getState` for the recovery phrase export).
+
+1. The user starts the export from Settings and authenticates with MFA (`Initiating`).
+2. CubeSigner starts the waiting period and the request sits in `Pending`. This is **48 hours in production** and shortened to **1 minute in development builds**, so a locally tested flow will not match what users experience.
+3. Once elapsed, the request moves to `ReadyToExport` and the user has a **48-hour window** to complete it. After that the request expires and has to be started over.
+4. Completing the export decrypts the mnemonic (`Exporting` → `Exported`).
+5. The user can cancel at any point, which resets the state back to `NotInitiated`.
+
+<img src="images/seedless-export-phrase-flow.png" />
+
 ## Deleting accounts
 
 Deleting OIDC accounts is possible via an owner's management session. Deleting accounts removes the user's access from the session, but does not delete their keys.
-**NOTE:** Deleting and re-registering does not re-assing the old keys to the user. A new registration will result in having new keys and addresses.
+**NOTE:** Deleting and re-registering does not re-assign the old keys to the user. A new registration will result in having new keys and addresses.
 
 ## DOs and DON'Ts
 
