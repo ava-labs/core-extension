@@ -16,22 +16,17 @@
     },
     "@avalabs/core-utils-sdk": {
       "globals": {
+        "AbortController": true,
         "URL": true,
+        "URLSearchParams": true,
+        "clearTimeout": true,
+        "fetch": true,
         "setTimeout": true
       },
       "packages": {
         "@core/common>big.js": true,
         "@core/ui>bn.js": true,
         "@avalabs/core-utils-sdk>is-ipfs": true
-      }
-    },
-    "@avalabs/core-wallets-sdk>@avalabs/core-utils-sdk": {
-      "globals": {
-        "AbortController": true,
-        "URLSearchParams": true,
-        "clearTimeout": true,
-        "fetch": true,
-        "setTimeout": true
       }
     },
     "@avalabs/core-wallets-sdk": {
@@ -54,8 +49,8 @@
       },
       "packages": {
         "@avalabs/avalanchejs": true,
-        "@avalabs/core-wallets-sdk>@avalabs/core-chains-sdk": true,
-        "@avalabs/core-wallets-sdk>@avalabs/core-utils-sdk": true,
+        "@avalabs/core-chains-sdk": true,
+        "@avalabs/core-utils-sdk": true,
         "@core/ui>@avalabs/hw-app-avalanche": true,
         "@core/ui>@ledgerhq/hw-app-eth": true,
         "@core/ui>@ledgerhq/hw-app-solana": true,
