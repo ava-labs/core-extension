@@ -4,7 +4,7 @@
 
 The browser extension uses the [chrome.storage](https://developer.chrome.com/docs/extensions/reference/storage/) API for data persistence.
 
-The `StorageService` exposes a set of methods to utilize this API on the background script.
+The `StorageService` exposes a set of methods to utilize this API on the service worker. It lives in `packages/service-worker/src/services/storage`.
 
 ## Encryption
 
@@ -12,7 +12,21 @@ Core generates a random storage encryption key during onboarding. This encryptio
 
 The encryption key is also stored encrypted in storage at rest using the password set by the user during onboarding. The password is hashed using `Scrypt KDF` from the `@noble/hashes/scrypt` library.
 
-To check the exact implementations out, go here: [`src/background/services/storage/utils/crypto.ts`](https://github.com/ava-labs/core-extension/blob/main/src/background/services/storage/utils/crypto.ts)
+To check the exact implementations out, go here: [`packages/service-worker/src/services/storage/utils/crypto.ts`](https://github.com/ava-labs/core-extension/blob/main/packages/service-worker/src/services/storage/utils/crypto.ts)
+
+## Schema migrations
+
+Stored data is versioned. Every top-level storage key that has ever changed shape has an entry in [`schemaMigrations/schemaMap.ts`](https://github.com/ava-labs/core-extension/blob/main/packages/service-worker/src/services/storage/schemaMigrations/schemaMap.ts), declaring its `latestVersion` and the list of migrations that lead up to it.
+
+On read, `migrateToLatest` compares the `version` field on the stored payload with the schema's `latestVersion` and pipes the data through every intermediate migration in order. Data without a `version` field is treated as version 1. On write, `getDataWithSchemaVersion` stamps the current `latestVersion` onto new records.
+
+When you change the shape of anything persisted:
+
+1. Add a `<key>_v<n>.ts` migration under `schemaMigrations/migrations/`.
+2. Register it in `SCHEMA_MAP` and bump that key's `latestVersion`.
+3. Cover it with a test — a migration that throws leaves the user with an unreadable wallet, and there is no way to fix it after the fact on a user's machine.
+
+Migrations may depend on another storage key being migrated first; that is what the `loadDependency` argument of `migrateToLatest` is for.
 
 ## DOs and DON'Ts
 
