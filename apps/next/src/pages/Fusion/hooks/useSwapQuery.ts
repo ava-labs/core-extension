@@ -30,7 +30,8 @@ export const useSwapQuery: UseSwapQuery = () => {
   const fromQuery = searchParams.get(FUSION_QUERY_TOKENS.fromQuery) ?? '';
   const toId = searchParams.get(FUSION_QUERY_TOKENS.to) ?? '';
   const toQuery = searchParams.get(FUSION_QUERY_TOKENS.toQuery) ?? '';
-  const userAmount = searchParams.get(FUSION_QUERY_TOKENS.userAmount) ?? '';
+  const rawUserAmount = searchParams.get(FUSION_QUERY_TOKENS.userAmount) ?? '';
+  const userAmount = /^\d*\.?\d*$/.test(rawUserAmount) ? rawUserAmount : '';
   const isRecurring = searchParams.get(FUSION_QUERY_TOKENS.isRecurring) ?? '';
 
   const update = useCallback(
