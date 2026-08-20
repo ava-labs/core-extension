@@ -52,6 +52,7 @@ export * from './isLockStateChangedEvent';
 export * from './isPrimarySubnet';
 export * from './isSafeRemoteUrl';
 export * from './isSupportedBrowser';
+export * from './toSafeCssUrl';
 export * from './isTokenMalicious';
 export * from './isWalletStateUpdateEvent';
 export * from './jsonRpcEngine';

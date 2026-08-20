@@ -9,6 +9,7 @@ import {
   Typography,
 } from '@avalabs/k2-alpine';
 import { LinkItem } from '@avalabs/vm-module-types';
+import { toSafeCssUrl } from '@core/common';
 import { type CSSProperties, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -56,23 +57,15 @@ export const LinkDetail = ({ item }: LinkDetailProps) => {
       } as CSSProperties)
     : undefined;
 
-  const safeFaviconUrl = (() => {
-    if (!item.value.icon) return '';
-    try {
-      const { protocol } = new URL(item.value.icon);
-      return protocol === 'https:' || protocol === 'http:' ? item.value.icon : '';
-    } catch {
-      return '';
-    }
-  })();
+  const faviconBackgroundImage = toSafeCssUrl(item.value.icon);
 
   return (
     <TxDetailsRow label={item.label}>
       <Tooltip title={fullUrl} slotProps={tooltipSlotProps} arrow>
         <UrlContainer>
-          {safeFaviconUrl && (
+          {faviconBackgroundImage !== 'none' && (
             <Favicon
-              sx={{ backgroundImage: `url(${safeFaviconUrl})` }}
+              sx={{ backgroundImage: faviconBackgroundImage }}
               role="presentation"
             />
           )}
