@@ -148,11 +148,28 @@ export class SwapPage extends BasePage {
       )
       .toBe(true);
 
-    await searchInput.fill(symbol);
-    await this.page.waitForTimeout(1000);
-
     const option = this.page.locator(`[data-option-id="${tokenId}"]`);
-    await option.waitFor({ state: 'visible', timeout: 5_000 });
+
+    // The bridgeable token list is fetched and filtered server-side, so
+    // results arrive asynchronously after typing — a slow fetch in CI can
+    // exceed the old 1s + 5s window. The search field is also uncontrolled,
+    // so a loading→loaded remount can drop the query; re-fill it if the input
+    // no longer holds the symbol we typed.
+    await expect
+      .poll(
+        async () => {
+          const isAlreadyVisible = await option.isVisible().catch(() => false);
+          if (isAlreadyVisible) return true;
+
+          const current = await searchInput.inputValue().catch(() => '');
+          if (current !== symbol) await searchInput.fill(symbol);
+          return option.isVisible().catch(() => false);
+        },
+        { timeout: 30_000, intervals: [500, 1000, 1000, 2000] },
+      )
+      .toBe(true);
+
+    await option.scrollIntoViewIfNeeded().catch(() => {});
     await option.click();
     await this.page.waitForTimeout(1000);
   }
