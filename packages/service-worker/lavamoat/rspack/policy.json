@@ -314,6 +314,8 @@
     },
     "@avalabs/hvm-module": {
       "globals": {
+        "AbortSignal.timeout": true,
+        "fetch": true,
         "process.env.GLACIER_API_KEY": true
       },
       "packages": {
