@@ -55,15 +55,28 @@ export const buildRequestContext = (
     ...(recurringSwaps ? { recurringSwaps } : {}),
   };
 
+  // Check if auto-approve conditions are met
+  // Auto-approve is only applicable for single-chain swaps with valid slippage and fee values
+  const slippageBps = quote.slippageBps;
+  const partnerFeeBps = quote.partnerFeeBps ?? 0;
+  const areBpsInRange =
+    Number.isFinite(slippageBps) &&
+    slippageBps >= 0 &&
+    slippageBps <= BASIS_POINTS_DIVISOR &&
+    Number.isFinite(partnerFeeBps) &&
+    partnerFeeBps >= 0 &&
+    partnerFeeBps <= BASIS_POINTS_DIVISOR;
+
   // Calculate minAmountOut
-  const slippagePercent = quote.slippageBps / BASIS_POINTS_DIVISOR;
-  const feePercent = (quote.partnerFeeBps ?? 0) / BASIS_POINTS_DIVISOR;
+  const slippagePercent = slippageBps / BASIS_POINTS_DIVISOR;
+  const feePercent = partnerFeeBps / BASIS_POINTS_DIVISOR;
   const minAmountOut = new Big(String(quote.amountOut))
     .times(1 - slippagePercent - feePercent)
     .toFixed(0);
 
   const hasMinAmountOut = Boolean(minAmountOut && minAmountOut !== '0');
   const autoApprove =
+    areBpsInRange &&
     !isCrossChainSwap &&
     hasMinAmountOut &&
     isQuickSwapsEnabled &&

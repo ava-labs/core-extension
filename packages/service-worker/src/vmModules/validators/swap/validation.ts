@@ -122,7 +122,7 @@ export function validateSwapUsdPrices(
 
   // User loses value → check slippage tolerance and fee
   const slippage = context?.slippage;
-  if (!slippage || typeof slippage !== 'number') {
+  if (!slippage || typeof slippage !== 'number' || slippage < 0) {
     return {
       isValid: false,
       requiresManualApproval: true,
@@ -139,6 +139,15 @@ export function validateSwapUsdPrices(
     ? MARKR_PARTNER_FEE_BPS / BASIS_POINTS_DIVISOR
     : 0;
   const totalPercent = slippagePercent + feePercent;
+  
+  // Check if total percent exceeds 100% (1.0) - if so, manual approval required
+  if (totalPercent >= 1) {
+    return {
+      isValid: false,
+      requiresManualApproval: true,
+      reason: 'Slippage tolerance out of range',
+    };
+  }
 
   const minAcceptableUsdValue = sourceUsdValue * (1 - totalPercent);
 
@@ -170,6 +179,24 @@ function validateMinAmountOut(
       reason: 'Unable to verify balance change information',
     };
   }
+
+  // Validate that expectedMinAmountOut is a valid bigint string
+  try {
+    if (BigInt(expectedMinAmountOut) <= 0n) {
+      return {
+        isValid: false,
+        requiresManualApproval: true,
+        reason: 'Unable to verify balance change information',
+      };
+    }
+  } catch {
+    return {
+      isValid: false,
+      requiresManualApproval: true,
+      reason: 'Unable to verify balance change information',
+    };
+  }
+
   return null; // Validation passed, continue to next step
 }
 

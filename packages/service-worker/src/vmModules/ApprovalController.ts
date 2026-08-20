@@ -402,7 +402,9 @@ export class ApprovalController implements BatchApprovalController {
           type: AlertType.WARNING,
           details: {
             title: 'Manual approval required',
-            description: validation.reason,
+            description:
+              validation.reason ??
+              'This transaction could not be automatically verified.',
           },
         };
       } else {
