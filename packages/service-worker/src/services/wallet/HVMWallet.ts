@@ -12,6 +12,22 @@ import {
   VMABI,
 } from 'hypersdk-client/dist/Marshaler';
 
+// Verify that the ABI is structurally valid before marshaling
+function assertValidVMABI(abi: VMABI): void {
+  const isAbsentOrArray = (value: unknown): boolean =>
+    value === undefined || Array.isArray(value);
+
+  if (
+    !abi ||
+    typeof abi !== 'object' ||
+    !isAbsentOrArray((abi as VMABI).actions) ||
+    !isAbsentOrArray((abi as VMABI).outputs) ||
+    !isAbsentOrArray((abi as VMABI).types)
+  ) {
+    throw new Error('Invalid HVM transaction ABI');
+  }
+}
+
 export class HVMWallet {
   #privateKey: string;
   static fromMnemonic(
@@ -34,6 +50,8 @@ export class HVMWallet {
     txPayload: TransactionPayload,
     abi: VMABI,
   ): Promise<string> {
+    assertValidVMABI(abi);
+
     const marshaler = new Marshaler(abi);
     const digest = marshaler.encodeTransaction(txPayload);
 
