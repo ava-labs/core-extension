@@ -59,13 +59,28 @@ describe('src/background/services/wallet/handlers/importSeedPhrase', () => {
     );
   };
 
+
+  const VALID_MNEMONIC =
+    'buyer zoo end danger ice capable shrug naive twist relief mass bonus';
+
+  it('returns an error if the seed phrase is invalid', async () => {
+    const { error } = await handle({ mnemonic: 'mnemonic' });
+
+    expect(error).toEqual(
+      expect.objectContaining({
+        data: { reason: SeedphraseImportError.InvalidSeedphrase },
+      }),
+    );
+    expect(secretsService.isKnownSecret).not.toHaveBeenCalled();
+  });
+
   it('returns an error if the seed phrase is already imported', async () => {
     secretsService.isKnownSecret.mockResolvedValueOnce({
       isKnown: true,
       name: 'walletName',
     });
 
-    const { error } = await handle({ mnemonic: 'mnemonic' });
+    const { error } = await handle({ mnemonic: VALID_MNEMONIC });
 
     expect(error).toEqual(
       expect.objectContaining({

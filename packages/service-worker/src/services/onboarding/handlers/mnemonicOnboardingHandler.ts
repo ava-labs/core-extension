@@ -23,6 +23,7 @@ import { finalizeOnboarding } from '../finalizeOnboarding';
 import { startOnboarding } from '../startOnboarding';
 import { buildExtendedPublicKey } from '../../secrets/utils';
 import { addAllAccountsWithHistory } from '~/services/accounts/utils/addAllAccountsWithHistory';
+import { isPhraseCorrect } from '@core/common';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.MNEMONIC_ONBOARDING_SUBMIT,
@@ -61,6 +62,14 @@ export class MnemonicOnboardingHandler implements HandlerType {
     } = (request.params ?? [])[0] ?? {};
 
     const mnemonic = rawMnemonic.toLowerCase(); // BIP39 seed phrases are case-insensitive
+
+    if (!isPhraseCorrect(mnemonic)) {
+      return {
+        ...request,
+        error: 'Invalid recovery phrase.',
+      };
+    }
+
     const xpub = await getXpubFromMnemonic(mnemonic);
     const xpubXP = Avalanche.getXpubFromMnemonic(mnemonic, 0);
 

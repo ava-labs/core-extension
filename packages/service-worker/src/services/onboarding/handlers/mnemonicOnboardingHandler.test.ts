@@ -41,6 +41,11 @@ jest.mock('@avalabs/core-wallets-sdk', () => {
 
 const WALLET_ID = 'wallet-id';
 describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.ts', () => {
+  // A real BIP39 phrase: the handler now rejects anything that fails
+  // isPhraseCorrect(), so placeholder strings no longer reach the wallet.
+  const VALID_MNEMONIC =
+    'buyer zoo end danger ice capable shrug naive twist relief mass bonus';
+
   const onboardingServiceMock = {
     setIsOnboarded: jest.fn(),
   } as unknown as OnboardingService;
@@ -116,7 +121,7 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
       .mocked(Avalanche.getXpubFromMnemonic)
       .mockReturnValueOnce('xpubFromMnemonicXP');
 
-    const mnemonic = 'MnEmOnIc';
+    const mnemonic = VALID_MNEMONIC.toUpperCase();
     const handler = getHandler();
     const request = getRequest([
       {
@@ -156,7 +161,7 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
     const handler = getHandler();
     const request = getRequest([
       {
-        mnemonic: 'mnemonic',
+        mnemonic: VALID_MNEMONIC,
         password: 'password',
         analyticsConsent: false,
       },
@@ -169,12 +174,12 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
       result: true,
     });
 
-    expect(getXpubFromMnemonic).toHaveBeenCalledWith('mnemonic');
+    expect(getXpubFromMnemonic).toHaveBeenCalledWith(VALID_MNEMONIC);
     expect(storageServiceMock.createStorageKey).toHaveBeenCalledWith(
       'password',
     );
     expect(walletServiceMock.init).toHaveBeenCalledWith({
-      mnemonic: 'mnemonic',
+      mnemonic: VALID_MNEMONIC,
       extendedPublicKeys: [
         buildExtendedPublicKey('xpubFromMnemonic', EVM_BASE_DERIVATION_PATH),
         buildExtendedPublicKey(

@@ -47,6 +47,7 @@ export enum VMModuleError {
 
 export enum SeedphraseImportError {
   ExistingSeedphrase = 'existing-seedphrase',
+  InvalidSeedphrase = 'invalid-seedphrase',
 }
 
 export enum UnifiedBridgeError {
