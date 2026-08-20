@@ -44,6 +44,7 @@ export class ActionEvents implements DAppEventEmitter {
     this.actionService.addListener(
       ActionsEvent.ACTION_UPDATED,
       (actions: Actions) => {
+        // Check if any of the updated actions belong to the current connection (tabId or domain)
         const filtered = Object.fromEntries(
           Object.entries(actions).filter(
             ([, action]) =>

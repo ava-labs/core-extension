@@ -47,7 +47,10 @@ describe('ActionEvents', () => {
   describe('ACTION_UPDATED — security boundary', () => {
     it('does not emit to an unrelated dApp connection (different tabId)', () => {
       const { events, fireActionUpdated } = makeActionEvents();
-      events.setConnectionInfo({ domain: 'attacker.example', tabId: ATTACKER_TAB_ID });
+      events.setConnectionInfo({
+        domain: 'attacker.example',
+        tabId: ATTACKER_TAB_ID,
+      });
 
       const listener = jest.fn();
       events.addListener(listener);
@@ -59,14 +62,20 @@ describe('ActionEvents', () => {
 
     it('emits only the matching action to the originating dApp connection', () => {
       const { events, fireActionUpdated } = makeActionEvents();
-      events.setConnectionInfo({ domain: 'victim.example', tabId: VICTIM_TAB_ID });
+      events.setConnectionInfo({
+        domain: 'victim.example',
+        tabId: VICTIM_TAB_ID,
+      });
 
       const listener = jest.fn();
       events.addListener(listener);
 
       const victimAction = buildAction(VICTIM_TAB_ID, 'victim-action');
       const otherAction = buildAction(ATTACKER_TAB_ID, 'other-action');
-      fireActionUpdated({ 'victim-action': victimAction, 'other-action': otherAction });
+      fireActionUpdated({
+        'victim-action': victimAction,
+        'other-action': otherAction,
+      });
 
       expect(listener).toHaveBeenCalledTimes(1);
       expect(listener).toHaveBeenCalledWith({
@@ -77,7 +86,10 @@ describe('ActionEvents', () => {
 
     it('matches on site.tabId when action.tabId is absent', () => {
       const { events, fireActionUpdated } = makeActionEvents();
-      events.setConnectionInfo({ domain: 'victim.example', tabId: VICTIM_TAB_ID });
+      events.setConnectionInfo({
+        domain: 'victim.example',
+        tabId: VICTIM_TAB_ID,
+      });
 
       const listener = jest.fn();
       events.addListener(listener);
@@ -97,7 +109,10 @@ describe('ActionEvents', () => {
 
       const victimAction = buildAction(VICTIM_TAB_ID, 'victim-action');
       const otherAction = buildAction(ATTACKER_TAB_ID, 'other-action');
-      const allActions = { 'victim-action': victimAction, 'other-action': otherAction };
+      const allActions = {
+        'victim-action': victimAction,
+        'other-action': otherAction,
+      };
       fireActionUpdated(allActions);
 
       expect(listener).toHaveBeenCalledTimes(1);
@@ -125,7 +140,10 @@ describe('ActionEvents', () => {
 
     it('does not emit an empty map to an unrelated dApp', () => {
       const { events, fireActionUpdated } = makeActionEvents();
-      events.setConnectionInfo({ domain: 'attacker.example', tabId: ATTACKER_TAB_ID });
+      events.setConnectionInfo({
+        domain: 'attacker.example',
+        tabId: ATTACKER_TAB_ID,
+      });
 
       const listener = jest.fn();
       events.addListener(listener);
@@ -139,13 +157,16 @@ describe('ActionEvents', () => {
   describe('ACTION_COMPLETED — existing filtering unchanged', () => {
     it('does not emit to an unrelated dApp connection', () => {
       const { events, fireActionCompleted } = makeActionEvents();
-      events.setConnectionInfo({ domain: 'attacker.example', tabId: ATTACKER_TAB_ID });
+      events.setConnectionInfo({
+        domain: 'attacker.example',
+        tabId: ATTACKER_TAB_ID,
+      });
 
       const listener = jest.fn();
       events.addListener(listener);
 
       fireActionCompleted({
-        type: ActionCompletedEventType.SUCCESS,
+        type: ActionCompletedEventType.COMPLETED,
         action: buildAction(VICTIM_TAB_ID),
         result: '0xsignature',
       });
@@ -155,20 +176,26 @@ describe('ActionEvents', () => {
 
     it('emits to the originating dApp connection', () => {
       const { events, fireActionCompleted } = makeActionEvents();
-      events.setConnectionInfo({ domain: 'victim.example', tabId: VICTIM_TAB_ID });
+      events.setConnectionInfo({
+        domain: 'victim.example',
+        tabId: VICTIM_TAB_ID,
+      });
 
       const listener = jest.fn();
       events.addListener(listener);
 
       const action = buildAction(VICTIM_TAB_ID);
       fireActionCompleted({
-        type: ActionCompletedEventType.SUCCESS,
+        type: ActionCompletedEventType.COMPLETED,
         action,
         result: '0xsignature',
       });
 
       expect(listener).toHaveBeenCalledTimes(1);
-      expect(listener).toHaveBeenCalledWith({ ...action, result: '0xsignature' });
+      expect(listener).toHaveBeenCalledWith({
+        ...action,
+        result: '0xsignature',
+      });
     });
 
     it('emits to the extension UI regardless of tabId', () => {
@@ -180,7 +207,7 @@ describe('ActionEvents', () => {
 
       const action = buildAction(VICTIM_TAB_ID);
       fireActionCompleted({
-        type: ActionCompletedEventType.SUCCESS,
+        type: ActionCompletedEventType.COMPLETED,
         action,
         result: '0xsignature',
       });
