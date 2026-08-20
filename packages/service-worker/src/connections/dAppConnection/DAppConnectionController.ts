@@ -38,6 +38,20 @@ import { ModuleManager } from '../../vmModules/ModuleManager';
 import { ActiveNetworkMiddleware } from '../middlewares/ActiveNetworkMiddleware';
 import { AvalancheTxContextMiddleware } from '../middlewares/AvalancheTxContextMiddleware';
 import { SecretsService } from '~/services/secrets/SecretsService';
+import { ActionsService } from '../../services/actions/ActionsService';
+
+
+const getSenderHostname = (connection: Runtime.Port): string | undefined => {
+  if (!connection.sender?.url) {
+    return undefined;
+  }
+
+  try {
+    return new URL(connection.sender.url).hostname;
+  } catch {
+    return undefined;
+  }
+};
 
 /**
  * This needs to be a controller per dApp, to separate messages
@@ -50,6 +64,9 @@ export class DAppConnectionController implements ConnectionController {
     JsonRpcSuccess<unknown> | JsonRpcFailure
   >;
   private connection?: PortConnection;
+  // Captured at connect time so teardown can identify this connection's
+  // pending approvals even though the port's sender is gone by then.
+  private connectionInfo?: { tabId?: number; domain?: string };
 
   constructor(
     @injectAll('DAppRequestHandler') private handlers: DAppRequestHandler[],
@@ -60,6 +77,7 @@ export class DAppConnectionController implements ConnectionController {
     private secretsService: SecretsService,
     private lockService: LockService,
     private moduleManager: ModuleManager,
+    private actionsService: ActionsService,
   ) {
     this.onRequest = this.onRequest.bind(this);
     this.disconnect = this.disconnect.bind(this);
@@ -94,6 +112,11 @@ export class DAppConnectionController implements ConnectionController {
 
     connectionLog('dApp Provider');
 
+    this.connectionInfo = {
+      domain: getSenderHostname(connection),
+      tabId: connection.sender?.tab?.id,
+    };
+
     this.connection.connect((message) => {
       return this.onRequest(message);
     });
@@ -112,6 +135,20 @@ export class DAppConnectionController implements ConnectionController {
     this.eventEmitters.forEach((emitter) =>
       emitter.removeListener(this.onEvent),
     );
+
+    // The page that asked for these approvals is gone, so no one can
+    // legitimately answer them anymore.
+    if (this.connectionInfo) {
+      this.actionsService
+        .cancelPendingActionsForConnection(this.connectionInfo)
+        .catch((err) => {
+          Monitoring.sentryCaptureException(
+            err as Error,
+            Monitoring.SentryExceptionTypes.DAPP_CONNECTION_EVENT,
+          );
+        });
+    }
+
     disconnectLog('dApp Provider');
   }
 

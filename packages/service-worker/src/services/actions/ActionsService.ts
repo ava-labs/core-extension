@@ -14,6 +14,7 @@ import {
   MultiTxAction,
 } from '@core/types';
 import { getUpdatedSigningData } from '@core/common';
+import browser from 'webextension-polyfill';
 import { ethErrors } from 'eth-rpc-errors';
 import { EventEmitter } from 'events';
 import { omit } from 'lodash';
@@ -22,7 +23,7 @@ import { OnStorageReady } from '../../runtime/lifecycleCallbacks';
 import { ApprovalController } from '../../vmModules/ApprovalController';
 import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
-import { filterStaleActions } from './utils';
+import { filterStaleActions, getActionDomain, getActionTabId } from './utils';
 
 @singleton()
 export class ActionsService implements OnStorageReady {
@@ -107,6 +108,43 @@ export class ActionsService implements OnStorageReady {
     await this.saveActions(txs);
   }
 
+  // Cancel all pending actions for a given connection (tabId + domain)
+  async cancelPendingActionsForConnection({
+    tabId,
+    domain,
+  }: {
+    tabId?: number;
+    domain?: string;
+  }): Promise<void> {
+    // Both are required: matching on the tab alone would let one frame cancel
+    // another origin's approval in the same tab.
+    if (typeof tabId !== 'number' || !domain) {
+      return;
+    }
+
+    const actions = await this.getActions();
+    const abandoned = Object.entries(actions).filter(
+      ([, action]) =>
+        action.status === ActionStatus.PENDING &&
+        getActionTabId(action) === tabId &&
+        getActionDomain(action) === domain,
+    );
+
+    for (const [id, action] of abandoned) {
+      await this.updateAction({
+        id,
+        status: ActionStatus.ERROR_USER_CANCELED,
+      });
+
+      if (typeof action.popupWindowId === 'number') {
+        // The window is now showing an approval that can never complete.
+        await browser.windows.remove(action.popupWindowId).catch(() => {
+          // Already closed by the user - nothing to clean up.
+        });
+      }
+    }
+  }
+
   async emitResult(
     id: string,
     action: Action | MultiTxAction,
@@ -153,7 +191,7 @@ export class ActionsService implements OnStorageReady {
 
     if (status === ActionStatus.SUBMITTING && isHandledByModule) {
       await this.approvalController.onApproved(pendingMessage);
-      this.removeAction(id);
+      await this.removeAction(id);
     } else if (status === ActionStatus.SUBMITTING) {
       const handler = this.dAppRequestHandlers.find((h) =>
         h.methods.includes(pendingMessage.method as DAppProviderRequest),
@@ -194,7 +232,7 @@ export class ActionsService implements OnStorageReady {
       isHandledByModule
     ) {
       await this.approvalController.onRejected(pendingMessage);
-      this.removeAction(id);
+      await this.removeAction(id);
     } else if (status === ActionStatus.ERROR_USER_CANCELED) {
       await this.emitResult(
         id,
