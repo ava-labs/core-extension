@@ -50,7 +50,7 @@ describe('background/services/accounts/handlers/avalanche_addAccount.ts', () => 
       });
     });
 
-    it('should add primary account with provided walletId param', async () => {
+    it('should ignore a dApp-provided walletId and use the active account wallet', async () => {
       const handler = new AvalancheAddAccountHandler(accountServiceMock);
       const request = {
         ...baseRequest,
@@ -62,6 +62,9 @@ describe('background/services/accounts/handlers/avalanche_addAccount.ts', () => 
       expect(getActiveAccountMock).toHaveBeenCalledTimes(1);
       expect(addPrimaryAccountMock).toHaveBeenCalledTimes(1);
       expect(addPrimaryAccountMock).toHaveBeenCalledWith({
+        walletId: WALLET_ID,
+      });
+      expect(addPrimaryAccountMock).not.toHaveBeenCalledWith({
         walletId: NEW_WALLET_ID,
       });
       expect(result).toEqual({
