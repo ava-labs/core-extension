@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { FormattedCollectible } from '../CollectiblesTab';
-import { ipfsResolverWithFallback } from '@core/common';
+import { ipfsResolverWithFallback, isSafeRemoteUrl } from '@core/common';
 import { NftTokenMetadataStatus } from '@avalabs/glacier-sdk';
 
 /**
@@ -16,6 +16,10 @@ interface ImageMetadata {
  */
 const fetcher = async (url: string): Promise<ImageMetadata | null> => {
   if (!url) {
+    return null;
+  }
+
+  if (!isSafeRemoteUrl(url)) {
     return null;
   }
 

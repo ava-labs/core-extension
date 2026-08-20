@@ -50,6 +50,7 @@ export * from './isFailedToFetchError';
 export * from './isLedgerVersionCompatible';
 export * from './isLockStateChangedEvent';
 export * from './isPrimarySubnet';
+export * from './isSafeRemoteUrl';
 export * from './isSupportedBrowser';
 export * from './isTokenMalicious';
 export * from './isWalletStateUpdateEvent';

@@ -4,6 +4,7 @@ import mime from 'mime/lite';
 import { FormattedCollectible } from './CollectiblesTab';
 import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 import { NetworkWithCaipId } from '@core/types';
+import { isSafeRemoteUrl } from '@core/common';
 
 export const getStaticMimeType = (url: string): string | undefined => {
   return mime.getType(url) ?? undefined;
@@ -44,6 +45,10 @@ export const getUniqueCollectibleId = (
 // We must return `null` in the empty case to satisfy usage in queryFn's.
 export const resolveMimeType = async (url: string): Promise<string | null> => {
   if (!url) {
+    return null;
+  }
+
+  if (!isSafeRemoteUrl(url)) {
     return null;
   }
 
