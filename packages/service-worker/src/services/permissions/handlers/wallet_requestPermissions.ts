@@ -80,6 +80,7 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
           canSkipApproval: withoutApproval,
           addressVM: NetworkVMType.EVM,
           isMalicious: scanResult === 'malicious',
+          isScanFailed: scanResult === 'error',
           // TODO: clean up domain* props for Legacy app
           domainName: request.site?.name,
           domainUrl: request.site?.domain,
