@@ -6,15 +6,18 @@ type Param = {
 };
 
 const getProvidedUtxos = ({ utxoHexes = [], vm }: Param) => {
-  try {
-    const codec = utils.getManagerForVM(vm).getDefaultCodec();
-    return utxoHexes.map((utxoHex) => {
-      const utxoBytes = utils.hexToBuffer(utxoHex);
-      return Utxo.fromBytes(utxoBytes, codec)[0];
-    });
-  } catch (_err) {
-    return [];
-  }
+  const codec = utils.getManagerForVM(vm).getDefaultCodec();
+
+  return utxoHexes.map((utxoHex) => {
+    const utxoBytes = utils.hexToBuffer(utxoHex);
+    const utxo = Utxo.fromBytes(utxoBytes, codec)[0];
+
+    if (!utxo) {
+      throw new Error('Failed to decode provided UTXO');
+    }
+
+    return utxo;
+  });
 };
 
 export default getProvidedUtxos;
