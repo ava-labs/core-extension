@@ -153,10 +153,19 @@ describe('background/services/wallet/WalletService.ts', () => {
   let fireblocksService: FireblocksService;
   let addressResolver: AddressResolver;
   let secretsService: jest.Mocked<SecretsService>;
+  // Bech32 form of 0x5f658a6d1928c39b286b48192fea8d46d87ad077, the address the
+  // Avalanche `unsignedTxJSON` fixture below requires a signature from. sign()
+  // now asserts the tx shares a signer address with the active account, so the
+  // active account has to actually own it.
+  const ACTIVE_XP_ADDRESS = 'X-avax1tajc5mge9rpek2rtfqvjl65dgmv845rhvxgemp';
+
   const accountsService: jest.Mocked<AccountsService> = {
     getActiveAccount: async () => ({
       type: AccountType.PRIMARY,
       index: 0,
+      addressAVM: ACTIVE_XP_ADDRESS,
+      addressPVM: ACTIVE_XP_ADDRESS.replace(/^X-/, 'P-'),
+      addressCoreEth: ACTIVE_XP_ADDRESS,
     }),
   } as any;
 
@@ -789,6 +798,29 @@ describe('background/services/wallet/WalletService.ts', () => {
         avalancheTxMock = {
           tx: unsignedTxMock,
         } as AvalancheTransactionRequest;
+      });
+
+      it('rejects a transaction prepared for a different account', async () => {
+        // The user switched accounts while the approval window was open: the tx
+        // still requires a signature from the previously shown account.
+        const OTHER_XP_ADDRESS =
+          'X-avax1zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg35l6ttj';
+        jest.spyOn(accountsService, 'getActiveAccount').mockResolvedValue({
+          type: AccountType.PRIMARY,
+          index: 0,
+          addressAVM: OTHER_XP_ADDRESS,
+          addressPVM: OTHER_XP_ADDRESS.replace(/^X-/, 'P-'),
+          addressCoreEth: OTHER_XP_ADDRESS,
+        } as any);
+
+        staticSignerMock.signTx = jest.fn().mockReturnValueOnce(unsignedTxMock);
+        spyOnGetWallet().mockResolvedValueOnce(staticSignerMock);
+
+        await expect(
+          walletService.sign(avalancheTxMock, networkMock, tabId),
+        ).rejects.toThrow('no longer the active account');
+
+        expect(staticSignerMock.signTx).not.toHaveBeenCalled();
       });
 
       describe('with multiple address indices', () => {

@@ -510,6 +510,21 @@ export class ApprovalController implements BatchApprovalController {
     const expectedSignerAddress =
       action.signingRequests[0]?.signingData.account;
 
+    if (!expectedSignerAddress) {
+      throw new Error('Missing signer address for batch transaction');
+    }
+
+    //Check for mixed signers in the batch. All transactions must have the same signer.
+    const hasMixedSigners = action.signingRequests.some(
+      ({ signingData }) =>
+        signingData.account?.toLowerCase() !==
+        expectedSignerAddress.toLowerCase(),
+    );
+
+    if (hasMixedSigners) {
+      throw new Error('All transactions in a batch must have the same signer');
+    }
+
     return this.#walletService.signTransactionBatch(
       batch,
       network,

@@ -33,6 +33,7 @@ import {
   isXchainNetwork,
   Monitoring,
   omitUndefined,
+  stripAddressPrefix,
 } from '@core/common';
 import {
   Account,
@@ -654,6 +655,27 @@ export class WalletService implements OnUnlock {
   ) {
     if (expectedSignerAddress) {
       await this.#assertSignerIsActiveAccount(expectedSignerAddress);
+
+      // SECURITY: L5 — defense-in-depth against a mixed-signer batch. Every
+      // transaction that declares a `from` must match the (single) expected
+      // signer we validated against the active account above. Without this, a
+      // batch could contain a transaction for a different account than the one
+      // the user approved.
+      // `from` is `AddressLike` (string | Addressable | Promise<string>); only
+      // a plain string can be compared here. Non-string forms are not used on
+      // this internal batch path, and the primary guard above (expected signer
+      // == active account) still holds regardless.
+      const hasMixedSigners = batch.some(
+        (tx) =>
+          typeof tx.from === 'string' &&
+          tx.from.toLowerCase() !== expectedSignerAddress.toLowerCase(),
+      );
+
+      if (hasMixedSigners) {
+        throw new Error(
+          'All transactions in a batch must be signed by the same account.',
+        );
+      }
     }
     const wallet = await this.getWallet({ network, tabId });
 
@@ -852,6 +874,13 @@ export class WalletService implements OnUnlock {
         );
       }
 
+      // SECURITY: M3 — assert the transaction belongs to the active account
+      // before signing, mirroring the EVM/BTC active-account guard.
+      await this.#assertAvalancheSignerIsActiveAccount(unsignedTx, {
+        externalIndices,
+        internalIndices,
+      });
+
       if (isLedgerSigner) {
         await ensureLedgerAppOpen(this.#requireLedgerTransport(), 'Avalanche');
       }
@@ -910,6 +939,13 @@ export class WalletService implements OnUnlock {
       ) {
         throw new Error('Signing error, wrong network');
       }
+
+      // SECURITY: M3 — assert the transaction belongs to the active account
+      // before signing, mirroring the EVM/BTC active-account guard.
+      await this.#assertAvalancheSignerIsActiveAccount(tx.tx, {
+        externalIndices: tx.externalIndices,
+        internalIndices: tx.internalIndices,
+      });
 
       if (isLedgerSigner) {
         await ensureLedgerAppOpen(this.#requireLedgerTransport(), 'Avalanche');
@@ -971,6 +1007,111 @@ export class WalletService implements OnUnlock {
         activeAccount.addressSVM?.toLowerCase() === lower);
 
     if (!matches) {
+      throw new Error(
+        'The account shown for this request is no longer the active account. Please re-initiate the request.',
+      );
+    }
+  }
+
+  // SECURITY: M3 — Avalanche (X/P/C) active-account guard.
+  //
+  // Avalanche signing requests do not carry a top-level `account` address, so
+  // the EVM/BTC `#assertSignerIsActiveAccount` guard cannot be used directly.
+  // Instead we compare the addresses the transaction requires signatures from
+  // against the set of addresses the *active* account can legitimately own
+  // (its stored X/P/C addresses plus the addresses derived for the specific
+  // indices referenced by this request). If the transaction shares no signer
+  // address with the active account, it was prepared for a different account
+  // (e.g. the user switched accounts while the approval window was open) and we
+  // reject it.
+  //
+  // Residual: per-input ownership *completeness* is still enforced by the
+  // signer via `hasAllSignatures()`. We intentionally reject only on a total
+  // mismatch (no shared address) rather than a strict subset check, because
+  // enumerating every derivable X/P change address for an account is not safely
+  // feasible here and a stricter check would risk false rejections of
+  // legitimate multi-address transactions.
+  async #assertAvalancheSignerIsActiveAccount(
+    unsignedTx: EVMUnsignedTx | UnsignedTx,
+    { externalIndices = [], internalIndices = [] }: AvalancheSignerIndices,
+  ): Promise<void> {
+    const activeAccount = await this.accountsService.getActiveAccount();
+
+    // Only primary accounts derive addresses the way we validate below; imported
+    // (private key / WalletConnect / Fireblocks) accounts are validated by their
+    // own signer implementations and `hasAllSignatures()`.
+    if (!activeAccount || !isPrimaryAccount(activeAccount)) {
+      return;
+    }
+
+    const requiredAddresses = new Set(
+      unsignedTx.addressMaps
+        .getAddresses()
+        .map((addr) => hex.encode(addr).toLowerCase()),
+    );
+
+    if (requiredAddresses.size === 0) {
+      return;
+    }
+
+    const ownedAddresses = new Set<string>();
+
+    const addBech32 = (address?: string) => {
+      if (!address) {
+        return;
+      }
+      // `bech32ToBytes` requires the chain prefix (e.g. `X-avax1...`) and throws
+      // without it, so the address must NOT be stripped before the call. Stored
+      // values are not guaranteed to carry a prefix though, so try the value as
+      // it is and then with a synthetic one.
+      for (const candidate of [address, `X-${stripAddressPrefix(address)}`]) {
+        try {
+          ownedAddresses.add(hex.encode(utils.bech32ToBytes(candidate)));
+          return;
+        } catch {
+          // Try the next form.
+        }
+      }
+    };
+
+    // Stored X/P addresses (index 0).
+    addBech32(activeAccount.addressAVM);
+    addBech32(activeAccount.addressPVM);
+    addBech32(activeAccount.addressCoreEth);
+
+    // C-chain EVM address (used by CoreEth `EVMUnsignedTx`).
+    if (activeAccount.addressC) {
+      ownedAddresses.add(strip0x(activeAccount.addressC).toLowerCase());
+    }
+
+    // Addresses derived for the specific indices referenced by this request.
+    // These cover multi-address X/P transactions, where inputs may live at
+    // non-zero external/internal (change) address indices. This derivation may
+    // hit the network, so treat a failure as "cannot fully verify" and defer to
+    // the signer's `hasAllSignatures()` check rather than falsely rejecting a
+    // legitimate transaction.
+    let derivationFailed = false;
+    try {
+      const derived = (
+        await Promise.all([
+          this.getAddressesByIndices(externalIndices, 'X', false),
+          this.getAddressesByIndices(externalIndices, 'P', false),
+          this.getAddressesByIndices(internalIndices, 'X', true),
+        ])
+      ).flat();
+
+      for (const address of derived) {
+        addBech32(address ?? undefined);
+      }
+    } catch {
+      derivationFailed = true;
+    }
+
+    const sharesSignerAddress = [...requiredAddresses].some((address) =>
+      ownedAddresses.has(address),
+    );
+
+    if (!derivationFailed && !sharesSignerAddress) {
       throw new Error(
         'The account shown for this request is no longer the active account. Please re-initiate the request.',
       );
@@ -1094,11 +1235,7 @@ export class WalletService implements OnUnlock {
       return utils.base58check.encode(new Uint8Array(signed));
     }
 
-    ensureMessageIsValid(
-      data.type,
-      data.data as Record<string, unknown>,
-      network.chainId,
-    );
+    ensureMessageIsValid(data.type, data.data, network.chainId);
 
     const account =
       await this.accountsService.getAccountFromActiveWalletByAddress(
@@ -1460,3 +1597,8 @@ type GetWalletForMultiSignerParams = {
 type GetWalletParams =
   | GetWalletForSingleSignerParams
   | GetWalletForMultiSignerParams;
+
+type AvalancheSignerIndices = {
+  externalIndices?: number[];
+  internalIndices?: number[];
+};

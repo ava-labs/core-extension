@@ -447,6 +447,8 @@ describe('src/background/vmModules/ApprovalController', () => {
           }),
           btcNetwork,
           action.tabId,
+          undefined,
+          params.from,
         );
 
         expect(await promise).toEqual({
@@ -488,6 +490,8 @@ describe('src/background/vmModules/ApprovalController', () => {
           }),
           btcNetwork,
           action.tabId,
+          undefined,
+          params.from,
         );
 
         expect(await promise).toEqual({ signedData: signedTx });
@@ -571,6 +575,7 @@ describe('src/background/vmModules/ApprovalController', () => {
           ),
           cChain,
           action.tabId,
+          params.from,
         );
 
         expect(await promise).toEqual({
@@ -617,6 +622,7 @@ describe('src/background/vmModules/ApprovalController', () => {
           ),
           cChain,
           action.tabId,
+          params.from,
         );
 
         expect(await promise).toEqual({
