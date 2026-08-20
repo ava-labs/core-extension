@@ -52,7 +52,11 @@ export const useBtcSend = ({
   useEffect(() => {
     setError('');
 
-    if (!to || !isValidBtcAddress(to)) {
+    if (
+      !to ||
+      !isValidBtcAddress(to) ||
+      !isBtcAddressInNetwork(to, !network.isTestnet)
+    ) {
       return setError(t('Selected recipient is not a valid Bitcoin address.'));
     }
 
@@ -70,7 +74,7 @@ export const useBtcSend = ({
         }),
       );
     }
-  }, [maxAmount, token.decimals, token.symbol, t, to, estimatedFee, amount]);
+  }, [maxAmount, token.decimals, token.symbol, t, to, estimatedFee, amount, network.isTestnet]);
 
   const send = useCallback(async () => {
     if (

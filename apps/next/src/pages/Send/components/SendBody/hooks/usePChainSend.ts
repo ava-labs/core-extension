@@ -53,7 +53,7 @@ export const usePChainSend = ({
   useEffect(() => {
     setError('');
 
-    if (!to || !isValidPvmAddress(to)) {
+    if (!to || !isValidPvmAddress(to, Boolean(network.isTestnet))) {
       return setError(t('Selected recipient is not a valid P-Chain address.'));
     }
 
@@ -71,10 +71,10 @@ export const usePChainSend = ({
         }),
       );
     }
-  }, [maxAmount, token.decimals, token.symbol, t, to, estimatedFee, amount]);
+  }, [maxAmount, token.decimals, token.symbol, t, to, estimatedFee, amount, network.isTestnet]);
 
   const send = useCallback(async () => {
-    if (!to || !isValidPvmAddress(to)) {
+    if (!to || !isValidPvmAddress(to, Boolean(network.isTestnet))) {
       toast.error(
         t('Please provide a valid P-Chain address as the recipient.'),
       );

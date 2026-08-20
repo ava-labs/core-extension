@@ -52,7 +52,7 @@ export const useXChainSend = ({
   useEffect(() => {
     setError('');
 
-    if (!to || !isValidAvmAddress(to)) {
+    if (!to || !isValidAvmAddress(to, Boolean(network.isTestnet))) {
       return setError(t('Selected recipient is not a valid X-Chain address.'));
     }
 
@@ -70,10 +70,10 @@ export const useXChainSend = ({
         }),
       );
     }
-  }, [maxAmount, token.decimals, token.symbol, t, to, estimatedFee, amount]);
+  }, [maxAmount, token.decimals, token.symbol, t, to, estimatedFee, amount, network.isTestnet]);
 
   const send = useCallback(async () => {
-    if (!to || !isValidAvmAddress(to)) {
+    if (!to || !isValidAvmAddress(to, Boolean(network.isTestnet))) {
       toast.error(
         t('Please provide a valid X-Chain address as the recipient.'),
       );
