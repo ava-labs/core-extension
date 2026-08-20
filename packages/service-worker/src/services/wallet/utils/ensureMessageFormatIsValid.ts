@@ -35,7 +35,7 @@ const TYPED_MESSAGE_SCHEMA = Joi.object<TypedMessage>({
 
 const ensureMessageFormatIsValid = (
   messageType: MessageType | MessageSigningMethod,
-  data: Record<string, unknown>,
+  data: unknown,
   activeChainId: number,
 ) => {
   const normalized = isMessageSigningMethod(messageType)
