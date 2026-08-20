@@ -100,7 +100,18 @@ export class WalletAddNetworkHandler extends DAppRequestHandler<Params, null> {
     try {
       const { network } = pendingAction.displayData;
 
-      const chainId = Number(network.chainId ?? caipToChainId(network.caipId));
+      // `chainId` and `caipId` are both optional on the stored payload; we need
+      // one of them to know which chain the RPC URL must actually serve.
+      const chainId = network.chainId
+        ? Number(network.chainId)
+        : network.caipId
+          ? Number(caipToChainId(network.caipId))
+          : undefined;
+
+      if (!chainId || Number.isNaN(chainId)) {
+        throw new Error('Network is missing a usable chain ID');
+      }
+
       const isValid = await this.networkService.isValidRPCUrl(
         chainId,
         network.rpcUrl,
