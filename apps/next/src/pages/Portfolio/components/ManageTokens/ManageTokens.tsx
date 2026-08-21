@@ -25,6 +25,7 @@ export const ManageTokens: FC = () => {
   const { t } = useTranslation();
   const { push } = useHistory();
   const [hideSpamTokens, setHideSpamTokens] = useState(true);
+  const [onlyTokensWithBalance, setOnlyTokensWithBalance] = useState(true);
   const [query, setQuery] = useState('');
   return (
     <Page
@@ -62,7 +63,27 @@ export const ManageTokens: FC = () => {
           onChange={(_, checked) => setHideSpamTokens(checked)}
         />
       </Stack>
-      <TokenSwitchList filter={query} includeSpamTokens={!hideSpamTokens} />
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        gap={1}
+      >
+        <Typography variant="body3">
+          {t('Hide tokens without balance')}
+        </Typography>
+        <Switch
+          size="small"
+          checked={onlyTokensWithBalance}
+          onChange={(_, checked) => setOnlyTokensWithBalance(checked)}
+          aria-label={t('Hide tokens without balance')}
+        />
+      </Stack>
+      <TokenSwitchList
+        filter={query}
+        includeSpamTokens={!hideSpamTokens}
+        onlyTokensWithBalance={onlyTokensWithBalance}
+      />
     </Page>
   );
 };

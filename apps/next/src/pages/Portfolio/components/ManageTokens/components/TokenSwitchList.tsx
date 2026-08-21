@@ -9,32 +9,40 @@ import { TokenListItem } from './TokenListItem';
 import { isEmpty } from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { isTokenMalicious } from '@core/common';
+import { TokenType } from '@avalabs/vm-module-types';
 
 interface Props {
   filter: string;
   includeSpamTokens: boolean;
+  onlyTokensWithBalance: boolean;
 }
 
-export const TokenSwitchList: FC<Props> = ({ filter, includeSpamTokens }) => {
+export const TokenSwitchList: FC<Props> = ({
+  filter,
+  includeSpamTokens,
+  onlyTokensWithBalance,
+}) => {
   const [height, containerRef] = useContainerHeight<HTMLDivElement>(400);
-  const tokensWithBalances = useAllTokensFromEnabledNetworks(true);
+  const visibleTokens = useAllTokensFromEnabledNetworks(onlyTokensWithBalance);
 
   const { t } = useTranslation();
   const filteredTokensList = useMemo(() => {
     const list = filter
-      ? tokensWithBalances.filter((token) => {
+      ? visibleTokens.filter((token) => {
           const normalizedFilter = filter.toLowerCase();
           return (
             token.name.toLowerCase().includes(normalizedFilter) ||
-            token.symbol.toLowerCase().includes(normalizedFilter)
+            token.symbol.toLowerCase().includes(normalizedFilter) ||
+            (token.type === TokenType.ERC20 &&
+              token.address.toLowerCase().includes(normalizedFilter))
           );
         })
-      : tokensWithBalances;
+      : visibleTokens;
 
     return includeSpamTokens
       ? list
       : list.filter((token) => !isTokenMalicious(token));
-  }, [filter, tokensWithBalances, includeSpamTokens]);
+  }, [filter, visibleTokens, includeSpamTokens]);
 
   return (
     <Box height={1} ref={containerRef}>
