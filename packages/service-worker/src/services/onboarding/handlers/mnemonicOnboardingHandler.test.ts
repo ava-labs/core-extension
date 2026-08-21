@@ -68,6 +68,7 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
   const networkServiceMock = {
     enableNetwork: jest.fn(),
     getAvalancheNetwork: jest.fn(),
+    getNetworksEnabledByDefault: jest.fn(),
     setNetwork: jest.fn(),
   } as unknown as NetworkService;
 
@@ -108,6 +109,9 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
     jest
       .mocked(networkServiceMock.getAvalancheNetwork)
       .mockResolvedValue({ chainId: 43114 } as any);
+    jest
+      .mocked(networkServiceMock.getNetworksEnabledByDefault)
+      .mockResolvedValue([]);
   });
 
   it('is not case sensitive', async () => {

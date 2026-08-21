@@ -1,4 +1,3 @@
-import { NETWORKS_ENABLED_BY_DEFAULT } from '@core/types';
 import { NetworkService } from '../network/NetworkService';
 import { AccountsService } from '../accounts/AccountsService';
 import { OnboardingService } from './OnboardingService';
@@ -22,7 +21,9 @@ export async function finalizeOnboarding({
   lockService,
   password,
 }: FinalizeOnboardingParams) {
-  for (const chainId of NETWORKS_ENABLED_BY_DEFAULT) {
+  const networksEnabledByDefault =
+    await networkService.getNetworksEnabledByDefault();
+  for (const chainId of networksEnabledByDefault) {
     await networkService.enableNetwork(chainId);
   }
 

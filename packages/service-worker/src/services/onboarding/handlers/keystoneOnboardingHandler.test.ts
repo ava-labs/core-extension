@@ -68,6 +68,7 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
   const networkServiceMock = {
     enableNetwork: jest.fn(),
     getAvalancheNetwork: jest.fn(),
+    getNetworksEnabledByDefault: jest.fn(),
     setNetwork: jest.fn(),
   } as unknown as NetworkService;
 
@@ -108,6 +109,9 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
     jest
       .mocked(networkServiceMock.getAvalancheNetwork)
       .mockResolvedValue({ chainId: 43114 } as any);
+    jest
+      .mocked(networkServiceMock.getNetworksEnabledByDefault)
+      .mockResolvedValue([]);
   });
 
   it('sets up a keystone wallet with xpub correctly', async () => {
