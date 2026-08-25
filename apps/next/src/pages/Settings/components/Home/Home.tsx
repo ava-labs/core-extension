@@ -27,8 +27,6 @@ import { Page } from '@/components/Page';
 import { SwitchCard } from '@/components/SwitchCard';
 import {
   BUG_BOUNTIES_URL,
-  CORE_FEATURE_REQUEST_URL,
-  CORE_FEEDBACK_URL,
   CORE_SUPPORT_URL,
   CORE_WEB_BASE_URL,
 } from '@/config';
@@ -472,18 +470,6 @@ export const SettingsHomePage = () => {
           href={BUG_BOUNTIES_URL}
           divider
           onClick={() => capture('ReportBugClicked')}
-        />
-        <SettingsNavItem
-          label={t('Request a feature')}
-          href={CORE_FEATURE_REQUEST_URL}
-          divider
-          onClick={() => capture('ProductFeatureRequestClicked')}
-        />
-        <SettingsNavItem
-          label={t('Send feedback')}
-          href={CORE_FEEDBACK_URL}
-          divider
-          onClick={() => capture('ProductFeedbackClicked')}
         />
         <SettingsNavItem
           label={t('Help center')}
