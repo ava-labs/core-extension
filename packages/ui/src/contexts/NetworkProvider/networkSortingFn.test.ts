@@ -152,6 +152,42 @@ describe('contexts/NetworkProvider/networkSortingFn', () => {
       });
     });
 
+    describe('when comparing API-flagged always-enabled networks', () => {
+      it('should prioritize a network flagged isAlwaysEnabled over a non-promoted network', () => {
+        const apiFlagged = { chainId: 99999, isAlwaysEnabled: true } as Network;
+        const other = createMockNetwork(12345);
+
+        const testArray = [other, apiFlagged];
+        testArray.sort(promoteNetworks);
+
+        expect(testArray).toEqual([apiFlagged, other]);
+      });
+
+      it('should keep hardcoded floor order ahead of API-flagged extras', () => {
+        const cChain = createMockNetwork(ChainId.AVALANCHE_MAINNET_ID);
+        const apiFlagged = { chainId: 99999, isAlwaysEnabled: true } as Network;
+        const other = createMockNetwork(12345);
+
+        const testArray = [other, apiFlagged, cChain];
+        testArray.sort(promoteNetworks);
+
+        expect(testArray).toEqual([cChain, apiFlagged, other]);
+      });
+
+      it('should still promote a floor network when isAlwaysEnabled is false', () => {
+        const cChain = {
+          chainId: ChainId.AVALANCHE_MAINNET_ID,
+          isAlwaysEnabled: false,
+        } as Network;
+        const other = createMockNetwork(12345);
+
+        const testArray = [other, cChain];
+        testArray.sort(promoteNetworks);
+
+        expect(testArray).toEqual([cChain, other]);
+      });
+    });
+
     describe('when neither network is promoted', () => {
       it('should maintain order for non-promoted networks', () => {
         const network1 = createMockNetwork(12345);

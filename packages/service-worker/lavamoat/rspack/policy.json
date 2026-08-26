@@ -5056,6 +5056,11 @@
         "@avalabs/core-chains-sdk": true
       }
     },
+    "external:../common/src/utils/network/getNetworkEnablement.ts": {
+      "packages": {
+        "external:../types/src/index.ts": true
+      }
+    },
     "external:../common/src/utils/network/getProviderForNetwork.ts": {
       "globals": {
         "process.env.GLACIER_API_KEY": true,

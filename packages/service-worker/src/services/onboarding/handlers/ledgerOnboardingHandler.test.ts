@@ -70,6 +70,7 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
   const networkServiceMock = {
     enableNetwork: jest.fn(),
     getAvalancheNetwork: jest.fn(),
+    getNetworksEnabledByDefault: jest.fn(),
     setNetwork: jest.fn(),
   } as unknown as NetworkService;
 
@@ -110,6 +111,9 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
     jest
       .mocked(networkServiceMock.getAvalancheNetwork)
       .mockResolvedValue({ chainId: 43114 } as any);
+    jest
+      .mocked(networkServiceMock.getNetworksEnabledByDefault)
+      .mockResolvedValue([]);
   });
   it('sets up a ledger wallet with xpub correctly', async () => {
     const handler = getHandler();

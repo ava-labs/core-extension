@@ -40,6 +40,7 @@ describe('src/background/services/onboarding/finalizeOnboarding.test.ts', () => 
     setNetwork: jest.fn(),
     enableNetwork: jest.fn(),
     getAvalancheNetwork: jest.fn(),
+    getNetworksEnabledByDefault: jest.fn(),
   } as unknown as NetworkService;
 
   const accountMock = {
@@ -60,6 +61,9 @@ describe('src/background/services/onboarding/finalizeOnboarding.test.ts', () => 
     jest
       .mocked(networkServiceMock.getAvalancheNetwork)
       .mockResolvedValue({ chainId: 43114 } as any);
+    jest
+      .mocked(networkServiceMock.getNetworksEnabledByDefault)
+      .mockResolvedValue([...NETWORKS_ENABLED_BY_DEFAULT]);
   });
   it('sets up an mnemonic wallet correctly', async () => {
     await finalizeOnboarding({
