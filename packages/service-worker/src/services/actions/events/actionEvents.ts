@@ -1,16 +1,47 @@
 import { ActionsService } from '../ActionsService';
 import {
+  Action,
   ActionCompletedEventType,
   Actions,
   ActionsEvent,
   ConnectionInfo,
   DAppEventEmitter,
   ExtensionConnectionEvent,
+  isBatchApprovalAction,
+  MultiTxAction,
 } from '@core/types';
 import { EventEmitter } from 'events';
 import { injectable } from 'tsyringe';
 import { serializeError } from 'eth-rpc-errors';
 import browser from 'webextension-polyfill';
+
+/**
+ * The approval payload a dApp connection is allowed to see.
+ *
+ * The extension's own UI drives the approval screen from these events and needs
+ * the whole action. A dApp does not: it learns the outcome from its JSON-RPC
+ * response, so the signing payload and the rendered approval data are stripped
+ * before the event leaves for a web page.
+ */
+const withoutSigningPayload = (
+  action: Action | MultiTxAction,
+): Action | MultiTxAction => {
+  if (isBatchApprovalAction(action)) {
+    const {
+      signingRequests: _signingRequests,
+      displayData: _d,
+      ...rest
+    } = action;
+    return rest as unknown as MultiTxAction;
+  }
+
+  const {
+    signingData: _signingData,
+    displayData: _displayData,
+    ...rest
+  } = action;
+  return rest as unknown as Action;
+};
 
 @injectable()
 export class ActionEvents implements DAppEventEmitter {
@@ -54,13 +85,20 @@ export class ActionEvents implements DAppEventEmitter {
           ),
         );
 
-        if (
-          this._connectionInfo?.domain === browser.runtime.id ||
-          Object.keys(filtered).length > 0
-        ) {
+        const isExtensionUi =
+          this._connectionInfo?.domain === browser.runtime.id;
+
+        if (isExtensionUi || Object.keys(filtered).length > 0) {
           this.eventEmitter.emit('update', {
             name: ActionsEvent.ACTION_UPDATED,
-            value: filtered,
+            value: isExtensionUi
+              ? filtered
+              : Object.fromEntries(
+                  Object.entries(filtered).map(([id, action]) => [
+                    id,
+                    withoutSigningPayload(action),
+                  ]),
+                ),
           });
         }
       },

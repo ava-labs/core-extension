@@ -77,11 +77,69 @@ describe('ActionEvents', () => {
         'other-action': otherAction,
       });
 
+      const {
+        signingData: _s,
+        displayData: _d,
+        ...withoutPayload
+      } = victimAction;
+
       expect(listener).toHaveBeenCalledTimes(1);
       expect(listener).toHaveBeenCalledWith({
         name: ActionsEvent.ACTION_UPDATED,
-        value: { 'victim-action': victimAction },
+        value: { 'victim-action': withoutPayload },
       });
+    });
+
+    // A dApp learns its outcome from the JSON-RPC response, so the event it
+    // receives must not carry the signing payload or the rendered approval.
+    it('strips the signing payload from the event sent to a dApp', () => {
+      const { events, fireActionUpdated } = makeActionEvents();
+      events.setConnectionInfo({
+        domain: 'victim.example',
+        tabId: VICTIM_TAB_ID,
+      });
+
+      const listener = jest.fn();
+      events.addListener(listener);
+
+      fireActionUpdated({
+        'victim-action': buildAction(VICTIM_TAB_ID, 'victim-action'),
+      });
+
+      const emitted = listener.mock.calls[0]?.[0].value['victim-action'];
+
+      expect(emitted).toBeDefined();
+      expect(emitted.signingData).toBeUndefined();
+      expect(emitted.displayData).toBeUndefined();
+      expect(JSON.stringify(emitted)).not.toContain('alice@example.com');
+      // Correlation data the page legitimately already has is kept.
+      expect(emitted.actionId).toBe('victim-action');
+      expect(emitted.status).toBe(ActionStatus.PENDING);
+    });
+
+    it('strips signingRequests from a batch action sent to a dApp', () => {
+      const { events, fireActionUpdated } = makeActionEvents();
+      events.setConnectionInfo({
+        domain: 'victim.example',
+        tabId: VICTIM_TAB_ID,
+      });
+
+      const listener = jest.fn();
+      events.addListener(listener);
+
+      fireActionUpdated({
+        batch: {
+          ...buildAction(VICTIM_TAB_ID, 'batch'),
+          type: ActionType.Batch,
+          signingRequests: [{ signingData: { account: '0xabc' } }],
+        },
+      });
+
+      const emitted = listener.mock.calls[0]?.[0].value['batch'];
+
+      expect(emitted).toBeDefined();
+      expect(emitted.signingRequests).toBeUndefined();
+      expect(emitted.displayData).toBeUndefined();
     });
 
     it('matches on site.tabId when action.tabId is absent', () => {
