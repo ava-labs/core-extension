@@ -82,6 +82,7 @@ describe('ActionsService.cancelPendingActionsForConnection', () => {
 
     approvalController = {
       onApproved: jest.fn(),
+      ownsAction: jest.fn().mockReturnValue(true),
       onRejected: jest.fn(),
     } as unknown as jest.Mocked<ApprovalController>;
 

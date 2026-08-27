@@ -147,6 +147,18 @@ export class ApprovalController implements BatchApprovalController {
     this.#requests.delete(action.actionId);
   };
 
+  /**
+   * Whether this controller is the one that created the given action.
+   *
+   * `ActionsService.updateAction` routes an approval into the VM-module signing
+   * path based on the `ACTION_HANDLED_BY_MODULE` marker stored on the action.
+   * That marker only means something when the action really came from here, so
+   * the service asks before following it.
+   */
+  ownsAction(actionId?: string): boolean {
+    return Boolean(actionId && this.#requests.has(actionId));
+  }
+
   #getRequest<
     A extends Action | MultiTxAction,
     R extends ActionToRequest[A['type']],

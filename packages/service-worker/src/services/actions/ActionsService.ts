@@ -93,6 +93,19 @@ export class ActionsService implements OnStorageReady {
 
     const currentPendingActions = await this.getActions();
 
+    // SECURITY: actions are keyed by `actionId`, so writing over an existing
+    // key would swap out the payload behind an approval the user may already be
+    // looking at (a benign-looking prompt submitting a different cached
+    // request). Ids are minted by trusted code with `crypto.randomUUID()`, so a
+    // collision here is never legitimate.
+    if (!action.actionId) {
+      throw new Error('Cannot add an action without an id');
+    }
+
+    if (currentPendingActions[action.actionId]) {
+      throw new Error(`An action with id ${action.actionId} already exists`);
+    }
+
     this.saveActions({
       ...currentPendingActions,
       [`${action.actionId}`]: pendingAction,
@@ -187,7 +200,13 @@ export class ActionsService implements OnStorageReady {
       return;
     }
 
-    const isHandledByModule = pendingMessage[ACTION_HANDLED_BY_MODULE];
+    // SECURITY: the marker alone is not proof the action came from a VM module -
+    // only that it is set on the stored action. Confirm the ApprovalController
+    // actually owns this id before handing it the approval, so a request that
+    // merely claims to be module-handled cannot bypass its real handler.
+    const isHandledByModule =
+      pendingMessage[ACTION_HANDLED_BY_MODULE] &&
+      this.approvalController.ownsAction(pendingMessage.actionId);
 
     if (status === ActionStatus.SUBMITTING && isHandledByModule) {
       await this.approvalController.onApproved(pendingMessage);
