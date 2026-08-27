@@ -73,6 +73,8 @@ export type Network = _Network &
   AdvancedNetworkConfig & {
     isDevnet?: boolean;
     caipId?: string;
+    isAlwaysEnabled?: boolean;
+    isEnabledByDefault?: boolean;
   };
 
 export type NetworkWithCaipId = EnsureDefined<Network, 'caipId'>;

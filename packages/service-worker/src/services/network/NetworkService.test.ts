@@ -12,6 +12,8 @@ import {
   NETWORK_LIST_STORAGE_KEY,
   NETWORK_OVERRIDES_STORAGE_KEY,
   NETWORK_STORAGE_KEY,
+  NETWORKS_ENABLED_BY_DEFAULT,
+  NETWORKS_ENABLED_FOREVER,
   FeatureGates,
 } from '@core/types';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
@@ -356,7 +358,9 @@ describe('background/services/network/NetworkService', () => {
 
       const network = await service.getInitialNetworkForDapp('test.app');
 
-      expect(network).toEqual(avaxMainnet);
+      // C-Chain (43114) is part of NETWORKS_ENABLED_FOREVER, so the network
+      // resolved through the activeNetworks pipeline carries the flag.
+      expect(network).toEqual({ ...avaxMainnet, isAlwaysEnabled: true });
     });
 
     it('defaults to C-Chain when there is no active network for UI (extension is locked)', async () => {
@@ -371,7 +375,9 @@ describe('background/services/network/NetworkService', () => {
 
       const network = await service.getInitialNetworkForDapp('test.app');
 
-      expect(network).toEqual(avaxMainnet);
+      // C-Chain (43114) is part of NETWORKS_ENABLED_FOREVER, so the network
+      // resolved through the activeNetworks pipeline carries the flag.
+      expect(network).toEqual({ ...avaxMainnet, isAlwaysEnabled: true });
     });
   });
 
@@ -913,7 +919,7 @@ describe('background/services/network/NetworkService', () => {
 
         expect(signalSpy).toHaveBeenCalled();
         expect(signalSpy).toHaveBeenCalledWith(
-          expect.arrayContaining([chainId]),
+          expect.arrayContaining([chainId, ...NETWORKS_ENABLED_FOREVER]),
         );
       });
     });
@@ -1049,6 +1055,109 @@ describe('background/services/network/NetworkService', () => {
         expect(duplicateCount).toBe(1);
       });
     });
+
+    describe('API-driven enablement flags', () => {
+      it('treats a network flagged isAlwaysEnabled as non-disableable', async () => {
+        const alwaysOnChainId = 424242;
+
+        service['_allNetworks'].dispatch({
+          [alwaysOnChainId]: mockNetwork(NetworkVMType.EVM, false, {
+            chainId: alwaysOnChainId,
+            isAlwaysEnabled: true,
+          }),
+        });
+
+        expect(service['_enabledNetworks']).toContain(alwaysOnChainId);
+
+        jest.clearAllMocks();
+
+        await service.disableNetwork(alwaysOnChainId);
+
+        expect(service['_enabledNetworks']).toContain(alwaysOnChainId);
+        expect(service.updateNetworkState).not.toHaveBeenCalled();
+        expect(
+          service['_networkAvailability'][alwaysOnChainId],
+        ).toBeUndefined();
+      });
+
+      it('does not persist availability for a network flagged isAlwaysEnabled', async () => {
+        const alwaysOnChainId = 424242;
+
+        service['_allNetworks'].dispatch({
+          [alwaysOnChainId]: mockNetwork(NetworkVMType.EVM, false, {
+            chainId: alwaysOnChainId,
+            isAlwaysEnabled: true,
+          }),
+        });
+
+        await service.enableNetwork(alwaysOnChainId);
+
+        expect(service.updateNetworkState).not.toHaveBeenCalled();
+        expect(
+          service['_networkAvailability'][alwaysOnChainId],
+        ).toBeUndefined();
+      });
+
+      it('does not treat a feature-gated network as always-enabled', async () => {
+        const hyperEvm = mockNetwork(NetworkVMType.EVM, false, {
+          chainId: 999,
+          chainName: 'HyperEVM',
+          isAlwaysEnabled: true,
+        });
+
+        service['_allNetworks'].dispatch({
+          [hyperEvm.chainId]: hyperEvm,
+        });
+
+        expect(service['_enabledNetworks']).not.toContain(hyperEvm.chainId);
+
+        await service.disableNetwork(hyperEvm.chainId);
+
+        expect(service.updateNetworkState).toHaveBeenCalled();
+      });
+    });
+
+    describe('getNetworksEnabledByDefault', () => {
+      it('returns the hardcoded default networks augmented with API-flagged ones', async () => {
+        const defaultOnChainId = 555555;
+
+        jest.spyOn(service.allNetworks, 'promisify').mockResolvedValue(
+          Promise.resolve({
+            [ethMainnet.chainId]: ethMainnet,
+            [defaultOnChainId]: mockNetwork(NetworkVMType.EVM, false, {
+              chainId: defaultOnChainId,
+              isEnabledByDefault: true,
+            }),
+          }),
+        );
+
+        const result = await service.getNetworksEnabledByDefault();
+
+        expect(result).toEqual(
+          expect.arrayContaining(NETWORKS_ENABLED_BY_DEFAULT),
+        );
+        expect(result).toContain(defaultOnChainId);
+      });
+
+      it('does not default-enable feature-gated networks', async () => {
+        const hyperEvm = mockNetwork(NetworkVMType.EVM, false, {
+          chainId: 999,
+          chainName: 'HyperEVM',
+          isEnabledByDefault: true,
+        });
+
+        jest.spyOn(service.allNetworks, 'promisify').mockResolvedValue(
+          Promise.resolve({
+            [ethMainnet.chainId]: ethMainnet,
+            [hyperEvm.chainId]: hyperEvm,
+          }),
+        );
+
+        const result = await service.getNetworksEnabledByDefault();
+
+        expect(result).not.toContain(hyperEvm.chainId);
+      });
+    });
   });
 
   describe('when config overrides are present', () => {
@@ -1112,10 +1221,15 @@ describe('background/services/network/NetworkService', () => {
       const networksPromise = await networkService.activeNetworks.promisify();
 
       expect(await networksPromise).toEqual({
-        ...originalChainList,
+        // ChainId 1 (Ethereum) is part of NETWORKS_ENABLED_FOREVER.
+        '1': {
+          ...originalChainList['1'],
+          isAlwaysEnabled: true,
+        },
         '1337': {
           ...originalChainList['1337'],
           rpcUrl: 'http://my.custom.rpc',
+          isAlwaysEnabled: false,
         },
       });
     });
@@ -1156,6 +1270,8 @@ describe('background/services/network/NetworkService', () => {
         caipId: 'eip155:1',
         chainId: 1,
         isTestnet: false,
+        // ChainId 1 (Ethereum) is part of NETWORKS_ENABLED_FOREVER.
+        isAlwaysEnabled: true,
       },
     });
 
@@ -1173,7 +1289,62 @@ describe('background/services/network/NetworkService', () => {
         caipId: 'eip155:1337',
         chainId: 1337,
         isTestnet: true,
+        isAlwaysEnabled: false,
       },
+    });
+  });
+
+  describe('isAlwaysEnabled decoration (via activeNetworks signal)', () => {
+    it('resolves isAlwaysEnabled from the hardcoded floor when the API omits the flag', async () => {
+      const networkService = new NetworkService(
+        storageServiceMock,
+        featureFlagsServiceMock,
+        glacierServiceMock,
+      );
+      jest.spyOn(networkService, 'isMainnet').mockReturnValue(true);
+
+      // ChainId 1 (Ethereum) is part of NETWORKS_ENABLED_FOREVER.
+      const floorNetwork = mockNetwork(NetworkVMType.EVM, false, {
+        chainId: 1,
+      });
+      const regularNetwork = mockNetwork(NetworkVMType.EVM, false, {
+        chainId: 1234,
+      });
+
+      networkService['_allNetworks'].dispatch({
+        [floorNetwork.chainId]: floorNetwork,
+        [regularNetwork.chainId]: regularNetwork,
+      });
+
+      const activeNetworks = await networkService.activeNetworks.promisify();
+
+      expect(activeNetworks[floorNetwork.chainId]?.isAlwaysEnabled).toBe(true);
+      expect(activeNetworks[regularNetwork.chainId]?.isAlwaysEnabled).toBe(
+        false,
+      );
+    });
+
+    it('keeps C-Chain always-enabled when the API sends isAlwaysEnabled: false', async () => {
+      const networkService = new NetworkService(
+        storageServiceMock,
+        featureFlagsServiceMock,
+        glacierServiceMock,
+      );
+      jest.spyOn(networkService, 'isMainnet').mockReturnValue(true);
+
+      const cChain = mockNetwork(NetworkVMType.EVM, false, {
+        chainId: ChainId.AVALANCHE_MAINNET_ID,
+        isAlwaysEnabled: false,
+      });
+
+      networkService['_allNetworks'].dispatch({
+        [cChain.chainId]: cChain,
+      });
+
+      const activeNetworks = await networkService.activeNetworks.promisify();
+
+      expect(activeNetworks[cChain.chainId]?.isAlwaysEnabled).toBe(true);
+      expect(networkService['_enabledNetworks']).toContain(cChain.chainId);
     });
   });
 
