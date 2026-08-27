@@ -18,6 +18,12 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import { NetworkVMType, PartialBy, RpcMethod } from '@avalabs/vm-module-types';
 import {
+  Blockhash,
+  getCompiledTransactionMessageDecoder,
+  getTransactionDecoder,
+  getTransactionLifetimeConstraintFromCompiledTransactionMessage,
+} from '@solana/kit';
+import {
   assertPresent,
   ensureLedgerAppOpen,
   getAvalancheExtendedKeyPath,
@@ -783,6 +789,8 @@ export class WalletService implements OnUnlock {
 
       const provider = (await getProviderForNetwork(network)) as SolanaProvider;
 
+      await this.#assertSolanaTxBelongsToNetwork(tx.data, provider, network);
+
       if (wallet instanceof SeedlessWallet) {
         return {
           signedTx: await wallet.signSolanaTx(tx.data, provider),
@@ -992,6 +1000,67 @@ export class WalletService implements OnUnlock {
     }
 
     return this.#normalizeSigningResult(await wallet.signTransaction(tx));
+  }
+
+  // SECURITY: Solana messages carry no chain id, so the only thing binding a
+  // transaction to a cluster is its recent blockhash. A dApp can therefore
+  // request signing under a `solana:devnet` scope - which is what the scanner
+  // and the action metadata are derived from - while handing over a transaction
+  // built on a fresh *Mainnet* blockhash, then submit the returned signature to
+  // Mainnet. Verify the blockhash actually belongs to the cluster we are signing
+  // for.
+  //
+  // Durable-nonce transactions are skipped: their lifetime is a nonce account
+  // rather than a blockhash, so this check does not apply to them.
+  async #assertSolanaTxBelongsToNetwork(
+    serializedTx: string,
+    provider: SolanaProvider,
+    network: Network,
+  ): Promise<void> {
+    let blockhash: Blockhash;
+
+    try {
+      const transaction = getTransactionDecoder().decode(
+        Uint8Array.from(Buffer.from(serializedTx, 'base64')),
+      );
+      const message = getCompiledTransactionMessageDecoder().decode(
+        transaction.messageBytes,
+      );
+      const lifetime =
+        await getTransactionLifetimeConstraintFromCompiledTransactionMessage(
+          message,
+        );
+
+      if (!('blockhash' in lifetime)) {
+        return;
+      }
+
+      blockhash = lifetime.blockhash as Blockhash;
+    } catch {
+      // Not decodable here - the signer will reject it anyway.
+      return;
+    }
+
+    let isValid: boolean;
+
+    try {
+      const { value } = await provider.isBlockhashValid(blockhash).send();
+      isValid = value;
+    } catch (err) {
+      // Fail open on a transport error rather than blocking a legitimate
+      // signature: a dApp cannot choose whether our own RPC call succeeds.
+      Monitoring.sentryCaptureException(
+        err as Error,
+        Monitoring.SentryExceptionTypes.INTERNAL_ERROR,
+      );
+      return;
+    }
+
+    if (!isValid) {
+      throw new Error(
+        `This transaction was not built for ${network.chainName}. Its blockhash is unknown on this network, so signing it could authorize a transfer on a different Solana cluster.`,
+      );
+    }
   }
 
   // Throws if the active account's address doesn't match the address that was

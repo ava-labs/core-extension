@@ -1,12 +1,14 @@
 import {
   BITCOIN_NETWORK,
   BITCOIN_TEST_NETWORK,
+  ChainId,
   NetworkVMType,
 } from '@avalabs/core-chains-sdk';
 import {
   BitcoinProvider,
   JsonRpcBatchInternal,
   Avalanche,
+  getSolanaProvider,
 } from '@avalabs/core-wallets-sdk';
 import { FetchRequest, Network } from 'ethers';
 import { getProviderForNetwork } from './getProviderForNetwork';
@@ -24,6 +26,7 @@ jest.mock('@avalabs/core-wallets-sdk', () => {
 
   return {
     ...actual,
+    getSolanaProvider: jest.fn().mockReturnValue({ solana: true }),
     BitcoinProvider: BitcoinProviderMock,
     JsonRpcBatchInternal: JsonRpcBatchInternalMock,
     Avalanche: {
@@ -257,5 +260,57 @@ describe('src/utils/network/getProviderForNetwork', () => {
         vmName: 'CRAPPYVM' as unknown as NetworkVMType,
       }),
     ).rejects.toThrow(new Error('unsupported network'));
+  });
+
+  /**
+   * Routing used to branch on a single `isTestnet` flag, which sent Solana
+   * Testnet to the Devnet endpoint. Solana messages carry no chain id, so the
+   * blockhash is the only cluster binding - validating or broadcasting against
+   * the wrong cluster answers for a chain the user never asked for.
+   */
+  describe('Solana cluster routing', () => {
+    // Built directly rather than through `mockNetwork`, whose `decorateWithCaipId`
+    // does not know this test's synthetic chain ids.
+    const solanaNetwork = (chainId: number, isTestnet: boolean) =>
+      ({
+        chainName: 'Solana',
+        chainId,
+        vmName: NetworkVMType.SVM,
+        rpcUrl: 'https://rpcurl.example',
+        isTestnet,
+      }) as any;
+
+    it('routes Devnet to the Devnet RPC', async () => {
+      await getProviderForNetwork(
+        solanaNetwork(ChainId.SOLANA_DEVNET_ID, true),
+      );
+
+      expect(getSolanaProvider).toHaveBeenCalledWith({
+        isTestnet: true,
+        rpcUrl: 'https://api.devnet.solana.com',
+      });
+    });
+
+    it('routes Testnet to the Testnet RPC rather than Devnet', async () => {
+      await getProviderForNetwork(
+        solanaNetwork(ChainId.SOLANA_TESTNET_ID, true),
+      );
+
+      expect(getSolanaProvider).toHaveBeenCalledWith({
+        isTestnet: true,
+        rpcUrl: 'https://api.testnet.solana.com',
+      });
+    });
+
+    it('routes Mainnet through the proxy', async () => {
+      await getProviderForNetwork(
+        solanaNetwork(ChainId.SOLANA_MAINNET_ID, false),
+      );
+
+      expect(getSolanaProvider).toHaveBeenCalledWith({
+        isTestnet: false,
+        rpcUrl: expect.stringContaining('/proxy/nownodes/sol'),
+      });
+    });
   });
 });
