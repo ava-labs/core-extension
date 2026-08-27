@@ -629,6 +629,79 @@ describe('src/background/vmModules/ApprovalController', () => {
           result: [{ signedData: signedTxA }, { signedData: signedTxB }],
         });
       });
+
+      // The action is read back after the user approves, so the signer set is
+      // re-checked here rather than trusted from when the window was opened.
+      describe('signer checks', () => {
+        const approveWithSigningRequests = async (signingRequests: any[]) => {
+          const promise = controller.requestBatchApproval(batchApprovalParams);
+          const action: MultiTxAction = {
+            ...getExpectedAction(batchApprovalParams),
+            type: ActionType.Batch,
+            actionId: crypto.randomUUID(),
+            signingRequests,
+          };
+
+          // Await network resolution
+          await new Promise(process.nextTick);
+
+          controller.onApproved(action);
+
+          // Wait for transaction to be constructed
+          await new Promise(process.nextTick);
+
+          return promise;
+        };
+
+        it('rejects a batch that mixes signers', async () => {
+          const result = await approveWithSigningRequests(
+            batchApprovalParams.signingRequests.map((req, i) =>
+              i === 0
+                ? req
+                : {
+                    ...req,
+                    signingData: {
+                      ...req.signingData,
+                      account: '0xATTACKER',
+                    },
+                  },
+            ),
+          );
+
+          expect(walletService.signTransactionBatch).not.toHaveBeenCalled();
+          expect(result).toEqual({
+            error: rpcErrors.internal({
+              message: 'Unable to sign the batch of transactions',
+              data: {
+                originalError: new Error(
+                  'All transactions in a batch must have the same signer',
+                ),
+              },
+            }),
+          });
+        });
+
+        it('rejects a batch with no signer address at all', async () => {
+          const requests = batchApprovalParams.signingRequests.map((req) => ({
+            ...req,
+            signingData: { ...req.signingData, account: undefined },
+          }));
+
+          const result = await approveWithSigningRequests(requests);
+
+          expect(walletService.signTransactionBatch).not.toHaveBeenCalled();
+          expect(result).toEqual({
+            error: rpcErrors.internal({
+              message: 'Unable to sign the batch of transactions',
+              data: {
+                originalError: new Error(
+                  'Missing signer address for batch transaction',
+                ),
+              },
+            }),
+          });
+        });
+      });
     });
   });
 
