@@ -20,7 +20,7 @@
     "typecheck": "yarn workspaces foreach -Ap run typecheck",
     "setup": "yarn install && yarn allow-scripts",
     "test": "yarn workspaces foreach -Ap run test",
-    "test:coverage": "yarn workspaces foreach -A run test --coverage",
+    "test:coverage": "yarn workspaces foreach -Ap run test --coverage",
     "test:watch": "yarn workspaces foreach -Ap run test:watch",
     "test:path": "yarn jest --watch --testPathPattern",
     "coverage:check": "node scripts/coverage-ratchet.mjs --check",

@@ -48,6 +48,23 @@ const toleranceArg = args[args.indexOf('--tolerance') + 1];
 // Absorbs rounding jitter while still catching real regressions.
 const TOLERANCE = args.includes('--tolerance') ? Number(toleranceArg) : 0.1;
 
+if (mode === 'export' && !exportPath) {
+  console.error('--export requires a target path.');
+  process.exit(1);
+}
+if (args.includes('--rolling') && !rollingPath) {
+  console.error('--rolling requires a path.');
+  process.exit(1);
+}
+// A NaN tolerance would make every comparison false and silently
+// disable the ratchet.
+if (!Number.isFinite(TOLERANCE) || TOLERANCE < 0) {
+  console.error(
+    `--tolerance must be a non-negative number, got: ${toleranceArg}`,
+  );
+  process.exit(1);
+}
+
 function discoverWorkspaces() {
   const rootPkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
   const workspaces = [];
