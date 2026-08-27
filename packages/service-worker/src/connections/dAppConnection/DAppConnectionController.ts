@@ -40,7 +40,6 @@ import { AvalancheTxContextMiddleware } from '../middlewares/AvalancheTxContextM
 import { SecretsService } from '~/services/secrets/SecretsService';
 import { ActionsService } from '../../services/actions/ActionsService';
 
-
 const getSenderHostname = (connection: Runtime.Port): string | undefined => {
   if (!connection.sender?.url) {
     return undefined;

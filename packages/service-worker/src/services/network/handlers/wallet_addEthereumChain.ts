@@ -130,7 +130,8 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler<
       return {
         ...request,
         error: ethErrors.rpc.invalidParams({
-          message: 'RPC URL must use HTTPS and must not target a private address',
+          message:
+            'RPC URL must use HTTPS and must not target a private address',
         }),
       };
     }

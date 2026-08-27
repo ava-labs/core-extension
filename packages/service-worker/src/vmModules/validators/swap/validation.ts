@@ -139,7 +139,7 @@ export function validateSwapUsdPrices(
     ? MARKR_PARTNER_FEE_BPS / BASIS_POINTS_DIVISOR
     : 0;
   const totalPercent = slippagePercent + feePercent;
-  
+
   // Check if total percent exceeds 100% (1.0) - if so, manual approval required
   if (totalPercent >= 1) {
     return {

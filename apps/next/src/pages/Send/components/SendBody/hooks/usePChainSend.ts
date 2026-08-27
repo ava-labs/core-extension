@@ -71,7 +71,16 @@ export const usePChainSend = ({
         }),
       );
     }
-  }, [maxAmount, token.decimals, token.symbol, t, to, estimatedFee, amount, network.isTestnet]);
+  }, [
+    maxAmount,
+    token.decimals,
+    token.symbol,
+    t,
+    to,
+    estimatedFee,
+    amount,
+    network.isTestnet,
+  ]);
 
   const send = useCallback(async () => {
     if (!to || !isValidPvmAddress(to, Boolean(network.isTestnet))) {

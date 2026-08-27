@@ -70,7 +70,16 @@ export const useXChainSend = ({
         }),
       );
     }
-  }, [maxAmount, token.decimals, token.symbol, t, to, estimatedFee, amount, network.isTestnet]);
+  }, [
+    maxAmount,
+    token.decimals,
+    token.symbol,
+    t,
+    to,
+    estimatedFee,
+    amount,
+    network.isTestnet,
+  ]);
 
   const send = useCallback(async () => {
     if (!to || !isValidAvmAddress(to, Boolean(network.isTestnet))) {

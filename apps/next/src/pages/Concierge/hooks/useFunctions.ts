@@ -424,7 +424,7 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
         if (parsed.protocol !== 'https:') {
           throw new Error('Only https:// URLs can be opened');
         }
-        
+
         // Confirm with the user before opening a new tab, since this is a side effect that could be abused by malicious prompts.
         if (
           !confirmSideEffect(

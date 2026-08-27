@@ -240,7 +240,6 @@ describe('Concierge prompt injection via airdropped token name — fix regressio
     );
   });
 
-
   it('DOCUMENTED RESIDUAL — goToDapp still executes with no approval window', async () => {
     const tabsCreated: Array<{ url: string; active: boolean }> = [];
     const approvalWindowsOpened: any[] = [];

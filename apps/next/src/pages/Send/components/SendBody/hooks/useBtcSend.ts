@@ -74,7 +74,16 @@ export const useBtcSend = ({
         }),
       );
     }
-  }, [maxAmount, token.decimals, token.symbol, t, to, estimatedFee, amount, network.isTestnet]);
+  }, [
+    maxAmount,
+    token.decimals,
+    token.symbol,
+    t,
+    to,
+    estimatedFee,
+    amount,
+    network.isTestnet,
+  ]);
 
   const send = useCallback(async () => {
     if (

@@ -59,7 +59,6 @@ describe('src/background/services/wallet/handlers/importSeedPhrase', () => {
     );
   };
 
-
   const VALID_MNEMONIC =
     'buyer zoo end danger ice capable shrug naive twist relief mass bonus';
 
