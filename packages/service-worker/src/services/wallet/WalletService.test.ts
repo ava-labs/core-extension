@@ -738,6 +738,42 @@ describe('background/services/wallet/WalletService.ts', () => {
       expect(signedTx).toBe('0x1');
     });
 
+    // Bounty #84501: an EIP-2930 access list is signed but never scanned or
+    // shown, so a constructor can branch on the warmed slot and move far more
+    // value than the reviewed simulation showed.
+    it('refuses to sign an evm tx carrying an access list', async () => {
+      walletMock.signTransaction = jest.fn();
+      spyOnGetWallet().mockResolvedValueOnce(walletMock);
+
+      await expect(
+        walletService.sign(
+          {
+            ...txMock,
+            accessList: [
+              { address: '0x2', storageKeys: [`0x${'0'.repeat(64)}`] },
+            ],
+          } as any,
+          networkMock,
+          tabId,
+        ),
+      ).rejects.toThrow('Transactions with an access list are not supported');
+
+      expect(walletMock.signTransaction).not.toHaveBeenCalled();
+    });
+
+    it('signs an evm tx with an empty access list', async () => {
+      walletMock.signTransaction = jest.fn().mockReturnValueOnce('0x1');
+      spyOnGetWallet().mockResolvedValueOnce(walletMock);
+
+      const { signedTx } = await walletService.sign(
+        { ...txMock, accessList: [] } as any,
+        networkMock,
+        tabId,
+      );
+
+      expect(signedTx).toBe('0x1');
+    });
+
     it('signs evm tx correctly using KeystoneWallet', async () => {
       keystoneWalletMock.signTransaction = jest.fn().mockReturnValueOnce('0x1');
       spyOnGetWallet().mockResolvedValueOnce(keystoneWalletMock);

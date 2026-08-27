@@ -999,6 +999,8 @@ export class WalletService implements OnUnlock {
       await this.#ensureEvmLedgerAppOpenForSigning(network);
     }
 
+    assertEvmTxHasNoAccessList(tx);
+
     return this.#normalizeSigningResult(await wallet.signTransaction(tx));
   }
 
@@ -1666,6 +1668,37 @@ type GetWalletForMultiSignerParams = {
 type GetWalletParams =
   | GetWalletForSingleSignerParams
   | GetWalletForMultiSignerParams;
+
+/**
+ * SECURITY: an EIP-2930 `accessList` is part of the signed transaction, but it
+ * is left out of the pre-execution security scan (the module has a standing
+ * `TODO: provide accessList once Blockaid supports it`) and it is not rendered
+ * on the approval screen either. That gap is exploitable: warming a storage slot
+ * changes gas costs, so a constructor can branch on it and move far more value
+ * than the simulated effect the user reviewed.
+ *
+ * Nothing in Core builds an access list itself, so the only source is a
+ * dApp-supplied transaction. Refuse to sign a preimage we neither scanned nor
+ * showed, rather than letting the displayed and executed effects diverge.
+ */
+const assertEvmTxHasNoAccessList = (tx: unknown): void => {
+  if (!tx || typeof tx !== 'object' || !('accessList' in tx)) {
+    return;
+  }
+
+  const { accessList } = tx as { accessList?: unknown };
+
+  const isEmpty =
+    accessList === undefined ||
+    accessList === null ||
+    (Array.isArray(accessList) && accessList.length === 0);
+
+  if (!isEmpty) {
+    throw new Error(
+      'Transactions with an access list are not supported, because its contents cannot be verified or displayed for approval.',
+    );
+  }
+};
 
 type AvalancheSignerIndices = {
   externalIndices?: number[];
