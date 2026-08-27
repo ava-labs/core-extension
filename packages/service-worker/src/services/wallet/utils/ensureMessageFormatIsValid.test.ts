@@ -84,6 +84,91 @@ describe('src/background/services/wallet/utils/ensureMessageFormatIsValid.test.t
       ).toThrow('target chainId does not match the currently active one');
     });
 
+    describe('bool coercion (bounty #82203)', () => {
+      const permitPayload = (allowed: unknown) => ({
+        types: {
+          EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'chainId', type: 'uint256' },
+          ],
+          Permit: [
+            { name: 'holder', type: 'address' },
+            { name: 'spender', type: 'address' },
+            { name: 'nonce', type: 'uint256' },
+            { name: 'expiry', type: 'uint256' },
+            { name: 'allowed', type: 'bool' },
+          ],
+        },
+        primaryType: 'Permit',
+        domain: { name: 'Dai Stablecoin', chainId: 1 },
+        message: {
+          holder: '0x1111111111111111111111111111111111111111',
+          spender: '0x2222222222222222222222222222222222222222',
+          nonce: 0,
+          expiry: 0,
+          allowed,
+        },
+      });
+
+      it.each([
+        ['the string "false"', 'false'],
+        ['the string "true"', 'true'],
+        ['a number', 1],
+        ['an empty string', ''],
+      ])('rejects a bool field given %s', (_label, allowed) => {
+        expect(() =>
+          ensureMessageFormatIsValid(messageType, permitPayload(allowed), 1),
+        ).toThrow('"allowed" is declared as bool but is not a boolean');
+      });
+
+      it.each([true, false])('accepts the real boolean %s', (allowed) => {
+        expect(
+          ensureMessageFormatIsValid(messageType, permitPayload(allowed), 1),
+        ).toBeUndefined();
+      });
+
+      it('walks nested structs and arrays', () => {
+        const payload = {
+          types: {
+            EIP712Domain: [{ name: 'chainId', type: 'uint256' }],
+            Outer: [
+              { name: 'inners', type: 'Inner[]' },
+              { name: 'flags', type: 'bool[]' },
+            ],
+            Inner: [{ name: 'enabled', type: 'bool' }],
+          },
+          primaryType: 'Outer',
+          domain: { chainId: 1 },
+          message: {
+            inners: [{ enabled: true }, { enabled: 'false' }],
+            flags: [true, false],
+          },
+        };
+
+        expect(() =>
+          ensureMessageFormatIsValid(messageType, payload, 1),
+        ).toThrow(
+          '"inners[1].enabled" is declared as bool but is not a boolean',
+        );
+      });
+
+      it('rejects a coerced entry inside a bool array', () => {
+        const payload = {
+          types: {
+            EIP712Domain: [{ name: 'chainId', type: 'uint256' }],
+            Outer: [{ name: 'flags', type: 'bool[]' }],
+          },
+          primaryType: 'Outer',
+          domain: { chainId: 1 },
+          message: { flags: [true, 'false'] },
+        };
+
+        expect(() =>
+          ensureMessageFormatIsValid(messageType, payload, 1),
+        ).toThrow('"flags[1]" is declared as bool but is not a boolean');
+      });
+    });
+
     it('returns without error when payload is valid', () => {
       const payload = getPayload();
       const payloadWithHexChainId = getPayload(undefined, true);
