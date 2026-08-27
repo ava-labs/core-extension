@@ -15,6 +15,7 @@ import {
 } from '@avalabs/vm-module-types';
 
 import { OverflowingTypography } from '@/components/OverflowingTypography';
+import { expandExponentialNotation } from '@/components/CollapsedTokenAmount';
 
 import * as Styled from './Styled';
 import { TokenLogo } from './TokenLogo';
@@ -59,9 +60,14 @@ export const BatchTokenBalanceChange: FC<BatchTokenBalanceChangeProps> = ({
                 overflow="hidden"
               >
                 <OverflowingTypography variant="h7" fontWeight={500}>
-                  {direction === 'loss'
-                    ? `-${item.displayValue}`
-                    : `+${item.displayValue}`}
+                  {/*
+                   * Unlike the single-item row this renders the amount as a
+                   * plain string, so an amount that arrives in scientific
+                   * notation has to be expanded here too - otherwise two very
+                   * different values can look alike once the text overflows.
+                   */}
+                  {direction === 'loss' ? '-' : '+'}
+                  {expandExponentialNotation(item.displayValue)}
                 </OverflowingTypography>
               </Stack>
             </Styled.TokenBalanceChangeWrapper>
