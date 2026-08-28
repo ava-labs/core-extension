@@ -30,7 +30,7 @@ import {
   isPrimaryAccount,
   isSolanaNetwork,
   isXchainNetwork,
-  KEYSTONE_UNSUPPORTED_ERROR,
+  UNSUPPORTED_WALLET_TYPE_ERROR,
   Monitoring,
   omitUndefined,
 } from '@core/common';
@@ -379,7 +379,7 @@ export class WalletService implements OnUnlock {
         secretType === SecretType.Keystone ||
         secretType === SecretType.Keystone3Pro
       ) {
-        throw new Error(KEYSTONE_UNSUPPORTED_ERROR);
+        throw new Error(UNSUPPORTED_WALLET_TYPE_ERROR);
       }
 
       if (
@@ -459,7 +459,7 @@ export class WalletService implements OnUnlock {
         secretType === SecretType.Keystone ||
         secretType === SecretType.Keystone3Pro
       ) {
-        throw new Error(KEYSTONE_UNSUPPORTED_ERROR);
+        throw new Error(UNSUPPORTED_WALLET_TYPE_ERROR);
       }
 
       if (secretType === SecretType.Ledger) {
@@ -541,7 +541,7 @@ export class WalletService implements OnUnlock {
         secretType === SecretType.Keystone ||
         secretType === SecretType.Keystone3Pro
       ) {
-        throw new Error(KEYSTONE_UNSUPPORTED_ERROR);
+        throw new Error(UNSUPPORTED_WALLET_TYPE_ERROR);
       }
 
       if (secretType === SecretType.WalletConnect) {
