@@ -246,31 +246,6 @@
         "@avalabs/fusion-sdk>@bitcoinerlab/secp256k1>@noble/curves": true
       }
     },
-    "@keystonehq/bc-ur-registry-eth>@ethereumjs/util>@chainsafe/ssz>@chainsafe/as-sha256": {
-      "globals": {
-        "WebAssembly.Instance": true,
-        "WebAssembly.Module": true
-      }
-    },
-    "@keystonehq/bc-ur-registry-eth>@ethereumjs/util>@chainsafe/ssz>@chainsafe/persistent-merkle-tree": {
-      "globals": {
-        "WeakRef": true
-      },
-      "packages": {
-        "@keystonehq/bc-ur-registry-eth>@ethereumjs/util>@chainsafe/ssz>@chainsafe/as-sha256": true
-      }
-    },
-    "@keystonehq/bc-ur-registry-eth>@ethereumjs/util>@chainsafe/ssz": {
-      "globals": {
-        "Buffer.alloc": true
-      },
-      "packages": {
-        "@keystonehq/bc-ur-registry-eth>@ethereumjs/util>@chainsafe/ssz>@chainsafe/as-sha256": true,
-        "@keystonehq/bc-ur-registry-eth>@ethereumjs/util>@chainsafe/ssz>@chainsafe/persistent-merkle-tree": true,
-        "@rsbuild/plugin-node-polyfill>buffer": true,
-        "@keystonehq/bc-ur-registry-eth>@ethereumjs/util>@chainsafe/ssz>case": true
-      }
-    },
     "@core/common": {
       "globals": {
         "AbortController": true,
@@ -331,7 +306,6 @@
         "@avalabs/vm-module-types": true,
         "@core/types": true,
         "@cubist-labs/cubesigner-sdk": true,
-        "@keystonehq/hw-transport-error": true,
         "@avalabs/core-wallets-sdk>@ledgerhq/hw-transport": true,
         "ethers>@noble/hashes": true,
         "@core/ui>@sentry/browser": true,
@@ -430,9 +404,6 @@
         "@core/common": true,
         "@core/messaging": true,
         "@core/types": true,
-        "@keystonehq/hw-app-eth>@keystonehq/bc-ur-registry": true,
-        "@keystonehq/hw-app-avalanche": true,
-        "@keystonehq/hw-transport-webusb": true,
         "@core/ui>@ledgerhq/hw-app-eth": true,
         "@core/ui>@ledgerhq/hw-app-solana": true,
         "@core/ui>@ledgerhq/hw-transport-webhid": true,
@@ -547,28 +518,9 @@
         "react": true
       }
     },
-    "@keystonehq/bc-ur-registry-eth>@ethereumjs/util>@ethereumjs/rlp": {
+    "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>@ethereumjs/rlp": {
       "globals": {
         "TextEncoder": true
-      }
-    },
-    "@keystonehq/bc-ur-registry-eth>@ethereumjs/util": {
-      "globals": {
-        "Buffer.alloc": true,
-        "Buffer.allocUnsafe": true,
-        "Buffer.byteLength": true,
-        "Buffer.concat": true,
-        "Buffer.from": true,
-        "Buffer.isBuffer": true,
-        "console.warn": true
-      },
-      "packages": {
-        "@keystonehq/bc-ur-registry-eth>@ethereumjs/util>@chainsafe/ssz": true,
-        "@keystonehq/bc-ur-registry-eth>@ethereumjs/util>@ethereumjs/rlp": true,
-        "@core/service-worker>buffer": true,
-        "@rsbuild/plugin-node-polyfill>buffer": true,
-        "@keystonehq/bc-ur-registry-eth>@ethereumjs/util>ethereum-cryptography": true,
-        "@core/ui>events": true
       }
     },
     "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util": {
@@ -582,7 +534,7 @@
         "console.warn": true
       },
       "packages": {
-        "@keystonehq/bc-ur-registry-eth>@ethereumjs/util>@ethereumjs/rlp": true,
+        "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>@ethereumjs/rlp": true,
         "@core/service-worker>buffer": true,
         "@rsbuild/plugin-node-polyfill>buffer": true,
         "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>ethereum-cryptography": true,
@@ -780,7 +732,7 @@
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/signing-key>@ethersproject/logger": true,
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/properties": true,
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/signing-key>bn.js": true,
-        "@keystonehq/hw-app-eth>elliptic>hash.js": true
+        "@core/ui>bip32>tiny-secp256k1>elliptic>hash.js": true
       }
     },
     "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/strings": {
@@ -836,191 +788,6 @@
     "@core/ui>@hpke/core": {
       "packages": {
         "@core/ui>@hpke/core>@hpke/common": true
-      }
-    },
-    "@keystonehq/animated-qr": {
-      "globals": {
-        "Buffer.from": true,
-        "URL": true,
-        "clearInterval": true,
-        "clearTimeout": true,
-        "console.error": true,
-        "document.getElementById": true,
-        "location.href": true,
-        "navigator": true,
-        "process.env.NODE_ENV": true,
-        "setInterval": true,
-        "setTimeout": true
-      },
-      "packages": {
-        "@core/ui>@keystonehq/ur-decoder": true,
-        "@keystonehq/hw-app-eth>@ngraveio/bc-ur": true,
-        "@keystonehq/animated-qr>@zxing/browser": true,
-        "@keystonehq/animated-qr>@zxing/library": true,
-        "@rsbuild/plugin-node-polyfill>buffer": true,
-        "@keystonehq/animated-qr>qrcode.react": true,
-        "react": true
-      }
-    },
-    "@keystonehq/hw-app-avalanche>@keystonehq/bc-ur-registry-avalanche": {
-      "globals": {
-        "Buffer": true
-      },
-      "packages": {
-        "@keystonehq/hw-app-avalanche>@keystonehq/bc-ur-registry-avalanche>@keystonehq/bc-ur-registry": true,
-        "@rsbuild/plugin-node-polyfill>buffer": true,
-        "@keystonehq/hw-app-eth>uuid": true
-      }
-    },
-    "@keystonehq/bc-ur-registry-eth": {
-      "globals": {
-        "Buffer.from": true,
-        "process.env.NODE_ENV": true
-      },
-      "packages": {
-        "@keystonehq/bc-ur-registry-eth>@ethereumjs/util": true,
-        "@keystonehq/bc-ur-registry-eth>@keystonehq/bc-ur-registry": true,
-        "@rsbuild/plugin-node-polyfill>buffer": true,
-        "@keystonehq/bc-ur-registry-eth>hdkey": true,
-        "@keystonehq/hw-app-eth>uuid": true
-      }
-    },
-    "@core/ui>@keystonehq/ur-decoder>@keystonehq/bc-ur-registry-eth": {
-      "globals": {
-        "Buffer.from": true,
-        "process.env.NODE_ENV": true
-      },
-      "packages": {
-        "@core/ui>@keystonehq/ur-decoder>@keystonehq/bc-ur-registry-eth>@keystonehq/bc-ur-registry": true,
-        "@rsbuild/plugin-node-polyfill>buffer": true,
-        "@core/ui>@ethereumjs/tx>ethereumjs-util": true,
-        "@keystonehq/bc-ur-registry-eth>hdkey": true,
-        "@keystonehq/hw-app-eth>uuid": true
-      }
-    },
-    "@keystonehq/hw-app-avalanche>@keystonehq/bc-ur-registry-avalanche>@keystonehq/bc-ur-registry": {
-      "globals": {
-        "Buffer": true,
-        "define": true
-      },
-      "packages": {
-        "@keystonehq/hw-app-eth>@ngraveio/bc-ur": true,
-        "@core/ui>bip32>bs58check": true,
-        "@core/service-worker>buffer": true,
-        "@rsbuild/plugin-node-polyfill>buffer": true,
-        "@core/ui>rxjs>tslib": true
-      }
-    },
-    "@keystonehq/bc-ur-registry-eth>@keystonehq/bc-ur-registry": {
-      "globals": {
-        "Buffer": true,
-        "define": true
-      },
-      "packages": {
-        "@keystonehq/hw-app-eth>@ngraveio/bc-ur": true,
-        "@core/ui>bip32>bs58check": true,
-        "@core/service-worker>buffer": true,
-        "@rsbuild/plugin-node-polyfill>buffer": true,
-        "@core/ui>rxjs>tslib": true
-      }
-    },
-    "@core/ui>@keystonehq/ur-decoder>@keystonehq/bc-ur-registry-eth>@keystonehq/bc-ur-registry": {
-      "globals": {
-        "Buffer": true,
-        "define": true
-      },
-      "packages": {
-        "@keystonehq/hw-app-eth>@ngraveio/bc-ur": true,
-        "@core/ui>bip32>bs58check": true,
-        "@rsbuild/plugin-node-polyfill>buffer": true
-      }
-    },
-    "@keystonehq/hw-app-eth>@keystonehq/bc-ur-registry": {
-      "globals": {
-        "Buffer": true,
-        "define": true
-      },
-      "packages": {
-        "@keystonehq/hw-app-eth>@ngraveio/bc-ur": true,
-        "@core/ui>bip32>bs58check": true,
-        "@core/service-worker>buffer": true,
-        "@rsbuild/plugin-node-polyfill>buffer": true,
-        "@core/ui>rxjs>tslib": true
-      }
-    },
-    "@keystonehq/hw-app-avalanche": {
-      "packages": {
-        "@keystonehq/hw-app-avalanche>@keystonehq/bc-ur-registry-avalanche": true,
-        "@keystonehq/hw-app-eth>@keystonehq/bc-ur-registry": true,
-        "@keystonehq/hw-app-avalanche>@keystonehq/hw-app-base": true,
-        "@keystonehq/hw-app-avalanche>@keystonehq/hw-transport-usb": true,
-        "@keystonehq/hw-app-eth>@ngraveio/bc-ur": true,
-        "@core/service-worker>buffer": true
-      }
-    },
-    "@keystonehq/hw-app-avalanche>@keystonehq/hw-app-base": {
-      "globals": {
-        "Buffer.from": true
-      },
-      "packages": {
-        "@keystonehq/hw-app-eth>@keystonehq/bc-ur-registry": true,
-        "@keystonehq/hw-transport-error": true,
-        "@keystonehq/hw-app-avalanche>@keystonehq/hw-app-base>@keystonehq/hw-transport-webusb": true,
-        "@keystonehq/hw-app-eth>@ngraveio/bc-ur": true,
-        "@rsbuild/plugin-node-polyfill>buffer": true
-      }
-    },
-    "@keystonehq/hw-app-avalanche>@keystonehq/hw-transport-usb": {
-      "globals": {
-        "TextDecoder": true,
-        "TextEncoder": true,
-        "console.error": true,
-        "console.log": true,
-        "process.env.KEYSTONE_USB_ENV": true
-      },
-      "packages": {
-        "@keystonehq/hw-transport-error": true,
-        "@rsbuild/plugin-node-polyfill>process": true
-      }
-    },
-    "@keystonehq/hw-transport-webusb": {
-      "globals": {
-        "clearTimeout": true,
-        "console.warn": true,
-        "navigator": true,
-        "setTimeout": true
-      },
-      "packages": {
-        "@keystonehq/hw-transport-error": true,
-        "@keystonehq/hw-app-avalanche>@keystonehq/hw-transport-usb": true,
-        "@core/service-worker>buffer": true
-      }
-    },
-    "@keystonehq/hw-app-avalanche>@keystonehq/hw-app-base>@keystonehq/hw-transport-webusb": {
-      "globals": {
-        "TextDecoder": true,
-        "TextEncoder": true,
-        "clearTimeout": true,
-        "console.error": true,
-        "console.log": true,
-        "console.warn": true,
-        "navigator": true,
-        "process.env.KEYSTONE_USB_ENV": true,
-        "setTimeout": true
-      },
-      "packages": {
-        "@keystonehq/hw-transport-error": true,
-        "@core/service-worker>buffer": true,
-        "@rsbuild/plugin-node-polyfill>process": true
-      }
-    },
-    "@core/ui>@keystonehq/ur-decoder": {
-      "globals": {
-        "process.env.NODE_ENV": true
-      },
-      "packages": {
-        "@core/ui>@keystonehq/ur-decoder>@keystonehq/bc-ur-registry-eth": true,
-        "@keystonehq/hw-app-eth>@ngraveio/bc-ur": true
       }
     },
     "@core/ui>@ledgerhq/hw-transport-webhid>@ledgerhq/devices": {
@@ -1352,25 +1119,6 @@
         "@avalabs/k2-alpine>@mui/lab>@mui/utils>react-is": true
       }
     },
-    "@keystonehq/hw-app-eth>@ngraveio/bc-ur": {
-      "globals": {
-        "Buffer.alloc": true,
-        "Buffer.allocUnsafe": true,
-        "Buffer.concat": true,
-        "Buffer.from": true,
-        "Buffer.isBuffer": true
-      },
-      "packages": {
-        "@keystonehq/hw-app-eth>@ngraveio/bc-ur>@apocentre/alias-sampling": true,
-        "@keystonehq/hw-app-eth>@ngraveio/bc-ur>assert": true,
-        "@keystonehq/hw-app-eth>@ngraveio/bc-ur>bignumber.js": true,
-        "@rsbuild/plugin-node-polyfill>buffer": true,
-        "@keystonehq/hw-app-eth>@ngraveio/bc-ur>cbor-sync": true,
-        "@keystonehq/hw-app-eth>@ngraveio/bc-ur>crc": true,
-        "@keystonehq/hw-app-eth>@ngraveio/bc-ur>jsbi": true,
-        "@core/ui>@ledgerhq/hw-app-btc>sha.js": true
-      }
-    },
     "@avalabs/fusion-sdk>@bitcoinerlab/secp256k1>@noble/curves": {
       "packages": {
         "@avalabs/fusion-sdk>@bitcoinerlab/secp256k1>@noble/curves>@noble/hashes": true
@@ -1452,12 +1200,6 @@
         "crypto": true
       }
     },
-    "@keystonehq/bc-ur-registry-eth>@ethereumjs/util>ethereum-cryptography>@noble/hashes": {
-      "globals": {
-        "TextEncoder": true,
-        "crypto": true
-      }
-    },
     "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>ethereum-cryptography>@noble/hashes": {
       "globals": {
         "TextEncoder": true,
@@ -1486,11 +1228,6 @@
       "globals": {
         "TextDecoder": true,
         "TextEncoder": true
-      }
-    },
-    "@core/ui>ledger-bitcoin>@bitcoinerlab/secp256k1>@noble/secp256k1": {
-      "globals": {
-        "crypto": true
       }
     },
     "@core/service-worker>fireblocks-sdk>@notabene/pii-sdk": {
@@ -2246,46 +1983,12 @@
         "structuredClone": true
       }
     },
-    "@keystonehq/animated-qr>@zxing/browser": {
-      "globals": {
-        "HTMLElement": true,
-        "HTMLImageElement": true,
-        "HTMLVideoElement": true,
-        "clearTimeout": true,
-        "console.error": true,
-        "console.warn": true,
-        "document": true,
-        "navigator": true,
-        "setTimeout": true
-      },
-      "packages": {
-        "@keystonehq/animated-qr>@zxing/library": true
-      }
-    },
-    "@keystonehq/animated-qr>@zxing/library": {
-      "globals": {
-        "HTMLImageElement": true,
-        "HTMLVideoElement": true,
-        "TextDecoder": true,
-        "TextEncoder": true,
-        "URL.createObjectURL": true,
-        "btoa": true,
-        "console.log": true,
-        "console.warn": true,
-        "document": true,
-        "navigator": true,
-        "setTimeout": true
-      },
-      "packages": {
-        "@keystonehq/animated-qr>@zxing/library>ts-custom-error": true
-      }
-    },
     "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>parse-asn1>asn1.js": {
       "packages": {
         "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>parse-asn1>asn1.js>bn.js": true,
         "@core/service-worker>buffer": true,
         "bestzip>glob>inherits": true,
-        "@keystonehq/hw-app-eth>elliptic>minimalistic-assert": true,
+        "@core/ui>bip32>tiny-secp256k1>elliptic>minimalistic-assert": true,
         "@rsbuild/plugin-node-polyfill>vm-browserify": true
       }
     },
@@ -2293,22 +1996,8 @@
       "packages": {
         "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>bn.js": true,
         "bestzip>glob>inherits": true,
-        "@keystonehq/hw-app-eth>elliptic>minimalistic-assert": true,
+        "@core/ui>bip32>tiny-secp256k1>elliptic>minimalistic-assert": true,
         "jest-environment-jsdom>jsdom>whatwg-encoding>iconv-lite>safer-buffer": true
-      }
-    },
-    "@keystonehq/hw-app-eth>@ngraveio/bc-ur>assert": {
-      "globals": {
-        "console": true,
-        "process.emitWarning": true,
-        "process.stderr": true
-      },
-      "packages": {
-        "@keystonehq/hw-app-eth>@ngraveio/bc-ur>assert>es6-object-assign": true,
-        "@rsbuild/plugin-node-polyfill>assert>is-nan": true,
-        "@rsbuild/plugin-node-polyfill>assert>object-is": true,
-        "@rsbuild/plugin-node-polyfill>process": true,
-        "@rsbuild/plugin-node-polyfill>util": true
       }
     },
     "@rsbuild/plugin-node-polyfill>assert": {
@@ -2470,12 +2159,6 @@
     "@core/ui>@ledgerhq/hw-app-eth>bignumber.js": {
       "globals": {
         "crypto": true
-      }
-    },
-    "@keystonehq/hw-app-eth>@ngraveio/bc-ur>bignumber.js": {
-      "globals": {
-        "crypto": true,
-        "define": true
       }
     },
     "@avalabs/core-wallets-sdk>bip174": {
@@ -2655,12 +2338,7 @@
         "Buffer": true
       }
     },
-    "@keystonehq/hw-app-eth>elliptic>bn.js": {
-      "globals": {
-        "Buffer": true
-      }
-    },
-    "@core/ui>@ethereumjs/tx>ethereumjs-util>bn.js": {
+    "@core/ui>bip32>tiny-secp256k1>elliptic>bn.js": {
       "globals": {
         "Buffer": true
       }
@@ -2675,17 +2353,12 @@
         "Buffer": true
       }
     },
-    "@keystonehq/hw-app-eth>rlp>bn.js": {
-      "globals": {
-        "Buffer": true
-      }
-    },
     "@core/ui>bip32>tiny-secp256k1>bn.js": {
       "globals": {
         "Buffer": true
       }
     },
-    "@keystonehq/hw-app-eth>elliptic>brorand": {
+    "@core/ui>bip32>tiny-secp256k1>elliptic>brorand": {
       "globals": {
         "crypto": true,
         "msCrypto": true
@@ -2735,7 +2408,7 @@
         "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>browserify-rsa": true,
         "@avalabs/core-wallets-sdk>create-hash": true,
         "@core/ui>bip32>create-hmac": true,
-        "@keystonehq/hw-app-eth>elliptic": true,
+        "@core/ui>bip32>tiny-secp256k1>elliptic": true,
         "bestzip>glob>inherits": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>parse-asn1": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>readable-stream": true,
@@ -2822,15 +2495,6 @@
         "@core/service-worker>buffer>ieee754": true
       }
     },
-    "@keystonehq/hw-app-eth>@ngraveio/bc-ur>crc>buffer": {
-      "globals": {
-        "console": true
-      },
-      "packages": {
-        "@core/service-worker>buffer>base64-js": true,
-        "@core/service-worker>buffer>ieee754": true
-      }
-    },
     "eslint-plugin-react>object.values>call-bind>call-bind-apply-helpers": {
       "packages": {
         "eslint-plugin-react>es-iterator-helpers>es-errors": true,
@@ -2898,15 +2562,6 @@
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound>get-intrinsic": true
       }
     },
-    "@keystonehq/hw-app-eth>@ngraveio/bc-ur>cbor-sync": {
-      "globals": {
-        "Buffer": true,
-        "define": true
-      },
-      "packages": {
-        "@rsbuild/plugin-node-polyfill>buffer": true
-      }
-    },
     "@avalabs/core-wallets-sdk>create-hash>cipher-base": {
       "packages": {
         "bestzip>glob>inherits": true,
@@ -2920,11 +2575,6 @@
         "@core/service-worker>buffer": true
       }
     },
-    "@keystonehq/hw-app-eth>@ngraveio/bc-ur>crc": {
-      "packages": {
-        "@keystonehq/hw-app-eth>@ngraveio/bc-ur>crc>buffer": true
-      }
-    },
     "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh": {
       "globals": {
         "Buffer": true
@@ -2932,7 +2582,7 @@
       "packages": {
         "@rsbuild/plugin-node-polyfill>crypto-browserify>create-ecdh>bn.js": true,
         "@rsbuild/plugin-node-polyfill>buffer": true,
-        "@keystonehq/hw-app-eth>elliptic": true
+        "@core/ui>bip32>tiny-secp256k1>elliptic": true
       }
     },
     "@avalabs/core-wallets-sdk>create-hash": {
@@ -3047,7 +2697,7 @@
     "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>browserify-des>des.js": {
       "packages": {
         "bestzip>glob>inherits": true,
-        "@keystonehq/hw-app-eth>elliptic>minimalistic-assert": true
+        "@core/ui>bip32>tiny-secp256k1>elliptic>minimalistic-assert": true
       }
     },
     "@core/service-worker>fireblocks-sdk>@notabene/pii-sdk>did-jwt": {
@@ -3059,7 +2709,7 @@
         "@core/service-worker>fireblocks-sdk>@notabene/pii-sdk>did-jwt>@stablelib/xchacha20poly1305": true,
         "@avalabs/fusion-sdk>bitcoinjs-lib>bech32": true,
         "@core/service-worker>fireblocks-sdk>@notabene/pii-sdk>did-jwt>canonicalize": true,
-        "@keystonehq/hw-app-eth>elliptic": true,
+        "@core/ui>bip32>tiny-secp256k1>elliptic": true,
         "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/keccak256>js-sha3": true,
         "@avalabs/core-utils-sdk>is-ipfs>multiformats": true,
         "@core/service-worker>@walletconnect/core>uint8arrays": true
@@ -3094,15 +2744,15 @@
         "@avalabs/core-wallets-sdk>hdkey>safe-buffer": true
       }
     },
-    "@keystonehq/hw-app-eth>elliptic": {
+    "@core/ui>bip32>tiny-secp256k1>elliptic": {
       "packages": {
-        "@keystonehq/hw-app-eth>elliptic>bn.js": true,
-        "@keystonehq/hw-app-eth>elliptic>brorand": true,
-        "@keystonehq/hw-app-eth>elliptic>hash.js": true,
-        "@keystonehq/hw-app-eth>elliptic>hmac-drbg": true,
+        "@core/ui>bip32>tiny-secp256k1>elliptic>bn.js": true,
+        "@core/ui>bip32>tiny-secp256k1>elliptic>brorand": true,
+        "@core/ui>bip32>tiny-secp256k1>elliptic>hash.js": true,
+        "@core/ui>bip32>tiny-secp256k1>elliptic>hmac-drbg": true,
         "bestzip>glob>inherits": true,
-        "@keystonehq/hw-app-eth>elliptic>minimalistic-assert": true,
-        "@keystonehq/hw-app-eth>elliptic>minimalistic-crypto-utils": true
+        "@core/ui>bip32>tiny-secp256k1>elliptic>minimalistic-assert": true,
+        "@core/ui>bip32>tiny-secp256k1>elliptic>minimalistic-crypto-utils": true
       }
     },
     "@rsbuild/plugin-node-polyfill>util>is-typed-array>es-abstract": {
@@ -3128,16 +2778,6 @@
         "@core/ui>eth-rpc-errors>fast-safe-stringify": true
       }
     },
-    "@keystonehq/bc-ur-registry-eth>@ethereumjs/util>ethereum-cryptography": {
-      "globals": {
-        "TextDecoder": true,
-        "crypto": true
-      },
-      "packages": {
-        "@keystonehq/bc-ur-registry-eth>@ethereumjs/util>ethereum-cryptography>@noble/hashes": true,
-        "@core/ui>ledger-bitcoin>@bitcoinerlab/secp256k1>@noble/secp256k1": true
-      }
-    },
     "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>ethereum-cryptography": {
       "globals": {
         "TextDecoder": true,
@@ -3155,31 +2795,6 @@
       },
       "packages": {
         "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>ethereum-cryptography>@noble/hashes": true
-      }
-    },
-    "@core/ui>@ethereumjs/tx>ethereumjs-util>ethereum-cryptography": {
-      "globals": {
-        "Buffer.from": true
-      },
-      "packages": {
-        "@rsbuild/plugin-node-polyfill>buffer": true,
-        "@core/ui>@ethereumjs/tx>ethereumjs-util>ethereum-cryptography>keccak": true,
-        "@core/ui>bip39>randombytes": true,
-        "@avalabs/core-wallets-sdk>hdkey>secp256k1": true
-      }
-    },
-    "@core/ui>@ethereumjs/tx>ethereumjs-util": {
-      "globals": {
-        "Buffer": true
-      },
-      "packages": {
-        "@rsbuild/plugin-node-polyfill>assert": true,
-        "@core/ui>@ethereumjs/tx>ethereumjs-util>bn.js": true,
-        "@core/service-worker>buffer": true,
-        "@rsbuild/plugin-node-polyfill>buffer": true,
-        "@avalabs/core-wallets-sdk>create-hash": true,
-        "@core/ui>@ethereumjs/tx>ethereumjs-util>ethereum-cryptography": true,
-        "@keystonehq/hw-app-eth>rlp": true
       }
     },
     "ethers": {
@@ -3223,7 +2838,7 @@
         "@core/service-worker>fireblocks-sdk>platform": true,
         "@core/service-worker>fireblocks-sdk>qs": true,
         "@core/service-worker>fireblocks-sdk>query-string": true,
-        "@keystonehq/hw-app-eth>uuid": true
+        "@core/service-worker>fireblocks-sdk>uuid": true
       }
     },
     "@rsbuild/plugin-node-polyfill>util>is-typed-array>for-each": {
@@ -3471,10 +3086,10 @@
         "@rsbuild/plugin-node-polyfill>stream-browserify": true
       }
     },
-    "@keystonehq/hw-app-eth>elliptic>hash.js": {
+    "@core/ui>bip32>tiny-secp256k1>elliptic>hash.js": {
       "packages": {
         "bestzip>glob>inherits": true,
-        "@keystonehq/hw-app-eth>elliptic>minimalistic-assert": true
+        "@core/ui>bip32>tiny-secp256k1>elliptic>minimalistic-assert": true
       }
     },
     "eslint-plugin-react>hasown": {
@@ -3504,16 +3119,6 @@
         "@avalabs/core-wallets-sdk>hdkey>secp256k1": true
       }
     },
-    "@keystonehq/bc-ur-registry-eth>hdkey": {
-      "packages": {
-        "@rsbuild/plugin-node-polyfill>assert": true,
-        "@core/ui>bip32>bs58check": true,
-        "@rsbuild/plugin-node-polyfill>crypto-browserify": true,
-        "@core/ui>@ledgerhq/hw-app-btc>ripemd160": true,
-        "@avalabs/core-wallets-sdk>hdkey>safe-buffer": true,
-        "@avalabs/core-wallets-sdk>hdkey>secp256k1": true
-      }
-    },
     "@core/ui>react-router-dom>history": {
       "globals": {
         "addEventListener": true,
@@ -3533,11 +3138,11 @@
         "@core/ui>react-router-dom>history>value-equal": true
       }
     },
-    "@keystonehq/hw-app-eth>elliptic>hmac-drbg": {
+    "@core/ui>bip32>tiny-secp256k1>elliptic>hmac-drbg": {
       "packages": {
-        "@keystonehq/hw-app-eth>elliptic>hash.js": true,
-        "@keystonehq/hw-app-eth>elliptic>minimalistic-assert": true,
-        "@keystonehq/hw-app-eth>elliptic>minimalistic-crypto-utils": true
+        "@core/ui>bip32>tiny-secp256k1>elliptic>hash.js": true,
+        "@core/ui>bip32>tiny-secp256k1>elliptic>minimalistic-assert": true,
+        "@core/ui>bip32>tiny-secp256k1>elliptic>minimalistic-crypto-utils": true
       }
     },
     "@emotion/react>hoist-non-react-statics": {
@@ -3659,11 +3264,6 @@
         "@rsbuild/plugin-node-polyfill>process": true
       }
     },
-    "@keystonehq/hw-app-eth>@ngraveio/bc-ur>jsbi": {
-      "globals": {
-        "define": true
-      }
-    },
     "@core/service-worker>fireblocks-sdk>jsonwebtoken": {
       "globals": {
         "Buffer.from": true,
@@ -3700,17 +3300,6 @@
         "@avalabs/core-wallets-sdk>hdkey>safe-buffer": true,
         "@rsbuild/plugin-node-polyfill>stream-browserify": true,
         "@rsbuild/plugin-node-polyfill>util": true
-      }
-    },
-    "@core/ui>@ethereumjs/tx>ethereumjs-util>ethereum-cryptography>keccak": {
-      "globals": {
-        "Buffer.alloc": true,
-        "Buffer.from": true,
-        "Buffer.isBuffer": true
-      },
-      "packages": {
-        "@rsbuild/plugin-node-polyfill>buffer": true,
-        "bestzip>archiver>readable-stream": true
       }
     },
     "@core/ui>ledger-bitcoin": {
@@ -3914,7 +3503,7 @@
     "@rsbuild/plugin-node-polyfill>crypto-browserify>diffie-hellman>miller-rabin": {
       "packages": {
         "@rsbuild/plugin-node-polyfill>crypto-browserify>diffie-hellman>miller-rabin>bn.js": true,
-        "@keystonehq/hw-app-eth>elliptic>brorand": true
+        "@core/ui>bip32>tiny-secp256k1>elliptic>brorand": true
       }
     },
     "@core/ui>react-router-dom>react-router>mini-create-react-context": {
@@ -4118,15 +3707,6 @@
       "packages": {
         "eslint-plugin-react>prop-types": true,
         "@core/ui>qrcode.react>qr.js": true,
-        "react": true
-      }
-    },
-    "@keystonehq/animated-qr>qrcode.react": {
-      "globals": {
-        "Path2D": true,
-        "devicePixelRatio": true
-      },
-      "packages": {
         "react": true
       }
     },
@@ -4440,22 +4020,9 @@
         "bestzip>glob>inherits": true
       }
     },
-    "@keystonehq/hw-app-eth>rlp": {
-      "globals": {
-        "Buffer.concat": true,
-        "Buffer.from": true,
-        "Buffer.isBuffer": true
-      },
-      "packages": {
-        "@keystonehq/hw-app-eth>rlp>bn.js": true,
-        "@rsbuild/plugin-node-polyfill>buffer": true
-      }
-    },
     "@core/ui>rxjs": {
       "globals": {
-        "clearInterval": true,
         "clearTimeout": true,
-        "setInterval.apply": true,
         "setTimeout.apply": true
       },
       "packages": {
@@ -4508,7 +4075,7 @@
     },
     "@avalabs/core-wallets-sdk>hdkey>secp256k1": {
       "packages": {
-        "@keystonehq/hw-app-eth>elliptic": true
+        "@core/ui>bip32>tiny-secp256k1>elliptic": true
       }
     },
     "@core/ui>semver": {
@@ -4666,7 +4233,7 @@
         "@core/ui>bip32>tiny-secp256k1>bn.js": true,
         "@rsbuild/plugin-node-polyfill>buffer": true,
         "@core/ui>bip32>create-hmac": true,
-        "@keystonehq/hw-app-eth>elliptic": true
+        "@core/ui>bip32>tiny-secp256k1>elliptic": true
       }
     },
     "@core/ui>bip39>pbkdf2>to-buffer": {
@@ -4776,7 +4343,7 @@
         "@rsbuild/plugin-node-polyfill>util>which-typed-array": true
       }
     },
-    "@keystonehq/hw-app-eth>uuid": {
+    "@core/service-worker>fireblocks-sdk>uuid": {
       "globals": {
         "crypto": true,
         "msCrypto": true
