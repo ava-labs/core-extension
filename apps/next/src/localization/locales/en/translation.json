@@ -809,7 +809,7 @@
   "Suggested slippage — your transaction will fail if the price changes unfavorably by more than this percentage.": "Suggested slippage — your transaction will fail if the price changes unfavorably by more than this percentage.",
   "Summary": "Summary",
   "Supplied": "Supplied",
-  "Support for Keystone wallets was deprecated on September 1st, 2026": "Support for Keystone wallets was deprecated on September 1st, 2026",
+  "Support for Keystone wallets was<br/>deprecated on September 1st, 2026": "Support for Keystone wallets was<br/>deprecated on September 1st, 2026",
   "Swap": "Swap",
   "Swap amount limit": "Swap amount limit",
   "Swap anything. Anywhere.": "Swap anything. Anywhere.",
