@@ -8,8 +8,6 @@ export * from './CurrenciesProvider';
 export * from './DefiProvider';
 export * from './FeatureFlagsProvider';
 export * from './FirebaseProvider';
-export * from './KeystoneProvider';
-export * from './KeystoneUsbProvider';
 export * from './LedgerProvider';
 export * from './NetworkFeeProvider';
 export * from './NetworkProvider';

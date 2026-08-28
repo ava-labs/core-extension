@@ -17,7 +17,6 @@ export * from './firebase';
 export * from './fireblocks';
 export * from './gasless';
 export * from './history';
-export * from './keystone';
 export * from './keystore';
 export * from './ledger';
 export * from './lock';

@@ -301,4 +301,4 @@ export const isMessageSigningMethod = (
   );
 };
 
-export type ExternaSignerType = 'ledger' | 'keystone-qr' | 'keystone-usb';
+export type ExternaSignerType = 'ledger';

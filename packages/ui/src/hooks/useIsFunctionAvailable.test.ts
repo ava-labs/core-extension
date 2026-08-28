@@ -52,7 +52,6 @@ describe('hooks/useIsFunctionAvailable', () => {
     [FeatureGates.SEND]: true,
     [FeatureGates.BUY]: true,
     [FeatureGates.DEFI]: true,
-    [FeatureGates.KEYSTONE]: true,
     [FeatureGates.SEEDLESS_SIGNING]: true,
     [FeatureGates.SEND_P_CHAIN]: true,
     [FeatureGates.SEND_X_CHAIN]: true,
@@ -181,14 +180,6 @@ describe('hooks/useIsFunctionAvailable', () => {
     it('returns true when feature flag is enabled for DEFI', () => {
       const { result } = renderHook(() =>
         useIsFunctionAvailable({ functionName: FunctionNames.DEFI }),
-      );
-
-      expect(result.current.isFunctionAvailable).toBe(true);
-    });
-
-    it('returns true when feature flag is enabled for KEYSTONE', () => {
-      const { result } = renderHook(() =>
-        useIsFunctionAvailable({ functionName: FunctionNames.KEYSTONE }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(true);

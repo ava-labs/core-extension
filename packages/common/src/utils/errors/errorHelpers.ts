@@ -1,6 +1,5 @@
 import { EthereumRpcError, ethErrors } from 'eth-rpc-errors';
 import { StatusCodes, TransportStatusError } from '@ledgerhq/hw-transport';
-import { Status, TransportError } from '@keystonehq/hw-transport-error';
 import { CommonError, ErrorCode, SwapErrorCode } from '@core/types';
 
 export type ErrorData = {
@@ -60,10 +59,6 @@ export const isUserRejectionError = (err: any) => {
 
   if (err instanceof TransportStatusError) {
     return LEDGER_USER_REJECTION_STATUS_CODES.includes(err.statusCode);
-  }
-
-  if (err instanceof TransportError) {
-    return err.transportErrorCode === Status.PRS_PARSING_REJECTED;
   }
 
   if (typeof err === 'object') {

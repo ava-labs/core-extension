@@ -55,6 +55,9 @@ export const SYNCED_DOMAINS = isProductionBuild()
   ? SYNCED_DOMAINS_PRODUCTION_BUILD
   : SYNCED_DOMAINS_DEVELOPMENT_BUILD;
 
+export const KEYSTONE_UNSUPPORTED_ERROR =
+  'Keystone wallets are no longer supported' as const;
+
 export const WALLET_CONNECT_APP_METADATA = {
   name: browser.i18n.getMessage('appName'),
   // When connecting to Core Mobile, it will allow us to send avalanche_*

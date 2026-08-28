@@ -9,7 +9,6 @@ import {
   DefiContextProvider,
   FirebaseContextProvider,
   isSpecificContextContainer,
-  KeystoneContextProvider,
   LedgerContextProvider,
   NetworkFeeContextProvider,
   OnboardingContextProvider,
@@ -95,7 +94,6 @@ export function App() {
           <PersonalAvatarProvider />,
           <AccountInfoVisibilityProvider />,
           <LedgerContextProvider />,
-          <KeystoneContextProvider />,
           <OnboardingContextProvider
             onError={(message: string) => toast.error(message)}
             LoadingComponent={LoadingScreen}

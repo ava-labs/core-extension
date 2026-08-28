@@ -7,7 +7,6 @@ import { Concierge } from '@/pages/Concierge';
 import { Contacts } from '@/pages/Contacts';
 import { DeFiProtocolDetails } from '@/pages/DeFi/DeFiProtocolDetails';
 import { ImportLedgerFlow, ImportSeedphraseFlow } from '@/pages/Import';
-import { KeystoneUsbReconnect } from '@/pages/KeystoneUsb/Reconnect';
 import {
   ChangeDerivationPath,
   DeriveSolanaAddresses,
@@ -55,7 +54,6 @@ export const AppRoutes = () => (
         path="/ledger/derive-solana-addresses"
         component={DeriveSolanaAddresses}
       />
-      <Route path="/keystone-usb/reconnect" component={KeystoneUsbReconnect} />
       <Route path="/notifications" component={Notifications} />
       <Route path="/fusion-transfer/:id" component={TransferDetails} />
       <Route path="/fusion/recurring" component={RecurringSwaps} />
