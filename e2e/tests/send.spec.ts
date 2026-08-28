@@ -779,8 +779,7 @@ test.describe('Send Tests', () => {
       await expect(networkRow).toBeVisible();
       await expect(networkRow).toContainText('Avalanche');
 
-      // External / address-book recipients use label "Contract" (not "To") on approval.
-      const toRow = sendPage.getApprovalDetailRow('Contract');
+      const toRow = sendPage.getApprovalDetailRow('To');
       await expect(toRow).toBeVisible();
       const contactAddr = sendData.recipientContactEvmAddress;
       await expect(toRow).toContainText(contactAddr.slice(0, 6));
