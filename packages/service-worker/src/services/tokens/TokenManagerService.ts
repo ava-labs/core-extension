@@ -12,9 +12,29 @@ import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import xss from 'xss';
 import { getProviderForNetwork } from '@core/common';
 import { EnsureDefined } from '@core/types';
+import { tokenAggregatorApiClient } from '~/api-clients/clients';
+import { getV2Tokens } from '~/api-clients/token-aggregator';
+import {
+  mapApiTokenToContractToken,
+  NetworkContractTokenWithVerified,
+} from './utils/mapApiToken';
+
+const CATALOG_PAGE_LIMIT = 1000;
+
+export type SearchedContractToken = NetworkContractTokenWithVerified & {
+  caip2Id: string;
+};
 
 @singleton()
 export class TokenManagerService {
+  // Per-chain catalog cache/in-flight dedup, scoped to the service-worker
+  // lifetime, so concurrent full-catalog consumers don't re-page the API.
+  #catalogCache = new Map<string, NetworkContractTokenWithVerified[]>();
+  #catalogInFlight = new Map<
+    string,
+    Promise<NetworkContractTokenWithVerified[]>
+  >();
+
   constructor(
     private settingsService: SettingsService,
     private networkService: NetworkService,
@@ -27,9 +47,129 @@ export class TokenManagerService {
     return Object.values(settings.customTokens[network.chainId] || {}) || [];
   }
 
-  async getTokensByChainId(chainId: number): Promise<NetworkContractToken[]> {
+  async getTokensByChainId(
+    chainId: number,
+  ): Promise<NetworkContractTokenWithVerified[]> {
     const network = await this.networkService.getNetwork(chainId);
-    return network?.tokens ?? [];
+
+    if (!network) {
+      return [];
+    }
+
+    // Interim: while the startup chainlist still embeds tokens, use them to
+    // avoid a latency regression for full-catalog consumers before the switch
+    // to /v2/networks (which no longer carries token arrays) lands.
+    if (network.tokens && network.tokens.length > 0) {
+      return network.tokens;
+    }
+
+    if (!network.caipId) {
+      return [];
+    }
+
+    return this.#fetchFullCatalog(network.caipId);
+  }
+
+  async #fetchFullCatalog(
+    caip2Id: string,
+  ): Promise<NetworkContractTokenWithVerified[]> {
+    const cached = this.#catalogCache.get(caip2Id);
+    if (cached) {
+      return cached;
+    }
+
+    const inFlight = this.#catalogInFlight.get(caip2Id);
+    if (inFlight) {
+      return inFlight;
+    }
+
+    const request = (async () => {
+      const tokens: NetworkContractTokenWithVerified[] = [];
+      let page = 1;
+
+      for (;;) {
+        const response = await getV2Tokens<true>({
+          client: tokenAggregatorApiClient,
+          throwOnError: true,
+          query: {
+            caip2Id,
+            page,
+            limit: CATALOG_PAGE_LIMIT,
+            returnMalicious: true,
+          },
+        });
+
+        for (const token of response.data?.data?.tokens ?? []) {
+          const mapped = mapApiTokenToContractToken(token);
+          if (mapped) {
+            tokens.push(mapped);
+          }
+        }
+
+        const meta = response.data?.metadata;
+        const currentPage = meta?.currentPage ?? page;
+        const totalPages = meta?.totalPages ?? currentPage;
+        if (currentPage >= totalPages) {
+          break;
+        }
+        page = currentPage + 1;
+      }
+
+      this.#catalogCache.set(caip2Id, tokens);
+      return tokens;
+    })();
+
+    this.#catalogInFlight.set(caip2Id, request);
+    try {
+      return await request;
+    } finally {
+      this.#catalogInFlight.delete(caip2Id);
+    }
+  }
+
+  async searchTokens({
+    caip2Ids,
+    page,
+    limit,
+    keyword,
+    address,
+    includeMalicious,
+  }: {
+    caip2Ids: string[];
+    page: number;
+    limit: number;
+    keyword?: string;
+    address?: string;
+    includeMalicious?: boolean;
+  }): Promise<{
+    tokens: SearchedContractToken[];
+    currentPage: number;
+    totalPages: number;
+  }> {
+    const response = await getV2Tokens<true>({
+      client: tokenAggregatorApiClient,
+      throwOnError: true,
+      query: {
+        caip2Id: caip2Ids,
+        page,
+        limit,
+        returnMalicious: Boolean(includeMalicious),
+        // `keyword` matches name/symbol only; contract lookups need `address`.
+        ...(address ? { address } : {}),
+        ...(keyword ? { keyword } : {}),
+      },
+    });
+
+    const meta = response.data?.metadata;
+    const currentPage = meta?.currentPage ?? page;
+    const totalPages = meta?.totalPages ?? currentPage;
+
+    const tokens = (response.data?.data?.tokens ?? []).flatMap((token) => {
+      const mapped = mapApiTokenToContractToken(token);
+      return mapped ? [{ ...mapped, caip2Id: token.networkCaip2Id }] : [];
+    });
+
+    return { tokens, currentPage, totalPages };
   }
 
   async getTokenData(

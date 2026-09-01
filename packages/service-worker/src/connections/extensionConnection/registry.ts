@@ -120,6 +120,7 @@ import { UpdateTokensVisiblityHandler } from '../../services/settings/handlers/u
 import { ResetExtensionStateHandler } from '../../services/storage/handlers/resetExtensionState';
 import { GetMarkrTargetChainAssetsHandler } from '../../services/tokens/handlers/getMarkrTargetChainAssets';
 import { GetTokensListHandler } from '../../services/tokens/handlers/getTokenList';
+import { SearchNetworkTokensHandler } from '../../services/tokens/handlers/searchNetworkTokens';
 import { CheckIfWalletExists } from '~/services/wallet/handlers/checkIfWalletExists';
 import { GetBtcWalletPolicyDetails } from '../../services/wallet/handlers/getBtcWalletPolicyDetails';
 import { GetUnencryptedMnemonicHandler } from '../../services/wallet/handlers/getUnencryptedMnemonic';
@@ -324,6 +325,10 @@ import { SetBridgeDevEnvHandler } from '~/services/settings/handlers/setBridgeDe
   {
     token: 'ExtensionRequestHandler',
     useToken: GetTokensListHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: SearchNetworkTokensHandler,
   },
   {
     token: 'ExtensionRequestHandler',

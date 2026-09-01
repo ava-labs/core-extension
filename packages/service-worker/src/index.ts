@@ -126,6 +126,10 @@ export type { UpdateThemeHandler } from './services/settings/handlers/updateThem
 export type { UpdateTokensVisiblityHandler } from './services/settings/handlers/updateTokensVisibility';
 export type { ResetExtensionStateHandler } from './services/storage/handlers/resetExtensionState';
 export type { GetTokensListHandler } from './services/tokens/handlers/getTokenList';
+export type {
+  SearchedToken,
+  SearchNetworkTokensHandler,
+} from './services/tokens/handlers/searchNetworkTokens';
 export type { GetBtcWalletPolicyDetails } from './services/wallet/handlers/getBtcWalletPolicyDetails';
 export type { GetUnencryptedMnemonicHandler } from './services/wallet/handlers/getUnencryptedMnemonic';
 export type { GetWalletDetailsHandler } from './services/wallet/handlers/getWalletDetails';

@@ -149,6 +149,7 @@ export enum ExtensionRequest {
   CURRENCIES_GET_EXCHANGE_RATES = 'currencies_get_exchange_rates',
 
   GET_NETWORK_TOKENS = 'get_network_tokens',
+  SEARCH_NETWORK_TOKENS = 'search_network_tokens',
   GET_MARKR_TARGET_CHAIN_ASSETS = 'get_markr_target_chain_assets',
   HYPERCORE_GET_WITHDRAWABLE = 'hypercore_get_withdrawable',
   LOOKUP_TOKEN = 'lookup_token',
