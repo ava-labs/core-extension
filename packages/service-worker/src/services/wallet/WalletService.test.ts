@@ -313,6 +313,47 @@ describe('background/services/wallet/WalletService.ts', () => {
     return data;
   };
 
+  const mockKeystoneWallet = (
+    secretType: SecretType.Keystone | SecretType.Keystone3Pro,
+    account?: Partial<Account>,
+  ) => {
+    const data = {
+      secretType,
+      derivationPathSpec: DerivationPath.BIP44,
+      masterFingerprint: 'fingerprint',
+      extendedPublicKeys,
+      publicKeys: [
+        {
+          key: 'evm',
+          curve: 'secp256k1',
+          derivationPath: getAddressDerivationPath(0, 'EVM', {
+            pathSpec: DerivationPath.BIP44,
+          }),
+        },
+      ],
+      walletId: WALLET_ID,
+      name: 'keystone',
+      account: {
+        type: AccountType.PRIMARY,
+        index: 0,
+        ...account,
+      },
+    };
+    secretsService.getPrimaryAccountSecrets.mockResolvedValue(data as any);
+    secretsService.getAccountSecrets.mockResolvedValue(data as any);
+    secretsService.getWalletAccountsSecretsById.mockResolvedValue(data as any);
+    secretsService.getPrimaryWalletsDetails.mockResolvedValue([
+      {
+        type: data.secretType,
+        derivationPath: data.derivationPathSpec,
+        id: data.walletId,
+        name: data.name,
+      },
+    ]);
+
+    return data;
+  };
+
   const mockSeedlessWallet = (
     additionalData: any = {},
     account?: Partial<Account>,
@@ -723,6 +764,53 @@ describe('background/services/wallet/WalletService.ts', () => {
 
       expect(hvmWalletMock.signEd25519).toHaveBeenCalledWith({ ...txMock }, {});
       expect(signedTx).toBe('0x1');
+    });
+
+    describe('with Keystone wallets', () => {
+      it.each([[SecretType.Keystone], [SecretType.Keystone3Pro]] as const)(
+        'refuses to sign EVM transactions for %s wallets',
+        async (secretType) => {
+          mockKeystoneWallet(secretType);
+
+          await expect(
+            walletService.sign(
+              txMock,
+              { chainId: 1, vmName: NetworkVMType.EVM } as Network,
+              tabId,
+            ),
+          ).rejects.toThrow('This wallet type is no longer supported');
+        },
+      );
+
+      it.each([[SecretType.Keystone], [SecretType.Keystone3Pro]] as const)(
+        'refuses to sign BTC transactions for %s wallets',
+        async (secretType) => {
+          mockKeystoneWallet(secretType);
+
+          await expect(
+            walletService.sign(
+              btcTxMock,
+              { chainId: 111, vmName: NetworkVMType.BITCOIN } as Network,
+              tabId,
+            ),
+          ).rejects.toThrow('This wallet type is no longer supported');
+        },
+      );
+
+      it.each([[SecretType.Keystone], [SecretType.Keystone3Pro]] as const)(
+        'refuses to sign Avalanche X/P transactions for %s wallets',
+        async (secretType) => {
+          mockKeystoneWallet(secretType);
+
+          await expect(
+            walletService.sign(
+              txMock,
+              decorateWithCaipId(AVALANCHE_XP_TEST_NETWORK),
+              tabId,
+            ),
+          ).rejects.toThrow('This wallet type is no longer supported');
+        },
+      );
     });
 
     describe('avalanche signing - XP / Coreth', () => {

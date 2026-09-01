@@ -443,6 +443,7 @@
   "It seems that Core no longer has access to your Ledger device. Please click the button below to reconnect it.": "It seems that Core no longer has access to your Ledger device. Please click the button below to reconnect it.",
   "It will take 2 days to retrieve your recovery phrase. You will only have 48 hours to copy your recovery phrase once the 2 day waiting period is over": "It will take 2 days to retrieve your recovery phrase. You will only have 48 hours to copy your recovery phrase once the 2 day waiting period is over",
   "Japanese": "Japanese",
+  "Keystone support has been deprecated": "Keystone support has been deprecated",
   "Keystone {{number}}": "Keystone {{number}}",
   "Korean": "Korean",
   "Language": "Language",
