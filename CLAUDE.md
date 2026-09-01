@@ -42,6 +42,9 @@ yarn zip                      # Zip for Chrome Store
 yarn test                     # Tests
 yarn test:watch              # Watch mode
 yarn test:path <pattern>     # Test specific pattern
+yarn test:coverage           # Tests with coverage
+yarn coverage:check          # Compare coverage against coverage-baseline.json
+yarn coverage:update         # Lock improved coverage into the baseline
 
 # Code quality
 yarn lint                    # Lint

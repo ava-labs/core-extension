@@ -1,0 +1,44 @@
+{
+  "@core-ext/next": {
+    "lines": 5.01,
+    "statements": 5.16,
+    "functions": 4.52,
+    "branches": 6.01
+  },
+  "@core/common": {
+    "lines": 68.35,
+    "statements": 69.56,
+    "functions": 42.96,
+    "branches": 40.3
+  },
+  "@core/inpage": {
+    "lines": 86.61,
+    "statements": 86.87,
+    "functions": 88.57,
+    "branches": 59.55
+  },
+  "@core/lavamoat-rspack": {
+    "lines": 5.07,
+    "statements": 5.15,
+    "functions": 4.78,
+    "branches": 3.39
+  },
+  "@core/messaging": {
+    "lines": 94.79,
+    "statements": 94.85,
+    "functions": 100,
+    "branches": 91.42
+  },
+  "@core/service-worker": {
+    "lines": 60.09,
+    "statements": 60.04,
+    "functions": 55.64,
+    "branches": 46.49
+  },
+  "@core/ui": {
+    "lines": 27.26,
+    "statements": 27.1,
+    "functions": 14.83,
+    "branches": 20.49
+  }
+}

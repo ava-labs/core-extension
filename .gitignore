@@ -59,6 +59,9 @@ todo.*
 test-results/
 playwright-report/
 
+# Jest coverage output (baseline lives in coverage-baseline.json)
+coverage/
+
 # snyk
 .dccache
 
