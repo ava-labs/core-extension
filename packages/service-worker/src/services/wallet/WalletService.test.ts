@@ -36,9 +36,6 @@ import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import { LedgerTransport } from '../ledger/LedgerTransport';
 import getDerivationPath from './utils/getDerivationPath';
 import ensureMessageFormatIsValid from './utils/ensureMessageFormatIsValid';
-import { KeystoneService } from '../keystone/KeystoneService';
-import { BitcoinKeystoneWallet } from '../keystone/BitcoinKeystoneWallet';
-import { KeystoneWallet } from '../keystone/KeystoneWallet';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { WalletPolicy } from 'ledger-bitcoin';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
@@ -69,7 +66,6 @@ jest.mock('../network/NetworkService');
 jest.mock('../secrets/SecretsService');
 jest.mock('../secrets/AddressResolver');
 jest.mock('../ledger/LedgerService');
-jest.mock('../keystone/KeystoneService');
 jest.mock('./utils/prepareBtcTxForLedger');
 jest.mock('./utils/ensureMessageFormatIsValid');
 jest.mock('@avalabs/core-wallets-sdk');
@@ -148,7 +144,6 @@ describe('background/services/wallet/WalletService.ts', () => {
   let walletService: WalletService;
   let networkService: NetworkService;
   let ledgerService: LedgerService;
-  let keystoneService: KeystoneService;
   let walletConnectService: WalletConnectService;
   let fireblocksService: FireblocksService;
   let addressResolver: AddressResolver;
@@ -166,7 +161,6 @@ describe('background/services/wallet/WalletService.ts', () => {
   const btcWalletMock = Object.create(BitcoinWallet.prototype);
   const hvmWalletMock = new HVMWallet('0x' + privateKeyMock);
   const btcLedgerWalletMock = Object.create(BitcoinLedgerWallet.prototype);
-  const btcKeystoneWalletMock = Object.create(BitcoinKeystoneWallet.prototype);
   const staticSignerMock = Object.create(Avalanche.StaticSigner.prototype);
   const simpleSignerMock = Object.create(Avalanche.SimpleSigner.prototype);
   const ledgerSignerMock = Object.create(Avalanche.LedgerSigner.prototype);
@@ -177,7 +171,6 @@ describe('background/services/wallet/WalletService.ts', () => {
   const ledgerSimpleSignerMock = Object.create(
     Avalanche.SimpleLedgerSigner.prototype,
   );
-  const keystoneWalletMock = Object.create(KeystoneWallet.prototype);
   const walletConnectSignerMock = Object.create(WalletConnectSigner.prototype);
   const seedlessWalletMock = Object.create(SeedlessWallet.prototype);
   const mnemonic = 'mnemonic';
@@ -320,6 +313,47 @@ describe('background/services/wallet/WalletService.ts', () => {
     return data;
   };
 
+  const mockKeystoneWallet = (
+    secretType: SecretType.Keystone | SecretType.Keystone3Pro,
+    account?: Partial<Account>,
+  ) => {
+    const data = {
+      secretType,
+      derivationPathSpec: DerivationPath.BIP44,
+      masterFingerprint: 'fingerprint',
+      extendedPublicKeys,
+      publicKeys: [
+        {
+          key: 'evm',
+          curve: 'secp256k1',
+          derivationPath: getAddressDerivationPath(0, 'EVM', {
+            pathSpec: DerivationPath.BIP44,
+          }),
+        },
+      ],
+      walletId: WALLET_ID,
+      name: 'keystone',
+      account: {
+        type: AccountType.PRIMARY,
+        index: 0,
+        ...account,
+      },
+    };
+    secretsService.getPrimaryAccountSecrets.mockResolvedValue(data as any);
+    secretsService.getAccountSecrets.mockResolvedValue(data as any);
+    secretsService.getWalletAccountsSecretsById.mockResolvedValue(data as any);
+    secretsService.getPrimaryWalletsDetails.mockResolvedValue([
+      {
+        type: data.secretType,
+        derivationPath: data.derivationPathSpec,
+        id: data.walletId,
+        name: data.name,
+      },
+    ]);
+
+    return data;
+  };
+
   const mockSeedlessWallet = (
     additionalData: any = {},
     account?: Partial<Account>,
@@ -360,7 +394,6 @@ describe('background/services/wallet/WalletService.ts', () => {
     jest.resetAllMocks();
     networkService = new NetworkService({} as any, {} as any, {} as any);
     ledgerService = new LedgerService();
-    keystoneService = new KeystoneService();
 
     walletConnectService = new WalletConnectService(
       new WalletConnectStorage({} as any),
@@ -397,7 +430,6 @@ describe('background/services/wallet/WalletService.ts', () => {
     walletService = new WalletService(
       networkService,
       ledgerService,
-      keystoneService,
       walletConnectService,
       fireblocksService,
       secretsService,
@@ -667,28 +699,6 @@ describe('background/services/wallet/WalletService.ts', () => {
       expect(signedTx).toBe(buffer.toString('hex'));
     });
 
-    it('signs BTC transactions correctly using BitcoinKeystoneWallet', async () => {
-      const bitcoinProviderMock = new BitcoinProvider(false);
-      const buffer = Buffer.from('0x1');
-      const tx = new Transaction();
-      tx.toHex = jest.fn().mockReturnValue(buffer.toString('hex'));
-      btcKeystoneWalletMock.signTx = jest.fn().mockResolvedValueOnce(tx);
-      spyOnGetWallet().mockResolvedValueOnce(btcKeystoneWalletMock);
-      (networkService.getBitcoinProvider as jest.Mock).mockResolvedValueOnce(
-        bitcoinProviderMock,
-      );
-      const { signedTx } = await walletService.sign(
-        btcTxMock,
-        networkMock,
-        tabId,
-      );
-      expect(btcKeystoneWalletMock.signTx).toHaveBeenCalledWith(
-        btcTxMock.inputs,
-        btcTxMock.outputs,
-      );
-      expect(signedTx).toBe(buffer.toString('hex'));
-    });
-
     it('signs btc tx correctly using BitcoinLedgerWallet', async () => {
       (ledgerService as any).recentTransport =
         createLedgerTransportMockWithBitcoinAppOpen();
@@ -729,16 +739,6 @@ describe('background/services/wallet/WalletService.ts', () => {
       expect(signedTx).toBe('0x1');
     });
 
-    it('signs evm tx correctly using KeystoneWallet', async () => {
-      keystoneWalletMock.signTransaction = jest.fn().mockReturnValueOnce('0x1');
-      spyOnGetWallet().mockResolvedValueOnce(keystoneWalletMock);
-
-      const { signedTx } = await walletService.sign(txMock, networkMock, tabId);
-
-      expect(keystoneWalletMock.signTransaction).toHaveBeenCalledWith(txMock);
-      expect(signedTx).toBe('0x1');
-    });
-
     it('signs evm tx correctly using SeedlessWallet', async () => {
       seedlessWalletMock.signTransaction = jest.fn().mockReturnValueOnce('0x1');
       spyOnGetWallet().mockResolvedValueOnce(seedlessWalletMock);
@@ -764,6 +764,53 @@ describe('background/services/wallet/WalletService.ts', () => {
 
       expect(hvmWalletMock.signEd25519).toHaveBeenCalledWith({ ...txMock }, {});
       expect(signedTx).toBe('0x1');
+    });
+
+    describe('with Keystone wallets', () => {
+      it.each([[SecretType.Keystone], [SecretType.Keystone3Pro]] as const)(
+        'refuses to sign EVM transactions for %s wallets',
+        async (secretType) => {
+          mockKeystoneWallet(secretType);
+
+          await expect(
+            walletService.sign(
+              txMock,
+              { chainId: 1, vmName: NetworkVMType.EVM } as Network,
+              tabId,
+            ),
+          ).rejects.toThrow('This wallet type is no longer supported');
+        },
+      );
+
+      it.each([[SecretType.Keystone], [SecretType.Keystone3Pro]] as const)(
+        'refuses to sign BTC transactions for %s wallets',
+        async (secretType) => {
+          mockKeystoneWallet(secretType);
+
+          await expect(
+            walletService.sign(
+              btcTxMock,
+              { chainId: 111, vmName: NetworkVMType.BITCOIN } as Network,
+              tabId,
+            ),
+          ).rejects.toThrow('This wallet type is no longer supported');
+        },
+      );
+
+      it.each([[SecretType.Keystone], [SecretType.Keystone3Pro]] as const)(
+        'refuses to sign Avalanche X/P transactions for %s wallets',
+        async (secretType) => {
+          mockKeystoneWallet(secretType);
+
+          await expect(
+            walletService.sign(
+              txMock,
+              decorateWithCaipId(AVALANCHE_XP_TEST_NETWORK),
+              tabId,
+            ),
+          ).rejects.toThrow('This wallet type is no longer supported');
+        },
+      );
     });
 
     describe('avalanche signing - XP / Coreth', () => {
@@ -1099,7 +1146,6 @@ describe('background/services/wallet/WalletService.ts', () => {
     it.each([
       ['WalletConnect wallets', Object.create(WalletConnectSigner.prototype)],
       ['Ledger wallets', Object.create(LedgerSigner.prototype)],
-      ['Keystone wallets', Object.create(KeystoneWallet.prototype)],
     ])('throws for %s', async (_, wallet) => {
       getWalletSpy.mockResolvedValueOnce(wallet);
       jest.spyOn(wallet, 'signTransaction');

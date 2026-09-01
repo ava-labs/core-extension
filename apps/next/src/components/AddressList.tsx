@@ -14,7 +14,6 @@ import {
   XPChainIcon,
 } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
-import { XPChainAddressEnablerInverted } from './Address';
 
 interface AddressListContainerProps {
   top?: number | string;
@@ -69,7 +68,6 @@ export const AddressList = withThemeInvert<Props>(
           label="Avalanche X/P-Chain"
           Icon={<UniqueIdIcon icon={<XPChainIcon />} />}
           address={activeAccount?.addressAVM}
-          AddressEnabler={XPChainAddressEnablerInverted}
         />
         <StyledDivider variant="inset" />
         <AddressItem

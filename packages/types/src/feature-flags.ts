@@ -8,8 +8,6 @@ export enum FeatureGates {
   BUY = 'buy',
   BUY_MOONPAY = 'buy-feature-moonpay',
   BUY_COINBASE = 'buy-feature-coinbase',
-  KEYSTONE = 'keystone',
-  KEYSTONE_3 = 'keystone3-onboarding',
   DEFI = 'defi-feature',
   IMPORT_WALLET_CONNECT = 'import-wallet-connect',
   IMPORT_FIREBLOCKS = 'import-fireblocks',

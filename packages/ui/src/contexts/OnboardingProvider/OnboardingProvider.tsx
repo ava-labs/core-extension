@@ -2,8 +2,6 @@ import { WalletType } from '@avalabs/types';
 import { Monitoring, signUpForNewsletter } from '@core/common';
 import type {
   GetIsOnboardedHandler,
-  KeystoneOnboardingHandler,
-  KeystoneOnboardingHandlerNew,
   LedgerOnboardingHandler,
   LedgerOnboardingHandlerNew,
   MnemonicOnboardingHandler,
@@ -61,7 +59,6 @@ const OnboardingContext = createContext<{
   submit(postSubmitHandler: () => void): void;
   setPublicKeys: Dispatch<SetStateAction<PubKeyType[] | undefined>>;
   publicKeys?: PubKeyType[];
-  setMasterFingerprint: Dispatch<SetStateAction<string>>;
   mnemonic: string;
   onboardingPhase: OnboardingPhase | null;
   setOnboardingPhase: Dispatch<SetStateAction<OnboardingPhase | null>>;
@@ -138,8 +135,6 @@ export function OnboardingContextProvider({
     ExtendedPublicKey[]
   >([]);
 
-  const [masterFingerprint, setMasterFingerprint] = useState<string>('');
-
   const [authProvider, setAuthProvider] = useState<SeedlessAuthProvider>();
 
   const [userId, setUserId] = useState<string>();
@@ -173,7 +168,6 @@ export function OnboardingContextProvider({
     setPublicKeys(undefined);
     setPassword('');
     setAnalyticsConsent(undefined);
-    setMasterFingerprint('');
     setOidcToken('');
     setSeedlessSignerToken(undefined);
     setWalletType(undefined);
@@ -200,7 +194,6 @@ export function OnboardingContextProvider({
       OnboardingPhase.CREATE_WALLET,
       OnboardingPhase.IMPORT_WALLET,
       OnboardingPhase.LEDGER,
-      OnboardingPhase.KEYSTONE,
       OnboardingPhase.SEEDLESS_GOOGLE,
       OnboardingPhase.SEEDLESS_APPLE,
     ];
@@ -350,57 +343,6 @@ export function OnboardingContextProvider({
     xpubXP,
   ]);
 
-  const submitKeystoneNew = useCallback(() => {
-    return request<KeystoneOnboardingHandlerNew>({
-      method: ExtensionRequest.KEYSTONE_ONBOARDING_SUBMIT_NEW,
-      params: [
-        {
-          masterFingerprint,
-          addressPublicKeys,
-          extendedPublicKeys,
-          password,
-          analyticsConsent: !!analyticsConsent,
-          walletName: walletName,
-        },
-      ],
-    });
-  }, [
-    analyticsConsent,
-    addressPublicKeys,
-    extendedPublicKeys,
-    masterFingerprint,
-    password,
-    request,
-    walletName,
-  ]);
-
-  /**
-   * @deprecated Try to use submitKeystoneNew() instead
-   */
-  const submitKeystone = useCallback(() => {
-    return request<KeystoneOnboardingHandler>({
-      method: ExtensionRequest.KEYSTONE_ONBOARDING_SUBMIT,
-      params: [
-        {
-          masterFingerprint,
-          xpub,
-          xpubXP,
-          password,
-          analyticsConsent: !!analyticsConsent,
-          walletName: walletName,
-        },
-      ],
-    });
-  }, [
-    analyticsConsent,
-    masterFingerprint,
-    password,
-    request,
-    walletName,
-    xpub,
-    xpubXP,
-  ]);
-
   const submit = useCallback(
     (postSubmitHandler: () => void) => {
       if (submitInProgress) {
@@ -418,11 +360,6 @@ export function OnboardingContextProvider({
 
       if (!handler && onboardingWalletType === WalletType.Seedless) {
         handler = submitSeedless;
-      }
-
-      if (!handler && onboardingWalletType === WalletType.Keystone) {
-        handler =
-          addressPublicKeys.length > 0 ? submitKeystoneNew : submitKeystone;
       }
 
       if (!handler && onboardingWalletType === WalletType.Ledger) {
@@ -481,8 +418,6 @@ export function OnboardingContextProvider({
       addressPublicKeys,
       submitMnemonic,
       submitSeedless,
-      submitKeystoneNew,
-      submitKeystone,
       submitLedgerNew,
       submitLedger,
       capture,
@@ -525,7 +460,6 @@ export function OnboardingContextProvider({
         analyticsConsent,
         setPublicKeys,
         publicKeys,
-        setMasterFingerprint,
         mnemonic,
         onboardingPhase,
         setOnboardingPhase,
