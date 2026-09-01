@@ -16,6 +16,7 @@ import { getTokenMapper } from './lib/getTokenMapper';
 export const useAllTokens = (
   networks: NetworkWithCaipId[],
   forceShowAllTokens?: boolean,
+  fetchFullCatalog: boolean = forceShowAllTokens ?? false,
 ) => {
   const {
     accounts: { active },
@@ -29,16 +30,29 @@ export const useAllTokens = (
   const { customTokens } = useSettingsContext();
 
   useEffect(() => {
+    if (!fetchFullCatalog) {
+      setPlaceholderTokens([]);
+      return;
+    }
+
+    let cancelled = false;
     Promise.allSettled(
       networks.map((network) => getNetworkTokens({ request, network })),
     ).then((settledResults) => {
+      if (cancelled) {
+        return;
+      }
       setPlaceholderTokens(
         settledResults
           .filter((res) => res.status === 'fulfilled')
           .flatMap((res) => res.value),
       );
     });
-  }, [networks, request]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [networks, request, fetchFullCatalog]);
 
   const tokensForAccount = useTokensForAccount(active, {
     networks,
