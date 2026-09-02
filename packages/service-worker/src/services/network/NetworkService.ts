@@ -52,8 +52,15 @@ import {
   getDefaultEnabledNetworkIds,
   isSyncDomain,
 } from '@core/common';
-import { isSolanaNetwork, isHyperliquidNetwork } from '@core/common';
+import {
+  isSolanaNetwork,
+  isHyperliquidNetwork,
+  Monitoring,
+} from '@core/common';
 import { GlacierService } from '../glacier/GlacierService';
+import { getAuthHeaders } from '../appcheck/utils/getAuthHeaders';
+import { getV2Networks } from '~/api-clients/token-aggregator';
+import { mapV2NetworksToChainList } from './utils/mapV2Networks';
 import {
   BASE_NETWORK_CONFIG_BY_TYPE,
   getXPChainId,
@@ -507,27 +514,10 @@ export class NetworkService implements OnLock, OnStorageReady {
     let attempt = 1;
 
     do {
-      const [result] = await resolve(
-        getChainsAndTokens(
-          process.env.RELEASE === 'production',
-          `${process.env.PROXY_URL}/tokenlist?includeSolana`,
-        ),
-      );
+      const result = await this.#fetchChainList(attempt);
 
       if (result) {
-        chainlist = {
-          ...result,
-          [BITCOIN_NETWORK.chainId]: BITCOIN_NETWORK,
-          [BITCOIN_TEST_NETWORK.chainId]: BITCOIN_TEST_NETWORK,
-          [ChainId.AVALANCHE_P]: this._getPchainNetwork('mainnet'),
-          [ChainId.AVALANCHE_X]: this._getXchainNetwork('mainnet'),
-          [ChainId.AVALANCHE_TEST_P]: this._getPchainNetwork('testnet'),
-          [ChainId.AVALANCHE_TEST_X]: this._getXchainNetwork('testnet'),
-          [ChainId.AVALANCHE_DEVNET_P]: this._getPchainNetwork('devnet'),
-          [ChainId.AVALANCHE_DEVNET_X]: this._getXchainNetwork('devnet'),
-          [HYPEREVM_NETWORK.chainId]: HYPEREVM_NETWORK,
-          [HYPERCORE_NETWORK.chainId]: HYPERCORE_NETWORK,
-        };
+        chainlist = this.#injectLocalNetworks(result);
       } else {
         attempt += 1;
         await wait(getExponentialBackoffDelay({ attempt }));
@@ -541,6 +531,62 @@ export class NetworkService implements OnLock, OnStorageReady {
     this._allNetworks.dispatch(chainlist);
 
     return chainlist;
+  }
+
+  async #fetchChainList(attempt: number): Promise<ChainList | undefined> {
+    const [v2Networks, v2Error] = await resolve(this.#fetchNetworksFromApi());
+
+    if (v2Networks && Object.keys(v2Networks).length > 0) {
+      return v2Networks;
+    }
+
+    // Report every fall back to the legacy endpoint so we can monitor
+    // if (or how often) /v2/networks is unavailable before removing the legacy path.
+    Monitoring.sentryCaptureException(
+      v2Error instanceof Error
+        ? v2Error
+        : new Error('Falling back to the legacy /tokenlist endpoint'),
+      Monitoring.SentryExceptionTypes.NETWORKS,
+      { attempt },
+    );
+
+    const [legacyChainList] = await resolve(
+      getChainsAndTokens(
+        process.env.RELEASE === 'production',
+        `${process.env.PROXY_URL}/tokenlist?includeSolana`,
+      ),
+    );
+
+    return legacyChainList ?? undefined;
+  }
+
+  async #fetchNetworksFromApi(): Promise<ChainList | undefined> {
+    const response = await getV2Networks<true>({
+      baseUrl: process.env.TOKEN_AGGREGATOR_SERVICE_URL,
+      throwOnError: true,
+      headers: await getAuthHeaders(),
+      query: { includeSolana: true },
+    });
+
+    const data = response.data?.data;
+
+    return data ? mapV2NetworksToChainList(data) : undefined;
+  }
+
+  #injectLocalNetworks(base: ChainList): ChainList {
+    return {
+      ...base,
+      [BITCOIN_NETWORK.chainId]: BITCOIN_NETWORK,
+      [BITCOIN_TEST_NETWORK.chainId]: BITCOIN_TEST_NETWORK,
+      [ChainId.AVALANCHE_P]: this._getPchainNetwork('mainnet'),
+      [ChainId.AVALANCHE_X]: this._getXchainNetwork('mainnet'),
+      [ChainId.AVALANCHE_TEST_P]: this._getPchainNetwork('testnet'),
+      [ChainId.AVALANCHE_TEST_X]: this._getXchainNetwork('testnet'),
+      [ChainId.AVALANCHE_DEVNET_P]: this._getPchainNetwork('devnet'),
+      [ChainId.AVALANCHE_DEVNET_X]: this._getXchainNetwork('devnet'),
+      [HYPEREVM_NETWORK.chainId]: HYPEREVM_NETWORK,
+      [HYPERCORE_NETWORK.chainId]: HYPERCORE_NETWORK,
+    };
   }
 
   async getNetwork(caipScope: string): Promise<NetworkWithCaipId | undefined>;
