@@ -19,7 +19,6 @@ import { FC, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { useAddCustomToken } from './hooks/useAddCustomToken';
-import { useTokenLookup } from './hooks/useTokenLookup';
 import * as Styled from './Styled';
 import { FaCheck } from 'react-icons/fa';
 import { GetTokenDataHandler } from '~/services/settings/handlers/getTokenDataByAddress';
@@ -49,7 +48,6 @@ export const AddCustomToken: FC = () => {
   );
 
   const { addCustomToken } = useAddCustomToken();
-  const isTokenExists = useTokenLookup();
 
   const selectedNetwork = evmOnly.find((n) => n.caipId === chainId);
 
@@ -64,11 +62,6 @@ export const AddCustomToken: FC = () => {
 
       if (!isValidAddress(address)) {
         setError(t('Not a valid ERC-20 token address.'));
-        return;
-      }
-
-      if (isTokenExists(address)) {
-        setError(t('Token already exists in the wallet.'));
         return;
       }
 
@@ -96,7 +89,7 @@ export const AddCustomToken: FC = () => {
         setIsLoading(false);
       }
     },
-    [isTokenExists, request, selectedNetworkName, t],
+    [request, selectedNetworkName, t],
   );
 
   const handleTokenAddressChange = (

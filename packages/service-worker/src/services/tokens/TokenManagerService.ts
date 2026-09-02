@@ -11,9 +11,9 @@ import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import xss from 'xss';
 import { getProviderForNetwork } from '@core/common';
-import { EnsureDefined } from '@core/types';
+import { EnsureDefined, NetworkWithCaipId } from '@core/types';
 import { tokenAggregatorApiClient } from '~/api-clients/clients';
-import { getV2Tokens } from '~/api-clients/token-aggregator';
+import { getV2Tokens, postV1TokenLookup } from '~/api-clients/token-aggregator';
 import {
   mapApiTokenToContractToken,
   NetworkContractTokenWithVerified,
@@ -186,6 +186,28 @@ export class TokenManagerService {
     });
 
     return { tokens, currentPage, totalPages };
+  }
+
+  async isTokenAvailable(
+    network: NetworkWithCaipId,
+    address: string,
+  ): Promise<boolean> {
+    if (!network.caipId) {
+      return false;
+    }
+
+    try {
+      const response = await postV1TokenLookup<true>({
+        client: tokenAggregatorApiClient,
+        throwOnError: true,
+        body: { tokens: [{ caip2Id: network.caipId, address }] },
+      });
+
+      return Object.keys(response.data?.data ?? {}).length > 0;
+    } catch {
+      // Fail open: an aggregator outage must not block adding a custom token.
+      return false;
+    }
   }
 
   async getTokenData(

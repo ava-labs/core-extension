@@ -16,15 +16,15 @@ import {
   TokensVisibility,
 } from '@core/types';
 import { changeLanguage } from 'i18next';
-import { isTokenSupported } from '../tokens/utils/isTokenSupported';
+import { isCustomTokenAdded } from '../tokens/utils/isCustomTokenAdded';
 import { SettingsService } from './SettingsService';
 
 jest.mock('i18next', () => ({
   changeLanguage: jest.fn(),
 }));
 
-jest.mock('../tokens/utils/isTokenSupported', () => ({
-  isTokenSupported: jest.fn(),
+jest.mock('../tokens/utils/isCustomTokenAdded', () => ({
+  isCustomTokenAdded: jest.fn(),
 }));
 
 describe('background/services/settings/SettingsService.ts', () => {
@@ -125,7 +125,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     storageServiceMock.loadUnencrypted.mockResolvedValue(
       storedUnencryptedSettings,
     );
-    (isTokenSupported as jest.Mock).mockResolvedValue(false);
+    (isCustomTokenAdded as jest.Mock).mockReturnValue(false);
     featureFlagServiceMock.featureFlags[FeatureGates.LANGUAGES] = true;
     service = new SettingsService(
       storageServiceMock,
@@ -259,7 +259,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     });
 
     it('should throw an error if customToken is already supported', async () => {
-      (isTokenSupported as jest.Mock).mockResolvedValue(true);
+      (isCustomTokenAdded as jest.Mock).mockReturnValue(true);
       const eventListener = jest.fn();
       service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
 
