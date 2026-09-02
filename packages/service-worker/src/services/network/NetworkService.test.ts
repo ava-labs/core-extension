@@ -5,7 +5,10 @@ import {
 } from '@avalabs/core-chains-sdk';
 import { FetchRequest } from 'ethers';
 import { Signal } from 'micro-signals';
+import { container } from 'tsyringe';
 
+import { getV2Networks } from '~/api-clients/token-aggregator';
+import { AppCheckService } from '../appcheck/AppCheckService';
 import { StorageService } from '../storage/StorageService';
 import { NetworkService } from './NetworkService';
 import {
@@ -18,7 +21,7 @@ import {
 } from '@core/types';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { runtime } from 'webextension-polyfill';
-import { decorateWithCaipId } from '@core/common';
+import { decorateWithCaipId, Monitoring } from '@core/common';
 import { GlacierService } from '../glacier/GlacierService';
 
 jest.mock('@avalabs/core-wallets-sdk', () => {
@@ -51,6 +54,21 @@ jest.mock('@avalabs/core-chains-sdk', () => ({
   ...jest.requireActual('@avalabs/core-chains-sdk'),
   getChainsAndTokens: jest.fn(),
 }));
+
+jest.mock('~/api-clients/token-aggregator', () => ({
+  getV2Networks: jest.fn(),
+}));
+
+jest.mock('@core/common', () => {
+  const actual = jest.requireActual('@core/common');
+  return {
+    ...actual,
+    Monitoring: {
+      ...actual.Monitoring,
+      sentryCaptureException: jest.fn(),
+    },
+  };
+});
 
 const mockNetwork = (
   vmName: NetworkVMType,
@@ -154,6 +172,11 @@ describe('background/services/network/NetworkService', () => {
     jest.resetAllMocks();
 
     jest.mocked(getChainsAndTokens).mockResolvedValue({});
+    // Default to the legacy tokenlist path; individual tests opt into /v2/networks.
+    jest.mocked(getV2Networks).mockRejectedValue(new Error('no v2'));
+    container.registerInstance(AppCheckService, {
+      getAppcheckToken: jest.fn().mockResolvedValue({ token: 'appcheck' }),
+    } as unknown as AppCheckService);
 
     jest.mocked(FetchRequest).mockImplementation((url) => ({ url }) as any);
     mockChainList(service);
@@ -817,6 +840,129 @@ describe('background/services/network/NetworkService', () => {
           rpcUrl: '',
         }),
       );
+    });
+  });
+
+  describe('/v2/networks startup migration', () => {
+    const v2ApiNetwork = (overrides = {}) => ({
+      chainId: 99991,
+      chainName: 'V2 Net',
+      caip2Id: 'eip155:99991',
+      description: null,
+      explorerUrl: 'https://explorer.example',
+      isTestnet: false,
+      isAlwaysEnabled: false,
+      isEnabledByDefault: false,
+      logoUri: '',
+      networkToken: {
+        name: 'V2 Token',
+        symbol: 'V2',
+        decimals: 18,
+        internalId: 'native-v2',
+      },
+      pricingProviders: null,
+      primaryColor: '#000000',
+      rpcUrl: 'https://rpc.example',
+      wsUrl: null,
+      subnetExplorerUriId: 'v2',
+      vmName: 'EVM',
+      ...overrides,
+    });
+
+    const v2Response = (networks: Record<string, unknown>) =>
+      ({ data: { data: networks } }) as any;
+
+    const freshService = () =>
+      new NetworkService(
+        storageServiceMock,
+        featureFlagsServiceMock,
+        glacierServiceMock,
+      );
+
+    it('loads networks from /v2/networks and skips the legacy tokenlist', async () => {
+      jest
+        .mocked(getV2Networks)
+        .mockResolvedValue(v2Response({ 'eip155:99991': v2ApiNetwork() }));
+
+      const fetched = await freshService()['_initChainList']();
+
+      expect(getChainsAndTokens).not.toHaveBeenCalled();
+      expect(fetched[99991]).toEqual(
+        expect.objectContaining({ chainId: 99991, chainName: 'V2 Net' }),
+      );
+      // Local networks are still injected on top of the /v2/networks result.
+      expect(fetched[999]).toEqual(
+        expect.objectContaining({ chainName: 'HyperEVM' }),
+      );
+    });
+
+    it('preserves the API enablement flags from /v2/networks', async () => {
+      jest.mocked(getV2Networks).mockResolvedValue(
+        v2Response({
+          'eip155:99991': v2ApiNetwork({
+            isAlwaysEnabled: true,
+            isEnabledByDefault: false,
+          }),
+        }),
+      );
+
+      const fetched = await freshService()['_initChainList']();
+
+      expect(fetched[99991]?.isAlwaysEnabled).toBe(true);
+      expect(fetched[99991]?.isEnabledByDefault).toBe(false);
+    });
+
+    it('falls back to the legacy tokenlist when /v2/networks returns no networks', async () => {
+      jest.mocked(getV2Networks).mockResolvedValue(v2Response({}));
+      jest.mocked(getChainsAndTokens).mockResolvedValue({
+        1: { chainId: 1, chainName: 'Legacy' } as any,
+      });
+
+      const fetched = await freshService()['_initChainList']();
+
+      expect(getChainsAndTokens).toHaveBeenCalled();
+      expect(fetched[1]).toEqual(
+        expect.objectContaining({ chainName: 'Legacy' }),
+      );
+    });
+
+    it('falls back to the legacy tokenlist when /v2/networks fails', async () => {
+      jest.mocked(getV2Networks).mockRejectedValue(new Error('v2 down'));
+      jest.mocked(getChainsAndTokens).mockResolvedValue({
+        1: { chainId: 1, chainName: 'Legacy' } as any,
+      });
+
+      const fetched = await freshService()['_initChainList']();
+
+      expect(getChainsAndTokens).toHaveBeenCalled();
+      expect(fetched[1]).toEqual(
+        expect.objectContaining({ chainName: 'Legacy' }),
+      );
+    });
+
+    it('reports the fallback to Sentry so it can be monitored', async () => {
+      jest.mocked(getV2Networks).mockRejectedValue(new Error('v2 down'));
+      jest.mocked(getChainsAndTokens).mockResolvedValue({
+        1: { chainId: 1, chainName: 'Legacy' } as any,
+      });
+
+      await freshService()['_initChainList']();
+
+      expect(Monitoring.sentryCaptureException).toHaveBeenCalledWith(
+        expect.any(Error),
+        Monitoring.SentryExceptionTypes.NETWORKS,
+        { attempt: 1 },
+      );
+    });
+
+    it('does not report to Sentry when /v2/networks succeeds', async () => {
+      jest
+        .mocked(getV2Networks)
+        .mockResolvedValue(v2Response({ 'eip155:99991': v2ApiNetwork() }));
+
+      await freshService()['_initChainList']();
+
+      expect(Monitoring.sentryCaptureException).not.toHaveBeenCalled();
     });
   });
 
