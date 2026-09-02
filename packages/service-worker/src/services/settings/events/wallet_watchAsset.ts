@@ -10,7 +10,7 @@ import {
 import { injectable } from 'tsyringe';
 import { TokenManagerService } from '../../tokens/TokenManagerService';
 import xss from 'xss';
-import { isTokenSupported } from '../../tokens/utils/isTokenSupported';
+import { isCustomTokenAdded } from '../../tokens/utils/isCustomTokenAdded';
 import { NetworkService } from '../../network/NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
 import { openApprovalWindow } from '~/runtime/openApprovalWindow';
@@ -44,11 +44,12 @@ export class WalletWatchAssetHandler extends DAppRequestHandler {
     const settings = await this.settingsService.getSettings();
 
     try {
-      const tokenAlreadyExists = await isTokenSupported(
-        tokenAddress,
-        network,
-        settings,
-      );
+      const tokenAlreadyExists =
+        isCustomTokenAdded(tokenAddress, network, settings) ||
+        (await this.tokenManagerService.isTokenAvailable(
+          network,
+          tokenAddress,
+        ));
       if (tokenAlreadyExists) {
         return { ...request, result: true };
       }
