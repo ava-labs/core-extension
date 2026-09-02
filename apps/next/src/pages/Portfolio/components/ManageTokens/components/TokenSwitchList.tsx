@@ -59,15 +59,8 @@ const HeldTokensList: FC<Props> = ({ filter, includeSpamTokens }) => {
 };
 
 const CatalogTokensList: FC<Props> = ({ filter, includeSpamTokens }) => {
-  const {
-    tokens,
-    fetchNextPage,
-    hasNextPage,
-    isLoading,
-    isFetchingNextPage,
-    isError,
-    refetch,
-  } = useNetworkTokensSearch({ includeSpamTokens, keyword: filter });
+  const { tokens, loadMore, isLoading, isFetchingNextPage, isError, refetch } =
+    useNetworkTokensSearch({ includeSpamTokens, keyword: filter });
 
   return (
     <TokenList
@@ -77,11 +70,7 @@ const CatalogTokensList: FC<Props> = ({ filter, includeSpamTokens }) => {
       isLoadingMore={isFetchingNextPage}
       isError={isError}
       onRetry={() => refetch()}
-      onEndReached={() => {
-        if (hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      }}
+      onEndReached={loadMore}
     />
   );
 };

@@ -161,6 +161,13 @@ describe('TokenManagerService', () => {
 
       expect(getV2Tokens).toHaveBeenCalledTimes(2);
       expect(result.map((t) => t.address)).toEqual(['0xa', '0xb']);
+      // The general catalog must not include malicious tokens by default.
+      expect(getV2Tokens).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          query: expect.objectContaining({ returnMalicious: false }),
+        }),
+      );
     });
 
     it('caches the catalog per chain for the service-worker lifetime', async () => {

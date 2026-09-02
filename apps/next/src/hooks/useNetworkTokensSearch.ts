@@ -1,6 +1,6 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useDebouncedValue } from '@tanstack/react-pacer';
-import { useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { TokenType } from '@avalabs/vm-module-types';
 import {
   ExtensionRequest,
@@ -185,9 +185,21 @@ export const useNetworkTokensSearch = ({
     includeSpamTokens,
   ]);
 
+  // Stop rapid onEndReached callbacks from firing multiple page requests.
+  const isLoadingMoreRef = useRef(false);
+  const loadMore = useCallback(() => {
+    if (!hasNextPage || isFetching || isLoadingMoreRef.current) {
+      return;
+    }
+    isLoadingMoreRef.current = true;
+    fetchNextPage().finally(() => {
+      isLoadingMoreRef.current = false;
+    });
+  }, [hasNextPage, isFetching, fetchNextPage]);
+
   return {
     tokens,
-    fetchNextPage,
+    loadMore,
     hasNextPage: hasNextPage ?? false,
     isLoading: isFetching && !isFetchingNextPage && !data,
     isFetchingNextPage,

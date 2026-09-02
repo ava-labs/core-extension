@@ -95,7 +95,7 @@ export class TokenManagerService {
             caip2Id,
             page,
             limit: CATALOG_PAGE_LIMIT,
-            returnMalicious: true,
+            returnMalicious: false,
           },
         });
 

@@ -1,5 +1,5 @@
 import { FC, ReactNode } from 'react';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TokenType } from '@avalabs/vm-module-types';
 import { ExtensionRequest, FungibleTokenBalance } from '@core/types';
@@ -265,5 +265,40 @@ describe('useNetworkTokensSearch', () => {
     );
 
     await waitFor(() => expect(result.current.hasNextPage).toBe(true));
+  });
+
+  it('does not issue overlapping next-page requests when loadMore fires repeatedly', async () => {
+    request.mockImplementation(({ params }: { params: unknown[] }) =>
+      Promise.resolve(
+        params[1] === 1
+          ? {
+              tokens: [serverToken('0xa')],
+              currentPage: 1,
+              hasMore: true,
+              nextPage: 2,
+            }
+          : { tokens: [serverToken('0xb')], currentPage: 2, hasMore: false },
+      ),
+    );
+
+    const { result } = renderHook(
+      () => useNetworkTokensSearch({ includeSpamTokens: false, keyword: '' }),
+      { wrapper: createWrapper() },
+    );
+
+    await waitFor(() => expect(result.current.hasNextPage).toBe(true));
+
+    act(() => {
+      result.current.loadMore();
+      result.current.loadMore();
+      result.current.loadMore();
+    });
+
+    await waitFor(() => expect(result.current.hasNextPage).toBe(false));
+
+    const secondPageCalls = request.mock.calls.filter(
+      ([payload]) => payload.params[1] === 2,
+    );
+    expect(secondPageCalls).toHaveLength(1);
   });
 });
