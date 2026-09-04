@@ -348,5 +348,44 @@ describe('TokenManagerService', () => {
       ).toBe(false);
       expect(postV1TokenLookup).not.toHaveBeenCalled();
     });
+
+    it('caches a definitive result so repeat lookups skip the API', async () => {
+      jest
+        .mocked(postV1TokenLookup)
+        .mockResolvedValue(lookupResponse(true) as any);
+
+      expect(await service.isTokenAvailable(network, '0xabc')).toBe(true);
+      expect(await service.isTokenAvailable(network, '0xabc')).toBe(true);
+
+      expect(postV1TokenLookup).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not cache a fail-open result, so a later call retries', async () => {
+      jest
+        .mocked(postV1TokenLookup)
+        .mockRejectedValueOnce(new Error('boom'))
+        .mockResolvedValueOnce(lookupResponse(true) as any);
+
+      expect(await service.isTokenAvailable(network, '0xabc')).toBe(false);
+      expect(await service.isTokenAvailable(network, '0xabc')).toBe(true);
+
+      expect(postV1TokenLookup).toHaveBeenCalledTimes(2);
+    });
+
+    it('deduplicates concurrent lookups for the same token', async () => {
+      let resolveLookup: (value: unknown) => void = () => {};
+      jest.mocked(postV1TokenLookup).mockReturnValue(
+        new Promise((resolve) => {
+          resolveLookup = resolve;
+        }) as any,
+      );
+
+      const first = service.isTokenAvailable(network, '0xabc');
+      const second = service.isTokenAvailable(network, '0xabc');
+      resolveLookup(lookupResponse(true));
+
+      expect(await Promise.all([first, second])).toEqual([true, true]);
+      expect(postV1TokenLookup).toHaveBeenCalledTimes(1);
+    });
   });
 });

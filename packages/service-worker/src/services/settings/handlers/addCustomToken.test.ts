@@ -3,7 +3,10 @@ import { AddCustomTokenHandler } from './addCustomToken';
 // The handler transitively imports TokenManagerService -> api-clients, whose
 // module init resolves AppCheckService; stub the clients module to avoid it.
 jest.mock('~/api-clients/clients', () => ({ tokenAggregatorApiClient: {} }));
-jest.mock('~/api-clients/token-aggregator', () => ({ getV2Tokens: jest.fn() }));
+jest.mock('~/api-clients/token-aggregator', () => ({
+  getV2Tokens: jest.fn(),
+  postV1TokenLookup: jest.fn(),
+}));
 
 const network = { chainId: 43114, caipId: 'eip155:43114' };
 

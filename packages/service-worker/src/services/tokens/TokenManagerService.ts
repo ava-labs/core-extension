@@ -20,6 +20,7 @@ import {
 } from './utils/mapApiToken';
 
 const CATALOG_PAGE_LIMIT = 1000;
+const TOKEN_LOOKUP_TIMEOUT_MS = 5_000;
 
 export type SearchedContractToken = NetworkContractTokenWithVerified & {
   caip2Id: string;
@@ -34,6 +35,11 @@ export class TokenManagerService {
     string,
     Promise<NetworkContractTokenWithVerified[]>
   >();
+
+  // Per-(chain, address) known-token lookup cache/in-flight dedup. Matters
+  // because wallet_watchAsset is unrestricted, so any page can trigger these.
+  #tokenLookupCache = new Map<string, boolean>();
+  #tokenLookupInFlight = new Map<string, Promise<boolean>>();
 
   constructor(
     private settingsService: SettingsService,
@@ -192,21 +198,59 @@ export class TokenManagerService {
     network: NetworkWithCaipId,
     address: string,
   ): Promise<boolean> {
-    if (!network.caipId) {
+    const caip2Id = network.caipId;
+    if (!caip2Id) {
       return false;
     }
 
-    try {
-      const response = await postV1TokenLookup<true>({
-        client: tokenAggregatorApiClient,
-        throwOnError: true,
-        body: { tokens: [{ caip2Id: network.caipId, address }] },
-      });
+    const cacheKey = `${caip2Id}:${address.toLowerCase()}`;
 
-      return Object.keys(response.data?.data ?? {}).length > 0;
-    } catch {
-      // Fail open: an aggregator outage must not block adding a custom token.
-      return false;
+    const cached = this.#tokenLookupCache.get(cacheKey);
+    if (cached !== undefined) {
+      return cached;
+    }
+
+    const inFlight = this.#tokenLookupInFlight.get(cacheKey);
+    if (inFlight) {
+      return inFlight;
+    }
+
+    const lookup = (async () => {
+      // wallet_watchAsset is unrestricted (any page can call it), so bound the
+      // request with a timeout and abort a hung connection rather than letting
+      // it stall the caller.
+      const controller = new AbortController();
+      const timeout = setTimeout(
+        () => controller.abort(),
+        TOKEN_LOOKUP_TIMEOUT_MS,
+      );
+
+      try {
+        const response = await postV1TokenLookup<true>({
+          client: tokenAggregatorApiClient,
+          throwOnError: true,
+          signal: controller.signal,
+          body: { tokens: [{ caip2Id, address }] },
+        });
+
+        const found = Object.keys(response.data?.data ?? {}).length > 0;
+        // Only cache a definitive result; a fail-open false below must not
+        // poison the cache and hide a token that actually exists.
+        this.#tokenLookupCache.set(cacheKey, found);
+        return found;
+      } catch {
+        // Fail open on timeout/outage: never block adding a custom token.
+        return false;
+      } finally {
+        clearTimeout(timeout);
+      }
+    })();
+
+    this.#tokenLookupInFlight.set(cacheKey, lookup);
+    try {
+      return await lookup;
+    } finally {
+      this.#tokenLookupInFlight.delete(cacheKey);
     }
   }
 
