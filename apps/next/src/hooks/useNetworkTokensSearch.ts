@@ -1,7 +1,6 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useDebouncedValue } from '@tanstack/react-pacer';
 import { useCallback, useMemo, useRef } from 'react';
-import { TokenType } from '@avalabs/vm-module-types';
 import {
   ExtensionRequest,
   FungibleTokenBalance,
@@ -51,8 +50,9 @@ const matchesKeyword = (token: FungibleTokenBalance, keyword: string) => {
   return (
     token.name.toLowerCase().includes(normalized) ||
     token.symbol.toLowerCase().includes(normalized) ||
-    (token.type === TokenType.ERC20 &&
-      token.address.toLowerCase().includes(normalized))
+    // Case-insensitive address matching to make it easier for users typing in
+    // partial address.
+    ('address' in token && token.address.toLowerCase().includes(normalized))
   );
 };
 
@@ -130,22 +130,27 @@ export const useNetworkTokensSearch = ({
   });
 
   const tokens = useMemo(() => {
-    const searchedTokens = (data?.pages ?? []).flatMap((page) =>
-      page.tokens.map((token: SearchedToken) =>
-        getTokenMapper(
-          token.chainId,
-          token.caip2Id,
-        )({
-          address: token.address,
-          name: token.name,
-          symbol: token.symbol,
-          decimals: token.decimals,
-          contractType: token.contractType,
-          logoUri: token.logoUri,
-          isVerified: token.isVerified,
-        }),
-      ),
-    );
+    // Below the search minimum the query is disabled but its key collides with
+    // the unfiltered browse, so ignore any cached catalog pages and narrow the
+    // held/custom set client-side instead.
+    const searchedTokens = isBelowSearchMinimum
+      ? []
+      : (data?.pages ?? []).flatMap((page) =>
+          page.tokens.map((token: SearchedToken) =>
+            getTokenMapper(
+              token.chainId,
+              token.caip2Id,
+            )({
+              address: token.address,
+              name: token.name,
+              symbol: token.symbol,
+              decimals: token.decimals,
+              contractType: token.contractType,
+              logoUri: token.logoUri,
+              isVerified: token.isVerified,
+            }),
+          ),
+        );
 
     // User-added custom tokens, kept manageable even when the aggregator does
     // not list them.
@@ -183,6 +188,7 @@ export const useNetworkTokensSearch = ({
     enabledNetworks,
     debouncedKeyword,
     includeSpamTokens,
+    isBelowSearchMinimum,
   ]);
 
   // Stop rapid onEndReached callbacks from firing multiple page requests.

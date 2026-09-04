@@ -106,13 +106,13 @@ export class TokenManagerService {
           }
         }
 
-        const meta = response.data?.metadata;
-        const currentPage = meta?.currentPage ?? page;
-        const totalPages = meta?.totalPages ?? currentPage;
-        if (currentPage >= totalPages) {
+        // Advance the local page rather than the server-echoed currentPage, so
+        // a stale/fixed currentPage from the API can't loop this forever.
+        const totalPages = response.data?.metadata?.totalPages ?? page;
+        if (page >= totalPages) {
           break;
         }
-        page = currentPage + 1;
+        page += 1;
       }
 
       this.#catalogCache.set(caip2Id, tokens);
@@ -146,6 +146,12 @@ export class TokenManagerService {
     currentPage: number;
     totalPages: number;
   }> {
+    // `/v2/tokens` requires at least one caip2Id; avoid an unintended broad
+    // query (or a 4xx) when the caller passes none.
+    if (caip2Ids.length === 0) {
+      return { tokens: [], currentPage: page, totalPages: page };
+    }
+
     const response = await getV2Tokens<true>({
       client: tokenAggregatorApiClient,
       throwOnError: true,

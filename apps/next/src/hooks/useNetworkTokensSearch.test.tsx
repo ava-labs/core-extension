@@ -301,4 +301,67 @@ describe('useNetworkTokensSearch', () => {
     );
     expect(secondPageCalls).toHaveLength(1);
   });
+
+  it('matches an SPL token searched by its mint address', async () => {
+    const mint = 'So11111111111111111111111111111111111111112';
+    request.mockResolvedValue({
+      tokens: [
+        {
+          address: mint,
+          name: 'Wrapped SOL',
+          symbol: 'SOL',
+          decimals: 9,
+          logoUri: undefined,
+          isVerified: true,
+          contractType: 'SPL' as const,
+          chainId: 4503599627369476,
+          caip2Id: 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
+        },
+      ],
+      currentPage: 1,
+      hasMore: false,
+    });
+
+    const { result } = renderHook(
+      () => useNetworkTokensSearch({ includeSpamTokens: false, keyword: mint }),
+      { wrapper: createWrapper() },
+    );
+
+    await waitFor(() =>
+      expect(
+        result.current.tokens.some(
+          (token) => (token as { address?: string }).address === mint,
+        ),
+      ).toBe(true),
+    );
+  });
+
+  it('does not fold cached catalog pages into a sub-2-char search', async () => {
+    // Address contains "f"; held/custom tokens do not, so only the folding
+    // gate decides whether the cached catalog token leaks into the results.
+    request.mockResolvedValue({
+      tokens: [serverToken('0xffffff')],
+      currentPage: 1,
+      hasMore: false,
+    });
+
+    const { result, rerender } = renderHook(
+      ({ kw }: { kw: string }) =>
+        useNetworkTokensSearch({ includeSpamTokens: false, keyword: kw }),
+      { wrapper: createWrapper(), initialProps: { kw: '' } },
+    );
+
+    // Browsing (no filter) populates the query cache with the catalog token.
+    await waitFor(() =>
+      expect(
+        result.current.tokens.some(
+          (token) => (token as { address?: string }).address === '0xffffff',
+        ),
+      ).toBe(true),
+    );
+
+    rerender({ kw: 'f' });
+
+    await waitFor(() => expect(result.current.tokens).toHaveLength(0));
+  });
 });

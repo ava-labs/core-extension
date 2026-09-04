@@ -123,6 +123,17 @@ describe('TokenManagerService', () => {
         }),
       );
     });
+
+    it('returns an empty page without calling the API when given no caip2 ids', async () => {
+      const result = await service.searchTokens({
+        caip2Ids: [],
+        page: 2,
+        limit: 100,
+      });
+
+      expect(result).toEqual({ tokens: [], currentPage: 2, totalPages: 2 });
+      expect(getV2Tokens).not.toHaveBeenCalled();
+    });
   });
 
   describe('getTokensByChainId', () => {
@@ -168,6 +179,35 @@ describe('TokenManagerService', () => {
           query: expect.objectContaining({ returnMalicious: false }),
         }),
       );
+    });
+
+    it('advances by local page and terminates even if the API echoes a stale currentPage', async () => {
+      networkService.getNetwork.mockResolvedValue({
+        chainId: 43114,
+        caipId: 'eip155:43114',
+        tokens: [],
+      });
+      // currentPage is stuck at 1 while totalPages is 3 — advancing off it
+      // would loop forever; advancing the local page must still terminate.
+      jest
+        .mocked(getV2Tokens)
+        .mockResolvedValueOnce(
+          page([apiToken({ address: '0xa' })], 1, 3) as any,
+        )
+        .mockResolvedValueOnce(
+          page([apiToken({ address: '0xb' })], 1, 3) as any,
+        )
+        .mockResolvedValueOnce(
+          page([apiToken({ address: '0xc' })], 1, 3) as any,
+        );
+
+      const result = await service.getTokensByChainId(43114);
+
+      expect(getV2Tokens).toHaveBeenCalledTimes(3);
+      expect(result.map((t) => t.address)).toEqual(['0xa', '0xb', '0xc']);
+      expect(
+        jest.mocked(getV2Tokens).mock.calls.map(([opts]) => opts!.query!.page),
+      ).toEqual([1, 2, 3]);
     });
 
     it('caches the catalog per chain for the service-worker lifetime', async () => {
