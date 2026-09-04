@@ -167,7 +167,9 @@ export type Currency =
   | 'dkk'
   | 'gbp'
   | 'hkd'
-  | 'huf';
+  | 'huf'
+  | 'brl'
+  | 'mxn';
 
 /**
  * The request body for the get rewards endpoint
