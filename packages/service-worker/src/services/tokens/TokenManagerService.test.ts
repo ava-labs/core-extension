@@ -1,4 +1,4 @@
-import { getV2Tokens } from '~/api-clients/token-aggregator';
+import { getV2Tokens, postV1TokenLookup } from '~/api-clients/token-aggregator';
 import { TokenManagerService } from './TokenManagerService';
 
 jest.mock('~/api-clients/clients', () => ({
@@ -6,7 +6,14 @@ jest.mock('~/api-clients/clients', () => ({
 }));
 jest.mock('~/api-clients/token-aggregator', () => ({
   getV2Tokens: jest.fn(),
+  postV1TokenLookup: jest.fn(),
 }));
+
+const lookupResponse = (found: boolean) => ({
+  data: {
+    data: found ? { 'eip155:43114-0xabc': { internalId: 'id' } } : {},
+  },
+});
 
 const apiToken = (overrides: Record<string, unknown> = {}) => ({
   internalId: 'id',
@@ -302,6 +309,83 @@ describe('TokenManagerService', () => {
 
       expect(await service.getTokensByChainId(999)).toEqual([]);
       expect(getV2Tokens).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('isTokenAvailable', () => {
+    const network = { chainId: 43114, caipId: 'eip155:43114' } as any;
+
+    it('looks up the exact (caip2Id, address) pair and returns true when found', async () => {
+      jest
+        .mocked(postV1TokenLookup)
+        .mockResolvedValue(lookupResponse(true) as any);
+
+      expect(await service.isTokenAvailable(network, '0xabc')).toBe(true);
+      expect(postV1TokenLookup).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: { tokens: [{ caip2Id: 'eip155:43114', address: '0xabc' }] },
+        }),
+      );
+    });
+
+    it('returns false when the lookup finds no matching token', async () => {
+      jest
+        .mocked(postV1TokenLookup)
+        .mockResolvedValue(lookupResponse(false) as any);
+
+      expect(await service.isTokenAvailable(network, '0xabc')).toBe(false);
+    });
+
+    it('fails open (false) when the lookup throws', async () => {
+      jest.mocked(postV1TokenLookup).mockRejectedValue(new Error('boom'));
+
+      expect(await service.isTokenAvailable(network, '0xabc')).toBe(false);
+    });
+
+    it('returns false without calling the API when the network has no caip id', async () => {
+      expect(
+        await service.isTokenAvailable({ chainId: 1 } as any, '0xabc'),
+      ).toBe(false);
+      expect(postV1TokenLookup).not.toHaveBeenCalled();
+    });
+
+    it('caches a definitive result so repeat lookups skip the API', async () => {
+      jest
+        .mocked(postV1TokenLookup)
+        .mockResolvedValue(lookupResponse(true) as any);
+
+      expect(await service.isTokenAvailable(network, '0xabc')).toBe(true);
+      expect(await service.isTokenAvailable(network, '0xabc')).toBe(true);
+
+      expect(postV1TokenLookup).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not cache a fail-open result, so a later call retries', async () => {
+      jest
+        .mocked(postV1TokenLookup)
+        .mockRejectedValueOnce(new Error('boom'))
+        .mockResolvedValueOnce(lookupResponse(true) as any);
+
+      expect(await service.isTokenAvailable(network, '0xabc')).toBe(false);
+      expect(await service.isTokenAvailable(network, '0xabc')).toBe(true);
+
+      expect(postV1TokenLookup).toHaveBeenCalledTimes(2);
+    });
+
+    it('deduplicates concurrent lookups for the same token', async () => {
+      let resolveLookup: (value: unknown) => void = () => {};
+      jest.mocked(postV1TokenLookup).mockReturnValue(
+        new Promise((resolve) => {
+          resolveLookup = resolve;
+        }) as any,
+      );
+
+      const first = service.isTokenAvailable(network, '0xabc');
+      const second = service.isTokenAvailable(network, '0xabc');
+      resolveLookup(lookupResponse(true));
+
+      expect(await Promise.all([first, second])).toEqual([true, true]);
+      expect(postV1TokenLookup).toHaveBeenCalledTimes(1);
     });
   });
 });

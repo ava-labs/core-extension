@@ -24,7 +24,7 @@ import { OnLock, OnStorageReady } from '../../runtime/lifecycleCallbacks';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
-import { isTokenSupported } from '../tokens/utils/isTokenSupported';
+import { isCustomTokenAdded } from '../tokens/utils/isCustomTokenAdded';
 
 const DEFAULT_SETTINGS_STATE: SettingsState = {
   currency: 'USD',
@@ -203,7 +203,7 @@ export class SettingsService implements OnStorageReady, OnLock {
       throw new Error('Unable to detect current network selection.');
     }
 
-    const tokenAlreadyExists = await isTokenSupported(
+    const tokenAlreadyExists = isCustomTokenAdded(
       token.address,
       network,
       settings,

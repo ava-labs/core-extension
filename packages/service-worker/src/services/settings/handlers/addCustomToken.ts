@@ -32,6 +32,16 @@ export class AddCustomTokenHandler implements HandlerType {
     }
 
     const [tokenAddress] = request.params;
+
+    if (
+      await this.tokenManagerService.isTokenAvailable(network, tokenAddress)
+    ) {
+      return {
+        ...request,
+        error: 'Token already exists in the wallet.',
+      };
+    }
+
     const [tokenData, err] = await resolve(
       this.tokenManagerService.getTokenData(tokenAddress, network),
     );
