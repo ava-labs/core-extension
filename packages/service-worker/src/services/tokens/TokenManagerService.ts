@@ -86,36 +86,46 @@ export class TokenManagerService {
     const request = (async () => {
       const tokens: NetworkContractTokenWithVerified[] = [];
       let page = 1;
+      let complete = false;
 
-      for (;;) {
-        const response = await getV2Tokens<true>({
-          client: tokenAggregatorApiClient,
-          throwOnError: true,
-          query: {
-            caip2Id,
-            page,
-            limit: CATALOG_PAGE_LIMIT,
-            returnMalicious: false,
-          },
-        });
+      try {
+        for (;;) {
+          const response = await getV2Tokens<true>({
+            client: tokenAggregatorApiClient,
+            throwOnError: true,
+            query: {
+              caip2Id,
+              page,
+              limit: CATALOG_PAGE_LIMIT,
+              returnMalicious: false,
+            },
+          });
 
-        for (const token of response.data?.data?.tokens ?? []) {
-          const mapped = mapApiTokenToContractToken(token);
-          if (mapped) {
-            tokens.push(mapped);
+          for (const token of response.data?.data?.tokens ?? []) {
+            const mapped = mapApiTokenToContractToken(token);
+            if (mapped) {
+              tokens.push(mapped);
+            }
           }
-        }
 
-        // Advance the local page rather than the server-echoed currentPage, so
-        // a stale/fixed currentPage from the API can't loop this forever.
-        const totalPages = response.data?.metadata?.totalPages ?? page;
-        if (page >= totalPages) {
-          break;
+          // Advance the local page rather than the server-echoed currentPage,
+          // so a stale/fixed currentPage from the API can't loop this forever.
+          const totalPages = response.data?.metadata?.totalPages ?? page;
+          if (page >= totalPages) {
+            complete = true;
+            break;
+          }
+          page += 1;
         }
-        page += 1;
+      } catch {
+        // Best-effort: a single failing page shouldn't discard the pages we
+        // already collected (which would empty the swap/transfer pickers).
+        // Return what we have and skip caching so the next call re-fetches.
       }
 
-      this.#catalogCache.set(caip2Id, tokens);
+      if (complete) {
+        this.#catalogCache.set(caip2Id, tokens);
+      }
       return tokens;
     })();
 

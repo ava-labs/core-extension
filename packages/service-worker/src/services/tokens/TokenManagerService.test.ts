@@ -210,6 +210,34 @@ describe('TokenManagerService', () => {
       ).toEqual([1, 2, 3]);
     });
 
+    it('returns the pages collected so far when a later page fails, and does not cache the partial result', async () => {
+      networkService.getNetwork.mockResolvedValue({
+        chainId: 43114,
+        caipId: 'eip155:43114',
+        tokens: [],
+      });
+      jest
+        .mocked(getV2Tokens)
+        .mockResolvedValueOnce(
+          page([apiToken({ address: '0xa' })], 1, 3) as any,
+        )
+        .mockRejectedValueOnce(new Error('page 2 failed'))
+        // A later call must re-fetch (partial results are not cached).
+        .mockResolvedValueOnce(
+          page([apiToken({ address: '0xa' })], 1, 2) as any,
+        )
+        .mockResolvedValueOnce(
+          page([apiToken({ address: '0xb' })], 2, 2) as any,
+        );
+
+      const partial = await service.getTokensByChainId(43114);
+      expect(partial.map((t) => t.address)).toEqual(['0xa']);
+
+      const full = await service.getTokensByChainId(43114);
+      expect(full.map((t) => t.address)).toEqual(['0xa', '0xb']);
+      expect(getV2Tokens).toHaveBeenCalledTimes(4);
+    });
+
     it('caches the catalog per chain for the service-worker lifetime', async () => {
       networkService.getNetwork.mockResolvedValue({
         chainId: 43114,
@@ -260,7 +288,9 @@ describe('TokenManagerService', () => {
           page([apiToken({ address: '0xa' })], 1, 1) as any,
         );
 
-      await expect(service.getTokensByChainId(43114)).rejects.toThrow('boom');
+      // A first-page failure yields an empty best-effort result (not a throw)
+      // and is not cached, so the next call re-fetches successfully.
+      expect(await service.getTokensByChainId(43114)).toEqual([]);
       const result = await service.getTokensByChainId(43114);
 
       expect(getV2Tokens).toHaveBeenCalledTimes(2);
