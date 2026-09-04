@@ -951,8 +951,25 @@ describe('background/services/network/NetworkService', () => {
       expect(Monitoring.sentryCaptureException).toHaveBeenCalledWith(
         expect.any(Error),
         Monitoring.SentryExceptionTypes.NETWORKS,
-        { attempt: 1 },
+        expect.objectContaining({ attempt: 1, reason: 'v2 down' }),
       );
+    });
+
+    it('reports a distinct message so a transport outage is not dropped by ignoreErrors', async () => {
+      jest
+        .mocked(getV2Networks)
+        .mockRejectedValue(new TypeError('Failed to fetch'));
+      jest.mocked(getChainsAndTokens).mockResolvedValue({
+        1: { chainId: 1, chainName: 'Legacy' } as any,
+      });
+
+      await freshService()['_initChainList']();
+
+      const [capturedError] = jest.mocked(Monitoring.sentryCaptureException)
+        .mock.calls[0]!;
+      // The captured message must not be "Failed to fetch" (which Sentry drops).
+      expect((capturedError as Error).message).not.toMatch(/Failed to fetch$/);
+      expect((capturedError as Error).message).toContain('/tokenlist');
     });
 
     it('does not report to Sentry when /v2/networks succeeds', async () => {
