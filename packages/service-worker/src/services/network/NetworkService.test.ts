@@ -955,6 +955,24 @@ describe('background/services/network/NetworkService', () => {
       );
     });
 
+    it('reports a clear reason when /v2/networks succeeds but returns no usable networks', async () => {
+      jest.mocked(getV2Networks).mockResolvedValue(v2Response({}));
+      jest.mocked(getChainsAndTokens).mockResolvedValue({
+        1: { chainId: 1, chainName: 'Legacy' } as any,
+      });
+
+      await freshService()['_initChainList']();
+
+      expect(Monitoring.sentryCaptureException).toHaveBeenCalledWith(
+        expect.any(Error),
+        Monitoring.SentryExceptionTypes.NETWORKS,
+        expect.objectContaining({
+          attempt: 1,
+          reason: '/v2/networks returned no usable networks',
+        }),
+      );
+    });
+
     it('reports a distinct message so a transport outage is not dropped by ignoreErrors', async () => {
       jest
         .mocked(getV2Networks)
