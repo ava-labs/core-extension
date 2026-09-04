@@ -540,14 +540,13 @@ export class NetworkService implements OnLock, OnStorageReady {
       return v2Networks;
     }
 
-    // Report every fall back to the legacy endpoint so we can monitor
-    // if (or how often) /v2/networks is unavailable before removing the legacy path.
     Monitoring.sentryCaptureException(
-      v2Error instanceof Error
-        ? v2Error
-        : new Error('Falling back to the legacy /tokenlist endpoint'),
+      new Error('NetworkService fell back to the legacy /tokenlist endpoint'),
       Monitoring.SentryExceptionTypes.NETWORKS,
-      { attempt },
+      {
+        attempt,
+        reason: v2Error instanceof Error ? v2Error.message : String(v2Error),
+      },
     );
 
     const [legacyChainList] = await resolve(
