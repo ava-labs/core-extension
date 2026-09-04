@@ -545,7 +545,11 @@ export class NetworkService implements OnLock, OnStorageReady {
       Monitoring.SentryExceptionTypes.NETWORKS,
       {
         attempt,
-        reason: v2Error instanceof Error ? v2Error.message : String(v2Error),
+        reason: v2Error
+          ? v2Error instanceof Error
+            ? v2Error.message
+            : String(v2Error)
+          : '/v2/networks returned no usable networks',
       },
     );
 

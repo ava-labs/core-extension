@@ -112,4 +112,17 @@ describe('mapV2NetworksToChainList', () => {
 
     expect(result).toEqual({});
   });
+
+  it('skips networks with an unrecognized vmName', () => {
+    const result = mapV2NetworksToChainList({
+      'eip155:43114': apiNetwork() as any,
+      'eip155:1': apiNetwork({
+        chainId: 1,
+        caip2Id: 'eip155:1',
+        vmName: 'TOTALLY_UNKNOWN_VM',
+      }) as any,
+    });
+
+    expect(Object.keys(result)).toEqual(['43114']);
+  });
 });
