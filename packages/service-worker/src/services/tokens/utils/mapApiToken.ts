@@ -1,20 +1,11 @@
 import { NetworkContractToken } from '@avalabs/core-chains-sdk';
+import type { NetworkTokensByCaip2Response } from '~/api-clients/token-aggregator';
 
 export type NetworkContractTokenWithVerified = NetworkContractToken & {
   isVerified?: boolean | null;
 };
 
-type ApiToken = {
-  address: string;
-  name: string;
-  symbol: string;
-  decimals: number;
-  isNative: boolean;
-  logoUri: string | null;
-  isVerified?: boolean | null;
-  contractType: 'ERC-20' | 'SPL' | null;
-  networkCaip2Id: string;
-};
+type ApiToken = NetworkTokensByCaip2Response['tokens'][number];
 
 export const mapApiTokenToContractToken = (
   token: ApiToken,

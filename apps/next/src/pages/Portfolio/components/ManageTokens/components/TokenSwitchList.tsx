@@ -16,27 +16,13 @@ import { TokenListItem } from './TokenListItem';
 import { isEmpty } from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { isTokenMalicious } from '@core/common';
-import { TokenType } from '@avalabs/vm-module-types';
+import { tokenMatchesKeyword } from '@/utils/tokenMatchesKeyword';
 
 interface Props {
   filter: string;
   includeSpamTokens: boolean;
   onlyTokensWithBalance: boolean;
 }
-
-const filterByQuery = (tokens: FungibleTokenBalance[], filter: string) => {
-  if (!filter) {
-    return tokens;
-  }
-  const normalizedFilter = filter.toLowerCase();
-  return tokens.filter(
-    (token) =>
-      token.name.toLowerCase().includes(normalizedFilter) ||
-      token.symbol.toLowerCase().includes(normalizedFilter) ||
-      (token.type === TokenType.ERC20 &&
-        token.address.toLowerCase().includes(normalizedFilter)),
-  );
-};
 
 export const TokenSwitchList: FC<Props> = (props) =>
   props.onlyTokensWithBalance ? (
@@ -49,7 +35,9 @@ const HeldTokensList: FC<Props> = ({ filter, includeSpamTokens }) => {
   const visibleTokens = useAllTokensFromEnabledNetworks(true);
 
   const filteredTokensList = useMemo(() => {
-    const list = filterByQuery(visibleTokens, filter);
+    const list = visibleTokens.filter((token) =>
+      tokenMatchesKeyword(token, filter),
+    );
     return includeSpamTokens
       ? list
       : list.filter((token) => !isTokenMalicious(token));

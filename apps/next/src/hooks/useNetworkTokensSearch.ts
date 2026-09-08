@@ -16,6 +16,7 @@ import { isTokenMalicious } from '@core/common';
 
 import { getTokenMapper } from '@/hooks/useAllTokens/lib/getTokenMapper';
 import { useTokensForAccount } from '@/hooks/useTokensForAccount';
+import { tokenMatchesKeyword } from '@/utils/tokenMatchesKeyword';
 import type {
   SearchedToken,
   SearchNetworkTokensHandler,
@@ -40,20 +41,6 @@ const toServerSearch = (
     return { address: value };
   }
   return value.length >= MIN_KEYWORD_LENGTH ? { keyword: value } : {};
-};
-
-const matchesKeyword = (token: FungibleTokenBalance, keyword: string) => {
-  if (!keyword) {
-    return true;
-  }
-  const normalized = keyword.toLowerCase();
-  return (
-    token.name.toLowerCase().includes(normalized) ||
-    token.symbol.toLowerCase().includes(normalized) ||
-    // Case-insensitive address matching to make it easier for users typing in
-    // partial address.
-    ('address' in token && token.address.toLowerCase().includes(normalized))
-  );
 };
 
 export const useNetworkTokensSearch = ({
@@ -178,7 +165,7 @@ export const useNetworkTokensSearch = ({
 
     return Array.from(byUniqueId.values()).filter(
       (token) =>
-        matchesKeyword(token, debouncedKeyword) &&
+        tokenMatchesKeyword(token, debouncedKeyword) &&
         (includeSpamTokens || !isTokenMalicious(token)),
     );
   }, [

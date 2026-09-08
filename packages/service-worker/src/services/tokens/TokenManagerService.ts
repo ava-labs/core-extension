@@ -14,6 +14,7 @@ import { getProviderForNetwork } from '@core/common';
 import { EnsureDefined } from '@core/types';
 import { tokenAggregatorApiClient } from '~/api-clients/clients';
 import { getV2Tokens } from '~/api-clients/token-aggregator';
+import type { NetworkTokensByCaip2Response } from '~/api-clients/token-aggregator';
 import {
   mapApiTokenToContractToken,
   NetworkContractTokenWithVerified,
@@ -85,38 +86,18 @@ export class TokenManagerService {
 
     const request = (async () => {
       const tokens: NetworkContractTokenWithVerified[] = [];
-      let page = 1;
       let complete = false;
 
       try {
-        for (;;) {
-          const response = await getV2Tokens<true>({
-            client: tokenAggregatorApiClient,
-            throwOnError: true,
-            query: {
-              caip2Id,
-              page,
-              limit: CATALOG_PAGE_LIMIT,
-              returnMalicious: false,
-            },
-          });
-
-          for (const token of response.data?.data?.tokens ?? []) {
+        for await (const page of this.#iterateCatalogPages(caip2Id)) {
+          for (const token of page) {
             const mapped = mapApiTokenToContractToken(token);
             if (mapped) {
               tokens.push(mapped);
             }
           }
-
-          // Advance the local page rather than the server-echoed currentPage,
-          // so a stale/fixed currentPage from the API can't loop this forever.
-          const totalPages = response.data?.metadata?.totalPages ?? page;
-          if (page >= totalPages) {
-            complete = true;
-            break;
-          }
-          page += 1;
         }
+        complete = true;
       } catch {
         // Best-effort: a single failing page shouldn't discard the pages we
         // already collected (which would empty the swap/transfer pickers).
@@ -135,6 +116,32 @@ export class TokenManagerService {
     } finally {
       this.#catalogInFlight.delete(caip2Id);
     }
+  }
+
+  async *#iterateCatalogPages(
+    caip2Id: string,
+  ): AsyncGenerator<NetworkTokensByCaip2Response['tokens']> {
+    let page = 1;
+    let totalPages = 1;
+
+    do {
+      const response = await getV2Tokens<true>({
+        client: tokenAggregatorApiClient,
+        throwOnError: true,
+        query: {
+          caip2Id,
+          page,
+          limit: CATALOG_PAGE_LIMIT,
+          returnMalicious: false,
+        },
+      });
+
+      // Re-read totalPages and advance a local page counter each pass, so a
+      // stale/fixed currentPage echoed by the API can't loop this forever.
+      totalPages = response.data?.metadata?.totalPages ?? page;
+      yield response.data?.data?.tokens ?? [];
+      page += 1;
+    } while (page <= totalPages);
   }
 
   async searchTokens({

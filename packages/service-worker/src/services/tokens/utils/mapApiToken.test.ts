@@ -1,6 +1,7 @@
 import { mapApiTokenToContractToken } from './mapApiToken';
 
 const apiToken = (overrides: Record<string, unknown> = {}) => ({
+  internalId: 'TKN-eip155:43114',
   address: '0xAbC',
   name: 'Token',
   symbol: 'TKN',
@@ -8,6 +9,7 @@ const apiToken = (overrides: Record<string, unknown> = {}) => ({
   isNative: false,
   logoUri: 'https://logo',
   isVerified: true,
+  top250Rank: null,
   contractType: 'ERC-20' as const,
   networkCaip2Id: 'eip155:43114',
   ...overrides,
