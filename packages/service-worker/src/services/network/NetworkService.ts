@@ -28,7 +28,6 @@ import {
   ChainId,
   Network,
   NetworkVMType,
-  getChainsAndTokens,
 } from '@avalabs/core-chains-sdk';
 import { ReadableSignal, Signal, ValueCache } from 'micro-signals';
 import {
@@ -52,11 +51,7 @@ import {
   getDefaultEnabledNetworkIds,
   isSyncDomain,
 } from '@core/common';
-import {
-  isSolanaNetwork,
-  isHyperliquidNetwork,
-  Monitoring,
-} from '@core/common';
+import { isSolanaNetwork, isHyperliquidNetwork } from '@core/common';
 import { GlacierService } from '../glacier/GlacierService';
 import { getAuthHeaders } from '../appcheck/utils/getAuthHeaders';
 import { getV2Networks } from '~/api-clients/token-aggregator';
@@ -514,10 +509,10 @@ export class NetworkService implements OnLock, OnStorageReady {
     let attempt = 1;
 
     do {
-      const result = await this.#fetchChainList(attempt);
+      const [networks] = await resolve(this.#fetchNetworksFromApi());
 
-      if (result) {
-        chainlist = this.#injectLocalNetworks(result);
+      if (networks && Object.keys(networks).length > 0) {
+        chainlist = this.#injectLocalNetworks(networks);
       } else {
         attempt += 1;
         await wait(getExponentialBackoffDelay({ attempt }));
@@ -531,36 +526,6 @@ export class NetworkService implements OnLock, OnStorageReady {
     this._allNetworks.dispatch(chainlist);
 
     return chainlist;
-  }
-
-  async #fetchChainList(attempt: number): Promise<ChainList | undefined> {
-    const [v2Networks, v2Error] = await resolve(this.#fetchNetworksFromApi());
-
-    if (v2Networks && Object.keys(v2Networks).length > 0) {
-      return v2Networks;
-    }
-
-    Monitoring.sentryCaptureException(
-      new Error('NetworkService fell back to the legacy /tokenlist endpoint'),
-      Monitoring.SentryExceptionTypes.NETWORKS,
-      {
-        attempt,
-        reason: v2Error
-          ? v2Error instanceof Error
-            ? v2Error.message
-            : String(v2Error)
-          : '/v2/networks returned no usable networks',
-      },
-    );
-
-    const [legacyChainList] = await resolve(
-      getChainsAndTokens(
-        process.env.RELEASE === 'production',
-        `${process.env.PROXY_URL}/tokenlist?includeSolana`,
-      ),
-    );
-
-    return legacyChainList ?? undefined;
   }
 
   async #fetchNetworksFromApi(): Promise<ChainList | undefined> {

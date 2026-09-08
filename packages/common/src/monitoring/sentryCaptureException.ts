@@ -45,15 +45,10 @@ export enum SentryExceptionTypes {
   NOTIFICATIONS = 'notifications',
 
   ACCOUNTS = 'accounts',
-
-  NETWORKS = 'networks',
 }
 
 // wrapper to make error reporting contexts unfirom accross the codebase
-const sentryCaptureException = (
-  error: Error,
-  type: SentryExceptionTypes,
-  extras?: Record<string, unknown>,
-) => Sentry.captureException(error, { tags: { type }, extra: extras });
+const sentryCaptureException = (error: Error, type: SentryExceptionTypes) =>
+  Sentry.captureException(error, { tags: { type } });
 
 export default sentryCaptureException;

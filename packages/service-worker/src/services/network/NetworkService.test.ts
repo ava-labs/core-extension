@@ -1,8 +1,4 @@
-import {
-  ChainId,
-  getChainsAndTokens,
-  NetworkVMType,
-} from '@avalabs/core-chains-sdk';
+import { ChainId, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { FetchRequest } from 'ethers';
 import { Signal } from 'micro-signals';
 import { container } from 'tsyringe';
@@ -21,7 +17,7 @@ import {
 } from '@core/types';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { runtime } from 'webextension-polyfill';
-import { decorateWithCaipId, Monitoring } from '@core/common';
+import { decorateWithCaipId } from '@core/common';
 import { GlacierService } from '../glacier/GlacierService';
 
 jest.mock('@avalabs/core-wallets-sdk', () => {
@@ -48,11 +44,6 @@ jest.mock('@avalabs/core-wallets-sdk', () => {
 jest.mock('ethers', () => ({
   ...jest.requireActual('ethers'),
   FetchRequest: jest.fn(),
-}));
-
-jest.mock('@avalabs/core-chains-sdk', () => ({
-  ...jest.requireActual('@avalabs/core-chains-sdk'),
-  getChainsAndTokens: jest.fn(),
 }));
 
 jest.mock('~/api-clients/token-aggregator', () => ({
@@ -138,6 +129,36 @@ describe('background/services/network/NetworkService', () => {
     chainId: 11155111,
   });
 
+  const defaultV2Response = {
+    data: {
+      data: {
+        'eip155:1': {
+          chainId: 1,
+          chainName: 'Default Net',
+          caip2Id: 'eip155:1',
+          description: null,
+          explorerUrl: 'https://explorer.example',
+          isTestnet: false,
+          isAlwaysEnabled: false,
+          isEnabledByDefault: false,
+          logoUri: '',
+          networkToken: {
+            name: 'Ether',
+            symbol: 'ETH',
+            decimals: 18,
+            internalId: 'native-eth',
+          },
+          pricingProviders: null,
+          primaryColor: '#000000',
+          rpcUrl: 'https://rpc.example',
+          wsUrl: null,
+          subnetExplorerUriId: 'eth',
+          vmName: 'EVM',
+        },
+      },
+    },
+  } as any;
+
   const mockChainList = (instance: NetworkService) => {
     // eslint-disable-next-line
     // @ts-ignore
@@ -171,9 +192,7 @@ describe('background/services/network/NetworkService', () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
-    jest.mocked(getChainsAndTokens).mockResolvedValue({});
-    // Default to the legacy tokenlist path; individual tests opt into /v2/networks.
-    jest.mocked(getV2Networks).mockRejectedValue(new Error('no v2'));
+    jest.mocked(getV2Networks).mockResolvedValue(defaultV2Response);
     container.registerInstance(AppCheckService, {
       getAppcheckToken: jest.fn().mockResolvedValue({ token: 'appcheck' }),
     } as unknown as AppCheckService);
@@ -785,9 +804,7 @@ describe('background/services/network/NetworkService', () => {
   describe('when chain list is not available through Glacier', () => {
     beforeEach(() => {
       jest.useFakeTimers();
-      jest
-        .mocked(getChainsAndTokens)
-        .mockRejectedValue(new Error('Unavailable'));
+      jest.mocked(getV2Networks).mockRejectedValue(new Error('Unavailable'));
     });
 
     it('falls back to the chainlist cached in storage when unlocked', async () => {
@@ -820,8 +837,6 @@ describe('background/services/network/NetworkService', () => {
 
   describe('Hyperliquid networks injection', () => {
     it('injects HyperEVM and HyperCore into the fetched chain list', async () => {
-      jest.mocked(getChainsAndTokens).mockResolvedValue({});
-
       const freshService = new NetworkService(
         storageServiceMock,
         featureFlagsServiceMock,
@@ -879,14 +894,13 @@ describe('background/services/network/NetworkService', () => {
         glacierServiceMock,
       );
 
-    it('loads networks from /v2/networks and skips the legacy tokenlist', async () => {
+    it('loads networks from /v2/networks', async () => {
       jest
         .mocked(getV2Networks)
         .mockResolvedValue(v2Response({ 'eip155:99991': v2ApiNetwork() }));
 
       const fetched = await freshService()['_initChainList']();
 
-      expect(getChainsAndTokens).not.toHaveBeenCalled();
       expect(fetched[99991]).toEqual(
         expect.objectContaining({ chainId: 99991, chainName: 'V2 Net' }),
       );
@@ -910,94 +924,6 @@ describe('background/services/network/NetworkService', () => {
 
       expect(fetched[99991]?.isAlwaysEnabled).toBe(true);
       expect(fetched[99991]?.isEnabledByDefault).toBe(false);
-    });
-
-    it('falls back to the legacy tokenlist when /v2/networks returns no networks', async () => {
-      jest.mocked(getV2Networks).mockResolvedValue(v2Response({}));
-      jest.mocked(getChainsAndTokens).mockResolvedValue({
-        1: { chainId: 1, chainName: 'Legacy' } as any,
-      });
-
-      const fetched = await freshService()['_initChainList']();
-
-      expect(getChainsAndTokens).toHaveBeenCalled();
-      expect(fetched[1]).toEqual(
-        expect.objectContaining({ chainName: 'Legacy' }),
-      );
-    });
-
-    it('falls back to the legacy tokenlist when /v2/networks fails', async () => {
-      jest.mocked(getV2Networks).mockRejectedValue(new Error('v2 down'));
-      jest.mocked(getChainsAndTokens).mockResolvedValue({
-        1: { chainId: 1, chainName: 'Legacy' } as any,
-      });
-
-      const fetched = await freshService()['_initChainList']();
-
-      expect(getChainsAndTokens).toHaveBeenCalled();
-      expect(fetched[1]).toEqual(
-        expect.objectContaining({ chainName: 'Legacy' }),
-      );
-    });
-
-    it('reports the fallback to Sentry so it can be monitored', async () => {
-      jest.mocked(getV2Networks).mockRejectedValue(new Error('v2 down'));
-      jest.mocked(getChainsAndTokens).mockResolvedValue({
-        1: { chainId: 1, chainName: 'Legacy' } as any,
-      });
-
-      await freshService()['_initChainList']();
-
-      expect(Monitoring.sentryCaptureException).toHaveBeenCalledWith(
-        expect.any(Error),
-        Monitoring.SentryExceptionTypes.NETWORKS,
-        expect.objectContaining({ attempt: 1, reason: 'v2 down' }),
-      );
-    });
-
-    it('reports a clear reason when /v2/networks succeeds but returns no usable networks', async () => {
-      jest.mocked(getV2Networks).mockResolvedValue(v2Response({}));
-      jest.mocked(getChainsAndTokens).mockResolvedValue({
-        1: { chainId: 1, chainName: 'Legacy' } as any,
-      });
-
-      await freshService()['_initChainList']();
-
-      expect(Monitoring.sentryCaptureException).toHaveBeenCalledWith(
-        expect.any(Error),
-        Monitoring.SentryExceptionTypes.NETWORKS,
-        expect.objectContaining({
-          attempt: 1,
-          reason: '/v2/networks returned no usable networks',
-        }),
-      );
-    });
-
-    it('reports a distinct message so a transport outage is not dropped by ignoreErrors', async () => {
-      jest
-        .mocked(getV2Networks)
-        .mockRejectedValue(new TypeError('Failed to fetch'));
-      jest.mocked(getChainsAndTokens).mockResolvedValue({
-        1: { chainId: 1, chainName: 'Legacy' } as any,
-      });
-
-      await freshService()['_initChainList']();
-
-      const [capturedError] = jest.mocked(Monitoring.sentryCaptureException)
-        .mock.calls[0]!;
-      // The captured message must not be "Failed to fetch" (which Sentry drops).
-      expect((capturedError as Error).message).not.toMatch(/Failed to fetch$/);
-      expect((capturedError as Error).message).toContain('/tokenlist');
-    });
-
-    it('does not report to Sentry when /v2/networks succeeds', async () => {
-      jest
-        .mocked(getV2Networks)
-        .mockResolvedValue(v2Response({ 'eip155:99991': v2ApiNetwork() }));
-
-      await freshService()['_initChainList']();
-
-      expect(Monitoring.sentryCaptureException).not.toHaveBeenCalled();
     });
   });
 
