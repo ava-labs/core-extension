@@ -15,8 +15,7 @@
 6. [Ledger](06-Ledger.md)
 7. [Localization](07-Localization.md)
 8. [Analytics and feature flags](08-Analytics-and-Feature-Flags.md)
-9. [Keystone](09-Keystone.md)
-10. [Seedless](10-Seedless.md)
+9. [Seedless](10-Seedless.md)
 
 ## Guides
 

@@ -23,7 +23,6 @@ export class OnboardingPage extends BasePage {
   readonly recoveryPhraseInput: Locator;
   readonly termsCheckbox: Locator;
   // Import wallet method options
-  readonly keystoneOption: Locator;
   readonly ledgerOption: Locator;
   readonly recoveryPhraseOption: Locator;
   // Recovery phrase form elements
@@ -95,9 +94,6 @@ export class OnboardingPage extends BasePage {
     );
     this.termsCheckbox = page.locator('[data-testid="terms-checkbox"]');
     // Import wallet method options
-    this.keystoneOption = page.locator(
-      '[data-testid="import-keystone-option"]',
-    );
     this.ledgerOption = page.locator('[data-testid="import-ledger-option"]');
     this.recoveryPhraseOption = page.locator(
       '[data-testid="import-recovery-phrase-option"]',

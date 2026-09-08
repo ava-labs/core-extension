@@ -14,6 +14,7 @@ import {
   getEvmExtendedKeyPath,
   isPrimaryAccount,
   mapVMAddresses,
+  UNSUPPORTED_WALLET_TYPE_ERROR,
 } from '@core/common';
 import {
   Account,
@@ -51,7 +52,6 @@ import {
   hasPublicKeyFor,
   isPrimaryWalletSecrets,
 } from './utils';
-import { getAvalancheExtendedPublicKeyFromKeystoneUsb } from './utils/getAvalancheExtendedPublicKeyFromKeystoneUsb';
 
 type WalletStateUpdateCallback = (data: WalletDetails[]) => void;
 type WalletNameUpdateCallback = (data: {
@@ -793,6 +793,10 @@ export class SecretsService implements OnUnlock {
   }): Promise<void> {
     const secrets = await this.getWalletAccountsSecretsById(walletId);
 
+    if (isKeystoneSecrets(secrets)) {
+      throw new Error(UNSUPPORTED_WALLET_TYPE_ERROR);
+    }
+
     const derivationPaths = await addressResolver.getDerivationPathsByVM(
       index,
       secrets.derivationPathSpec,
@@ -1008,49 +1012,6 @@ export class SecretsService implements OnUnlock {
           derivationPath: avalancheXPubPath,
           key: Avalanche.getXpubFromMnemonic(secrets.mnemonic, index),
         });
-      }
-    } else if (isKeystoneSecrets(secrets)) {
-      if (!hasEVMPublicKey) {
-        const publicKeyEVM = AddressPublicKey.fromExtendedPublicKeys(
-          secrets.extendedPublicKeys,
-          'secp256k1',
-          derivationPathEVM,
-        ).toJSON();
-        newPublicKeys.push(publicKeyEVM);
-      }
-
-      if (!hasAVMPublicKey && secrets.secretType === SecretType.Keystone3Pro) {
-        const existingXPXpub = getAvalancheXPub(secrets, index);
-
-        if (existingXPXpub) {
-          newPublicKeys.push(
-            AddressPublicKey.fromExtendedPublicKeys(
-              secrets.extendedPublicKeys,
-              'secp256k1',
-              derivationPathAVM,
-            ).toJSON(),
-          );
-        } else {
-          try {
-            const newXPXpub =
-              await getAvalancheExtendedPublicKeyFromKeystoneUsb(index);
-
-            newExtendedPublicKeys.push(newXPXpub);
-            newPublicKeys.push(
-              AddressPublicKey.fromExtendedPublicKeys(
-                [newXPXpub],
-                'secp256k1',
-                derivationPathAVM,
-              ).toJSON(),
-            );
-          } catch (error) {
-            // Device connection not active or device not found, the user can add the X/P addresses manually later on.
-            console.error(
-              '[addAddress] Failed to get Avalanche extended public key from Keystone USB:',
-              error,
-            );
-          }
-        }
       }
     }
 

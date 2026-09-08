@@ -1,6 +1,5 @@
 import { EthereumRpcError, ethErrors } from 'eth-rpc-errors';
 import { StatusCodes, TransportStatusError } from '@ledgerhq/hw-transport';
-import { Status, TransportError } from '@keystonehq/hw-transport-error';
 import { CommonError } from '@core/types';
 import {
   isWrappedError,
@@ -141,24 +140,6 @@ describe('src/utils/errors/errorHelpers', () => {
       it('returns false for other Ledger status codes', () => {
         const error = new TransportStatusError(
           StatusCodes.ALGORITHM_NOT_SUPPORTED,
-        );
-        expect(isUserRejectionError(error)).toBe(false);
-      });
-    });
-
-    describe('Keystone TransportError cases', () => {
-      it('returns true for PRS_PARSING_REJECTED status', () => {
-        const error = new TransportError(
-          'User rejected',
-          Status.PRS_PARSING_REJECTED,
-        );
-        expect(isUserRejectionError(error)).toBe(true);
-      });
-
-      it('returns false for other Keystone status codes', () => {
-        const error = new TransportError(
-          'Other error',
-          Status.ERR_DEVICE_NOT_OPENED,
         );
         expect(isUserRejectionError(error)).toBe(false);
       });

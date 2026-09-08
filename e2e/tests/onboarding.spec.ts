@@ -111,7 +111,7 @@ test.describe('Onboarding Tests', () => {
   );
 
   test(
-    'As a CORE ext user, when I select the Access existing wallet option, I can see Recovery Phrase, Ledger and Keystone options',
+    'As a CORE ext user, when I select the Access existing wallet option, I can see Recovery Phrase and Ledger options',
     {
       tag: ['@regression'],
       annotation: [
@@ -133,7 +133,6 @@ test.describe('Onboarding Tests', () => {
 
       await expect(onboardingPage.recoveryPhraseOption).toBeVisible();
       await expect(onboardingPage.ledgerOption).toBeVisible();
-      await expect(onboardingPage.keystoneOption).toBeVisible();
     },
   );
 

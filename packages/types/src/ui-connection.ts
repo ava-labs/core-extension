@@ -8,8 +8,6 @@ export enum ExtensionRequest {
   ONBOARDING_INITIAL_WALLET_OPEN = 'onboarding_initial_wallet_open',
   MNEMONIC_ONBOARDING_SUBMIT = 'mnemonic_onboarding_submit',
   SEEDLESS_ONBOARDING_SUBMIT = 'seedless_onboarding_submit',
-  KEYSTONE_ONBOARDING_SUBMIT = 'keystone_onboarding_submit',
-  KEYSTONE_ONBOARDING_SUBMIT_NEW = 'keystone_onboarding_submit_new',
   LEDGER_ONBOARDING_SUBMIT = 'ledger_onboarding_submit',
   LEDGER_ONBOARDING_SUBMIT_NEW = 'ledger_onboarding_submit_new',
 
@@ -120,11 +118,6 @@ export enum ExtensionRequest {
   SHOW_LEDGER_VERSION_WARNING = 'show_ledger_version_warning',
   LEDGER_VERSION_WARNING_CLOSED = 'ledger_version_warning_closed',
   LEDGER_MIGRATE_MISSING_PUBKEYS = 'ledger_migrate_missing_pubkeys',
-
-  KEYSTONE_INIT_TRANSPORT = 'keystone_init_transport',
-  KEYSTONE_CLOSE_TRANSPORT = 'keystone_close_transport',
-  KEYSTONE_SUBMIT_SIGNATURE = 'keystone_submit_signature',
-  KEYSTONE_MIGRATE_MISSING_PUBKEYS = 'keystone_migrate_missing_pubkeys',
 
   NAVIGATION_HISTORY_GET = 'navigation_history_get',
   NAVIGATION_HISTORY_SET = 'navigation_history_set',

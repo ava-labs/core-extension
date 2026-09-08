@@ -1,13 +1,7 @@
 import { FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
-import {
-  EncryptedIcon,
-  Divider,
-  LedgerIcon,
-  Stack,
-  KeystoneIcon,
-} from '@avalabs/k2-alpine';
+import { EncryptedIcon, Divider, LedgerIcon, Stack } from '@avalabs/k2-alpine';
 
 import { useAnalyticsContext } from '@core/ui';
 
@@ -56,15 +50,6 @@ export const OnboardingStrategyChoiceScreen: FC = () => {
             onClick={() => {
               capture('OnboardingImportLedgerSelected');
               history.push('/onboarding/import/ledger');
-            }}
-          />
-          <CardMenuItem
-            data-testid="import-keystone-option"
-            icon={<KeystoneIcon size={24} />}
-            text={t('Add using Keystone')}
-            onClick={() => {
-              capture('OnboardingKeystoneSelected');
-              history.push('/onboarding/import/keystone');
             }}
           />
         </CardMenu>

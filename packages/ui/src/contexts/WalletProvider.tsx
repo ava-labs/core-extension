@@ -42,7 +42,6 @@ type WalletStateAndMethods = {
   isWalletLoading: boolean;
   isWalletLocked: boolean;
   isLedgerWallet: boolean;
-  isKeystoneUsbWallet: boolean;
   walletDetails: WalletDetails | undefined;
   wallets: WalletDetails[];
   changeWalletPassword(
@@ -102,8 +101,6 @@ export function WalletContextProvider({
       walletDetails?.type === SecretType.LedgerLive
     );
   }, [walletDetails]);
-
-  const isKeystoneUsbWallet = walletDetails?.type === SecretType.Keystone3Pro;
 
   useEffect(() => {
     if (activeAccount?.type === AccountType.PRIMARY) {
@@ -245,7 +242,6 @@ export function WalletContextProvider({
         isWalletLoading,
         isWalletLocked,
         isLedgerWallet,
-        isKeystoneUsbWallet,
         walletDetails,
         wallets,
         changeWalletPassword,

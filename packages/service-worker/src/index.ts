@@ -42,7 +42,6 @@ export type { GetGaslessEligibilityHandler } from './services/gasless/handlers/g
 export type { SetDefaultStateValuesHandler } from './services/gasless/handlers/setDefaultStateValues';
 export type { SetGaslessHexValues } from './services/gasless/handlers/setHexValues';
 export type { GetHistoryHandler } from './services/history/handlers/getHistory';
-export type { SubmitKeystoneSignature } from './services/keystone/handlers/keystoneSubmitSignature';
 export type { CloseLedgerTransportHandler } from './services/ledger/handlers/closeOpenTransporters';
 export type { GetLedgerVersionWarningHandler } from './services/ledger/handlers/getLedgerVersionWarning';
 export type { InitLedgerTransportHandler } from './services/ledger/handlers/initLedgerTransport';
@@ -79,8 +78,6 @@ export type { DiscoverRecurringSwaps } from './services/notifications/handlers/d
 export type { UnsubscribeFromNotification } from './services/notifications/handlers/unsubscribe';
 export type { GetIsOnboardedHandler } from './services/onboarding/handlers/getIsOnBoarded';
 export type { OpenExtensionPopupWindowHandler } from './services/onboarding/handlers/openExtensionPopupWindow';
-export type { KeystoneOnboardingHandler } from './services/onboarding/handlers/keystoneOnboardingHandler';
-export type { KeystoneOnboardingHandlerNew } from './services/onboarding/handlers/keystoneOnboardingHandlerNew';
 export type { LedgerOnboardingHandler } from './services/onboarding/handlers/ledgerOnboardingHandler';
 export type { LedgerOnboardingHandlerNew } from './services/onboarding/handlers/ledgerOnboardingHandlerNew';
 export type { MnemonicOnboardingHandler } from './services/onboarding/handlers/mnemonicOnboardingHandler';
@@ -135,7 +132,6 @@ export type { StoreBtcWalletPolicyDetails } from './services/wallet/handlers/sto
 export type { EstablishRequiredSession } from './services/walletConnect/handlers/establishRequiredSession';
 export type { WalletConnectImportAccount } from './services/walletConnect/handlers/walletConnectImportAccount';
 export type { GetTrendingTokensHandler } from './services/trendingTokens/handlers/getTrendingTokens';
-export type { MigrateMissingPublicKeysFromKeystoneHandler } from './services/keystone/handlers/migrateMissingKeysFromKeystone';
 export type { GetXPAddressesForAccountHandler } from './services/accounts/handlers/getXPAddressesForAccountIndex';
 export type { SetFilterSmallUtxosHandler } from './services/settings/handlers/setFilterSmallUtxos';
 export type { TransferTrackingGetState } from './services/transferTracking/handlers/transferTrackingGetState';

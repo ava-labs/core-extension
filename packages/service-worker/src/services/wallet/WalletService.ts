@@ -6,7 +6,6 @@ import {
   BitcoinProviderAbstract,
   BitcoinWallet,
   createWalletPolicy,
-  DerivationPath,
   getAddressDerivationPath,
   getPublicKeyFromPrivateKey,
   getWalletFromMnemonic,
@@ -37,6 +36,7 @@ import {
   isPrimaryAccount,
   isSolanaNetwork,
   isXchainNetwork,
+  UNSUPPORTED_WALLET_TYPE_ERROR,
   Monitoring,
   omitUndefined,
   stripAddressPrefix,
@@ -89,16 +89,12 @@ import { OnUnlock } from '../../runtime/lifecycleCallbacks';
 import { AccountsService } from '../accounts/AccountsService';
 import { FireblocksBTCSigner } from '../fireblocks/FireblocksBTCSigner';
 import { FireblocksService } from '../fireblocks/FireblocksService';
-import { BitcoinKeystoneWallet } from '../keystone/BitcoinKeystoneWallet';
-import { KeystoneService } from '../keystone/KeystoneService';
-import { KeystoneWallet } from '../keystone/KeystoneWallet';
 import { LedgerService } from '../ledger/LedgerService';
 import { NetworkService } from '../network/NetworkService';
 import { AddressResolver } from '../secrets/AddressResolver';
 import { SecretsService } from '../secrets/SecretsService';
 import {
   getExtendedPublicKey,
-  getExtendedPublicKeyFor,
   getPublicKeyFor,
   isPrimaryWalletSecrets,
 } from '../secrets/utils';
@@ -121,7 +117,6 @@ export class WalletService implements OnUnlock {
   constructor(
     private networkService: NetworkService,
     private ledgerService: LedgerService,
-    private keystoneService: KeystoneService,
     private walletConnectService: WalletConnectService,
     private fireblocksService: FireblocksService,
     private secretService: SecretsService,
@@ -391,40 +386,7 @@ export class WalletService implements OnUnlock {
         secretType === SecretType.Keystone ||
         secretType === SecretType.Keystone3Pro
       ) {
-        const accountIndexToUse =
-          accountIndex === undefined ? secrets.account.index : accountIndex;
-
-        const derivationPathEVM = getAddressDerivationPath(
-          accountIndexToUse,
-          'EVM',
-          { pathSpec: DerivationPath.BIP44 },
-        );
-        const derivationPathAVM = getAddressDerivationPath(
-          accountIndexToUse,
-          'AVM',
-        );
-        const evmExtendedPubKey = getExtendedPublicKeyFor(
-          secrets.extendedPublicKeys,
-          derivationPathEVM,
-          'secp256k1',
-        );
-        const avmExtendedPubKey = getExtendedPublicKeyFor(
-          secrets.extendedPublicKeys,
-          derivationPathAVM,
-          'secp256k1',
-        );
-
-        assertPresent(evmExtendedPubKey, SecretsError.PublicKeyNotFound);
-
-        return new KeystoneWallet(
-          secrets.masterFingerprint,
-          accountIndexToUse,
-          this.keystoneService,
-          network.chainId,
-          tabId,
-          evmExtendedPubKey.key,
-          avmExtendedPubKey ? avmExtendedPubKey.key : undefined,
-        );
+        throw new Error(UNSUPPORTED_WALLET_TYPE_ERROR);
       }
 
       if (
@@ -504,15 +466,7 @@ export class WalletService implements OnUnlock {
         secretType === SecretType.Keystone ||
         secretType === SecretType.Keystone3Pro
       ) {
-        return new BitcoinKeystoneWallet(
-          secrets.masterFingerprint,
-          Buffer.from(publicKey.key, 'hex'),
-          derivationPath,
-          this.keystoneService,
-          provider as BitcoinProviderAbstract,
-          tabId,
-          secretType === SecretType.Keystone3Pro,
-        );
+        throw new Error(UNSUPPORTED_WALLET_TYPE_ERROR);
       }
 
       if (secretType === SecretType.Ledger) {
@@ -594,40 +548,7 @@ export class WalletService implements OnUnlock {
         secretType === SecretType.Keystone ||
         secretType === SecretType.Keystone3Pro
       ) {
-        const derivationPathEVM = getAddressDerivationPath(
-          secrets.account.index,
-          'EVM',
-          { pathSpec: DerivationPath.BIP44 },
-        );
-        const derivationPathAVM = getAddressDerivationPath(
-          secrets.account.index,
-          'AVM',
-        );
-        const evmExtendedPubKey = getExtendedPublicKeyFor(
-          secrets.extendedPublicKeys,
-          derivationPathEVM,
-          'secp256k1',
-        );
-        const avmExtendedPubKey = getExtendedPublicKeyFor(
-          secrets.extendedPublicKeys,
-          derivationPathAVM,
-          'secp256k1',
-        );
-
-        assertPresent(evmExtendedPubKey, SecretsError.PublicKeyNotFound);
-        if (secretType === SecretType.Keystone3Pro) {
-          assertPresent(avmExtendedPubKey, SecretsError.PublicKeyNotFound);
-        }
-
-        return new KeystoneWallet(
-          secrets.masterFingerprint,
-          secrets.account.index,
-          this.keystoneService,
-          network.chainId,
-          tabId,
-          evmExtendedPubKey.key,
-          avmExtendedPubKey ? avmExtendedPubKey.key : undefined,
-        );
+        throw new Error(UNSUPPORTED_WALLET_TYPE_ERROR);
       }
 
       if (secretType === SecretType.WalletConnect) {
@@ -811,7 +732,6 @@ export class WalletService implements OnUnlock {
       if (
         !(wallet instanceof BitcoinWallet) &&
         !(wallet instanceof BitcoinLedgerWallet) &&
-        !(wallet instanceof BitcoinKeystoneWallet) &&
         !(wallet instanceof FireblocksBTCSigner) &&
         !(wallet instanceof SeedlessWallet)
       ) {
@@ -850,7 +770,6 @@ export class WalletService implements OnUnlock {
         !isLedgerSigner &&
         !(wallet instanceof Avalanche.SimpleSigner) &&
         !(wallet instanceof Avalanche.StaticSigner) &&
-        !(wallet instanceof KeystoneWallet) &&
         !(wallet instanceof WalletConnectSigner) &&
         !(wallet instanceof SeedlessWallet)
       ) {
@@ -941,7 +860,6 @@ export class WalletService implements OnUnlock {
         !isLedgerSigner &&
         !(wallet instanceof Avalanche.SimpleSigner) &&
         !(wallet instanceof Avalanche.StaticSigner) &&
-        !(wallet instanceof KeystoneWallet) &&
         !(wallet instanceof WalletConnectSigner) &&
         !(wallet instanceof SeedlessWallet)
       ) {
@@ -988,7 +906,6 @@ export class WalletService implements OnUnlock {
     if (
       !(wallet instanceof BaseWallet) &&
       !(wallet instanceof LedgerSigner) &&
-      !(wallet instanceof KeystoneWallet) &&
       !(wallet instanceof WalletConnectSigner) &&
       !(wallet instanceof SeedlessWallet)
     ) {
@@ -1338,13 +1255,6 @@ export class WalletService implements OnUnlock {
         : utils.base58check.encode(new Uint8Array(signed));
     }
 
-    if (wallet instanceof KeystoneWallet) {
-      return wallet.signMessage(messageType, {
-        data: data.data,
-        from: data.account,
-      });
-    }
-
     if (wallet instanceof LedgerSigner) {
       await this.#ensureEvmLedgerAppOpenForSigning(network);
 
@@ -1475,10 +1385,6 @@ export class WalletService implements OnUnlock {
     }
 
     if (wallet instanceof SeedlessWallet) {
-      return wallet.signMessage(messageType, action.displayData?.messageParams);
-    }
-
-    if (wallet instanceof KeystoneWallet) {
       return wallet.signMessage(messageType, action.displayData?.messageParams);
     }
 

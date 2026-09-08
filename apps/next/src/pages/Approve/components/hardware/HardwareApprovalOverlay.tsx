@@ -3,8 +3,6 @@ import { DisplayData } from '@avalabs/vm-module-types';
 import { Action, ExternaSignerType, NetworkWithCaipId } from '@core/types';
 
 import { LedgerApprovalOverlay } from './ledger';
-import { KeystoneQRApprovalOverlay } from './keystone-qr';
-import { KeystoneUSBApprovalOverlay } from './keystone-usb';
 
 type HardwareApprovalOverlayProps = {
   deviceType: ExternaSignerType;
@@ -27,25 +25,6 @@ export const HardwareApprovalOverlay = ({
         action={action}
         approve={approve}
         reject={reject}
-        network={network}
-      />
-    );
-  } else if (deviceType === 'keystone-qr') {
-    return (
-      <KeystoneQRApprovalOverlay
-        deviceType={deviceType}
-        action={action}
-        network={network}
-        approve={approve}
-        reject={reject}
-      />
-    );
-  } else if (deviceType === 'keystone-usb') {
-    return (
-      <KeystoneUSBApprovalOverlay
-        action={action}
-        reject={reject}
-        approve={approve}
         network={network}
       />
     );

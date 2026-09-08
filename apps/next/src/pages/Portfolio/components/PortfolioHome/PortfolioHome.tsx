@@ -7,6 +7,7 @@ import {
 } from '@core/ui';
 import { FC } from 'react';
 
+import { KeystoneDeprecationBanner } from '@/components/KeystoneDeprecationBanner';
 import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
 import { AccountInfo } from './components/AccountInfo/AccountInfo';
 import { AtomicFundsBalance } from './components/AtomicFundsBalance';
@@ -28,6 +29,7 @@ export const PortfolioHome: FC = () => {
           hasBalanceError={!!balances.error}
           isLoading={balances.loading}
         />
+        <KeystoneDeprecationBanner />
         <AtomicFundsBalance accountId={accounts.active?.id} />
       </Stack>
       <PortfolioTabs />

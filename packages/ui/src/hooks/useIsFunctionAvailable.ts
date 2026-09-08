@@ -19,7 +19,6 @@ export enum FunctionNames {
   COLLECTIBLES = 'COLLECTIBLES',
   DEFI = 'DeFi',
   FEATURE = 'Feature', // Default when function name is unknown or not included
-  KEYSTONE = 'Keystone',
   MANAGE_TOKEN = 'ManageTokens',
   MANAGE_COLLECTIBLES = 'ManageCollectibles',
   RECEIVE = 'Receive',
@@ -32,7 +31,6 @@ export enum FunctionNames {
 const FeatureFlagMap: Record<string, FeatureGates> = {
   [FunctionNames.BUY]: FeatureGates.BUY,
   [FunctionNames.DEFI]: FeatureGates.DEFI,
-  [FunctionNames.KEYSTONE]: FeatureGates.KEYSTONE,
   [FunctionNames.SEND]: FeatureGates.SEND,
 };
 

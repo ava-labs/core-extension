@@ -5,7 +5,6 @@ import { FullscreenModal } from '@/components/FullscreenModal';
 import { OnboardingStrategyChoiceScreen } from './common-screens/OnboardingStrategyChoiceScreen';
 import { ImportRecoveryPhraseFlow } from './flows/ImportRecoveryPhraseFlow';
 import { ConnectLedgerFlow } from './flows/ConnectLedgerFlow';
-import { ConnectKeystoneFlow } from './flows/ConnectKeystoneFlow';
 
 export const ImportWallet = () => {
   const history = useHistory();
@@ -27,9 +26,6 @@ export const ImportWallet = () => {
         </Route>
         <Route path="/onboarding/import/ledger">
           <ConnectLedgerFlow />
-        </Route>
-        <Route path="/onboarding/import/keystone">
-          <ConnectKeystoneFlow />
         </Route>
       </Switch>
     </FullscreenModal>

@@ -45,8 +45,6 @@ import { FundTxHandler } from '../../services/gasless/handlers/fundTx';
 import { GetGaslessEligibilityHandler } from '../../services/gasless/handlers/getGaslessEligibility';
 import { SetDefaultStateValuesHandler } from '../../services/gasless/handlers/setDefaultStateValues';
 import { GetHistoryHandler } from '../../services/history/handlers/getHistory';
-import { KeystoneRequestEvents } from '../../services/keystone/events/keystoneDeviceRequest';
-import { SubmitKeystoneSignature } from '../../services/keystone/handlers/keystoneSubmitSignature';
 import { LedgerCloseTransportEvent } from '../../services/ledger/events/ledgerCloseTransport';
 import { LedgerTransportRequestEvents } from '../../services/ledger/events/ledgerDeviceRequest';
 import { LedgerDiscoverTransportsEvents } from '../../services/ledger/events/ledgerDiscoverTransports';
@@ -79,7 +77,6 @@ import { GetNetworkFeeHandler } from '../../services/networkFee/handlers/getNetw
 import { OnboardingUpdatedEvents } from '../../services/onboarding/events/onboardingUpdatedEvent';
 import { GetIsOnboardedHandler } from '../../services/onboarding/handlers/getIsOnBoarded';
 import { OpenExtensionPopupWindowHandler } from '../../services/onboarding/handlers/openExtensionPopupWindow';
-import { KeystoneOnboardingHandler } from '../../services/onboarding/handlers/keystoneOnboardingHandler';
 import { LedgerOnboardingHandler } from '../../services/onboarding/handlers/ledgerOnboardingHandler';
 import { MnemonicOnboardingHandler } from '../../services/onboarding/handlers/mnemonicOnboardingHandler';
 import { SeedlessOnboardingHandler } from '../../services/onboarding/handlers/seedlessOnboardingHandler';
@@ -131,9 +128,7 @@ import { StoreBtcWalletPolicyDetails } from '../../services/wallet/handlers/stor
 import { WalletConnectEvents } from '../../services/walletConnect/events/walletConnectEvents';
 import { EstablishRequiredSession } from '../../services/walletConnect/handlers/establishRequiredSession';
 import { WalletConnectImportAccount } from '../../services/walletConnect/handlers/walletConnectImportAccount';
-import { MigrateMissingPublicKeysFromKeystoneHandler } from '../../services/keystone/handlers/migrateMissingKeysFromKeystone';
 
-import { KeystoneOnboardingHandlerNew } from '~/services/onboarding/handlers/keystoneOnboardingHandlerNew';
 import { LedgerOnboardingHandlerNew } from '~/services/onboarding/handlers/ledgerOnboardingHandlerNew';
 import { SetPreferredViewHandler } from '~/services/settings/handlers/setPreferredView';
 import { SubscriptionsChangedEvents } from '../../services/notifications/events/subscriptionsChangedEvent';
@@ -257,7 +252,6 @@ import { SetBridgeDevEnvHandler } from '~/services/settings/handlers/setBridgeDe
   },
   { token: 'ExtensionRequestHandler', useToken: MnemonicOnboardingHandler },
   { token: 'ExtensionRequestHandler', useToken: SeedlessOnboardingHandler },
-  { token: 'ExtensionRequestHandler', useToken: KeystoneOnboardingHandler },
   { token: 'ExtensionRequestHandler', useToken: LedgerOnboardingHandler },
   {
     token: 'ExtensionRequestHandler',
@@ -308,7 +302,6 @@ import { SetBridgeDevEnvHandler } from '~/services/settings/handlers/setBridgeDe
     token: 'ExtensionRequestHandler',
     useToken: MigrateMissingPublicKeysFromLedgerHandler,
   },
-  { token: 'ExtensionRequestHandler', useToken: SubmitKeystoneSignature },
   {
     token: 'ExtensionRequestHandler',
     useToken: GetDefiPortfolioHandler,
@@ -487,10 +480,6 @@ import { SetBridgeDevEnvHandler } from '~/services/settings/handlers/setBridgeDe
   },
   {
     token: 'ExtensionRequestHandler',
-    useToken: KeystoneOnboardingHandlerNew,
-  },
-  {
-    token: 'ExtensionRequestHandler',
     useToken: SetPreferredViewHandler,
   },
   {
@@ -516,10 +505,6 @@ import { SetBridgeDevEnvHandler } from '~/services/settings/handlers/setBridgeDe
   { token: 'ExtensionRequestHandler', useToken: ImportLedgerHandlerNew },
   { token: 'ExtensionRequestHandler', useToken: CheckIfWalletExists },
   { token: 'ExtensionRequestHandler', useToken: GetTrendingTokensHandler },
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: MigrateMissingPublicKeysFromKeystoneHandler,
-  },
   {
     token: 'ExtensionRequestHandler',
     useToken: GetTotalAtomicFundsForAccountHandler,
@@ -552,7 +537,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: SettingsUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: PermissionStateUpdateEvents },
   { token: 'ExtensionEventEmitter', useToken: LedgerTransportRequestEvents },
-  { token: 'ExtensionEventEmitter', useToken: KeystoneRequestEvents },
   { token: 'ExtensionEventEmitter', useToken: LedgerDiscoverTransportsEvents },
   { token: 'ExtensionEventEmitter', useToken: LockStateChangedEvents },
   { token: 'ExtensionEventEmitter', useToken: FeatureFlagsUpdatedEvent },

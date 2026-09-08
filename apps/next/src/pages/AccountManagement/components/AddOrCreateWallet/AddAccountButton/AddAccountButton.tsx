@@ -7,6 +7,7 @@ import {
   useActiveLedgerAppInfo,
   useAnalyticsContext,
   useIsCorrectDeviceForActiveWallet,
+  useIsUsingKeystoneWallet,
   useLedgerContext,
   useWalletContext,
 } from '@core/ui';
@@ -22,6 +23,7 @@ export const AddAccountButton: FC = () => {
   const { hasLedgerTransport } = useLedgerContext();
   const { appType } = useActiveLedgerAppInfo();
   const status = useIsCorrectDeviceForActiveWallet();
+  const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
 
   const canAddNewAccount =
     !isLedgerWallet ||
@@ -40,7 +42,12 @@ export const AddAccountButton: FC = () => {
           size="small"
           data-testid="add-account-button"
           disabled={!canAddNewAccount}
-          onClick={() =>
+          onClick={() => {
+            if (isUsingKeystoneWallet) {
+              toast.error(t('Keystone support has been deprecated'));
+              return;
+            }
+
             addAccount()
               .then(selectAccount)
               .then(() => {
@@ -52,8 +59,8 @@ export const AddAccountButton: FC = () => {
               .catch((error) => {
                 toast.error(t('Account creation failed'));
                 console.error(error);
-              })
-          }
+              });
+          }}
         >
           <AddIcon size={12} />
           {t('Add account')}

@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react';
 
 import { useIsUsingLedgerWallet } from './useIsUsingLedgerWallet';
-import { useIsUsingKeystoneWallet } from './useIsUsingKeystoneWallet';
 import { useIsUsingWalletConnectAccount } from './useIsUsingWalletConnectAccount';
 import { useIsUsingFireblocksAccount } from './useIsUsingFireblocksAccount';
 
@@ -15,7 +14,6 @@ export function useApprovalHelpers({
   onReject,
 }: UseApprovalHelpersProps) {
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
-  const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
   const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
   const isUsingFireblocksAccount = useIsUsingFireblocksAccount();
 
@@ -23,7 +21,6 @@ export function useApprovalHelpers({
     isUsingWalletConnectAccount || isUsingFireblocksAccount;
   const isUsingExternalSigner =
     isUsingLedgerWallet ||
-    isUsingKeystoneWallet ||
     isUsingWalletConnectAccount ||
     isUsingFireblocksAccount;
 

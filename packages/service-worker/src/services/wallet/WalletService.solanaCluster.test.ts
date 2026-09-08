@@ -64,7 +64,6 @@ describe('WalletService Solana cluster binding', () => {
       stub,
       stub,
       stub,
-      stub,
       {
         getActiveAccount: jest
           .fn()
