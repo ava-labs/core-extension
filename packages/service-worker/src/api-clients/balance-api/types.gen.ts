@@ -436,6 +436,7 @@ export type PvmGetBalancesResponse = {
      */
     totalBalanceInCurrency?: number;
     categories: {
+      restakedRewards?: string;
       unlockedStaked: string;
       unlockedUnstaked: string;
       unlockedUnstakedMultiSig: string;
