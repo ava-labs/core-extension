@@ -17,7 +17,7 @@ export type InternalId = {
 };
 
 /**
- * The available currencies: usd, eur, aud, cad, chf, clp, czk, dkk, gbp, hkd, huf, ils, inr
+ * The available currencies: usd, eur, aud, brl, cad, chf, clp, czk, dkk, gbp, hkd, huf, ils, inr, mxn
  */
 export type Currency = string;
 
@@ -73,6 +73,8 @@ export type NetworkListResponse = {
       description?: string | null;
       explorerUrl: string;
       isTestnet: boolean;
+      isAlwaysEnabled: boolean;
+      isEnabledByDefault: boolean;
       logoUri?: string | null;
       networkToken: {
         name: string;
@@ -335,6 +337,8 @@ export type NetworkListV2Response = {
       description?: string | null;
       explorerUrl: string;
       isTestnet: boolean;
+      isAlwaysEnabled: boolean;
+      isEnabledByDefault: boolean;
       logoUri?: string | null;
       networkToken: {
         name: string;
@@ -374,6 +378,8 @@ export type NetworkTokensByCaip2Response = {
       description?: string | null;
       explorerUrl: string;
       isTestnet: boolean;
+      isAlwaysEnabled: boolean;
+      isEnabledByDefault: boolean;
       logoUri?: string | null;
       networkToken: {
         name: string;
@@ -569,7 +575,7 @@ export type GetV1WatchlistMarketsData = {
   path?: never;
   query: {
     /**
-     * The available currencies: usd, eur, aud, cad, chf, clp, czk, dkk, gbp, hkd, huf, ils, inr
+     * The available currencies: usd, eur, aud, brl, cad, chf, clp, czk, dkk, gbp, hkd, huf, ils, inr, mxn
      */
     currency: Currency;
     topMarkets?: boolean;
@@ -592,10 +598,14 @@ export type GetV1WatchlistTokensData = {
   path?: never;
   query: {
     /**
-     * The available currencies: usd, eur, aud, cad, chf, clp, czk, dkk, gbp, hkd, huf, ils, inr
+     * The available currencies: usd, eur, aud, brl, cad, chf, clp, czk, dkk, gbp, hkd, huf, ils, inr, mxn
      */
     currency: Currency;
     caip2Id?: string;
+    /**
+     * A list of internal ids
+     */
+    internalIds?: Array<string>;
     /**
      * A list of tokens delimited by coma
      */
