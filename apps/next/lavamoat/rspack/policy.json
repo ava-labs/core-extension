@@ -82,12 +82,6 @@
         "@avalabs/core-wallets-sdk>xss": true
       }
     },
-    "@avalabs/hypercore-module>@avalabs/core-wallets-sdk": {
-      "packages": {
-        "@core/ui>bip32": true,
-        "ethers": true
-      }
-    },
     "@avalabs/hypercore-module>@avalabs/crypto-sdk": {
       "packages": {
         "@core/service-worker>@avalabs/crypto-wasm": true
@@ -179,7 +173,7 @@
         "fetch": true
       },
       "packages": {
-        "@avalabs/hypercore-module>@avalabs/core-wallets-sdk": true,
+        "@avalabs/core-wallets-sdk": true,
         "@avalabs/hypercore-module>@avalabs/crypto-sdk": true,
         "@avalabs/vm-module-types": true,
         "@core/ui>@metamask/rpc-errors": true,

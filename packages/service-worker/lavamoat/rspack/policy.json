@@ -11,12 +11,12 @@
         "setTimeout": true
       },
       "packages": {
-        "@avalabs/avalanche-module>@avalabs/avalanchejs": true,
-        "@avalabs/avalanche-module>@avalabs/core-coingecko-sdk": true,
+        "@avalabs/avalanchejs": true,
+        "@avalabs/core-coingecko-sdk": true,
         "@avalabs/avalanche-module>@avalabs/core-utils-sdk": true,
-        "@avalabs/avalanche-module>@avalabs/core-wallets-sdk": true,
+        "@avalabs/core-wallets-sdk": true,
         "@avalabs/evm-module>@avalabs/crypto-sdk": true,
-        "@avalabs/avalanche-module>@avalabs/glacier-sdk": true,
+        "@avalabs/glacier-sdk": true,
         "@avalabs/vm-module-types": true,
         "@metamask/rpc-errors": true,
         "@avalabs/avalanche-module>big.js": true,
@@ -40,20 +40,6 @@
         "@rsbuild/plugin-node-polyfill>util": true
       }
     },
-    "@avalabs/avalanche-module>@avalabs/avalanchejs": {
-      "globals": {
-        "TextDecoder": true,
-        "TextEncoder": true,
-        "console.log": true,
-        "crypto": true,
-        "fetch": true
-      },
-      "packages": {
-        "@avalabs/avalanche-module>@avalabs/avalanchejs>@noble/hashes": true,
-        "@avalabs/avalanche-module>@avalabs/avalanchejs>@scure/base": true,
-        "@rsbuild/plugin-node-polyfill>util": true
-      }
-    },
     "@avalabs/bitcoin-module": {
       "globals": {
         "Buffer.from": true,
@@ -64,9 +50,9 @@
         "setTimeout": true
       },
       "packages": {
-        "@avalabs/bitcoin-module>@avalabs/core-coingecko-sdk": true,
+        "@avalabs/core-coingecko-sdk": true,
         "@avalabs/bitcoin-module>@avalabs/core-utils-sdk": true,
-        "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk": true,
+        "@avalabs/core-wallets-sdk": true,
         "@avalabs/evm-module>@avalabs/crypto-sdk": true,
         "@avalabs/vm-module-types": true,
         "@metamask/rpc-errors": true,
@@ -97,36 +83,12 @@
         "@avalabs/core-utils-sdk": true
       }
     },
-    "@avalabs/avalanche-module>@avalabs/core-coingecko-sdk": {
+    "@avalabs/core-coingecko-sdk": {
       "globals": {
         "URLSearchParams": true
       },
       "packages": {
-        "@avalabs/avalanche-module>@avalabs/core-utils-sdk": true
-      }
-    },
-    "@avalabs/bitcoin-module>@avalabs/core-coingecko-sdk": {
-      "globals": {
-        "URLSearchParams": true
-      },
-      "packages": {
-        "@avalabs/bitcoin-module>@avalabs/core-utils-sdk": true
-      }
-    },
-    "@avalabs/evm-module>@avalabs/core-coingecko-sdk": {
-      "globals": {
-        "URLSearchParams": true
-      },
-      "packages": {
-        "@avalabs/evm-module>@avalabs/core-utils-sdk": true
-      }
-    },
-    "@avalabs/svm-module>@avalabs/core-coingecko-sdk": {
-      "globals": {
-        "URLSearchParams": true
-      },
-      "packages": {
-        "@avalabs/svm-module>@avalabs/core-utils-sdk": true
+        "@avalabs/core-utils-sdk": true
       }
     },
     "@avalabs/core-gasless-sdk": {
@@ -155,26 +117,12 @@
       }
     },
     "@avalabs/avalanche-module>@avalabs/core-utils-sdk": {
-      "globals": {
-        "AbortController": true,
-        "URLSearchParams": true,
-        "clearTimeout": true,
-        "fetch": true,
-        "setTimeout": true
-      },
       "packages": {
         "@avalabs/avalanche-module>big.js": true,
         "bn.js": true
       }
     },
     "@avalabs/bitcoin-module>@avalabs/core-utils-sdk": {
-      "globals": {
-        "AbortController": true,
-        "URLSearchParams": true,
-        "clearTimeout": true,
-        "fetch": true,
-        "setTimeout": true
-      },
       "packages": {
         "@avalabs/bitcoin-module>big.js": true,
         "bn.js": true
@@ -182,36 +130,12 @@
     },
     "@avalabs/evm-module>@avalabs/core-utils-sdk": {
       "globals": {
-        "AbortController": true,
-        "URL": true,
-        "URLSearchParams": true,
-        "clearTimeout": true,
-        "fetch": true,
-        "setTimeout": true
+        "URL": true
       },
       "packages": {
         "@avalabs/core-utils-sdk>big.js": true,
         "bn.js": true,
         "@avalabs/core-utils-sdk>is-ipfs": true
-      }
-    },
-    "@avalabs/hvm-module>@avalabs/core-utils-sdk": {
-      "packages": {
-        "@avalabs/core-utils-sdk>big.js": true,
-        "bn.js": true
-      }
-    },
-    "@avalabs/svm-module>@avalabs/core-utils-sdk": {
-      "globals": {
-        "AbortController": true,
-        "URLSearchParams": true,
-        "clearTimeout": true,
-        "fetch": true,
-        "setTimeout": true
-      },
-      "packages": {
-        "@avalabs/core-utils-sdk>big.js": true,
-        "bn.js": true
       }
     },
     "@avalabs/core-wallets-sdk": {
@@ -237,6 +161,7 @@
         "@avalabs/avalanchejs": true,
         "@avalabs/core-chains-sdk": true,
         "@avalabs/core-utils-sdk": true,
+        "@avalabs/glacier-sdk": true,
         "@avalabs/hw-app-avalanche": true,
         "@ledgerhq/hw-app-btc": true,
         "@ledgerhq/hw-app-eth": true,
@@ -244,6 +169,7 @@
         "ledger-bitcoin>@ledgerhq/hw-transport": true,
         "@avalabs/core-wallets-sdk>@metamask/eth-sig-util": true,
         "@noble/curves": true,
+        "@avalabs/core-wallets-sdk>@noble/hashes": true,
         "@scure/base": true,
         "@avalabs/svm-module>@solana-program/system": true,
         "@avalabs/core-wallets-sdk>@solana-program/token-2022": true,
@@ -266,77 +192,8 @@
         "ethers": true,
         "@avalabs/core-wallets-sdk>hdkey": true,
         "ledger-bitcoin": true,
-        "micro-key-producer": true
-      }
-    },
-    "@avalabs/avalanche-module>@avalabs/core-wallets-sdk": {
-      "globals": {
-        "Buffer.from": true,
-        "setTimeout": true
-      },
-      "packages": {
-        "@avalabs/avalanche-module>@avalabs/avalanchejs": true,
-        "@avalabs/avalanche-module>@avalabs/core-chains-sdk": true,
-        "@avalabs/avalanche-module>@avalabs/core-utils-sdk": true,
-        "@avalabs/avalanche-module>@avalabs/glacier-sdk": true,
-        "@avalabs/avalanche-module>@avalabs/core-wallets-sdk>@noble/hashes": true,
-        "bip32": true,
-        "buffer": true,
-        "ethers": true,
-        "@avalabs/avalanche-module>@avalabs/core-wallets-sdk>xss": true
-      }
-    },
-    "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk": {
-      "globals": {
-        "Buffer.from": true,
-        "console.log": true,
-        "setTimeout": true
-      },
-      "packages": {
-        "@avalabs/bitcoin-module>@avalabs/core-utils-sdk": true,
-        "@ledgerhq/hw-app-eth": true,
-        "ledger-bitcoin>@ledgerhq/hw-transport": true,
-        "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>@metamask/eth-sig-util": true,
-        "bip32": true,
-        "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>bip39": true,
-        "bitcoinjs-lib": true,
-        "buffer": true,
-        "@avalabs/fusion-sdk>coinselect": true,
-        "ethers": true
-      }
-    },
-    "@avalabs/evm-module>@avalabs/core-wallets-sdk": {
-      "globals": {
-        "setTimeout": true
-      },
-      "packages": {
-        "bip32": true,
-        "ethers": true
-      }
-    },
-    "@avalabs/hypercore-module>@avalabs/core-wallets-sdk": {
-      "packages": {
-        "bip32": true,
-        "ethers": true
-      }
-    },
-    "@avalabs/svm-module>@avalabs/core-wallets-sdk": {
-      "meta": {
-        "graph-optimization": [
-          "Dependency '@avalabs/svm-module>@solana/kit' reexports from '@avalabs/svm-module>@solana/kit>@solana/keys>@solana/codecs-strings' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/svm-module>@solana/kit' reexports from '@avalabs/svm-module>@solana/kit>@solana/rpc' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/svm-module>@solana/kit' reexports from '@avalabs/svm-module>@solana/kit>@solana/rpc-types' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/svm-module>@solana/kit' reexports from '@avalabs/svm-module>@solana/kit>@solana/transaction-messages' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/svm-module>@solana/kit' reexports from '@avalabs/svm-module>@solana/kit>@solana/transactions' and the bundler collapsed that to a direct import."
-        ]
-      },
-      "packages": {
-        "@avalabs/svm-module>@solana/kit>@solana/keys>@solana/codecs-strings": true,
-        "@avalabs/svm-module>@solana/kit": true,
-        "@avalabs/svm-module>@solana/kit>@solana/rpc-types": true,
-        "@avalabs/svm-module>@solana/kit>@solana/rpc": true,
-        "@avalabs/svm-module>@solana/kit>@solana/transaction-messages": true,
-        "@avalabs/svm-module>@solana/kit>@solana/transactions": true
+        "micro-key-producer": true,
+        "@avalabs/core-wallets-sdk>xss": true
       }
     },
     "@avalabs/evm-module>@avalabs/crypto-sdk": {
@@ -376,12 +233,12 @@
         "setTimeout": true
       },
       "packages": {
-        "@avalabs/evm-module>@avalabs/core-chains-sdk": true,
-        "@avalabs/evm-module>@avalabs/core-coingecko-sdk": true,
+        "@avalabs/core-chains-sdk": true,
+        "@avalabs/core-coingecko-sdk": true,
         "@avalabs/evm-module>@avalabs/core-utils-sdk": true,
-        "@avalabs/evm-module>@avalabs/core-wallets-sdk": true,
+        "@avalabs/core-wallets-sdk": true,
         "@avalabs/evm-module>@avalabs/crypto-sdk": true,
-        "@avalabs/evm-module>@avalabs/glacier-sdk": true,
+        "@avalabs/glacier-sdk": true,
         "@avalabs/vm-module-types": true,
         "@avalabs/evm-module>@blockaid/client": true,
         "@metamask/rpc-errors": true,
@@ -455,36 +312,6 @@
         "buffer": true
       }
     },
-    "@avalabs/avalanche-module>@avalabs/glacier-sdk": {
-      "globals": {
-        "AbortController": true,
-        "Buffer.from": true,
-        "FormData": true,
-        "Headers": true,
-        "btoa": true,
-        "console.error": true,
-        "console.warn": true,
-        "fetch": true
-      },
-      "packages": {
-        "buffer": true
-      }
-    },
-    "@avalabs/evm-module>@avalabs/glacier-sdk": {
-      "globals": {
-        "AbortController": true,
-        "Buffer.from": true,
-        "FormData": true,
-        "Headers": true,
-        "btoa": true,
-        "console.error": true,
-        "console.warn": true,
-        "fetch": true
-      },
-      "packages": {
-        "buffer": true
-      }
-    },
     "@avalabs/hvm-module": {
       "globals": {
         "AbortSignal.timeout": true,
@@ -492,7 +319,7 @@
         "process.env.GLACIER_API_KEY": true
       },
       "packages": {
-        "@avalabs/hvm-module>@avalabs/core-utils-sdk": true,
+        "@avalabs/core-utils-sdk": true,
         "@avalabs/vm-module-types": true,
         "@metamask/rpc-errors": true,
         "@avalabs/hvm-module>@noble/hashes": true,
@@ -523,7 +350,7 @@
         "fetch": true
       },
       "packages": {
-        "@avalabs/hypercore-module>@avalabs/core-wallets-sdk": true,
+        "@avalabs/core-wallets-sdk": true,
         "@avalabs/evm-module>@avalabs/crypto-sdk": true,
         "@avalabs/vm-module-types": true,
         "@metamask/rpc-errors": true,
@@ -553,9 +380,9 @@
         ]
       },
       "packages": {
-        "@avalabs/svm-module>@avalabs/core-coingecko-sdk": true,
-        "@avalabs/svm-module>@avalabs/core-utils-sdk": true,
-        "@avalabs/svm-module>@avalabs/core-wallets-sdk": true,
+        "@avalabs/core-coingecko-sdk": true,
+        "@avalabs/core-utils-sdk": true,
+        "@avalabs/core-wallets-sdk": true,
         "@avalabs/evm-module>@avalabs/crypto-sdk": true,
         "@avalabs/vm-module-types": true,
         "@avalabs/svm-module>@blockaid/client": true,
@@ -1321,21 +1148,6 @@
         "tweetnacl": true
       }
     },
-    "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>@metamask/eth-sig-util": {
-      "globals": {
-        "Buffer.byteLength": true,
-        "Buffer.from": true
-      },
-      "packages": {
-        "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util": true,
-        "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/abi-utils": true,
-        "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/utils": true,
-        "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@scure/base": true,
-        "buffer": true,
-        "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>@metamask/eth-sig-util>ethereum-cryptography": true,
-        "tweetnacl": true
-      }
-    },
     "@metamask/rpc-errors": {
       "packages": {
         "@metamask/rpc-errors>@metamask/utils": true,
@@ -1451,22 +1263,6 @@
         "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/utils>superstruct": true
       }
     },
-    "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/utils": {
-      "globals": {
-        "Buffer": true,
-        "TextDecoder": true,
-        "TextEncoder": true
-      },
-      "packages": {
-        "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/utils>@noble/hashes": true,
-        "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/utils>@scure/base": true,
-        "buffer": true,
-        "eslint>debug": true,
-        "@metamask/rpc-errors>@metamask/utils>pony-cause": true,
-        "semver": true,
-        "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/utils>superstruct": true
-      }
-    },
     "@metamask/rpc-errors>@metamask/utils": {
       "globals": {
         "TextEncoder": true
@@ -1563,12 +1359,6 @@
         "crypto": true
       }
     },
-    "@avalabs/avalanche-module>@avalabs/avalanchejs>@noble/hashes": {
-      "globals": {
-        "TextEncoder": true,
-        "crypto": true
-      }
-    },
     "@avalabs/bridge-unified>@noble/hashes": {
       "globals": {
         "TextEncoder": true
@@ -1580,7 +1370,7 @@
         "crypto": true
       }
     },
-    "@avalabs/avalanche-module>@avalabs/core-wallets-sdk>@noble/hashes": {
+    "@avalabs/core-wallets-sdk>@noble/hashes": {
       "globals": {
         "TextEncoder": true
       }
@@ -1597,12 +1387,6 @@
       }
     },
     "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/utils>@noble/hashes": {
-      "globals": {
-        "TextEncoder": true,
-        "crypto": true
-      }
-    },
-    "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/utils>@noble/hashes": {
       "globals": {
         "TextEncoder": true,
         "crypto": true
@@ -1658,12 +1442,6 @@
       }
     },
     "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>ethereum-cryptography>@noble/hashes": {
-      "globals": {
-        "TextEncoder": true,
-        "crypto": true
-      }
-    },
-    "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>@metamask/eth-sig-util>ethereum-cryptography>@noble/hashes": {
       "globals": {
         "TextEncoder": true,
         "crypto": true
@@ -1726,12 +1504,6 @@
         "TextEncoder": true
       }
     },
-    "@avalabs/avalanche-module>@avalabs/avalanchejs>@scure/base": {
-      "globals": {
-        "TextDecoder": true,
-        "TextEncoder": true
-      }
-    },
     "@avalabs/bridge-unified>@scure/base": {
       "globals": {
         "TextDecoder": true,
@@ -1750,12 +1522,6 @@
         "TextEncoder": true
       }
     },
-    "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@scure/base": {
-      "globals": {
-        "TextDecoder": true,
-        "TextEncoder": true
-      }
-    },
     "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/abi-utils>@metamask/utils>@scure/base": {
       "globals": {
         "TextDecoder": true,
@@ -1763,12 +1529,6 @@
       }
     },
     "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/utils>@scure/base": {
-      "globals": {
-        "TextDecoder": true,
-        "TextEncoder": true
-      }
-    },
-    "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/utils>@scure/base": {
       "globals": {
         "TextDecoder": true,
         "TextEncoder": true
@@ -2861,16 +2621,6 @@
         "buffer": true
       }
     },
-    "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>bip39": {
-      "globals": {
-        "Buffer.from": true,
-        "Buffer.isBuffer": true
-      },
-      "packages": {
-        "@noble/hashes": true,
-        "buffer": true
-      }
-    },
     "bitcoinjs-lib>bip66": {
       "packages": {
         "bip32>bs58check>safe-buffer": true
@@ -3402,15 +3152,6 @@
       },
       "packages": {
         "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>ethereum-cryptography>@noble/hashes": true
-      }
-    },
-    "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>@metamask/eth-sig-util>ethereum-cryptography": {
-      "globals": {
-        "TextDecoder": true,
-        "crypto": true
-      },
-      "packages": {
-        "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>@metamask/eth-sig-util>ethereum-cryptography>@noble/hashes": true
       }
     },
     "@ethereumjs/tx>ethereumjs-util>ethereum-cryptography": {
@@ -5475,7 +5216,7 @@
         "xss>cssfilter": true
       }
     },
-    "@avalabs/avalanche-module>@avalabs/core-wallets-sdk>xss": {
+    "@avalabs/core-wallets-sdk>xss": {
       "globals": {
         "DedicatedWorkerGlobalScope": true,
         "console.error": true,
