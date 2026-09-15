@@ -23,7 +23,7 @@ export function getAvailableBalance(
 ) {
   const balance =
     isPChainToken(token) || isXChainToken(token)
-      ? (token.available ?? token.balance)
+      ? (token.available ?? 0n)
       : token.balance;
 
   return formatted
