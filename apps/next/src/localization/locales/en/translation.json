@@ -720,6 +720,7 @@
   "Reset recovery phrase": "Reset recovery phrase",
   "Resetting the RPC URL will set it back to its default URL": "Resetting the RPC URL will set it back to its default URL",
   "Resource unavailable": "Resource unavailable",
+  "Restaked rewards": "Restaked rewards",
   "Resume": "Resume",
   "Resumes the recurring {{from}} → {{to}} schedule. Remaining fills will execute on the original cadence once this transaction confirms on-chain.": "Resumes the recurring {{from}} → {{to}} schedule. Remaining fills will execute on the original cadence once this transaction confirms on-chain.",
   "Resuming": "Resuming",

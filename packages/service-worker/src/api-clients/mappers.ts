@@ -94,6 +94,7 @@ export const mapPvmTokenBalance = (
     unlockedUnstaked,
     unlockedStaked,
     unlockedUnstakedMultiSig,
+    restakedRewards,
   } = balanceResponse.balances.categories;
 
   const atomicMemoryLockedValues = Object.values(atomicMemoryLocked);
@@ -125,6 +126,7 @@ export const mapPvmTokenBalance = (
             BigInt(unlockedUnstakedMultiSig ?? 0)
           : undefined,
       unlockedStaked: unlockedStaked ? BigInt(unlockedStaked) : undefined,
+      restakedRewards: restakedRewards ? BigInt(restakedRewards) : undefined,
     },
   };
 };
