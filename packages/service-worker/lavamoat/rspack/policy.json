@@ -78,11 +78,6 @@
         "@avalabs/bridge-unified>zod": true
       }
     },
-    "@avalabs/core-chains-sdk": {
-      "packages": {
-        "@avalabs/core-utils-sdk": true
-      }
-    },
     "@avalabs/core-coingecko-sdk": {
       "globals": {
         "URLSearchParams": true

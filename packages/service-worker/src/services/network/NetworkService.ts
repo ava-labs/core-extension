@@ -28,7 +28,6 @@ import {
   ChainId,
   Network,
   NetworkVMType,
-  getChainsAndTokens,
 } from '@avalabs/core-chains-sdk';
 import { ReadableSignal, Signal, ValueCache } from 'micro-signals';
 import {
@@ -54,6 +53,9 @@ import {
 } from '@core/common';
 import { isSolanaNetwork, isHyperliquidNetwork } from '@core/common';
 import { GlacierService } from '../glacier/GlacierService';
+import { getAuthHeaders } from '../appcheck/utils/getAuthHeaders';
+import { getV2Networks } from '~/api-clients/token-aggregator';
+import { mapV2NetworksToChainList } from './utils/mapV2Networks';
 import {
   BASE_NETWORK_CONFIG_BY_TYPE,
   getXPChainId,
@@ -507,27 +509,10 @@ export class NetworkService implements OnLock, OnStorageReady {
     let attempt = 1;
 
     do {
-      const [result] = await resolve(
-        getChainsAndTokens(
-          process.env.RELEASE === 'production',
-          `${process.env.PROXY_URL}/tokenlist?includeSolana`,
-        ),
-      );
+      const [networks] = await resolve(this.#fetchNetworksFromApi());
 
-      if (result) {
-        chainlist = {
-          ...result,
-          [BITCOIN_NETWORK.chainId]: BITCOIN_NETWORK,
-          [BITCOIN_TEST_NETWORK.chainId]: BITCOIN_TEST_NETWORK,
-          [ChainId.AVALANCHE_P]: this._getPchainNetwork('mainnet'),
-          [ChainId.AVALANCHE_X]: this._getXchainNetwork('mainnet'),
-          [ChainId.AVALANCHE_TEST_P]: this._getPchainNetwork('testnet'),
-          [ChainId.AVALANCHE_TEST_X]: this._getXchainNetwork('testnet'),
-          [ChainId.AVALANCHE_DEVNET_P]: this._getPchainNetwork('devnet'),
-          [ChainId.AVALANCHE_DEVNET_X]: this._getXchainNetwork('devnet'),
-          [HYPEREVM_NETWORK.chainId]: HYPEREVM_NETWORK,
-          [HYPERCORE_NETWORK.chainId]: HYPERCORE_NETWORK,
-        };
+      if (networks && Object.keys(networks).length > 0) {
+        chainlist = this.#injectLocalNetworks(networks);
       } else {
         attempt += 1;
         await wait(getExponentialBackoffDelay({ attempt }));
@@ -541,6 +526,35 @@ export class NetworkService implements OnLock, OnStorageReady {
     this._allNetworks.dispatch(chainlist);
 
     return chainlist;
+  }
+
+  async #fetchNetworksFromApi(): Promise<ChainList | undefined> {
+    const response = await getV2Networks<true>({
+      baseUrl: process.env.TOKEN_AGGREGATOR_SERVICE_URL,
+      throwOnError: true,
+      headers: await getAuthHeaders(),
+      query: { includeSolana: true },
+    });
+
+    const data = response.data?.data;
+
+    return data ? mapV2NetworksToChainList(data) : undefined;
+  }
+
+  #injectLocalNetworks(base: ChainList): ChainList {
+    return {
+      ...base,
+      [BITCOIN_NETWORK.chainId]: BITCOIN_NETWORK,
+      [BITCOIN_TEST_NETWORK.chainId]: BITCOIN_TEST_NETWORK,
+      [ChainId.AVALANCHE_P]: this._getPchainNetwork('mainnet'),
+      [ChainId.AVALANCHE_X]: this._getXchainNetwork('mainnet'),
+      [ChainId.AVALANCHE_TEST_P]: this._getPchainNetwork('testnet'),
+      [ChainId.AVALANCHE_TEST_X]: this._getXchainNetwork('testnet'),
+      [ChainId.AVALANCHE_DEVNET_P]: this._getPchainNetwork('devnet'),
+      [ChainId.AVALANCHE_DEVNET_X]: this._getXchainNetwork('devnet'),
+      [HYPEREVM_NETWORK.chainId]: HYPEREVM_NETWORK,
+      [HYPERCORE_NETWORK.chainId]: HYPERCORE_NETWORK,
+    };
   }
 
   async getNetwork(caipScope: string): Promise<NetworkWithCaipId | undefined>;
