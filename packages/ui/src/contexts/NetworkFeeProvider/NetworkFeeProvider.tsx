@@ -6,6 +6,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 
@@ -40,8 +41,9 @@ const NetworkFeeContext = createContext<{
   gaslessPhase: GaslessPhase;
   setGaslessEligibility: (
     chainId: string | number,
-    fromAddress?: AddressLike | null,
-    nonce?: number | null,
+    fromAddress: AddressLike | null | undefined,
+    nonce: number | null | undefined,
+    dedupeKey: string,
   ) => Promise<void>;
   isGaslessEligible: boolean;
 }>({
@@ -89,6 +91,8 @@ export function NetworkFeeContextProvider({ children }: PropsWithChildren) {
   );
   const [isGaslessEligible, setIsGaslessEligible] = useState(false);
 
+  const lastEligibilityKeyRef = useRef<string | null>(null);
+
   const getNetworkFee = useCallback(
     async (networkId: string | number) =>
       request<GetNetworkFeeHandler>({
@@ -101,8 +105,9 @@ export function NetworkFeeContextProvider({ children }: PropsWithChildren) {
   const setGaslessEligibility = useCallback(
     async (
       chainId: string | number,
-      fromAddress?: AddressLike | null,
-      nonce?: number | null,
+      fromAddress: AddressLike | null | undefined,
+      nonce: number | null | undefined,
+      dedupeKey: string,
     ) => {
       if (gaslessPhase === GaslessPhase.READY) {
         return;
@@ -111,6 +116,11 @@ export function NetworkFeeContextProvider({ children }: PropsWithChildren) {
         setIsGaslessEligible(false);
         return;
       }
+      // Fire the eligibility query only once per approval window.
+      if (lastEligibilityKeyRef.current === dedupeKey) {
+        return;
+      }
+      lastEligibilityKeyRef.current = dedupeKey;
       try {
         const result = await request<GetGaslessEligibilityHandler>({
           method: ExtensionRequest.GASLESS_GET_ELIGIBILITY,
