@@ -226,7 +226,12 @@ describe('useGasless', () => {
 
       renderHook(() => useGasless({ action: mockAction }));
 
-      expect(setGaslessEligibility).toHaveBeenCalledWith(137, '0x123', 1);
+      expect(setGaslessEligibility).toHaveBeenCalledWith(
+        137,
+        '0x123',
+        1,
+        mockAction.id,
+      );
     });
 
     it('does not call setGaslessEligibility for non-Polymarket destinations', () => {
@@ -363,6 +368,7 @@ describe('useGasless', () => {
         137,
         undefined,
         undefined,
+        mockAction.id,
       );
     });
 
