@@ -69,24 +69,6 @@ export class SeedlessBtcSigner implements SignerAsync {
   }
 
   public async sign(/* _hash: Buffer*/): Promise<Buffer> {
-    // Check that all UTXOs are valid and have a positive integer value
-    for (const utxo of this.#utxos) {
-      if (
-        !utxo ||
-        typeof utxo.value !== 'number' ||
-        !Number.isInteger(utxo.value) ||
-        utxo.value <= 0
-      ) {
-        throw new Error('Invalid or missing UTXO value');
-      }
-    }
-
-    const signingUtxo = this.#utxos[this.#inputIndex];
-
-    if (!signingUtxo) {
-      throw new Error('No UTXO found for the input being signed');
-    }
-
     // translate psbt to the transaction needed for the RPC call
     const txInput = this.#psbt.txInputs[this.#inputIndex];
     const tx = {
@@ -125,7 +107,7 @@ export class SeedlessBtcSigner implements SignerAsync {
         Segwit: {
           input_index: this.#inputIndex,
           script_code: `0x${paymentScript.toString('hex')}`,
-          value: signingUtxo.value,
+          value: this.#utxos[this.#inputIndex]?.value ?? 0,
           sighash_type: 'All',
         },
       },
