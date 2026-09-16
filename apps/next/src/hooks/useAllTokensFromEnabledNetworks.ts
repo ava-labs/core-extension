@@ -7,7 +7,9 @@ export const useAllTokensFromEnabledNetworks = (
 ) => {
   const { enabledNetworks } = useNetworkContext();
   const { customTokens } = useSettingsContext();
-  const tokens = useAllTokens(enabledNetworks, true);
+  // The full per-network catalog is only needed when surfacing tokens the user
+  // does not hold; the held+custom set already covers the balance-only view.
+  const tokens = useAllTokens(enabledNetworks, true, !onlyTokensWithBalances);
 
   if (!onlyTokensWithBalances) {
     return tokens;

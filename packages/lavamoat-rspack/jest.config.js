@@ -1,5 +1,6 @@
 /** @type {import('jest').Config} */
 module.exports = {
+  ...require('../../src/tests/coverageConfig.cjs'),
   clearMocks: true,
   testEnvironment: 'node',
   transform: {},

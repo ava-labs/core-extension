@@ -37,6 +37,7 @@ const defaultNetworkFeeContext: ReturnType<typeof useNetworkFeeContext> = {
 
 const mockAction: Action<DisplayData> = {
   id: 'test-action-id',
+  actionId: 'test-action-uuid',
   method: RpcMethod.ETH_SEND_TRANSACTION,
   type: ActionType.Single,
   scope: 'eip155:137',
@@ -226,7 +227,12 @@ describe('useGasless', () => {
 
       renderHook(() => useGasless({ action: mockAction }));
 
-      expect(setGaslessEligibility).toHaveBeenCalledWith(137, '0x123', 1);
+      expect(setGaslessEligibility).toHaveBeenCalledWith(
+        137,
+        '0x123',
+        1,
+        mockAction.actionId,
+      );
     });
 
     it('does not call setGaslessEligibility for non-Polymarket destinations', () => {
@@ -363,6 +369,7 @@ describe('useGasless', () => {
         137,
         undefined,
         undefined,
+        mockAction.actionId,
       );
     });
 

@@ -1,6 +1,7 @@
 /** @type {import('ts-jest/dist/types').JestConfigWithTsJest} */
 
 module.exports = {
+  ...require('../../src/tests/coverageConfig.cjs'),
   clearMocks: true,
   preset: 'ts-jest',
   resolver: '<rootDir>/../../src/tests/resolver.js',

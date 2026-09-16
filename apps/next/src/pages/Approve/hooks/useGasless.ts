@@ -32,14 +32,19 @@ export const useGasless: UseGasless = ({ action }) => {
 
   // First check if the action is elligible for gasless
   useEffect(() => {
-    if (eligibilityParams) {
-      setGaslessEligibility(...eligibilityParams);
+    if (eligibilityParams && action?.actionId) {
+      setGaslessEligibility(...eligibilityParams, action.actionId);
     } else {
       // Provider-level eligibility is shared across actions, so reset it here to
       // avoid leaking a `true` value from a previous eligible action.
       setGaslessDefaultValues();
     }
-  }, [eligibilityParams, setGaslessEligibility, setGaslessDefaultValues]);
+  }, [
+    eligibilityParams,
+    action?.actionId,
+    setGaslessEligibility,
+    setGaslessDefaultValues,
+  ]);
 
   // If we're eligible, fetch the gasless challenge
   useEffect(() => {

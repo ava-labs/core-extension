@@ -49,5 +49,50 @@ jobs:
           yarn scanner
           git --no-pager diff
           if [[ $(git status --short) == '' ]]; then exit 0; else exit 1; fi
-      - name: Test
-        run: yarn test
+  test-coverage:
+    name: Test with coverage ratchet
+    runs-on: ubuntu-latest
+    # Runs the unit tests with coverage, then fails if any workspace
+    # fell below the effective baseline: max(rolling baseline from the
+    # latest main build, checked-in coverage-baseline.json floor).
+    # Same secret-free posture as the lint job — see the note at the
+    # top of this file.
+    permissions:
+      contents: read
+      # Required to download the rolling baseline artifact published
+      # by coverage-baseline.yaml.
+      actions: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 20.x
+      - name: Enable corepack
+        run: corepack enable
+      - name: Install dependencies
+        run: |
+          yarn install --check-cache
+          yarn allow-scripts
+      - name: Download rolling baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # Best-effort: when no successful main build exists yet (or the
+        # artifact expired), the ratchet degrades to the checked-in floor.
+        run: |
+          run_id=$(gh run list --repo "$GITHUB_REPOSITORY" \
+            --workflow coverage-baseline.yaml --branch main \
+            --status success --limit 1 \
+            --json databaseId --jq '.[0].databaseId' || true)
+          if [ -n "$run_id" ] && [ "$run_id" != "null" ]; then
+            gh run download "$run_id" --repo "$GITHUB_REPOSITORY" \
+              --name coverage-rolling --dir .rolling \
+              || echo "Rolling baseline artifact unavailable — floor only."
+          else
+            echo "No successful main coverage build yet — floor only."
+          fi
+      - name: Test with coverage
+        run: yarn test:coverage
+      - name: Coverage ratchet
+        run: node scripts/coverage-ratchet.mjs --check --rolling .rolling/coverage-rolling.json

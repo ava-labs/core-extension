@@ -48,6 +48,10 @@ export const Assets: FC<Props> = ({ balances }) => {
         title={t('Unlocked staked')}
         balance={formatter(balancePerType.unlockedStaked)}
       />
+      <BalanceLineItem
+        title={t('Restaked rewards')}
+        balance={formatter(balancePerType.restakedRewards)}
+      />
     </AssetsLayout>
   );
 };
