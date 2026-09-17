@@ -20,8 +20,7 @@ import { useCallback, useMemo, useRef } from 'react';
 import {
   functionDeclarations,
   systemPromptTemplate,
-  UNTRUSTED_DATA_OPEN,
-  UNTRUSTED_DATA_CLOSE,
+  untrustedReplacer,
 } from '../model';
 import { NetworkVMType, RpcMethod, TokenType } from '@avalabs/vm-module-types';
 import {
@@ -56,27 +55,6 @@ const POLLED_BALANCES = [
   TokenType.ERC20,
   TokenType.HYPERCORE_SPOT,
 ];
-
-// Maximum length of a single untrusted field (token name, contact name, etc.)
-const MAX_UNTRUSTED_FIELD_LENGTH = 200;
-
-// Sanitize untrusted string values (token names, contact names, etc.)
-const sanitizeUntrustedText = (value: unknown): unknown => {
-  if (typeof value !== 'string') {
-    return value;
-  }
-  return value
-    .replace(/\s+/g, ' ') // collapse all whitespace (newlines/tabs) to a space
-    .split(UNTRUSTED_DATA_OPEN)
-    .join('') // cannot forge the opening fence
-    .split(UNTRUSTED_DATA_CLOSE)
-    .join('') // cannot close the real fence early
-    .slice(0, MAX_UNTRUSTED_FIELD_LENGTH)
-    .trim();
-};
-
-const untrustedReplacer = (_key: string, value: unknown): unknown =>
-  typeof value === 'bigint' ? value.toString() : sanitizeUntrustedText(value);
 
 // Confirm a side effect with the user. Returns true if the user confirms, false otherwise.
 const confirmSideEffect = (message: string): boolean =>
@@ -576,9 +554,10 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
     if (!network || !tokens || !accounts) {
       return '';
     }
+    // Function replacements insert verbatim; a string replacement would let `$&`,
+    // `$'` etc. in an untrusted name inject prompt content past the fence.
     return systemPromptTemplate
-      .replace(
-        '__TOKENS__',
+      .replace('__TOKENS__', () =>
         JSON.stringify(
           tokens.map((token) => ({
             name: token.name,
@@ -588,8 +567,7 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
           untrustedReplacer,
         ),
       )
-      .replace(
-        '__AVAILABLE_TOKENS__',
+      .replace('__AVAILABLE_TOKENS__', () =>
         JSON.stringify(
           allAvailableTokens.map((token) => ({
             name: token.name,
@@ -599,8 +577,7 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
           untrustedReplacer,
         ),
       )
-      .replace(
-        '__NETWORKS__',
+      .replace('__NETWORKS__', () =>
         JSON.stringify(
           networks.map((n) => ({
             id: n.caipId,
@@ -612,8 +589,7 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
           untrustedReplacer,
         ),
       )
-      .replace(
-        '__CURRENT_NETWORK_ID__',
+      .replace('__CURRENT_NETWORK_ID__', () =>
         JSON.stringify(
           {
             id: network.caipId,
@@ -623,9 +599,10 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
           untrustedReplacer,
         ),
       )
-      .replace('__CONTACTS__', JSON.stringify(contacts, untrustedReplacer))
-      .replace(
-        '__ACCOUNTS__',
+      .replace('__CONTACTS__', () =>
+        JSON.stringify(contacts, untrustedReplacer),
+      )
+      .replace('__ACCOUNTS__', () =>
         JSON.stringify(
           [
             ...Object.values(accounts.primary).flat(),
@@ -639,8 +616,7 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
           untrustedReplacer,
         ),
       )
-      .replace(
-        '__ENABLED_NETWORKS__',
+      .replace('__ENABLED_NETWORKS__', () =>
         JSON.stringify(
           enabledNetworks.map((id) => ({
             chainId: id,

@@ -65,7 +65,10 @@ export const buildRequestContext = (
     slippageBps <= BASIS_POINTS_DIVISOR &&
     Number.isFinite(partnerFeeBps) &&
     partnerFeeBps >= 0 &&
-    partnerFeeBps <= BASIS_POINTS_DIVISOR;
+    partnerFeeBps <= BASIS_POINTS_DIVISOR &&
+    // Combined slippage + fee must stay below 100%, otherwise the swap could be
+    // auto-approved while draining the entire output.
+    slippageBps + partnerFeeBps < BASIS_POINTS_DIVISOR;
 
   // Calculate minAmountOut
   const slippagePercent = slippageBps / BASIS_POINTS_DIVISOR;

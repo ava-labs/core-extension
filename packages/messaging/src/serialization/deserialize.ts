@@ -48,27 +48,33 @@ function deserializeValue({
   type,
   value,
 }: DeserializableValue): SerializableValue {
+  const assertSafeNumericString: (v: unknown) => asserts v is string = (v) => {
+    if (typeof v !== 'string' || v.length > MAX_NUMERIC_STRING_LENGTH) {
+      throw new Error('value too large');
+    }
+  };
+  const assertBoundedArray: (v: unknown) => asserts v is number[] = (v) => {
+    if (!Array.isArray(v) || v.length > MAX_ARRAY_LENGTH) {
+      throw new Error('value too large');
+    }
+  };
+
   switch (type) {
     case 'Big':
-      if (typeof value === 'string' && value.length > MAX_NUMERIC_STRING_LENGTH)
-        throw new Error('value too large');
+      assertSafeNumericString(value);
       return new Big(value);
     case 'BN':
-      if (typeof value === 'string' && value.length > MAX_NUMERIC_STRING_LENGTH)
-        throw new Error('value too large');
+      assertSafeNumericString(value);
       return new BN(value);
     case 'BigNumber':
     case 'BigInt':
-      if (typeof value === 'string' && value.length > MAX_NUMERIC_STRING_LENGTH)
-        throw new Error('value too large');
+      assertSafeNumericString(value);
       return BigInt(value);
     case 'Buffer':
-      if (Array.isArray(value) && value.length > MAX_ARRAY_LENGTH)
-        throw new Error('value too large');
+      assertBoundedArray(value);
       return Buffer.from(value);
     case 'Uint8Array':
-      if (Array.isArray(value) && value.length > MAX_ARRAY_LENGTH)
-        throw new Error('value too large');
+      assertBoundedArray(value);
       return Uint8Array.from(value);
     default:
       throw new Error('unhandled serialization');

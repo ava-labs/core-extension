@@ -41,6 +41,11 @@ const EXPONENTIAL_NOTATION = /^([+-]?)(\d+)(?:\.(\d+))?[eE]([+-]?\d+)$/;
  * Expand the notation into plain decimal digits first, using string arithmetic
  * so no precision is lost.
  */
+// The exponent is attacker-controlled: `1e+999999999` would otherwise allocate a
+// huge string via `String.repeat`. A real amount stays under this — at most ~78
+// integer digits (uint256) plus up to 255 fractional (ERC-20 `decimals` is a uint8).
+const MAX_EXPANDED_LENGTH = 512;
+
 export const expandExponentialNotation = (amount: string): string => {
   const match = amount.trim().match(EXPONENTIAL_NOTATION);
 
@@ -53,6 +58,13 @@ export const expandExponentialNotation = (amount: string): string => {
   const digits = `${integerDigits}${fractionDigits}`;
   // Where the decimal point lands within `digits` once the exponent is applied.
   const pointIndex = integerDigits.length + Number(exponent);
+
+  const padding =
+    pointIndex <= 0 ? -pointIndex : Math.max(0, pointIndex - digits.length);
+
+  if (padding + digits.length > MAX_EXPANDED_LENGTH) {
+    return amount;
+  }
 
   let expanded: string;
 

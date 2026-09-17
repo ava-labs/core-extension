@@ -11,36 +11,15 @@ jest.mock('@google/generative-ai', () => ({
 }));
 jest.mock('firebase/vertexai', () => ({}));
 
-// Import the REAL shipped template, declarations, and fence markers.
+// Import the shipped helpers so a regression in production fails this suite.
 import {
   systemPromptTemplate,
   functionDeclarations,
   UNTRUSTED_DATA_OPEN,
   UNTRUSTED_DATA_CLOSE,
+  untrustedReplacer,
+  MAX_UNTRUSTED_FIELD_LENGTH,
 } from '../model';
-
-// ---------------------------------------------------------------------------
-// The sanitizer + replacer are pure module-level helpers in useFunctions.ts but
-// are not exported. They are transcribed VERBATIM here so the regression test
-// exercises the exact interpolation the hook performs. Keep in sync with
-// useFunctions.ts.
-// ---------------------------------------------------------------------------
-const MAX_UNTRUSTED_FIELD_LENGTH = 200;
-const sanitizeUntrustedText = (value: unknown): unknown => {
-  if (typeof value !== 'string') {
-    return value;
-  }
-  return value
-    .replace(/\s+/g, ' ')
-    .split(UNTRUSTED_DATA_OPEN)
-    .join('')
-    .split(UNTRUSTED_DATA_CLOSE)
-    .join('')
-    .slice(0, MAX_UNTRUSTED_FIELD_LENGTH)
-    .trim();
-};
-const untrustedReplacer = (_key: string, value: unknown): unknown =>
-  typeof value === 'bigint' ? value.toString() : sanitizeUntrustedText(value);
 
 const ATTACKER_URL = 'https://evil.example';
 const INJECTION_PAYLOAD =
@@ -238,32 +217,5 @@ describe('Concierge prompt injection via airdropped token name — fix regressio
     expect(parsed.symbol.length).toBeLessThanOrEqual(
       MAX_UNTRUSTED_FIELD_LENGTH,
     );
-  });
-
-  it('DOCUMENTED RESIDUAL — goToDapp still executes with no approval window', async () => {
-    const tabsCreated: Array<{ url: string; active: boolean }> = [];
-    const approvalWindowsOpened: any[] = [];
-    (global as any).chrome = {
-      tabs: {
-        create: jest.fn((opts: any, cb?: () => void) => {
-          tabsCreated.push(opts);
-          cb?.();
-        }),
-      },
-    };
-    const browser = { action: { openPopup: jest.fn() } };
-    // VERBATIM goToDapp body from useFunctions.ts:362-370 (still un-gated).
-    const goToDapp = async ({ url }: { url: string }) => {
-      const openUrl = url.includes('https://') ? url : `https://${url}`;
-      (global as any).chrome.tabs.create({ url: openUrl, active: true }, () =>
-        browser.action.openPopup(),
-      );
-      return { content: `${url} opened in a new tab!` };
-    };
-
-    await goToDapp({ url: ATTACKER_URL });
-
-    expect(tabsCreated).toEqual([{ url: ATTACKER_URL, active: true }]);
-    expect(approvalWindowsOpened).toHaveLength(0); // <- companion finding
   });
 });

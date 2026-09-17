@@ -15,8 +15,13 @@ const PRIVATE_HOST_PATTERNS = [
  * network. Shared by every outbound-request guard so the blocklist cannot drift
  * between them.
  */
-export const isPrivateHostname = (hostname: string): boolean =>
-  PRIVATE_HOST_PATTERNS.some((pattern) => pattern.test(hostname));
+export const isPrivateHostname = (hostname: string): boolean => {
+  // Strip a DNS trailing dot (e.g. `localhost.`, `169.254.169.254.`, `router.local.`)
+  // so it cannot bypass the exact-host patterns below.
+  const normalized = hostname.replace(/\.$/, '');
+
+  return PRIVATE_HOST_PATTERNS.some((pattern) => pattern.test(normalized));
+};
 
 /**
  * Whether an untrusted, third-party-controlled URL is safe for the extension to

@@ -122,8 +122,9 @@ export class DAppConnectionController implements ConnectionController {
     this.connection.on('disconnect', this.disconnect);
     this.eventEmitters.forEach((emitter) => {
       emitter.addListener(this.onEvent);
+      // An empty domain (missing sender URL) matches no dApp connection.
       emitter.setConnectionInfo({
-        domain: new URL(connection?.sender?.url || '').hostname,
+        domain: getSenderHostname(connection) ?? '',
         tabId: connection.sender?.tab?.id,
       });
     });

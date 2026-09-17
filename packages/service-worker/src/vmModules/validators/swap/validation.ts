@@ -112,15 +112,9 @@ export function validateSwapUsdPrices(
     return maxBuyValidation;
   }
 
-  // User gets more value → auto approve
-  if (destUsdValue >= sourceUsdValue) {
-    return {
-      isValid: true,
-      requiresManualApproval: false,
-    };
-  }
-
-  // User loses value → check slippage tolerance and fee
+  // Validate the slippage/fee range up front — before any auto-approve path — so
+  // a negative or out-of-range slippage is never treated as valid, even when the
+  // quote reports a favorable price.
   const slippage = context?.slippage;
   if (!slippage || typeof slippage !== 'number' || slippage < 0) {
     return {
@@ -146,6 +140,14 @@ export function validateSwapUsdPrices(
       isValid: false,
       requiresManualApproval: true,
       reason: 'Slippage tolerance out of range',
+    };
+  }
+
+  // User gets more value → auto approve
+  if (destUsdValue >= sourceUsdValue) {
+    return {
+      isValid: true,
+      requiresManualApproval: false,
     };
   }
 

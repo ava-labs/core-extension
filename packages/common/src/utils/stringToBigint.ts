@@ -1,6 +1,6 @@
 import Big from 'big.js';
 
-const DECIMAL_NUMBER_REGEX = /^[+-]?(\d+\.?\d*|\.\d+)$/;
+const DECIMAL_NUMBER_REGEX = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/;
 
 export function stringToBigint(value: string, decimals: number): bigint {
   if (!DECIMAL_NUMBER_REGEX.test(value)) {

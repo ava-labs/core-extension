@@ -149,7 +149,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   const amountHasValue =
     Number.isFinite(parseFloat(amount)) && parseFloat(amount) !== 0;
   const amountBigInt =
-    token && amountHasValue ? stringToBigint(amount, token.decimals) : 0n;
+    token && amountHasValue ? parseAmountOrZero(amount, token.decimals) : 0n;
 
   const isAmountTooBig = token && maxAmount ? amountBigInt > maxAmount : false;
 
@@ -314,3 +314,11 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
     </Stack>
   );
 };
+
+function parseAmountOrZero(value: string, decimals: number): bigint {
+  try {
+    return stringToBigint(value, decimals);
+  } catch {
+    return 0n;
+  }
+}

@@ -1001,13 +1001,8 @@ export class WalletService implements OnUnlock {
       ownedAddresses.add(strip0x(activeAccount.addressC).toLowerCase());
     }
 
-    // Addresses derived for the specific indices referenced by this request.
-    // These cover multi-address X/P transactions, where inputs may live at
-    // non-zero external/internal (change) address indices. This derivation may
-    // hit the network, so treat a failure as "cannot fully verify" and defer to
-    // the signer's `hasAllSignatures()` check rather than falsely rejecting a
-    // legitimate transaction.
-    let derivationFailed = false;
+    // Derivation may hit the network; on failure, fall back to the stored
+    // (index-0) addresses rather than failing open, so a mismatch is still caught.
     try {
       const derived = (
         await Promise.all([
@@ -1021,14 +1016,14 @@ export class WalletService implements OnUnlock {
         addBech32(address ?? undefined);
       }
     } catch {
-      derivationFailed = true;
+      // Empty: validate against the addresses gathered so far.
     }
 
     const sharesSignerAddress = [...requiredAddresses].some((address) =>
       ownedAddresses.has(address),
     );
 
-    if (!derivationFailed && !sharesSignerAddress) {
+    if (!sharesSignerAddress) {
       throw new Error(
         'The account shown for this request is no longer the active account. Please re-initiate the request.',
       );
@@ -1153,6 +1148,10 @@ export class WalletService implements OnUnlock {
     }
 
     ensureMessageIsValid(data.type, data.data, network.chainId);
+
+    // `getAccountFromActiveWalletByAddress` below matches any account in the
+    // wallet, so bind to the active one in case the user switched mid-approval.
+    await this.#assertSignerIsActiveAccount(data.account);
 
     const account =
       await this.accountsService.getAccountFromActiveWalletByAddress(

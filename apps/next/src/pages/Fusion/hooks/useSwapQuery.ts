@@ -31,7 +31,11 @@ export const useSwapQuery: UseSwapQuery = () => {
   const toId = searchParams.get(FUSION_QUERY_TOKENS.to) ?? '';
   const toQuery = searchParams.get(FUSION_QUERY_TOKENS.toQuery) ?? '';
   const rawUserAmount = searchParams.get(FUSION_QUERY_TOKENS.userAmount) ?? '';
-  const userAmount = /^\d*\.?\d*$/.test(rawUserAmount) ? rawUserAmount : '';
+  // Require at least one digit so a bare "." (or other non-numeric input) can't
+  // reach `stringToBigint` and throw during render.
+  const userAmount = /^(?:\d+(?:\.\d*)?|\.\d+)$/.test(rawUserAmount)
+    ? rawUserAmount
+    : '';
   const isRecurring = searchParams.get(FUSION_QUERY_TOKENS.isRecurring) ?? '';
 
   const update = useCallback(

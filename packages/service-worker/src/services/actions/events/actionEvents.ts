@@ -1,4 +1,5 @@
 import { ActionsService } from '../ActionsService';
+import { getActionDomain, getActionTabId } from '../utils';
 import {
   Action,
   ActionCompletedEventType,
@@ -30,6 +31,9 @@ const withoutSigningPayload = (
     const {
       signingRequests: _signingRequests,
       displayData: _d,
+      // `context` carries internal-only hints (approval steps, recurring swaps,
+      // agent identity, swap auto-approval) that must not leak to the page.
+      context: _batchContext,
       ...rest
     } = action;
     return rest as unknown as MultiTxAction;
@@ -38,6 +42,7 @@ const withoutSigningPayload = (
   const {
     signingData: _signingData,
     displayData: _displayData,
+    context: _context,
     ...rest
   } = action;
   return rest as unknown as Action;
@@ -52,15 +57,31 @@ export class ActionEvents implements DAppEventEmitter {
     this._connectionInfo = connectionInfo;
   }
 
+  private get isExtensionUi(): boolean {
+    return this._connectionInfo?.domain === browser.runtime.id;
+  }
+
+  /**
+   * Both tab id and origin must match — matching the tab alone would let two
+   * origins sharing a tab read each other's action data. The extension UI
+   * (domain === runtime id) is trusted to see everything.
+   */
+  private belongsToConnection(action: Action | MultiTxAction): boolean {
+    if (this.isExtensionUi) {
+      return true;
+    }
+
+    return (
+      getActionTabId(action) === this._connectionInfo?.tabId &&
+      getActionDomain(action) === this._connectionInfo?.domain
+    );
+  }
+
   constructor(private actionService: ActionsService) {
     this.actionService.addListener(
       ActionsEvent.ACTION_COMPLETED,
       ({ type, action, result }) => {
-        if (
-          action.tabId === this._connectionInfo?.tabId ||
-          action.site?.tabId === this._connectionInfo?.tabId ||
-          this._connectionInfo?.domain === browser.runtime.id
-        ) {
+        if (this.belongsToConnection(action)) {
           const response =
             type === ActionCompletedEventType.ERROR
               ? {
@@ -75,18 +96,13 @@ export class ActionEvents implements DAppEventEmitter {
     this.actionService.addListener(
       ActionsEvent.ACTION_UPDATED,
       (actions: Actions) => {
-        // Check if any of the updated actions belong to the current connection (tabId or domain)
         const filtered = Object.fromEntries(
-          Object.entries(actions).filter(
-            ([, action]) =>
-              action.tabId === this._connectionInfo?.tabId ||
-              action.site?.tabId === this._connectionInfo?.tabId ||
-              this._connectionInfo?.domain === browser.runtime.id,
+          Object.entries(actions).filter(([, action]) =>
+            this.belongsToConnection(action),
           ),
         );
 
-        const isExtensionUi =
-          this._connectionInfo?.domain === browser.runtime.id;
+        const isExtensionUi = this.isExtensionUi;
 
         if (isExtensionUi || Object.keys(filtered).length > 0) {
           this.eventEmitter.emit('update', {

@@ -51,5 +51,11 @@ describe('src/utils/isSafeRemoteUrl.ts', () => {
         true,
       );
     });
+
+    it('rejects trailing-dot private hostnames', () => {
+      expect(isSafeRemoteUrl('https://localhost./meta.json')).toBe(false);
+      expect(isSafeRemoteUrl('https://169.254.169.254./meta.json')).toBe(false);
+      expect(isSafeRemoteUrl('https://router.local./meta.json')).toBe(false);
+    });
   });
 });

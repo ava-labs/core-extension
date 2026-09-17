@@ -24,7 +24,8 @@ const fetcher = async (url: string): Promise<ImageMetadata | null> => {
   }
 
   try {
-    const response = await fetch(url);
+    // Block redirects so a validated public URL can't bounce to a private host (SSRF).
+    const response = await fetch(url, { redirect: 'error' });
     if (response.ok) {
       return response.json();
     }

@@ -673,9 +673,8 @@ describe('src/background/vmModules/ApprovalController', () => {
             error: rpcErrors.internal({
               message: 'Unable to sign the batch of transactions',
               data: {
-                originalError: new Error(
+                originalError:
                   'All transactions in a batch must have the same signer',
-                ),
               },
             }),
           });
@@ -694,9 +693,7 @@ describe('src/background/vmModules/ApprovalController', () => {
             error: rpcErrors.internal({
               message: 'Unable to sign the batch of transactions',
               data: {
-                originalError: new Error(
-                  'Missing signer address for batch transaction',
-                ),
+                originalError: 'Missing signer address for batch transaction',
               },
             }),
           });

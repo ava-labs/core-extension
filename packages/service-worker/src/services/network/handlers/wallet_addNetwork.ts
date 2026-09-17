@@ -15,6 +15,7 @@ import { caipToChainId } from '@core/common';
 import { runtime } from 'webextension-polyfill';
 import { NetworkService } from '../NetworkService';
 import { openApprovalWindow } from '~/runtime/openApprovalWindow';
+import { isAllowedRpcUrl } from './utils/isAllowedRpcUrl';
 
 interface AddNetworkPayload {
   caipId: string;
@@ -110,6 +111,14 @@ export class WalletAddNetworkHandler extends DAppRequestHandler<Params, null> {
 
       if (!chainId || Number.isNaN(chainId)) {
         throw new Error('Network is missing a usable chain ID');
+      }
+
+      // `isValidRPCUrl` probes the dApp-supplied URL, so gate it with the same
+      // HTTPS/private-host policy as `wallet_addEthereumChain` to avoid SSRF.
+      if (!isAllowedRpcUrl(network.rpcUrl)) {
+        throw new Error(
+          'RPC URL must use HTTPS and must not target a private address',
+        );
       }
 
       const isValid = await this.networkService.isValidRPCUrl(

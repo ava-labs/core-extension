@@ -53,8 +53,10 @@ export const resolveMimeType = async (url: string): Promise<string | null> => {
   }
 
   try {
+    // Block redirects so a validated public URL can't bounce to a private host (SSRF).
     const res = await fetch(url, {
       method: 'HEAD',
+      redirect: 'error',
     });
 
     if (res.ok && res.headers.has('content-type')) {
