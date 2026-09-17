@@ -3569,6 +3569,11 @@
         "external:../common/src/utils/isAddressValid.ts": true
       }
     },
+    "external:../common/src/utils/isSafeRemoteUrl.ts": {
+      "globals": {
+        "URL": true
+      }
+    },
     "external:../common/src/utils/isSupportedBrowser.ts": {
       "packages": {
         "detect-browser": true
