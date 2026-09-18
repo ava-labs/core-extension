@@ -3,6 +3,8 @@ import { Runtime } from 'webextension-polyfill';
 import { ActionsService } from '../../services/actions/ActionsService';
 import { DAppConnectionController } from './DAppConnectionController';
 
+jest.mock('./registry', () => ({}));
+
 jest.mock('webextension-polyfill', () => ({
   runtime: {
     id: 'testid',
