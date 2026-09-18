@@ -94,10 +94,10 @@ export function validateSwapUsdPrices(
 
   // Missing prices → manual approval
   if (
-    !sourceUsdValue ||
-    !destUsdValue ||
-    sourceUsdValue === 0 ||
-    destUsdValue === 0
+    !Number.isFinite(sourceUsdValue) ||
+    !Number.isFinite(destUsdValue) ||
+    sourceUsdValue <= 0 ||
+    destUsdValue <= 0
   ) {
     return {
       isValid: false,
@@ -112,17 +112,17 @@ export function validateSwapUsdPrices(
     return maxBuyValidation;
   }
 
-  // User gets more value → auto approve
-  if (destUsdValue >= sourceUsdValue) {
-    return {
-      isValid: true,
-      requiresManualApproval: false,
-    };
-  }
-
-  // User loses value → check slippage tolerance and fee
+  // Validate the slippage/fee range up front — before any auto-approve path — so
+  // a negative or out-of-range slippage is never treated as valid, even when the
+  // quote reports a favorable price.
+  // A zero slippage is legitimate (buildRequestContext accepts slippageBps >= 0),
+  // so only reject absent, non-finite or negative values — not `0`.
   const slippage = context?.slippage;
-  if (!slippage || typeof slippage !== 'number') {
+  if (
+    typeof slippage !== 'number' ||
+    !Number.isFinite(slippage) ||
+    slippage < 0
+  ) {
     return {
       isValid: false,
       requiresManualApproval: true,
@@ -139,6 +139,23 @@ export function validateSwapUsdPrices(
     ? MARKR_PARTNER_FEE_BPS / BASIS_POINTS_DIVISOR
     : 0;
   const totalPercent = slippagePercent + feePercent;
+
+  // Check if total percent exceeds 100% (1.0) - if so, manual approval required
+  if (totalPercent >= 1) {
+    return {
+      isValid: false,
+      requiresManualApproval: true,
+      reason: 'Slippage tolerance out of range',
+    };
+  }
+
+  // User gets more value → auto approve
+  if (destUsdValue >= sourceUsdValue) {
+    return {
+      isValid: true,
+      requiresManualApproval: false,
+    };
+  }
 
   const minAcceptableUsdValue = sourceUsdValue * (1 - totalPercent);
 
@@ -170,6 +187,24 @@ function validateMinAmountOut(
       reason: 'Unable to verify balance change information',
     };
   }
+
+  // Validate that expectedMinAmountOut is a valid bigint string
+  try {
+    if (BigInt(expectedMinAmountOut) <= 0n) {
+      return {
+        isValid: false,
+        requiresManualApproval: true,
+        reason: 'Unable to verify balance change information',
+      };
+    }
+  } catch {
+    return {
+      isValid: false,
+      requiresManualApproval: true,
+      reason: 'Unable to verify balance change information',
+    };
+  }
+
   return null; // Validation passed, continue to next step
 }
 

@@ -3569,6 +3569,11 @@
         "external:../common/src/utils/isAddressValid.ts": true
       }
     },
+    "external:../common/src/utils/isSafeRemoteUrl.ts": {
+      "globals": {
+        "URL": true
+      }
+    },
     "external:../common/src/utils/isSupportedBrowser.ts": {
       "packages": {
         "detect-browser": true
@@ -3702,6 +3707,11 @@
     "external:../common/src/utils/secrets.ts": {
       "packages": {
         "@avalabs/vm-module-types": true
+      }
+    },
+    "external:../common/src/utils/seedPhraseValidation.ts": {
+      "packages": {
+        "ethers": true
       }
     },
     "external:../common/src/utils/seedless/fido/seedless-utils.ts": {

@@ -28,15 +28,12 @@ export class AvalancheAddAccountHandler extends DAppRequestHandler<
     const { request } = rpcCall;
 
     try {
-      const [walletId] = request.params || [];
-
+      // Use the active account instead of the DApp provided walletId
       const activeAccount = await this.accountsService.getActiveAccount();
 
-      const newAccountWalletId = walletId
-        ? walletId
-        : isPrimaryAccount(activeAccount)
-          ? activeAccount.walletId
-          : undefined;
+      const newAccountWalletId = isPrimaryAccount(activeAccount)
+        ? activeAccount.walletId
+        : undefined;
 
       if (!newAccountWalletId) {
         throw new Error('There is no wallet id for the new primary account');

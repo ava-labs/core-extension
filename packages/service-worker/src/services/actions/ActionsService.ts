@@ -14,6 +14,7 @@ import {
   MultiTxAction,
 } from '@core/types';
 import { getUpdatedSigningData } from '@core/common';
+import browser from 'webextension-polyfill';
 import { ethErrors } from 'eth-rpc-errors';
 import { EventEmitter } from 'events';
 import { omit } from 'lodash';
@@ -22,7 +23,7 @@ import { OnStorageReady } from '../../runtime/lifecycleCallbacks';
 import { ApprovalController } from '../../vmModules/ApprovalController';
 import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
-import { filterStaleActions } from './utils';
+import { filterStaleActions, getActionDomain, getActionTabId } from './utils';
 
 @singleton()
 export class ActionsService implements OnStorageReady {
@@ -92,6 +93,19 @@ export class ActionsService implements OnStorageReady {
 
     const currentPendingActions = await this.getActions();
 
+    // SECURITY: actions are keyed by `actionId`, so writing over an existing
+    // key would swap out the payload behind an approval the user may already be
+    // looking at (a benign-looking prompt submitting a different cached
+    // request). Ids are minted by trusted code with `crypto.randomUUID()`, so a
+    // collision here is never legitimate.
+    if (!action.actionId) {
+      throw new Error('Cannot add an action without an id');
+    }
+
+    if (currentPendingActions[action.actionId]) {
+      throw new Error(`An action with id ${action.actionId} already exists`);
+    }
+
     this.saveActions({
       ...currentPendingActions,
       [`${action.actionId}`]: pendingAction,
@@ -105,6 +119,43 @@ export class ActionsService implements OnStorageReady {
 
     const { [`${id}`]: _removed, ...txs } = currentPendingActions;
     await this.saveActions(txs);
+  }
+
+  // Cancel all pending actions for a given connection (tabId + domain)
+  async cancelPendingActionsForConnection({
+    tabId,
+    domain,
+  }: {
+    tabId?: number;
+    domain?: string;
+  }): Promise<void> {
+    // Both are required: matching on the tab alone would let one frame cancel
+    // another origin's approval in the same tab.
+    if (typeof tabId !== 'number' || !domain) {
+      return;
+    }
+
+    const actions = await this.getActions();
+    const abandoned = Object.entries(actions).filter(
+      ([, action]) =>
+        action.status === ActionStatus.PENDING &&
+        getActionTabId(action) === tabId &&
+        getActionDomain(action) === domain,
+    );
+
+    for (const [id, action] of abandoned) {
+      await this.updateAction({
+        id,
+        status: ActionStatus.ERROR_USER_CANCELED,
+      });
+
+      if (typeof action.popupWindowId === 'number') {
+        // The window is now showing an approval that can never complete.
+        await browser.windows.remove(action.popupWindowId).catch(() => {
+          // Already closed by the user - nothing to clean up.
+        });
+      }
+    }
   }
 
   async emitResult(
@@ -149,11 +200,17 @@ export class ActionsService implements OnStorageReady {
       return;
     }
 
-    const isHandledByModule = pendingMessage[ACTION_HANDLED_BY_MODULE];
+    // SECURITY: the marker alone is not proof the action came from a VM module -
+    // only that it is set on the stored action. Confirm the ApprovalController
+    // actually owns this id before handing it the approval, so a request that
+    // merely claims to be module-handled cannot bypass its real handler.
+    const isHandledByModule =
+      pendingMessage[ACTION_HANDLED_BY_MODULE] &&
+      this.approvalController.ownsAction(pendingMessage.actionId);
 
     if (status === ActionStatus.SUBMITTING && isHandledByModule) {
       await this.approvalController.onApproved(pendingMessage);
-      this.removeAction(id);
+      await this.removeAction(id);
     } else if (status === ActionStatus.SUBMITTING) {
       const handler = this.dAppRequestHandlers.find((h) =>
         h.methods.includes(pendingMessage.method as DAppProviderRequest),
@@ -194,7 +251,7 @@ export class ActionsService implements OnStorageReady {
       isHandledByModule
     ) {
       await this.approvalController.onRejected(pendingMessage);
-      this.removeAction(id);
+      await this.removeAction(id);
     } else if (status === ActionStatus.ERROR_USER_CANCELED) {
       await this.emitResult(
         id,

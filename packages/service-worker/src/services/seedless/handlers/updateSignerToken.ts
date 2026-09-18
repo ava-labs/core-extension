@@ -59,6 +59,11 @@ export class UpdateSignerTokenHandler implements HandlerType {
       };
     }
 
+    // Reject if no stored identity exists to verify against
+    if (!secrets.userId && !secrets.userEmail) {
+      return { ...request, error: 'missing stored identity for verification' };
+    }
+
     // Primary way to check the identity of the user is checking if userIds match
     if (secrets.userId && userId !== secrets.userId) {
       return { ...request, error: 'mismatching user ID' };

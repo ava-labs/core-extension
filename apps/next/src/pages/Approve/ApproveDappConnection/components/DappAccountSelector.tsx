@@ -102,6 +102,21 @@ export const DappAccountSelector: FC<DappAccountSelectorProps> = ({
           />
         </Stack>
       )}
+      {!action.displayData.isMalicious && action.displayData.isScanFailed && (
+        <Stack mt={2}>
+          <NoteWarning
+            alert={{
+              type: AlertType.WARNING,
+              details: {
+                title: t('Unverified application'),
+                description: t(
+                  'We could not complete a security check on this application. Proceed only if you trust it.',
+                ),
+              },
+            }}
+          />
+        </Stack>
+      )}
       <Stack width="100%" gap={1.5} mt={1.5} flexGrow={1} px={2}>
         {wallets.map((wallet) => (
           <ConnectWalletCard

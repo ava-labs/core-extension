@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { FormattedCollectible } from '../CollectiblesTab';
-import { ipfsResolverWithFallback } from '@core/common';
+import { ipfsResolverWithFallback, isSafeRemoteUrl } from '@core/common';
 import { NftTokenMetadataStatus } from '@avalabs/glacier-sdk';
 
 /**
@@ -19,8 +19,13 @@ const fetcher = async (url: string): Promise<ImageMetadata | null> => {
     return null;
   }
 
+  if (!isSafeRemoteUrl(url)) {
+    return null;
+  }
+
   try {
-    const response = await fetch(url);
+    // Block redirects so a validated public URL can't bounce to a private host (SSRF).
+    const response = await fetch(url, { redirect: 'error' });
     if (response.ok) {
       return response.json();
     }

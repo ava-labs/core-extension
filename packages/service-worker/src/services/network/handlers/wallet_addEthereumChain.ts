@@ -11,10 +11,23 @@ import {
   JsonRpcRequestParams,
   NetworkWithCaipId,
 } from '@core/types';
-import { canSkipApproval, decorateWithCaipId } from '@core/common';
+import {
+  canSkipApproval,
+  decorateWithCaipId,
+  isValidHttpHeader,
+} from '@core/common';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
+import { isAllowedRpcUrl } from './utils/isAllowedRpcUrl';
+
+function isValidExplorerUrl(url: string): boolean {
+  try {
+    return new URL(url).protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
 
 type Params = [AddEthereumChainParameter];
 
@@ -89,6 +102,26 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler<
       };
     }
 
+    if (!isAllowedRpcUrl(rpcUrl)) {
+      return {
+        ...request,
+        error: ethErrors.rpc.invalidParams({
+          message:
+            'RPC URL must use HTTPS and must not target a private address',
+        }),
+      };
+    }
+
+    const explorerUrl = requestedChain.blockExplorerUrls?.[0] || '';
+    if (explorerUrl && !isValidExplorerUrl(explorerUrl)) {
+      return {
+        ...request,
+        error: ethErrors.rpc.invalidParams({
+          message: 'Explorer URL must use HTTPS',
+        }),
+      };
+    }
+
     const customNetwork = decorateWithCaipId({
       chainId: requestedChainId,
       chainName: requestedChain.chainName || '',
@@ -102,7 +135,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler<
         logoUri: requestedChain.iconUrls?.[0] || '',
       },
       logoUri: requestedChain.iconUrls?.[0] || '',
-      explorerUrl: requestedChain.blockExplorerUrls?.[0] || '',
+      explorerUrl,
       primaryColor: 'black',
       isTestnet: !!requestedChain.isTestnet,
     });
@@ -197,6 +230,12 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler<
     const supportedChainIds = Object.keys(chains);
 
     if (network.customRpcHeaders) {
+      const areHeadersValid = Object.entries(network.customRpcHeaders).every(
+        ([name, value]) => isValidHttpHeader(name, value),
+      );
+      if (!areHeadersValid) {
+        throw new Error('Invalid RPC headers configuration');
+      }
       const { rpcUrl, ...overrides } = network; // we do not want to apply rpcUrl override from here
       await this.networkService.updateNetworkOverrides(overrides);
     }

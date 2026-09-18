@@ -1,6 +1,6 @@
 import { Fade, Stack, Typography } from '@avalabs/k2-alpine';
 
-import { stringToBigint } from '@core/common';
+import { safeStringToBigint } from '@core/common';
 import {
   NetworkWithCaipId,
   PChainTokenBalance,
@@ -32,7 +32,7 @@ export const PChainSendBody = ({
   network,
 }: PChainSendBodyProps) => {
   const to = getRecipientAddressByType(recipient, 'PVM');
-  const amountBigInt = stringToBigint(amount || '0', token.decimals);
+  const amountBigInt = safeStringToBigint(amount || '0', token.decimals);
   const { t } = useTranslation();
   const { isSending, isValid, error, send } = usePChainSend({
     token,

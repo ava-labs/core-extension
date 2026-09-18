@@ -373,6 +373,10 @@ export const useErrorMessage = () => {
         [SeedphraseImportError.ExistingSeedphrase]: {
           title: t('This recovery phrase is already imported.'),
         },
+        [SeedphraseImportError.InvalidSeedphrase]: {
+          title: t('This recovery phrase is invalid.'),
+          hint: t('Please check the words and their order, then try again.'),
+        },
       }),
       [t],
     );

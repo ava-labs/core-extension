@@ -119,4 +119,72 @@ describe('background/services/network/handlers/wallet_addNetwork.ts', () => {
       result: DEFERRED_RESPONSE,
     });
   });
+
+  describe('onActionApproved', () => {
+    let onSuccess: jest.Mock;
+    let onError: jest.Mock;
+
+    const approve = (network: unknown) =>
+      handler.onActionApproved(
+        { displayData: { network } } as any,
+        undefined,
+        onSuccess,
+        onError,
+      );
+
+    beforeEach(() => {
+      onSuccess = jest.fn();
+      onError = jest.fn();
+      jest.spyOn(mockNetworkService, 'isValidRPCUrl').mockResolvedValue(true);
+      jest
+        .spyOn(mockNetworkService, 'saveCustomNetwork')
+        .mockResolvedValue({ caipId: 'eip155:43114' } as any);
+    });
+
+    it('rejects a network that carries neither chainId nor caipId', async () => {
+      await approve({ ...mockActiveNetwork, chainId: undefined });
+
+      expect(onError).toHaveBeenCalledWith(
+        new Error('Network is missing a usable chain ID'),
+      );
+      expect(onSuccess).not.toHaveBeenCalled();
+      // The chain ID is what the RPC URL gets validated against, so nothing
+      // downstream may run without one.
+      expect(mockNetworkService.isValidRPCUrl).not.toHaveBeenCalled();
+      expect(mockNetworkService.saveCustomNetwork).not.toHaveBeenCalled();
+    });
+
+    it('rejects a network whose chainId is not a number', async () => {
+      await approve({ ...mockActiveNetwork, chainId: 'not-a-chain-id' });
+
+      expect(onError).toHaveBeenCalledWith(
+        new Error('Network is missing a usable chain ID'),
+      );
+      expect(mockNetworkService.isValidRPCUrl).not.toHaveBeenCalled();
+    });
+
+    it('validates the RPC URL against the chainId when one is provided', async () => {
+      await approve(mockActiveNetwork);
+
+      expect(mockNetworkService.isValidRPCUrl).toHaveBeenCalledWith(
+        43114,
+        mockActiveNetwork.rpcUrl,
+      );
+      expect(onSuccess).toHaveBeenCalledWith(null);
+    });
+
+    it('falls back to the caipId when chainId is absent', async () => {
+      await approve({
+        ...mockActiveNetwork,
+        chainId: undefined,
+        caipId: 'eip155:43114',
+      });
+
+      expect(mockNetworkService.isValidRPCUrl).toHaveBeenCalledWith(
+        43114,
+        mockActiveNetwork.rpcUrl,
+      );
+      expect(onSuccess).toHaveBeenCalledWith(null);
+    });
+  });
 });

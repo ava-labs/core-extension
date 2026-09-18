@@ -4,6 +4,7 @@ import mime from 'mime/lite';
 import { FormattedCollectible } from './CollectiblesTab';
 import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 import { NetworkWithCaipId } from '@core/types';
+import { isSafeRemoteUrl } from '@core/common';
 
 export const getStaticMimeType = (url: string): string | undefined => {
   return mime.getType(url) ?? undefined;
@@ -47,9 +48,15 @@ export const resolveMimeType = async (url: string): Promise<string | null> => {
     return null;
   }
 
+  if (!isSafeRemoteUrl(url)) {
+    return null;
+  }
+
   try {
+    // Block redirects so a validated public URL can't bounce to a private host (SSRF).
     const res = await fetch(url, {
       method: 'HEAD',
+      redirect: 'error',
     });
 
     if (res.ok && res.headers.has('content-type')) {

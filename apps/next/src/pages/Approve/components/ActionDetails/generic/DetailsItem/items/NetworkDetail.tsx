@@ -1,5 +1,6 @@
 import { Box, Stack } from '@avalabs/k2-alpine';
 import { NetworkItem } from '@avalabs/vm-module-types';
+import { toSafeCssUrl } from '@core/common';
 
 import { OverflowingTypography } from '@/components/OverflowingTypography';
 
@@ -10,6 +11,7 @@ type NetworkDetailProps = {
 };
 
 export const NetworkDetail = ({ item }: NetworkDetailProps) => {
+  const backgroundImage = toSafeCssUrl(item.value.logoUri);
   return (
     <TxDetailsRow label={item.label}>
       <Stack direction="row" alignItems="center" gap={1} textAlign="right">
@@ -17,7 +19,7 @@ export const NetworkDetail = ({ item }: NetworkDetailProps) => {
           width={20}
           height={20}
           sx={{
-            backgroundImage: `url(${item.value.logoUri})`,
+            backgroundImage,
             backgroundSize: 'contain',
           }}
         />
