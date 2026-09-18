@@ -12,3 +12,11 @@ export function stringToBigint(value: string, decimals: number): bigint {
   const rawStr = mult.toFixed(0, 0);
   return BigInt(rawStr);
 }
+
+export function safeStringToBigint(value: string, decimals: number): bigint {
+  try {
+    return stringToBigint(value, decimals);
+  } catch {
+    return 0n;
+  }
+}

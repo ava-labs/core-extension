@@ -1,5 +1,5 @@
 const PRIVATE_HOST_PATTERNS = [
-  /^localhost$/i,
+  /(^|\.)localhost$/i, // `localhost` and the `.localhost` TLD (RFC 6761) both resolve to loopback
   /^127\./, // loopback
   /^10\./, // RFC1918
   /^192\.168\./, // RFC1918

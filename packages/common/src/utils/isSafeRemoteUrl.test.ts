@@ -25,6 +25,10 @@ describe('src/utils/isSafeRemoteUrl.ts', () => {
     it('rejects loopback, private, link-local and mDNS hosts', () => {
       expect(isSafeRemoteUrl('https://localhost/meta.json')).toBe(false);
       expect(isSafeRemoteUrl('https://localhost:8545/meta.json')).toBe(false);
+      expect(isSafeRemoteUrl('https://api.localhost/meta.json')).toBe(false);
+      expect(isSafeRemoteUrl('https://foo.bar.localhost/meta.json')).toBe(
+        false,
+      );
       expect(isSafeRemoteUrl('https://127.0.0.1/meta.json')).toBe(false);
       expect(isSafeRemoteUrl('https://127.1.2.3/meta.json')).toBe(false);
       expect(isSafeRemoteUrl('https://10.0.0.5/meta.json')).toBe(false);

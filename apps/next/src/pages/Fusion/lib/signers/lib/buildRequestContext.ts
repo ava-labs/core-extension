@@ -70,23 +70,24 @@ export const buildRequestContext = (
     // auto-approved while draining the entire output.
     slippageBps + partnerFeeBps < BASIS_POINTS_DIVISOR;
 
-  // Calculate minAmountOut
+  const meetsAutoApprovePreconditions =
+    areBpsInRange &&
+    !isCrossChainSwap &&
+    isQuickSwapsEnabled &&
+    isAutoSignSupported &&
+    quote.serviceType === ServiceType.MARKR;
+
+  if (!meetsAutoApprovePreconditions) {
+    return baseContext;
+  }
+
   const slippagePercent = slippageBps / BASIS_POINTS_DIVISOR;
   const feePercent = partnerFeeBps / BASIS_POINTS_DIVISOR;
   const minAmountOut = new Big(String(quote.amountOut))
     .times(1 - slippagePercent - feePercent)
     .toFixed(0);
 
-  const hasMinAmountOut = Boolean(minAmountOut && minAmountOut !== '0');
-  const autoApprove =
-    areBpsInRange &&
-    !isCrossChainSwap &&
-    hasMinAmountOut &&
-    isQuickSwapsEnabled &&
-    isAutoSignSupported &&
-    quote.serviceType === ServiceType.MARKR;
-
-  if (!autoApprove) {
+  if (!minAmountOut || minAmountOut === '0') {
     return baseContext;
   }
 
@@ -104,7 +105,7 @@ export const buildRequestContext = (
   return {
     ...baseContext,
     swapAutoApprove: {
-      autoApprove,
+      autoApprove: true,
       validatorType,
       srcTokenAddress,
       isSrcTokenNative,

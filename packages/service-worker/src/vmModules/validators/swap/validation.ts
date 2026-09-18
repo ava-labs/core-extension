@@ -94,10 +94,10 @@ export function validateSwapUsdPrices(
 
   // Missing prices → manual approval
   if (
-    !sourceUsdValue ||
-    !destUsdValue ||
-    sourceUsdValue === 0 ||
-    destUsdValue === 0
+    !Number.isFinite(sourceUsdValue) ||
+    !Number.isFinite(destUsdValue) ||
+    sourceUsdValue <= 0 ||
+    destUsdValue <= 0
   ) {
     return {
       isValid: false,
@@ -115,8 +115,14 @@ export function validateSwapUsdPrices(
   // Validate the slippage/fee range up front — before any auto-approve path — so
   // a negative or out-of-range slippage is never treated as valid, even when the
   // quote reports a favorable price.
+  // A zero slippage is legitimate (buildRequestContext accepts slippageBps >= 0),
+  // so only reject absent, non-finite or negative values — not `0`.
   const slippage = context?.slippage;
-  if (!slippage || typeof slippage !== 'number' || slippage < 0) {
+  if (
+    typeof slippage !== 'number' ||
+    !Number.isFinite(slippage) ||
+    slippage < 0
+  ) {
     return {
       isValid: false,
       requiresManualApproval: true,
