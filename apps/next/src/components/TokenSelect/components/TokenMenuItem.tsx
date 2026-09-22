@@ -3,8 +3,8 @@ import { Stack, MenuItem, styled, Typography } from '@avalabs/k2-alpine';
 import { TokenType } from '@avalabs/vm-module-types';
 
 import { FungibleTokenBalance } from '@core/types';
-import { truncateAddress } from '@core/common';
 
+import { TruncatedAddress } from '@/components/Address';
 import CheckIcon from '@/components/CheckIcon';
 import { TokenAvatar } from '@/components/TokenAvatar';
 import { OptionProps } from '@/components/SearchableSelect';
@@ -22,9 +22,9 @@ export const TokenMenuItem: FC<TokenMenuItemProps> = ({
 }) => {
   const balanceDisplay = getAvailableBalance(token, true);
   const [isHovered, setIsHovered] = useState(false);
-  const truncatedAddress =
+  const contractAddress =
     token.type !== TokenType.NATIVE && 'address' in token && token.address
-      ? truncateAddress(token.address, 5, 4)
+      ? token.address
       : null;
 
   return (
@@ -44,13 +44,14 @@ export const TokenMenuItem: FC<TokenMenuItemProps> = ({
             {balanceDisplay} {token.symbol}
           </Typography>
         </Stack>
-        {isHovered && truncatedAddress ? (
-          <Typography
+        {isHovered && contractAddress ? (
+          <TruncatedAddress
+            address={contractAddress}
+            visibleChars={9}
             variant="caption"
+            color="inherit"
             sx={{ flexShrink: 0, fontFamily: 'monospace' }}
-          >
-            {truncatedAddress}
-          </Typography>
+          />
         ) : (
           isSelected && <CheckIcon size={12} style={{ flexShrink: 0 }} />
         )}

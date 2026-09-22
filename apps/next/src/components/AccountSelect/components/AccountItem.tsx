@@ -1,13 +1,8 @@
 import { FC, useState } from 'react';
-import {
-  Fade,
-  MenuItem,
-  Stack,
-  styled,
-  truncateAddress,
-  Typography,
-} from '@avalabs/k2-alpine';
+import { Fade, MenuItem, Stack, styled, Typography } from '@avalabs/k2-alpine';
 import { FaCheck } from 'react-icons/fa';
+
+import { TruncatedAddress } from '@/components/Address';
 
 import {
   useAccountsContext,
@@ -57,9 +52,11 @@ export const AccountItem: FC<AccountItemProps> = ({
           <Typography variant="body2" fontWeight="fontWeightMedium">
             {account.name}
           </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {truncateAddress(getAddressByType(account, addressType) ?? '', 20)}
-          </Typography>
+          <TruncatedAddress
+            address={getAddressByType(account, addressType) ?? ''}
+            visibleChars={20}
+            variant="caption"
+          />
         </Stack>
 
         <Stack position="relative" height={12}>

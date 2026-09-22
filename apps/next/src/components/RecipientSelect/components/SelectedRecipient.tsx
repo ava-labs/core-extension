@@ -1,6 +1,8 @@
-import { Box, Stack, truncateAddress, Typography } from '@avalabs/k2-alpine';
+import { Box, Stack, Typography } from '@avalabs/k2-alpine';
 
 import { AddressType } from '@core/types';
+
+import { TruncatedAddress } from '@/components/Address';
 
 import { Recipient } from '../types';
 import { useRecipientName } from '../hooks/useRecipientName';
@@ -32,9 +34,7 @@ export const SelectedRecipient = ({
         >
           {name}
         </Typography>
-        <Typography variant="mono" color="text.secondary">
-          {truncateAddress(address ?? '', 10)}
-        </Typography>
+        <TruncatedAddress address={address ?? ''} />
       </Stack>
       <Box display="flex" flex={1}>
         <RecipientIcon recipient={recipient} />

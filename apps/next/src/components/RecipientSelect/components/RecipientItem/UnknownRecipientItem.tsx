@@ -1,16 +1,11 @@
 import { FC } from 'react';
 import { FaCheck, FaQuestion } from 'react-icons/fa6';
 import { useTranslation } from 'react-i18next';
-import {
-  Box,
-  Fade,
-  Stack,
-  truncateAddress,
-  Typography,
-} from '@avalabs/k2-alpine';
+import { Box, Fade, Stack, Typography } from '@avalabs/k2-alpine';
 
 import { AddressType } from '@core/types';
 
+import { TruncatedAddress } from '@/components/Address';
 import { HexagonalIcon } from '@/components/HexagonalIcon';
 
 import { UnknownRecipient } from '../../types';
@@ -48,9 +43,11 @@ export const UnknownRecipientItem: FC<UnknownRecipientItemProps> = ({
           <Typography variant="body2" fontWeight="fontWeightMedium">
             {t('Unknown')}
           </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {truncateAddress(recipient.address, 20)}
-          </Typography>
+          <TruncatedAddress
+            address={recipient.address}
+            visibleChars={20}
+            variant="caption"
+          />
         </Stack>
         <Stack position="relative" height={12}>
           <Fade in={isSelected} mountOnEnter unmountOnExit>

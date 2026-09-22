@@ -1,9 +1,10 @@
-import { Fade, Stack, truncateAddress, Typography } from '@avalabs/k2-alpine';
+import { Fade, Stack, Typography } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { FaCheck } from 'react-icons/fa6';
 
 import { AddressType } from '@core/types';
 
+import { TruncatedAddress } from '@/components/Address';
 import {
   PersonalAvatar,
   PersonalAvatarName,
@@ -42,12 +43,13 @@ export const ContactRecipientItem: FC<ContactRecipientItemProps> = ({
           <Typography variant="body2" fontWeight="fontWeightMedium">
             {recipient.contact.name}
           </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {truncateAddress(
-              getContactAddressByType(recipient.contact, addressType) ?? '',
-              20,
-            )}
-          </Typography>
+          <TruncatedAddress
+            address={
+              getContactAddressByType(recipient.contact, addressType) ?? ''
+            }
+            visibleChars={20}
+            variant="caption"
+          />
         </Stack>
         <Stack position="relative" height={12}>
           <Fade in={isSelected} mountOnEnter unmountOnExit>

@@ -4,8 +4,6 @@ import {
   OutboundIcon,
   Skeleton,
   Stack,
-  Tooltip,
-  truncateAddress,
   Typography,
 } from '@avalabs/k2-alpine';
 import { AvalancheCaip2ChainId } from '@avalabs/core-chains-sdk';
@@ -17,6 +15,7 @@ import {
 } from '@core/common';
 import { TokenWithBalance } from '@avalabs/vm-module-types';
 
+import { TruncatedAddress } from '@/components/Address';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 import { Section, SectionRow } from '@/pages/Onboarding/components/Section';
 
@@ -152,27 +151,22 @@ export const DerivedAddresses = ({
               {index + 1}
             </Typography>
             <Stack minWidth={0}>
-              <Tooltip title={account.address}>
-                <Typography
-                  variant="subtitle1"
-                  fontFamily="monospace"
-                  color="text.primary"
-                  noWrap
-                >
-                  {truncateAddress(account.address, 14)}
-                </Typography>
-              </Tooltip>
+              <TruncatedAddress
+                address={account.address}
+                visibleChars={14}
+                variant="subtitle1"
+                fontFamily="monospace"
+                color="text.primary"
+                noWrap
+              />
               {hasXPAddresses && account.xpAddress && (
-                <Tooltip title={stripAddressPrefix(account.xpAddress)}>
-                  <Typography
-                    variant="caption"
-                    fontFamily="monospace"
-                    color="text.secondary"
-                    noWrap
-                  >
-                    {truncateAddress(stripAddressPrefix(account.xpAddress), 14)}
-                  </Typography>
-                </Tooltip>
+                <TruncatedAddress
+                  address={stripAddressPrefix(account.xpAddress)}
+                  visibleChars={14}
+                  variant="caption"
+                  fontFamily="monospace"
+                  noWrap
+                />
               )}
             </Stack>
           </Stack>

@@ -3,9 +3,9 @@ import {
   BitcoinColorIcon,
   CircularProgress,
   Stack,
-  truncateAddress,
-  Typography,
 } from '@avalabs/k2-alpine';
+
+import { TruncatedAddress } from '@/components/Address';
 
 type NetworkType = 'avalanche' | 'bitcoin';
 
@@ -43,9 +43,12 @@ export function DerivedAddressListItem({
           alignItems: 'center',
         }}
       >
-        <Typography sx={{ fontSize: '12px', fontFamily: 'DejaVu Sans Mono' }}>
-          {truncateAddress(address, 20)}
-        </Typography>
+        <TruncatedAddress
+          address={address}
+          visibleChars={20}
+          color="inherit"
+          sx={{ fontSize: '12px', fontFamily: 'DejaVu Sans Mono' }}
+        />
         {isLoading && <CircularProgress size={16} />}
       </Stack>
     </Stack>

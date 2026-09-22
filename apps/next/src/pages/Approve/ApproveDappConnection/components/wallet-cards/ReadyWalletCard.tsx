@@ -1,8 +1,9 @@
 import { FC } from 'react';
-import { Stack, truncateAddress, Typography } from '@avalabs/k2-alpine';
+import { Stack, Typography } from '@avalabs/k2-alpine';
 
 import { useBalancesContext, useSettingsContext } from '@core/ui';
 
+import { TruncatedAddress } from '@/components/Address';
 import CheckIcon from '@/components/CheckIcon';
 import { OverflowingTypography } from '@/components/OverflowingTypography';
 
@@ -47,9 +48,7 @@ export const ReadyWalletCard: FC<ConnectWalletCardProps> = ({
               <OverflowingTypography variant="subtitle3" fontWeight={500}>
                 {account.name}
               </OverflowingTypography>
-              <Typography variant="mono" color="text.secondary">
-                {truncateAddress(account.address, 10)}
-              </Typography>
+              <TruncatedAddress address={account.address} />
             </Stack>
             <Typography variant="body3" fontWeight={500} color="text.secondary">
               {typeof balance === 'number' ? currencyFormatter(balance) : '-'}

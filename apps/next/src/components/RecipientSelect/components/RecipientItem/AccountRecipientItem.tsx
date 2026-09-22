@@ -1,12 +1,13 @@
 import { FC } from 'react';
 import { FaCheck } from 'react-icons/fa6';
 import { useTranslation } from 'react-i18next';
-import { Fade, Stack, truncateAddress, Typography } from '@avalabs/k2-alpine';
+import { Fade, Stack, Typography } from '@avalabs/k2-alpine';
 
 import { useAccountsContext, useWalletContext } from '@core/ui';
 import { AddressType, SecretType } from '@core/types';
 import { isPrimaryAccount } from '@core/common';
 
+import { TruncatedAddress } from '@/components/Address';
 import { WalletIcon } from '@/components/WalletIcon';
 import { HexagonalIcon } from '@/components/HexagonalIcon';
 import { getAddressByType } from '@/utils/getAddressByType';
@@ -51,10 +52,12 @@ export const AccountRecipientItem: FC<AccountRecipientItemProps> = ({
         ? t('from {{walletName}}', {
             walletName: wallet?.name ?? t('unknown wallet'),
           })
-        : truncateAddress(
-            getAddressByType(recipient.account, addressType) ?? '',
-            20,
-          );
+        : null;
+
+  // Shown only when the wallet has no name to describe it by. It is an
+  // address, so it needs the full value on hover like every other one.
+  const fallbackAddress =
+    getAddressByType(recipient.account, addressType) ?? '';
 
   const isActiveWallet =
     activeWalletId && isPrimaryAccount(recipient.account)
@@ -82,9 +85,17 @@ export const AccountRecipientItem: FC<AccountRecipientItemProps> = ({
           <Typography variant="body2" fontWeight="fontWeightMedium">
             {recipient.account.name}
           </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {description}
-          </Typography>
+          {description ? (
+            <Typography variant="caption" color="text.secondary">
+              {description}
+            </Typography>
+          ) : (
+            <TruncatedAddress
+              address={fallbackAddress}
+              visibleChars={20}
+              variant="caption"
+            />
+          )}
         </Stack>
         <Stack position="relative" height={12}>
           <Fade in={isSelected} mountOnEnter unmountOnExit>

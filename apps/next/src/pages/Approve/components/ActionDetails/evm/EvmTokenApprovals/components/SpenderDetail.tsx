@@ -1,16 +1,11 @@
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  IconButton,
-  OutboundIcon,
-  Stack,
-  Tooltip,
-  truncateAddress,
-  Typography,
-} from '@avalabs/k2-alpine';
+import { IconButton, OutboundIcon, Stack, Tooltip } from '@avalabs/k2-alpine';
 
 import { getExplorerAddressByNetwork } from '@core/common';
 import { NetworkWithCaipId } from '@core/types';
+
+import { TruncatedAddress } from '@/components/Address';
 
 import { TxDetailsRow } from '../../../generic/DetailsItem/items/DetailRow';
 
@@ -33,9 +28,7 @@ export const SpenderDetail: FC<SpenderDetailProps> = ({
   return (
     <TxDetailsRow label={t('Spender')}>
       <Stack direction="row" alignItems="center" gap={0.5}>
-        <Typography variant="mono" color="text.secondary">
-          {truncateAddress(spenderAddress, 10)}
-        </Typography>
+        <TruncatedAddress address={spenderAddress} />
         <Tooltip title={t('View in Explorer')} arrow>
           <IconButton
             sx={{ padding: 0.25 }}

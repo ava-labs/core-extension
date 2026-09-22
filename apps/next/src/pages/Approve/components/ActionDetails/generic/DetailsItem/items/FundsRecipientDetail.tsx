@@ -1,5 +1,5 @@
 import { DetailItemType, FundsRecipientItem } from '@avalabs/vm-module-types';
-import { Tooltip, truncateAddress, Typography } from '@avalabs/k2-alpine';
+import { TruncatedAddress } from '@/components/Address';
 
 import { CurrencyDetail } from './CurrencyDetail';
 import { NetworkWithCaipId } from '@core/types';
@@ -18,13 +18,7 @@ export const FundsRecipientDetail = ({
   return (
     <CurrencyDetail
       network={network}
-      customLabel={
-        <Tooltip title={address}>
-          <Typography variant="mono" color="text.secondary">
-            {truncateAddress(address, 10)}
-          </Typography>
-        </Tooltip>
-      }
+      customLabel={<TruncatedAddress address={address} />}
       item={{
         label: address,
         value: amount,
