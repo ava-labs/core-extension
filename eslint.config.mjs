@@ -90,4 +90,40 @@ export default [
       '@typescript-eslint/no-require-imports': 'off',
     },
   },
+  {
+    // `truncateAddress` returns a shortened *string*, so the characters it
+    // drops leave the DOM entirely and no amount of selecting, copying or
+    // inspecting brings them back. Rendering one without also offering the
+    // full value is how an address the user cannot verify ends up on an
+    // approval screen. `<TruncatedAddress />` pairs the two; use it instead.
+    files: ['apps/next/src/**/*.{ts,tsx}'],
+    ignores: [
+      // Defines the component, and AddressItem pairs truncation with its own
+      // tooltip plus a copy button.
+      'apps/next/src/components/Address/**',
+      // Not an address render: builds a display *symbol* for an unknown token.
+      'apps/next/src/pages/Fusion/hooks/useRecurringSwapOrders.ts',
+    ],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@avalabs/k2-alpine',
+              importNames: ['truncateAddress'],
+              message:
+                'Use <TruncatedAddress /> from @/components/Address so the full address stays reachable on hover.',
+            },
+            {
+              name: '@core/common',
+              importNames: ['truncateAddress'],
+              message:
+                'Use <TruncatedAddress /> from @/components/Address so the full address stays reachable on hover.',
+            },
+          ],
+        },
+      ],
+    },
+  },
 ];
