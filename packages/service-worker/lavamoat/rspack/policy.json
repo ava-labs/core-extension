@@ -3563,6 +3563,14 @@
         "external:../common/src/utils/stripAddressPrefix.ts": true
       }
     },
+    "external:../common/src/utils/isAllowedRpcUrl.ts": {
+      "globals": {
+        "URL": true
+      },
+      "packages": {
+        "external:../common/src/utils/isSafeRemoteUrl.ts": true
+      }
+    },
     "external:../common/src/utils/isContactValid.ts": {
       "packages": {
         "ethers": true,
