@@ -18,7 +18,6 @@ import {
   UNTRUSTED_DATA_OPEN,
   UNTRUSTED_DATA_CLOSE,
   untrustedReplacer,
-  MAX_UNTRUSTED_FIELD_LENGTH,
 } from '../model';
 
 const ATTACKER_URL = 'https://evil.example';
@@ -206,16 +205,6 @@ describe('Concierge prompt injection via airdropped token name — fix regressio
       '\n===== systemInstruction sent to setModel/sendMessage =====\n' +
         systemPrompt +
         '\n=========================================================\n',
-    );
-  });
-
-  it('oversized token names are length-capped before entering the prompt', () => {
-    const huge = { name: 'A'.repeat(5000), symbol: 'B'.repeat(5000) };
-    const serialized = JSON.stringify(huge, untrustedReplacer);
-    const parsed = JSON.parse(serialized);
-    expect(parsed.name.length).toBeLessThanOrEqual(MAX_UNTRUSTED_FIELD_LENGTH);
-    expect(parsed.symbol.length).toBeLessThanOrEqual(
-      MAX_UNTRUSTED_FIELD_LENGTH,
     );
   });
 });

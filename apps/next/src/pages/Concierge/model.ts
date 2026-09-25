@@ -165,8 +165,6 @@ export const functionDeclarations: FunctionDeclaration[] = [
 export const UNTRUSTED_DATA_OPEN = '<<<CORE_UNTRUSTED_WALLET_DATA>>>';
 export const UNTRUSTED_DATA_CLOSE = '<<<END_CORE_UNTRUSTED_WALLET_DATA>>>';
 
-export const MAX_UNTRUSTED_FIELD_LENGTH = 200;
-
 export const sanitizeUntrustedText = (value: unknown): unknown => {
   if (typeof value !== 'string') {
     return value;
@@ -177,7 +175,6 @@ export const sanitizeUntrustedText = (value: unknown): unknown => {
     .join('') // cannot forge the opening fence
     .split(UNTRUSTED_DATA_CLOSE)
     .join('') // cannot close the real fence early
-    .slice(0, MAX_UNTRUSTED_FIELD_LENGTH)
     .trim();
 };
 
