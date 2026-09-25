@@ -44,6 +44,7 @@ import {
   caipToChainId,
   chainIdToCaip,
   decorateWithCaipId,
+  isAllowedRpcUrl,
   getSyncDomain,
   getExponentialBackoffDelay,
   getProviderForNetwork,
@@ -63,6 +64,64 @@ import {
   LOGO_BY_ALIAS,
 } from './avalanche-config';
 import { HYPERCORE_NETWORK, HYPEREVM_NETWORK } from './hyperliquid-config';
+
+const parseChainId = (
+  value: number | string | undefined,
+): number | undefined => {
+  if (value === undefined || value === '') {
+    return undefined;
+  }
+
+  const parsed = typeof value === 'number' ? value : Number(value);
+
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    return undefined;
+  }
+
+  return parsed;
+};
+
+/**
+ * `chainId` and `caipId` are both optional on dApp payloads. One of them has to
+ * identify the chain, and when both are present they have to agree — storage
+ * is keyed by `chainId` while `getNetworkCaipId` prefers a supplied `caipId`.
+ */
+export const resolveCustomNetworkChainId = (network: {
+  chainId?: number | string;
+  caipId?: string;
+}): number => {
+  const hasChainId = network.chainId !== undefined && network.chainId !== '';
+  const fromChainId = hasChainId ? parseChainId(network.chainId) : undefined;
+
+  if (hasChainId && fromChainId === undefined) {
+    throw new Error('Network is missing a usable chain ID');
+  }
+
+  const fromCaip = network.caipId ? caipToChainId(network.caipId) : undefined;
+
+  if (
+    fromCaip !== undefined &&
+    (!Number.isInteger(fromCaip) || fromCaip <= 0)
+  ) {
+    throw new Error('Network is missing a usable chain ID');
+  }
+
+  if (
+    fromChainId !== undefined &&
+    fromCaip !== undefined &&
+    fromChainId !== fromCaip
+  ) {
+    throw new Error('chainId does not match caipId');
+  }
+
+  const chainId = fromChainId ?? fromCaip;
+
+  if (!chainId) {
+    throw new Error('Network is missing a usable chain ID');
+  }
+
+  return chainId;
+};
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -696,8 +755,22 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   async saveCustomNetwork(customNetworkPayload: CustomNetworkPayload) {
-    const customNetwork = decorateWithCaipId(customNetworkPayload);
-    const chainId = parseInt(customNetwork.chainId.toString(16), 16);
+    const chainId = resolveCustomNetworkChainId(customNetworkPayload);
+
+    if (
+      !isAllowedRpcUrl(customNetworkPayload.rpcUrl, {
+        allowPrivate: !this.isMainnet(),
+      })
+    ) {
+      throw new Error(
+        'RPC URL must use HTTPS and must not target a private address',
+      );
+    }
+
+    const customNetwork = decorateWithCaipId({
+      ...customNetworkPayload,
+      chainId,
+    });
 
     const chainlist = await this._rawNetworks.promisify();
 
@@ -711,6 +784,15 @@ export class NetworkService implements OnLock, OnStorageReady {
     // customNetwork is a default chain -> dont save
     if (isChainListNetwork && !isCustomNetworkExist) {
       throw new Error('chain ID already exists');
+    }
+
+    const rpcMatchesChain = await this.isValidRPCUrl(
+      chainId,
+      customNetwork.rpcUrl,
+    );
+
+    if (!rpcMatchesChain) {
+      throw new Error('ChainID does not match the rpc url');
     }
 
     this._customNetworks = {

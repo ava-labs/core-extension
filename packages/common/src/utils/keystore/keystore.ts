@@ -1,5 +1,4 @@
 import * as bip39 from 'bip39';
-import { toBytes } from '@noble/hashes/utils';
 import { utils } from '@avalabs/avalanchejs';
 
 import {
@@ -19,7 +18,7 @@ import {
   KeystoreError,
 } from '@core/types';
 
-import { getHash, decrypt, calculatePasswordHash } from './cryptoHelpers';
+import { decrypt } from './cryptoHelpers';
 
 export const KEYSTORE_VERSION = '6.0';
 
@@ -30,29 +29,25 @@ async function readV2(data: KeyFileV2, pass) {
 
   const salt = utils.base58check.decode(data.salt);
 
-  const checkHash = getHash(pass, salt);
-  const checkHashString = utils.base58check.encode(toBytes(checkHash));
-
-  if (checkHashString !== data.pass_hash) {
-    throw KeystoreError.InvalidPassword;
-  }
-
   const decryptedKeys = await Promise.all(
     data.keys.map(async (keyData) => {
       const key = utils.base58check.decode(keyData.key);
       const nonce = utils.base58check.decode(keyData.iv);
 
-      const decryptedKey = await decrypt(
-        pass,
-        key,
-        salt,
-        nonce,
-        KEYGEN_ITERATIONS_V2,
-      );
-
-      return {
-        key: utils.base58check.encode(decryptedKey),
-      };
+      try {
+        const decryptedKey = await decrypt(
+          pass,
+          key,
+          salt,
+          nonce,
+          KEYGEN_ITERATIONS_V2,
+        );
+        return {
+          key: utils.base58check.encode(decryptedKey),
+        };
+      } catch (_err) {
+        throw KeystoreError.InvalidPassword;
+      }
     }),
   );
 
@@ -67,23 +62,20 @@ async function readV3(data: KeyFileV3, pass) {
 
   const salt = utils.base58check.decode(data.salt);
 
-  const checkHash = await calculatePasswordHash(pass, salt);
-  const checkHashString = utils.base58check.encode(checkHash.hash);
-
-  if (checkHashString !== data.pass_hash) {
-    throw KeystoreError.InvalidPassword;
-  }
-
   const decryptedKeys = await Promise.all(
     data.keys.map(async (keyData) => {
       const key = utils.base58check.decode(keyData.key);
       const nonce = utils.base58check.decode(keyData.iv);
 
-      const decryptedKey = await decrypt(pass, key, salt, nonce);
+      try {
+        const decryptedKey = await decrypt(pass, key, salt, nonce);
 
-      return {
-        key: utils.base58check.encode(decryptedKey),
-      };
+        return {
+          key: utils.base58check.encode(decryptedKey),
+        };
+      } catch (_err) {
+        throw KeystoreError.InvalidPassword;
+      }
     }),
   );
 
@@ -97,23 +89,21 @@ async function readV4(data: KeyFileV4, pass): Promise<KeyFileDecryptedV5> {
   const version = data.version;
 
   const salt = utils.base58check.decode(data.salt);
-  const checkHash = await calculatePasswordHash(pass, salt);
-  const checkHashString = utils.base58check.encode(checkHash.hash);
-
-  if (checkHashString !== data.pass_hash) {
-    throw KeystoreError.InvalidPassword;
-  }
 
   const decryptedKeys = await Promise.all(
     data.keys.map(async (keyData) => {
       const key = utils.base58check.decode(keyData.key);
       const nonce = utils.base58check.decode(keyData.iv);
 
-      const decryptedKey = await decrypt(pass, key, salt, nonce);
+      try {
+        const decryptedKey = await decrypt(pass, key, salt, nonce);
 
-      return {
-        key: utils.base58check.encode(decryptedKey),
-      };
+        return {
+          key: utils.base58check.encode(decryptedKey),
+        };
+      } catch (_err) {
+        throw KeystoreError.InvalidPassword;
+      }
     }),
   );
 
@@ -129,13 +119,6 @@ async function readV5(data: KeyFileV5, pass): Promise<KeyFileDecryptedV5> {
 
   const salt = utils.base58check.decode(data.salt);
 
-  const checkHash = await calculatePasswordHash(pass, salt);
-  const checkHashString = utils.base58check.encode(checkHash.hash);
-
-  if (checkHashString !== data.pass_hash) {
-    throw KeystoreError.InvalidPassword;
-  }
-
   const decoder = new TextDecoder();
 
   const decryptedKeys = await Promise.all(
@@ -143,9 +126,13 @@ async function readV5(data: KeyFileV5, pass): Promise<KeyFileDecryptedV5> {
       const key = utils.base58check.decode(keyData.key);
       const nonce = utils.base58check.decode(keyData.iv);
 
-      return {
-        key: decoder.decode(await decrypt(pass, key, salt, nonce)),
-      };
+      try {
+        return {
+          key: decoder.decode(await decrypt(pass, key, salt, nonce)),
+        };
+      } catch (_err) {
+        throw KeystoreError.InvalidPassword;
+      }
     }),
   );
 

@@ -17,7 +17,11 @@ import {
   FeatureVars,
 } from '@core/types';
 import { useCallback, useMemo, useRef } from 'react';
-import { functionDeclarations, systemPromptTemplate } from '../model';
+import {
+  functionDeclarations,
+  systemPromptTemplate,
+  untrustedReplacer,
+} from '../model';
 import { NetworkVMType, RpcMethod, TokenType } from '@avalabs/vm-module-types';
 import {
   caipToChainId,
@@ -51,6 +55,10 @@ const POLLED_BALANCES = [
   TokenType.ERC20,
   TokenType.HYPERCORE_SPOT,
 ];
+
+// Confirm a side effect with the user. Returns true if the user confirms, false otherwise.
+const confirmSideEffect = (message: string): boolean =>
+  typeof window !== 'undefined' && window.confirm(message);
 
 export const useFunctions = ({ setIsTyping, setInput }) => {
   useLiveBalance(POLLED_BALANCES);
@@ -334,6 +342,13 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
         throw new Error('You can only send native tokens or ERC20 tokens');
       },
       switchAccount: async ({ accountId }: { accountId: string }) => {
+        if (
+          !confirmSideEffect(
+            t('Core Concierge wants to switch the active account. Continue?'),
+          )
+        ) {
+          throw new Error('User rejected the request');
+        }
         await selectAccount(accountId);
 
         return {
@@ -351,6 +366,18 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
         addressBitcoin?: string;
         addressAvalanche?: string;
       }) => {
+        if (
+          !confirmSideEffect(
+            t(
+              'Core Concierge wants to add "{{name}}" to your contacts. Continue?',
+              {
+                name,
+              },
+            ),
+          )
+        ) {
+          throw new Error('User rejected the request');
+        }
         await createContact({
           id: '',
           name,
@@ -364,12 +391,33 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
         };
       },
       goToDapp: async ({ url }) => {
-        const openUrl = url.includes('https://') ? url : `https://${url}`;
-        chrome.tabs.create({ url: openUrl, active: true }, () =>
+        let parsed: URL;
+        try {
+          parsed = new URL(
+            /^[a-z][a-z0-9+.-]*:\/\//i.test(url) ? url : `https://${url}`,
+          );
+        } catch {
+          throw new Error(`Invalid URL: ${url}`);
+        }
+        if (parsed.protocol !== 'https:') {
+          throw new Error('Only https:// URLs can be opened');
+        }
+
+        // Confirm with the user before opening a new tab, since this is a side effect that could be abused by malicious prompts.
+        if (
+          !confirmSideEffect(
+            t('Core Concierge wants to open {{url}} in a new tab. Continue?', {
+              url: parsed.href,
+            }),
+          )
+        ) {
+          throw new Error('User rejected the request');
+        }
+        chrome.tabs.create({ url: parsed.href, active: true }, () =>
           browser.action.openPopup(),
         );
         return {
-          content: `${url} opened in a new tab!`,
+          content: `${parsed.href} opened in a new tab!`,
         };
       },
       buy: async () => {
@@ -448,12 +496,36 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
         };
       },
       enableNetwork: async ({ chainId }: { chainId: number }) => {
+        if (
+          !confirmSideEffect(
+            t(
+              'Core Concierge wants to enable the network with chain ID {{chainId}}. Continue?',
+              {
+                chainId,
+              },
+            ),
+          )
+        ) {
+          throw new Error('User rejected the request');
+        }
         enableNetwork(chainId);
         return {
           content: `Network with chain ID ${chainId} has been enabled.`,
         };
       },
       disableNetwork: async ({ chainId }: { chainId: number }) => {
+        if (
+          !confirmSideEffect(
+            t(
+              'Core Concierge wants to disable the network with chain ID {{chainId}}. Continue?',
+              {
+                chainId,
+              },
+            ),
+          )
+        ) {
+          throw new Error('User rejected the request');
+        }
         disableNetwork(chainId);
         return {
           content: `Network with chain ID ${chainId} has been disabled.`,
@@ -482,31 +554,30 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
     if (!network || !tokens || !accounts) {
       return '';
     }
+    // Function replacements insert verbatim; a string replacement would let `$&`,
+    // `$'` etc. in an untrusted name inject prompt content past the fence.
     return systemPromptTemplate
-      .replace(
-        '__TOKENS__',
+      .replace('__TOKENS__', () =>
         JSON.stringify(
           tokens.map((token) => ({
             name: token.name,
             symbol: token.symbol,
             balance: token.balanceDisplayValue,
           })),
-          (_, v) => (typeof v === 'bigint' ? v.toString() : v),
+          untrustedReplacer,
         ),
       )
-      .replace(
-        '__AVAILABLE_TOKENS__',
+      .replace('__AVAILABLE_TOKENS__', () =>
         JSON.stringify(
           allAvailableTokens.map((token) => ({
             name: token.name,
             symbol: token.symbol,
             balance: token.balanceDisplayValue,
           })),
-          (_, v) => (typeof v === 'bigint' ? v.toString() : v),
+          untrustedReplacer,
         ),
       )
-      .replace(
-        '__NETWORKS__',
+      .replace('__NETWORKS__', () =>
         JSON.stringify(
           networks.map((n) => ({
             id: n.caipId,
@@ -515,19 +586,23 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
             vmName: n.vmName,
             chainId: n.chainId,
           })),
+          untrustedReplacer,
         ),
       )
-      .replace(
-        '__CURRENT_NETWORK_ID__',
-        JSON.stringify({
-          id: network.caipId,
-          name: network.chainName,
-          isTestnet: network.isTestnet,
-        }),
+      .replace('__CURRENT_NETWORK_ID__', () =>
+        JSON.stringify(
+          {
+            id: network.caipId,
+            name: network.chainName,
+            isTestnet: network.isTestnet,
+          },
+          untrustedReplacer,
+        ),
       )
-      .replace('__CONTACTS__', JSON.stringify(contacts))
-      .replace(
-        '__ACCOUNTS__',
+      .replace('__CONTACTS__', () =>
+        JSON.stringify(contacts, untrustedReplacer),
+      )
+      .replace('__ACCOUNTS__', () =>
         JSON.stringify(
           [
             ...Object.values(accounts.primary).flat(),
@@ -538,10 +613,10 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
             address: a.addressC,
             active: a.id === accounts.active?.id,
           })),
+          untrustedReplacer,
         ),
       )
-      .replace(
-        '__ENABLED_NETWORKS__',
+      .replace('__ENABLED_NETWORKS__', () =>
         JSON.stringify(
           enabledNetworks.map((id) => ({
             chainId: id,

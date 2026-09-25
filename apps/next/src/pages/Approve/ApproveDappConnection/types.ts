@@ -41,6 +41,7 @@ export type ConnectDappDisplayData = {
   canSkipApproval: boolean;
   addressVM: NetworkVMType;
   isMalicious: boolean;
+  isScanFailed?: boolean;
   dappUrl: string;
   dappIcon: string;
   dappDomain: string;

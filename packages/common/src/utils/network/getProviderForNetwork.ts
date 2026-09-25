@@ -5,7 +5,7 @@ import {
   SolanaProvider,
   getSolanaProvider,
 } from '@avalabs/core-wallets-sdk';
-import { NetworkVMType } from '@avalabs/core-chains-sdk';
+import { ChainId, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { FetchRequest, Network as EthersNetwork } from 'ethers';
 
 import { Network } from '@core/types';
@@ -18,6 +18,25 @@ export type SupportedProvider =
   | Avalanche.JsonRpcProvider
   | SolanaProvider;
 
+/**
+ * There are three Solana clusters, so a single `isTestnet` flag cannot pick the
+ * right RPC: it routed both Devnet *and* Testnet to the Devnet endpoint. Solana
+ * messages carry no chain id - the recent blockhash is the only thing binding a
+ * transaction to a cluster - so talking to the wrong cluster means simulations,
+ * broadcasts, and blockhash validation all silently answer for a chain the user
+ * did not ask for. Route on the chain id instead.
+ */
+const getSolanaRpcUrl = (network: Network): string => {
+  switch (network.chainId) {
+    case ChainId.SOLANA_DEVNET_ID:
+      return 'https://api.devnet.solana.com'; // NowNodes does not support Solana Devnet
+    case ChainId.SOLANA_TESTNET_ID:
+      return 'https://api.testnet.solana.com';
+    default:
+      return `${process.env.PROXY_URL}/proxy/nownodes/sol`;
+  }
+};
+
 export const getProviderForNetwork = async (
   network: Network,
   useMulticall = false,
@@ -25,9 +44,7 @@ export const getProviderForNetwork = async (
   if (network.vmName === NetworkVMType.SVM) {
     return getSolanaProvider({
       isTestnet: Boolean(network.isTestnet),
-      rpcUrl: network.isTestnet
-        ? 'https://api.devnet.solana.com' // NowNodes does not support Solana Devnet
-        : `${process.env.PROXY_URL}/proxy/nownodes/sol`,
+      rpcUrl: getSolanaRpcUrl(network),
     });
   }
 

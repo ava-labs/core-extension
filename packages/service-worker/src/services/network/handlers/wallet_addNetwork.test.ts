@@ -119,4 +119,47 @@ describe('background/services/network/handlers/wallet_addNetwork.ts', () => {
       result: DEFERRED_RESPONSE,
     });
   });
+
+  describe('onActionApproved', () => {
+    let onSuccess: jest.Mock;
+    let onError: jest.Mock;
+
+    const approve = (network: unknown) =>
+      handler.onActionApproved(
+        { displayData: { network } } as any,
+        undefined,
+        onSuccess,
+        onError,
+      );
+
+    beforeEach(() => {
+      onSuccess = jest.fn();
+      onError = jest.fn();
+      jest
+        .spyOn(mockNetworkService, 'saveCustomNetwork')
+        .mockResolvedValue({ caipId: 'eip155:43114' } as any);
+    });
+
+    it('saves the approved network', async () => {
+      await approve(mockActiveNetwork);
+
+      expect(mockNetworkService.saveCustomNetwork).toHaveBeenCalledWith(
+        mockActiveNetwork,
+      );
+      expect(onSuccess).toHaveBeenCalledWith(null);
+    });
+
+    it('forwards a save failure', async () => {
+      jest
+        .spyOn(mockNetworkService, 'saveCustomNetwork')
+        .mockRejectedValue(new Error('Network is missing a usable chain ID'));
+
+      await approve(mockActiveNetwork);
+
+      expect(onError).toHaveBeenCalledWith(
+        new Error('Error: Network is missing a usable chain ID'),
+      );
+      expect(onSuccess).not.toHaveBeenCalled();
+    });
+  });
 });

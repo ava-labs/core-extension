@@ -1,6 +1,6 @@
 import { Fade, Stack, Typography } from '@avalabs/k2-alpine';
 
-import { stringToBigint } from '@core/common';
+import { safeStringToBigint } from '@core/common';
 import { Account, FungibleTokenBalance, NetworkWithCaipId } from '@core/types';
 
 import {
@@ -28,7 +28,7 @@ export const EvmNativeSendBody = ({
   network,
 }: EvmNativeSendBodyProps) => {
   const to = getRecipientAddressByType(recipient, 'C');
-  const amountBigInt = stringToBigint(amount || '0', token.decimals);
+  const amountBigInt = safeStringToBigint(amount || '0', token.decimals);
   const { t } = useTranslation();
   const { isSending, isValid, error, send } = useEvmNativeSend({
     token,

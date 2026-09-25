@@ -148,10 +148,19 @@ describe('background/services/wallet/WalletService.ts', () => {
   let fireblocksService: FireblocksService;
   let addressResolver: AddressResolver;
   let secretsService: jest.Mocked<SecretsService>;
+  // Bech32 form of 0x5f658a6d1928c39b286b48192fea8d46d87ad077, the address the
+  // Avalanche `unsignedTxJSON` fixture below requires a signature from. sign()
+  // now asserts the tx shares a signer address with the active account, so the
+  // active account has to actually own it.
+  const ACTIVE_XP_ADDRESS = 'X-avax1tajc5mge9rpek2rtfqvjl65dgmv845rhvxgemp';
+
   const accountsService: jest.Mocked<AccountsService> = {
     getActiveAccount: async () => ({
       type: AccountType.PRIMARY,
       index: 0,
+      addressAVM: ACTIVE_XP_ADDRESS,
+      addressPVM: ACTIVE_XP_ADDRESS.replace(/^X-/, 'P-'),
+      addressCoreEth: ACTIVE_XP_ADDRESS,
     }),
   } as any;
 
@@ -838,6 +847,29 @@ describe('background/services/wallet/WalletService.ts', () => {
         } as AvalancheTransactionRequest;
       });
 
+      it('rejects a transaction prepared for a different account', async () => {
+        // The user switched accounts while the approval window was open: the tx
+        // still requires a signature from the previously shown account.
+        const OTHER_XP_ADDRESS =
+          'X-avax1zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg35l6ttj';
+        jest.spyOn(accountsService, 'getActiveAccount').mockResolvedValue({
+          type: AccountType.PRIMARY,
+          index: 0,
+          addressAVM: OTHER_XP_ADDRESS,
+          addressPVM: OTHER_XP_ADDRESS.replace(/^X-/, 'P-'),
+          addressCoreEth: OTHER_XP_ADDRESS,
+        } as any);
+
+        staticSignerMock.signTx = jest.fn().mockReturnValueOnce(unsignedTxMock);
+        spyOnGetWallet().mockResolvedValueOnce(staticSignerMock);
+
+        await expect(
+          walletService.sign(avalancheTxMock, networkMock, tabId),
+        ).rejects.toThrow('no longer the active account');
+
+        expect(staticSignerMock.signTx).not.toHaveBeenCalled();
+      });
+
       describe('with multiple address indices', () => {
         const mockedPublicKeys: AddressPublicKeyJson[] = [
           {
@@ -1193,6 +1225,85 @@ describe('background/services/wallet/WalletService.ts', () => {
       expect(wallet.signTransaction).toHaveBeenCalledTimes(2);
       expect(wallet.signTransaction).toHaveBeenNthCalledWith(1, batch[0]);
       expect(wallet.signTransaction).toHaveBeenNthCalledWith(2, batch[1]);
+    });
+
+    describe('when an expected signer is provided', () => {
+      const EXPECTED_SIGNER = '0x1';
+
+      const mockActiveAccountAddressC = (addressC: string) =>
+        jest.spyOn(accountsService, 'getActiveAccount').mockResolvedValue({
+          type: AccountType.PRIMARY,
+          index: 0,
+          addressC,
+        } as any);
+
+      const mockBatchWallet = () => {
+        const wallet = Object.create(HDNodeWallet.prototype);
+        getWalletSpy.mockResolvedValueOnce(wallet);
+        jest
+          .spyOn(wallet, 'signTransaction')
+          .mockResolvedValueOnce('0x1')
+          .mockResolvedValueOnce('0x2');
+        return wallet;
+      };
+
+      it('rejects the batch when the expected signer is no longer active', async () => {
+        // The user switched accounts while the approval window was open.
+        const wallet = mockBatchWallet();
+        mockActiveAccountAddressC('0xSOMEONEELSE');
+
+        await expect(
+          walletService.signTransactionBatch(
+            [{ from: EXPECTED_SIGNER, to: '0x2', value: 10n }],
+            networkMock,
+            tabId,
+            EXPECTED_SIGNER,
+          ),
+        ).rejects.toThrow('no longer the active account');
+
+        expect(wallet.signTransaction).not.toHaveBeenCalled();
+      });
+
+      it('rejects a batch that mixes signers', async () => {
+        const wallet = mockBatchWallet();
+        mockActiveAccountAddressC(EXPECTED_SIGNER);
+
+        await expect(
+          walletService.signTransactionBatch(
+            [
+              { from: EXPECTED_SIGNER, to: '0x2', value: 10n },
+              // Slipped in for a different account than the user approved.
+              { from: '0xATTACKER', to: '0xA', value: 10n },
+            ],
+            networkMock,
+            tabId,
+            EXPECTED_SIGNER,
+          ),
+        ).rejects.toThrow(
+          'All transactions in a batch must be signed by the same account.',
+        );
+
+        expect(wallet.signTransaction).not.toHaveBeenCalled();
+      });
+
+      it('signs a batch whose transactions all come from the expected signer', async () => {
+        const wallet = mockBatchWallet();
+        mockActiveAccountAddressC(EXPECTED_SIGNER);
+
+        const result = await walletService.signTransactionBatch(
+          [
+            { from: EXPECTED_SIGNER, to: '0x2', value: 10n },
+            // Casing must not matter.
+            { from: EXPECTED_SIGNER.toUpperCase(), to: '0xA', value: 10n },
+          ],
+          networkMock,
+          tabId,
+          EXPECTED_SIGNER,
+        );
+
+        expect(result).toEqual([{ signedTx: '0x1' }, { signedTx: '0x2' }]);
+        expect(wallet.signTransaction).toHaveBeenCalledTimes(2);
+      });
     });
   });
 

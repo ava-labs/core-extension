@@ -1,3 +1,4 @@
+import { useNetworkContext } from '@core/ui';
 import { resolveMimeType } from '../utils';
 import { skipToken, useQuery } from '@tanstack/react-query';
 
@@ -21,12 +22,15 @@ export const useResolvedMediaType = ({
   staticMimeType?: string;
   tokenId?: string;
 }) => {
+  const { isDeveloperMode } = useNetworkContext();
+  const allowPrivate = Boolean(isDeveloperMode);
+
   // Use React Query to handle the async request
   return useQuery({
-    queryKey: ['mime-type', source, tokenId],
+    queryKey: ['mime-type', source, tokenId, allowPrivate],
     queryFn:
       source && !staticMimeType
-        ? async () => await resolveMimeType(source)
+        ? async () => await resolveMimeType(source, { allowPrivate })
         : skipToken,
     staleTime: MILLISECONDS_PER_HOUR, // Cache for 1 hour
     retry: false,

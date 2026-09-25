@@ -17,6 +17,8 @@ import {
   ExtensionRequestHandler,
 } from '@core/types';
 
+import { isPhraseCorrect } from '@core/common';
+
 import { WalletService } from '../WalletService';
 import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../../accounts/AccountsService';
@@ -54,6 +56,18 @@ export class ImportSeedPhraseHandler implements HandlerType {
     const [params] = request.params;
     const { mnemonic: rawMnemonic, name } = params;
     const mnemonic = rawMnemonic.toLowerCase(); // BIP39 seed phrases are case-insensitive
+
+    // Check if the seed phrase is valid and not already known
+    if (!isPhraseCorrect(mnemonic)) {
+      return {
+        ...request,
+        error: ethErrors.rpc.invalidInput({
+          data: {
+            reason: SeedphraseImportError.InvalidSeedphrase,
+          },
+        }),
+      };
+    }
 
     const { isKnown } = await this.secretsService.isKnownSecret(
       SecretType.Mnemonic,

@@ -49,6 +49,8 @@ export const buildBtcTx = async (
   );
 };
 
+export const MAX_BTC_FEE_RATE = 10_000;
+
 export const validateBtcSend = (
   from: string,
   { address, amount, feeRate }: BtcSendOptions,
@@ -59,7 +61,12 @@ export const validateBtcSend = (
     return SendErrorMessage.ADDRESS_REQUIRED;
   }
 
-  if (!feeRate) {
+  if (
+    !feeRate ||
+    !Number.isFinite(feeRate) ||
+    feeRate < 0 ||
+    feeRate > MAX_BTC_FEE_RATE
+  ) {
     return SendErrorMessage.INVALID_NETWORK_FEE;
   }
 

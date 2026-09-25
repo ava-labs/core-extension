@@ -15,34 +15,57 @@ export const isValidBtcAddress = (address: string) => {
   );
 };
 
-export const isValidPvmAddress = (address: string) => {
-  return isValidXPAddressWithPrefix(address, 'P-');
+const MAINNET_HRP = 'avax';
+
+export const isValidPvmAddress = (address: string, isTestnet: boolean) => {
+  return isValidXPAddressWithPrefix(address, 'P-', isTestnet);
 };
 
-export const isValidAvmAddress = (address: string) => {
-  return isValidXPAddressWithPrefix(address, 'X-');
+export const isValidAvmAddress = (address: string, isTestnet: boolean) => {
+  return isValidXPAddressWithPrefix(address, 'X-', isTestnet);
 };
 
 export const isValidSvmAddress = (address: string) => {
   return isSvmAddress(address);
 };
 
-function isValidXPAddressWithPrefix(value: string, forcedPrefix?: string) {
+function isValidXPAddressWithPrefix(
+  value: string,
+  forcedPrefix: string | undefined,
+  isTestnet: boolean,
+) {
   const address =
     forcedPrefix && !value.startsWith(forcedPrefix)
       ? `${forcedPrefix}${value}`
       : value;
 
   const addressBody = stripAddressPrefix(address);
-  return isValidXPAddress(addressBody);
+  return isValidXPAddressForNetwork(addressBody, isTestnet);
 }
 
-export const isValidXPAddress = (address: string) => {
-  try {
-    utils.parseBech32(address);
+export const isValidXPAddressForNetwork = (
+  address: string,
+  isTestnet: boolean,
+) => {
+  const hrp = parseXPAddressHrp(address);
 
-    return true;
-  } catch {
+  if (hrp === undefined) {
     return false;
+  }
+
+  return isTestnet ? hrp !== MAINNET_HRP : hrp === MAINNET_HRP;
+};
+
+export const isValidXPAddress = (address: string) => {
+  return parseXPAddressHrp(address) !== undefined;
+};
+
+const parseXPAddressHrp = (address: string): string | undefined => {
+  try {
+    const [hrp] = utils.parseBech32(address);
+
+    return hrp;
+  } catch {
+    return undefined;
   }
 };
