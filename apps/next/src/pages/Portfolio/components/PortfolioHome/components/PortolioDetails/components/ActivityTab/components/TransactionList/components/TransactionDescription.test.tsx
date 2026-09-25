@@ -15,6 +15,7 @@ import { TransactionDescription } from './TransactionDescription';
 const CONTRACT_CALL_I18N_KEY = `<amount /> {{symbol}} Contract\u00A0Call`;
 
 jest.mock('@core/common', () => ({
+  ...jest.requireActual('@core/common'),
   getAllAddressesForAccount: jest.fn(() => []),
   isNftTokenType: jest.fn(() => false),
 }));
