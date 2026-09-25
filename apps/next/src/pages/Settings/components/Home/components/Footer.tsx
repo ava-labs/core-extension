@@ -38,7 +38,7 @@ export const Footer = (props: StackProps) => {
                 <InTextLink
                   sx={{ ml: 0.25 }}
                   target="_blank"
-                  href="https://www.avalabs.org/privacy-policy"
+                  href="https://www.avalabs.org/legal/privacy-policy"
                   rel="noreferrer"
                   onClick={() => capture('PrivacyPolicyClicked')}
                 />
