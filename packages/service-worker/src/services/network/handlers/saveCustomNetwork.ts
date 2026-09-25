@@ -28,18 +28,6 @@ export class SaveCustomNetworkHandler implements HandlerType {
         error: 'Network not provided in params',
       };
 
-    const isValid = await this.networkService.isValidRPCUrl(
-      network.chainId,
-      network.rpcUrl,
-    );
-
-    if (!isValid) {
-      return {
-        ...request,
-        error: 'ChainID does not match the rpc url',
-      };
-    }
-
     const [addedNetwork, err] = await resolve(
       this.networkService.saveCustomNetwork(network),
     );

@@ -43,12 +43,15 @@ export const getUniqueCollectibleId = (
 };
 
 // We must return `null` in the empty case to satisfy usage in queryFn's.
-export const resolveMimeType = async (url: string): Promise<string | null> => {
+export const resolveMimeType = async (
+  url: string,
+  options?: { allowPrivate?: boolean },
+): Promise<string | null> => {
   if (!url) {
     return null;
   }
 
-  if (!isSafeRemoteUrl(url)) {
+  if (!isSafeRemoteUrl(url, options)) {
     return null;
   }
 

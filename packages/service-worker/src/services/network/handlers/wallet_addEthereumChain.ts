@@ -14,12 +14,12 @@ import {
 import {
   canSkipApproval,
   decorateWithCaipId,
+  isAllowedRpcUrl,
   isValidHttpHeader,
 } from '@core/common';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
-import { isAllowedRpcUrl } from './utils/isAllowedRpcUrl';
 
 function isValidExplorerUrl(url: string): boolean {
   try {
@@ -102,7 +102,11 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler<
       };
     }
 
-    if (!isAllowedRpcUrl(rpcUrl)) {
+    if (
+      !isAllowedRpcUrl(rpcUrl, {
+        allowPrivate: !this.networkService.isMainnet(),
+      })
+    ) {
       return {
         ...request,
         error: ethErrors.rpc.invalidParams({

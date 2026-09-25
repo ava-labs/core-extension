@@ -61,5 +61,22 @@ describe('src/utils/isSafeRemoteUrl.ts', () => {
       expect(isSafeRemoteUrl('https://169.254.169.254./meta.json')).toBe(false);
       expect(isSafeRemoteUrl('https://router.local./meta.json')).toBe(false);
     });
+
+    it('allows private hosts in testnet mode, including plain HTTP', () => {
+      const options = { allowPrivate: true };
+
+      expect(isSafeRemoteUrl('https://localhost/meta.json', options)).toBe(
+        true,
+      );
+      expect(isSafeRemoteUrl('http://127.0.0.1:8545/meta.json', options)).toBe(
+        true,
+      );
+      expect(isSafeRemoteUrl('https://192.168.1.1/meta.json', options)).toBe(
+        true,
+      );
+      expect(isSafeRemoteUrl('http://example.com/meta.json', options)).toBe(
+        false,
+      );
+    });
   });
 });

@@ -24,11 +24,15 @@ export const isPrivateHostname = (hostname: string): boolean => {
 };
 
 /**
- * Whether an untrusted, third-party-controlled URL is safe for the extension to
- * fetch() itself. Every code path that fetches a URL sourced from on-chain or
- * dApp-provided metadata must gate on this.
+ * Whether an untrusted URL is safe to fetch. Private hosts (including
+ * localhost) are rejected unless `allowPrivate` is set, which callers pass
+ * when the wallet is in testnet mode so local infrastructure still works.
+ * Plain HTTP is then limited to those private hosts.
  */
-export const isSafeRemoteUrl = (rawUrl: string): boolean => {
+export const isSafeRemoteUrl = (
+  rawUrl: string,
+  options?: { allowPrivate?: boolean },
+): boolean => {
   let parsed: URL;
 
   try {
@@ -37,9 +41,15 @@ export const isSafeRemoteUrl = (rawUrl: string): boolean => {
     return false;
   }
 
-  if (parsed.protocol !== 'https:') {
-    return false;
+  const allowPrivate = options?.allowPrivate ?? false;
+
+  if (parsed.protocol === 'https:') {
+    return allowPrivate || !isPrivateHostname(parsed.hostname);
   }
 
-  return !isPrivateHostname(parsed.hostname);
+  return (
+    allowPrivate &&
+    parsed.protocol === 'http:' &&
+    isPrivateHostname(parsed.hostname)
+  );
 };

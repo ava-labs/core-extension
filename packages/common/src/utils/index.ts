@@ -51,6 +51,8 @@ export * from './isLedgerVersionCompatible';
 export * from './isLockStateChangedEvent';
 export * from './isPrimarySubnet';
 export * from './isSafeRemoteUrl';
+export * from './isAllowedRpcUrl';
+export * from './expandExponentialNotation';
 export * from './isSupportedBrowser';
 export * from './toSafeCssUrl';
 export * from './isTokenMalicious';

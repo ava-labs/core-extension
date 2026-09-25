@@ -2,6 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { FormattedCollectible } from '../CollectiblesTab';
 import { ipfsResolverWithFallback, isSafeRemoteUrl } from '@core/common';
+import { useNetworkContext } from '@core/ui';
 import { NftTokenMetadataStatus } from '@avalabs/glacier-sdk';
 
 /**
@@ -14,12 +15,15 @@ interface ImageMetadata {
 /**
  * Fetch data from a URL
  */
-const fetcher = async (url: string): Promise<ImageMetadata | null> => {
+const fetcher = async (
+  url: string,
+  allowPrivate: boolean,
+): Promise<ImageMetadata | null> => {
   if (!url) {
     return null;
   }
 
-  if (!isSafeRemoteUrl(url)) {
+  if (!isSafeRemoteUrl(url, { allowPrivate })) {
     return null;
   }
 
@@ -36,6 +40,8 @@ const fetcher = async (url: string): Promise<ImageMetadata | null> => {
 };
 
 export const useCollectibleDoubleHop = (collectible: FormattedCollectible) => {
+  const { isDeveloperMode } = useNetworkContext();
+  const allowPrivate = Boolean(isDeveloperMode);
   // Use unique collectible ID for stable query key
   const collectibleId = collectible.uniqueCollectibleId;
 
@@ -82,8 +88,13 @@ export const useCollectibleDoubleHop = (collectible: FormattedCollectible) => {
   );
 
   const query = useQuery<ImageMetadata | null, Error, FormattedCollectible>({
-    queryKey: ['collectible-metadata-double-hop', collectibleId, tokenUri],
-    queryFn: tokenUri ? () => fetcher(tokenUri) : skipToken,
+    queryKey: [
+      'collectible-metadata-double-hop',
+      collectibleId,
+      tokenUri,
+      allowPrivate,
+    ],
+    queryFn: tokenUri ? () => fetcher(tokenUri, allowPrivate) : skipToken,
     select,
     retry: false,
   });
