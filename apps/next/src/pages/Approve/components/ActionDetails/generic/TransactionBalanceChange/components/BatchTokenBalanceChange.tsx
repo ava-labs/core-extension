@@ -14,8 +14,9 @@ import {
   TokenDiffItem,
 } from '@avalabs/vm-module-types';
 
+import { expandExponentialNotation } from '@core/common';
+
 import { OverflowingTypography } from '@/components/OverflowingTypography';
-import { expandExponentialNotation } from '@/components/CollapsedTokenAmount';
 
 import * as Styled from './Styled';
 import { TokenLogo } from './TokenLogo';
