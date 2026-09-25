@@ -1,4 +1,4 @@
-import { expandExponentialNotation } from './CollapsedTokenAmount';
+import { expandExponentialNotation } from './expandExponentialNotation';
 
 describe('expandExponentialNotation', () => {
   it('leaves plain decimal strings untouched', () => {
@@ -10,8 +10,6 @@ describe('expandExponentialNotation', () => {
     );
   });
 
-  // Bounty #87015: two ERC-1155 amounts 10,000,000x apart used to render
-  // identically as "1.23456" because the exponent was truncated away.
   it('expands large exponents without losing precision', () => {
     expect(expandExponentialNotation('1.234567e+21')).toBe(
       '1234567000000000000000',
@@ -39,5 +37,10 @@ describe('expandExponentialNotation', () => {
   it('handles exponents that land inside the digits', () => {
     expect(expandExponentialNotation('1.234567e+3')).toBe('1234.567');
     expect(expandExponentialNotation('1.2e0')).toBe('1.2');
+  });
+
+  it('leaves oversized exponents unexpanded', () => {
+    expect(expandExponentialNotation('1e+999999')).toBe('1e+999999');
+    expect(expandExponentialNotation('1e-999999')).toBe('1e-999999');
   });
 });

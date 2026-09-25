@@ -5,6 +5,7 @@ import {
   Typography,
   TypographyProps,
 } from '@avalabs/k2-alpine';
+import { expandExponentialNotation } from '@core/common';
 import { ReactElement } from 'react';
 
 type CollapsedTokenAmountProps = {
@@ -27,61 +28,6 @@ const defaultRegularProps: TypographyProps = {
   variant: 'h2',
   fontWeight: 500,
 } as const;
-
-const EXPONENTIAL_NOTATION = /^([+-]?)(\d+)(?:\.(\d+))?[eE]([+-]?\d+)$/;
-
-/**
- * SECURITY: amounts reach us as strings, and some of them arrive in scientific
- * notation (large ERC-1155 values are converted through a JS `Number` upstream,
- * so `1234567000000000000000` becomes `"1.234567e+21"`). The collapsing logic
- * below splits on `"."` and truncates the fraction, which silently drops the
- * exponent: both `1.234567e+21` and `1.234567e+28` would render as `1.23456`,
- * making transfers that differ by 10,000,000x look identical.
- *
- * Expand the notation into plain decimal digits first, using string arithmetic
- * so no precision is lost.
- */
-// The exponent is attacker-controlled: `1e+999999999` would otherwise allocate a
-// huge string via `String.repeat`. A real amount stays under this — at most ~78
-// integer digits (uint256) plus up to 255 fractional (ERC-20 `decimals` is a uint8).
-const MAX_EXPANDED_LENGTH = 512;
-
-export const expandExponentialNotation = (amount: string): string => {
-  const match = amount.trim().match(EXPONENTIAL_NOTATION);
-
-  if (!match) {
-    return amount;
-  }
-
-  const [, sign = '', integerDigits = '', fractionDigits = '', exponent = '0'] =
-    match;
-  const digits = `${integerDigits}${fractionDigits}`;
-  // Where the decimal point lands within `digits` once the exponent is applied.
-  const pointIndex = integerDigits.length + Number(exponent);
-
-  const padding =
-    pointIndex <= 0 ? -pointIndex : Math.max(0, pointIndex - digits.length);
-
-  if (padding + digits.length > MAX_EXPANDED_LENGTH) {
-    return amount;
-  }
-
-  let expanded: string;
-
-  if (pointIndex <= 0) {
-    expanded = `0.${'0'.repeat(-pointIndex)}${digits}`;
-  } else if (pointIndex >= digits.length) {
-    expanded = `${digits}${'0'.repeat(pointIndex - digits.length)}`;
-  } else {
-    expanded = `${digits.slice(0, pointIndex)}.${digits.slice(pointIndex)}`;
-  }
-
-  if (expanded.includes('.')) {
-    expanded = expanded.replace(/0+$/, '').replace(/\.$/, '');
-  }
-
-  return `${sign}${expanded}`;
-};
 
 const CONSECUTIVE_ZEROES_THRESHOLD = 4;
 const MAX_FRACTION_SIZE = 5;
@@ -111,6 +57,17 @@ export const CollapsedTokenAmount = ({
   const finalRegularProps = { ...defaultRegularProps, ...regularProps };
 
   const amount = expandExponentialNotation(rawAmount);
+
+  // Expansion gives up on values too long to spell out. The collapsing below
+  // splits on "." and would slice the exponent off the fraction, rendering
+  // 1.234567e+600 and 1.234567e+700 identically as "~1.23456".
+  if (/[eE]/.test(amount)) {
+    return withTooltip(
+      showTooltip && amount.length > TOOLTIP_MIN_INTEGER_LENGTH,
+      amount,
+      <Typography {...finalRegularProps}>{amount}</Typography>,
+    );
+  }
 
   const [integer, fraction] = amount.split('.');
 
