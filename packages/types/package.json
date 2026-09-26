@@ -6,7 +6,7 @@
   "devDependencies": {
     "@avalabs/fusion-sdk": "0.28.0",
     "fireblocks-sdk": "5.20.0",
-    "joi": "17.7.0",
+    "joi": "17.13.6",
     "jose": "4.15.5"
   },
   "files": [
