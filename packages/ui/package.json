@@ -8,7 +8,7 @@
   },
   "main": "src/index.ts",
   "dependencies": {
-    "@avalabs/avalanchejs": "5.1.1-alpha.4",
+    "@avalabs/avalanchejs": "5.2.0",
     "@avalabs/core-bridge-sdk": "3.1.0-alpha.97",
     "@avalabs/core-chains-sdk": "3.1.0-alpha.97",
     "@avalabs/core-coingecko-sdk": "3.1.0-alpha.97",
@@ -19,7 +19,7 @@
     "@avalabs/core-token-prices-sdk": "3.1.0-alpha.97",
     "@avalabs/core-utils-sdk": "3.1.0-alpha.97",
     "@avalabs/core-wallets-sdk": "3.1.0-alpha.97",
-    "@avalabs/fusion-sdk": "0.28.0",
+    "@avalabs/fusion-sdk": "0.28.1",
     "@avalabs/glacier-sdk": "3.1.0-alpha.97",
     "@avalabs/hw-app-avalanche": "1.1.1",
     "@avalabs/types": "3.1.0-alpha.97",
