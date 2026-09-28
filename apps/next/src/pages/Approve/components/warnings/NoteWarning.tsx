@@ -1,10 +1,15 @@
 import { FC } from 'react';
-import { Alert } from '@avalabs/vm-module-types';
+import { Alert, AlertType } from '@avalabs/vm-module-types';
 import { FiAlertCircle } from 'react-icons/fi';
 import { Stack, Box, Typography } from '@avalabs/k2-alpine';
 
 type NoteWarningProps = {
   alert: Alert;
+};
+const COLOR_BY_ALERT_TYPE: Record<AlertType, string> = {
+  [AlertType.DANGER]: 'error.main',
+  [AlertType.WARNING]: 'warning.main',
+  [AlertType.INFO]: 'info.main',
 };
 
 export const NoteWarning: FC<NoteWarningProps> = ({ alert }) => (
@@ -14,7 +19,7 @@ export const NoteWarning: FC<NoteWarningProps> = ({ alert }) => (
     px={2}
     mb={2}
     alignItems="center"
-    color="error.main"
+    color={COLOR_BY_ALERT_TYPE[alert.type] ?? 'error.main'}
     gap={1}
   >
     <Box flexShrink={0}>

@@ -20,7 +20,7 @@ pids
 .env
 .env.dev
 .env.production
-.env.dev
+.env.e2e
 
 # Dependency directories
 node_modules/

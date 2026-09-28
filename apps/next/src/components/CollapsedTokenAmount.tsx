@@ -5,6 +5,7 @@ import {
   Typography,
   TypographyProps,
 } from '@avalabs/k2-alpine';
+import { expandExponentialNotation } from '@core/common';
 import { ReactElement } from 'react';
 
 type CollapsedTokenAmountProps = {
@@ -45,7 +46,7 @@ const TOOLTIP_MIN_INTEGER_LENGTH = 10;
  * For example: 0.0000001000005 becomes 0.0₆10, not 0.0₆1000005.
  */
 export const CollapsedTokenAmount = ({
-  amount,
+  amount: rawAmount,
   overlineProps,
   regularProps,
   stackProps,
@@ -54,6 +55,19 @@ export const CollapsedTokenAmount = ({
 }: CollapsedTokenAmountProps) => {
   const finalOverlineProps = { ...defaultOverlineProps, ...overlineProps };
   const finalRegularProps = { ...defaultRegularProps, ...regularProps };
+
+  const amount = expandExponentialNotation(rawAmount);
+
+  // Expansion gives up on values too long to spell out. The collapsing below
+  // splits on "." and would slice the exponent off the fraction, rendering
+  // 1.234567e+600 and 1.234567e+700 identically as "~1.23456".
+  if (/[eE]/.test(amount)) {
+    return withTooltip(
+      showTooltip && amount.length > TOOLTIP_MIN_INTEGER_LENGTH,
+      amount,
+      <Typography {...finalRegularProps}>{amount}</Typography>,
+    );
+  }
 
   const [integer, fraction] = amount.split('.');
 

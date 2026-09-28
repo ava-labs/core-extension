@@ -371,10 +371,12 @@
           "Dependency '@avalabs/svm-module>@solana/kit' reexports from '@avalabs/svm-module>@solana/kit>@solana/addresses' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/svm-module>@solana/kit' reexports from '@avalabs/svm-module>@solana/kit>@solana/instructions' and the bundler collapsed that to a direct import.",
           "Dependency '@avalabs/svm-module>@solana/kit' reexports from '@avalabs/svm-module>@solana/kit>@solana/keys' and the bundler collapsed that to a direct import.",
-          "Dependency '@avalabs/svm-module>@solana/kit' reexports from '@avalabs/svm-module>@solana/kit>@solana/transaction-messages' and the bundler collapsed that to a direct import."
+          "Dependency '@avalabs/svm-module>@solana/kit' reexports from '@avalabs/svm-module>@solana/kit>@solana/transaction-messages' and the bundler collapsed that to a direct import.",
+          "Dependency '@avalabs/svm-module>@solana/kit' reexports from '@avalabs/svm-module>@solana/kit>@solana/transactions' and the bundler collapsed that to a direct import."
         ]
       },
       "packages": {
+        "@avalabs/core-chains-sdk": true,
         "@avalabs/core-coingecko-sdk": true,
         "@avalabs/core-utils-sdk": true,
         "@avalabs/core-wallets-sdk": true,
@@ -390,6 +392,7 @@
         "@avalabs/svm-module>@solana/kit>@solana/keys": true,
         "@avalabs/svm-module>@solana/kit": true,
         "@avalabs/svm-module>@solana/kit>@solana/transaction-messages": true,
+        "@avalabs/svm-module>@solana/kit>@solana/transactions": true,
         "buffer": true,
         "@rsbuild/plugin-node-polyfill>process": true,
         "@avalabs/svm-module>zod": true
@@ -3563,10 +3566,23 @@
         "external:../common/src/utils/stripAddressPrefix.ts": true
       }
     },
+    "external:../common/src/utils/isAllowedRpcUrl.ts": {
+      "globals": {
+        "URL": true
+      },
+      "packages": {
+        "external:../common/src/utils/isSafeRemoteUrl.ts": true
+      }
+    },
     "external:../common/src/utils/isContactValid.ts": {
       "packages": {
         "ethers": true,
         "external:../common/src/utils/isAddressValid.ts": true
+      }
+    },
+    "external:../common/src/utils/isSafeRemoteUrl.ts": {
+      "globals": {
+        "URL": true
       }
     },
     "external:../common/src/utils/isSupportedBrowser.ts": {
@@ -3702,6 +3718,11 @@
     "external:../common/src/utils/secrets.ts": {
       "packages": {
         "@avalabs/vm-module-types": true
+      }
+    },
+    "external:../common/src/utils/seedPhraseValidation.ts": {
+      "packages": {
+        "ethers": true
       }
     },
     "external:../common/src/utils/seedless/fido/seedless-utils.ts": {

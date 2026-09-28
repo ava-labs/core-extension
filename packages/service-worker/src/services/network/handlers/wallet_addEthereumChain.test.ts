@@ -49,6 +49,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     jest.mocked(canSkipApproval).mockResolvedValue(false);
     mockNetworkService = new NetworkService({} as any, {} as any, {} as any);
     (mockNetworkService.isValidRPCUrl as jest.Mock).mockReturnValue(true);
+    (mockNetworkService.isMainnet as jest.Mock).mockReturnValue(true);
     jest.spyOn(mockNetworkService, 'setNetwork');
     mockNetworkService.allNetworks = {
       promisify: () =>
@@ -272,6 +273,64 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         message: 'Network Token Symbol is required',
       }),
     });
+  });
+
+  it('rejects a private RPC URL while the wallet is on mainnet', async () => {
+    const request = {
+      id: '1234',
+      method: DAppProviderRequest.WALLET_ADD_CHAIN,
+      params: [
+        {
+          chainId: '0xa868',
+          chainName: 'Local',
+          nativeCurrency: { name: 'AVAX', symbol: 'AVAX', decimals: 18 },
+          rpcUrls: ['http://127.0.0.1:8545'],
+          blockExplorerUrls: ['https://snowtrace.io/'],
+        },
+      ],
+      site: {
+        domain: 'core.app',
+        tabId: 1,
+      },
+    };
+
+    const result = await handler.handleUnauthenticated(buildRpcCall(request));
+
+    expect(mockNetworkService.isValidRPCUrl).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      ...request,
+      error: ethErrors.rpc.invalidParams({
+        message: 'RPC URL must use HTTPS and must not target a private address',
+      }),
+    });
+  });
+
+  it('allows a private RPC URL in testnet mode', async () => {
+    (mockNetworkService.isMainnet as jest.Mock).mockReturnValue(false);
+
+    const request = {
+      id: '1234',
+      method: DAppProviderRequest.WALLET_ADD_CHAIN,
+      params: [
+        {
+          chainId: '0xa868',
+          chainName: 'Local',
+          nativeCurrency: { name: 'AVAX', symbol: 'AVAX', decimals: 18 },
+          rpcUrls: ['http://127.0.0.1:8545'],
+        },
+      ],
+      site: {
+        domain: 'core.app',
+        tabId: 1,
+      },
+    };
+
+    await handler.handleUnauthenticated(buildRpcCall(request));
+
+    expect(mockNetworkService.isValidRPCUrl).toHaveBeenCalledWith(
+      43112,
+      'http://127.0.0.1:8545',
+    );
   });
 
   it('returns error when rpc url is not valid', async () => {

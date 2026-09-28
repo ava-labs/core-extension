@@ -100,6 +100,35 @@ export const isBatchApprovalAction = (
   action: Action | MultiTxAction,
 ): action is MultiTxAction => action && action.type === ActionType.Batch;
 
+/**
+ * Builds the approval action for a dApp-handled JSON-RPC request.
+ *
+ * SECURITY: the request payload is fully attacker-controlled - a page can put
+ * arbitrary extra keys on the object it passes to the injected provider, and
+ * they survive all the way to here. Spreading the request would therefore let a
+ * dApp seed privileged action fields it must never control, most importantly:
+ *
+ *  - `actionId`, which is the storage key actions are saved under. Supplying a
+ *    pending action's id overwrites that action, so a benign-looking approval
+ *    screen (e.g. a network switch) can be made to submit an entirely different
+ *    cached request.
+ *  - `signingData` and `ACTION_HANDLED_BY_MODULE`, which together route the
+ *    approval into the VM-module signing path with a dApp-supplied payload.
+ *  - `status`, `result`, `displayData`, `popupWindowId` and friends, which the
+ *    approval lifecycle owns.
+ *  - `tabId`, which is what action events are scoped by. A dApp that could set
+ *    it to another tab's id would receive that tab's pending approvals. The
+ *    trustworthy tab id is `site.tabId`, which `SiteMetadataMiddleware` derives
+ *    from `port.sender`, so it is deliberately not copied from the request here
+ *    (`getActionTabId` falls back to `site.tabId`).
+ *  - `context`, which carries internal-only hints (approval steps, recurring
+ *    swaps, agent identity, swap auto-approval). The VM-module path passes dApp
+ *    requests through `getKnownOrWhitelistedContext`; this path has no such
+ *    filter, so none of it is copied.
+ *
+ * So copy only the fields the approval flow legitimately needs from the
+ * request, and let trusted code own everything else.
+ */
 export const buildActionForRequest = <
   Params extends { scope: string; displayData: unknown },
 >(
@@ -107,7 +136,10 @@ export const buildActionForRequest = <
   params: Params,
 ): Action<Params['displayData'], unknown> => {
   return {
-    ...request,
+    id: request.id,
+    method: request.method,
+    params: request.params,
+    site: request.site,
     type: ActionType.Single,
     scope: params.scope,
     displayData: params.displayData,

@@ -123,5 +123,27 @@ describe('deserialize', () => {
         params: expectedParams,
       });
     });
+
+    it('rejects a Buffer/Uint8Array whose value is not an array (size-limit bypass)', () => {
+      const hugeString = '0'.repeat(200_000);
+
+      expect(() =>
+        deserializeFromJSON(
+          JSON.stringify({ type: 'Buffer', value: hugeString }),
+        ),
+      ).toThrow('value too large');
+
+      expect(() =>
+        deserializeFromJSON(
+          JSON.stringify({ type: 'Uint8Array', value: hugeString }),
+        ),
+      ).toThrow('value too large');
+    });
+
+    it('rejects a numeric type whose value is not a string', () => {
+      expect(() =>
+        deserializeFromJSON(JSON.stringify({ type: 'BigInt', value: [1, 2] })),
+      ).toThrow('value too large');
+    });
   });
 });

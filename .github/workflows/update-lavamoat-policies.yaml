@@ -148,7 +148,7 @@ jobs:
       # Download outside the workspace so the next `actions/checkout` step
       # doesn't wipe the patch files when it cleans the working directory.
       - name: Download policy diff artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           # Pattern + merge-multiple keeps this forward-compatible with a
           # future split into one validate job per bundle (each uploading
@@ -179,7 +179,7 @@ jobs:
       # a plain `git push` from CI would produce an unsigned commit and
       # be rejected.
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 0
 

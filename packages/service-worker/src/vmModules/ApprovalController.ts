@@ -147,6 +147,18 @@ export class ApprovalController implements BatchApprovalController {
     this.#requests.delete(action.actionId);
   };
 
+  /**
+   * Whether this controller is the one that created the given action.
+   *
+   * `ActionsService.updateAction` routes an approval into the VM-module signing
+   * path based on the `ACTION_HANDLED_BY_MODULE` marker stored on the action.
+   * That marker only means something when the action really came from here, so
+   * the service asks before following it.
+   */
+  ownsAction(actionId?: string): boolean {
+    return Boolean(actionId && this.#requests.has(actionId));
+  }
+
   #getRequest<
     A extends Action | MultiTxAction,
     R extends ActionToRequest[A['type']],
@@ -392,16 +404,19 @@ export class ApprovalController implements BatchApprovalController {
 
     if (validator) {
       const validation = validator.validateAction(action, params);
+      const hasExistingAlert = Boolean(action.displayData.alert);
 
-      if (validation.isValid) {
+      if (validation.isValid && !hasExistingAlert) {
         return await this.#executeBatchAutoApproval(action, network);
-      } else if (validation.requiresManualApproval) {
+      } else if (validation.requiresManualApproval || hasExistingAlert) {
         // Add the validation warning to displayData so it shows in the approval UI
-        action.displayData.alert = {
+        action.displayData.alert ??= {
           type: AlertType.WARNING,
           details: {
             title: 'Manual approval required',
-            description: validation.reason,
+            description:
+              validation.reason ??
+              'This transaction could not be automatically verified.',
           },
         };
       } else {
@@ -504,10 +519,29 @@ export class ApprovalController implements BatchApprovalController {
       ({ signingData }) => signingData.data,
     );
 
+    const expectedSignerAddress =
+      action.signingRequests[0]?.signingData.account;
+
+    if (!expectedSignerAddress) {
+      throw new Error('Missing signer address for batch transaction');
+    }
+
+    //Check for mixed signers in the batch. All transactions must have the same signer.
+    const hasMixedSigners = action.signingRequests.some(
+      ({ signingData }) =>
+        signingData.account?.toLowerCase() !==
+        expectedSignerAddress.toLowerCase(),
+    );
+
+    if (hasMixedSigners) {
+      throw new Error('All transactions in a batch must have the same signer');
+    }
+
     return this.#walletService.signTransactionBatch(
       batch,
       network,
       action.tabId,
+      expectedSignerAddress,
     );
   };
 
@@ -522,6 +556,12 @@ export class ApprovalController implements BatchApprovalController {
       throw new Error('No signing data provided');
     }
 
+    // The `account` field on signing data is the address that was displayed
+    // in the approval UI. We pass it to the wallet service so it can verify
+    // the active account hasn't changed since the user approved the request.
+    const expectedSignerAddress =
+      'account' in signingData ? signingData.account : undefined;
+
     switch (signingData.type) {
       case RpcMethod.BITCOIN_SEND_TRANSACTION:
       case RpcMethod.BITCOIN_SIGN_TRANSACTION:
@@ -531,10 +571,15 @@ export class ApprovalController implements BatchApprovalController {
           signingData.data,
           network,
           action.tabId,
+          undefined,
+          expectedSignerAddress,
         );
 
       case RpcMethod.AVALANCHE_SIGN_TRANSACTION:
       case RpcMethod.AVALANCHE_SEND_TRANSACTION:
+        // Avalanche signing requests embed addresses inside the transaction's
+        // UTXO structure rather than carrying a top-level account field.
+        // Validation is deferred to the UTXO ownership check done by the signer.
         return await this.#walletService.sign(
           signingData,
           network,
@@ -553,9 +598,12 @@ export class ApprovalController implements BatchApprovalController {
           network,
           action.tabId,
         );
+
       case RpcMethod.SOLANA_SIGN_TRANSACTION:
       case RpcMethod.SOLANA_SIGN_AND_SEND_TRANSACTION:
       case RpcMethod.SOLANA_SIGN_MESSAGE:
+        // Solana signing data carries the account address directly; sign()
+        // extracts it from tx.account and validates it internally.
         return await this.#walletService.sign(
           signingData,
           network,
