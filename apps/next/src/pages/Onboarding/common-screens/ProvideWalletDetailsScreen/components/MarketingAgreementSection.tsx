@@ -77,7 +77,7 @@ export const MarketingAgreementSection: FC<Props> = ({
                   <InTextLink
                     sx={{ ml: 0.25 }}
                     target="_blank"
-                    href="https://www.avalabs.org/privacy-policy"
+                    href="https://www.avalabs.org/legal/privacy-policy"
                     rel="noreferrer"
                   />
                 ),
