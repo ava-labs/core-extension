@@ -6,7 +6,6 @@ import {
 import { Divider, Stack, Typography } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { NetworkWithCaipId } from '@core/types';
-import { NoScrollStack } from '@/components/NoScrollStack';
 import { AddressDetail } from './AddressDetail';
 import { CurrencyDetail } from './CurrencyDetail';
 import { DateDetail } from './DateDetail';
@@ -16,8 +15,6 @@ type TransferListDetailProps = {
   item: TransferListItem;
   network: NetworkWithCaipId;
 };
-
-const MAX_HEIGHT = 260;
 
 const _isLocked = (seconds?: number): seconds is number =>
   seconds !== undefined && seconds * 1000 > Date.now();
@@ -134,15 +131,13 @@ export const TransferListDetail = ({
   const transfers = item.value;
 
   return (
-    <NoScrollStack autoHeight autoHeightMax={MAX_HEIGHT}>
-      <Stack width="100%" pb={1}>
-        {transfers.map((transfer, index) => (
-          <Stack key={index}>
-            {index > 0 && <Divider sx={{ marginInline: 2, my: 0.5 }} />}
-            <TransferRows transfer={transfer} network={network} />
-          </Stack>
-        ))}
-      </Stack>
-    </NoScrollStack>
+    <Stack width="100%" pb={1}>
+      {transfers.map((transfer, index) => (
+        <Stack key={index}>
+          {index > 0 && <Divider sx={{ marginInline: 2, my: 0.5 }} />}
+          <TransferRows transfer={transfer} network={network} />
+        </Stack>
+      ))}
+    </Stack>
   );
 };
