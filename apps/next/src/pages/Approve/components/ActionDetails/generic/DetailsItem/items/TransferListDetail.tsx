@@ -80,8 +80,12 @@ const TransferRows = ({
           <TxDetailsRow label={t('Amount')}>
             <Typography variant="body3">{amount.toString()}</Typography>
           </TxDetailsRow>
-          <TxDetailsRow label={t('Asset')}>
-            <Typography variant="mono" color="text.secondary">
+          <TxDetailsRow label={t('Asset')} alignItems="start">
+            <Typography
+              variant="mono"
+              color="text.secondary"
+              sx={{ minWidth: 0, textAlign: 'right', wordBreak: 'break-all' }}
+            >
               {assetId}
             </Typography>
           </TxDetailsRow>

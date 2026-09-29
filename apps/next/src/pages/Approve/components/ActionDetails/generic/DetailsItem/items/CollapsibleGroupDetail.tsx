@@ -3,9 +3,7 @@ import {
   ChevronDownIcon,
   Collapse,
   Divider,
-  IconButton,
   Stack,
-  StackProps,
   styled,
   Typography,
 } from '@avalabs/k2-alpine';
@@ -26,11 +24,13 @@ export const CollapsibleGroupDetail = ({
 
   return (
     <Stack width="100%">
-      <GroupHeader onClick={() => setIsOpen((open) => !open)}>
+      <GroupHeader
+        type="button"
+        aria-expanded={isOpen}
+        onClick={() => setIsOpen((open) => !open)}
+      >
         <Typography variant="subtitle3">{item.label}</Typography>
-        <IconButton size="small">
-          <GroupIndicator isOpen={isOpen} />
-        </IconButton>
+        <GroupIndicator isOpen={isOpen} />
       </GroupHeader>
       <Collapse in={isOpen} sx={{ width: '100%' }}>
         <Stack width="100%" divider={<Divider sx={{ mx: 2, my: 0.5 }} />}>
@@ -52,17 +52,22 @@ export const CollapsibleGroupDetail = ({
   );
 };
 
-const GroupHeader = styled((props: StackProps) => (
-  <Stack gap={1} role="button" {...props} />
-))`
+const GroupHeader = styled('button')`
+  display: flex;
   flex-direction: row;
   align-items: center;
   flex-shrink: 0;
   cursor: pointer;
   justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing(1)};
   width: 100%;
   padding-inline: ${({ theme }) => theme.spacing(2)};
   padding-block: ${({ theme }) => theme.spacing(0.5)};
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
 `;
 
 type GroupIndicatorProps = {
