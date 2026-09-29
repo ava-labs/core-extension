@@ -38,6 +38,8 @@ const TransferRows = ({
     lockedUntil,
     stakeableLockedUntil,
     isNativeToken,
+    isStaked,
+    stakedUntil,
   } = transfer;
 
   return (
@@ -49,11 +51,17 @@ const TransferRows = ({
           </Typography>
         </TxDetailsRow>
       ) : (
-        addresses.map((address) => (
+        addresses.map((address, index) => (
           <AddressDetail
             key={address}
             item={{
-              label: t('To'),
+              label:
+                addresses.length > 1
+                  ? t('To ({{index}}/{{total}})', {
+                      index: index + 1,
+                      total: addresses.length,
+                    })
+                  : t('To'),
               type: DetailItemType.ADDRESS,
               value: address,
             }}
@@ -95,6 +103,22 @@ const TransferRows = ({
           <Typography variant="body3">{assetName}</Typography>
         </TxDetailsRow>
       )}
+      {isStaked &&
+        (stakedUntil === undefined ? (
+          <TxDetailsRow label={t('Staked')}>
+            <Typography variant="body3">
+              {t('Until the validator stops')}
+            </Typography>
+          </TxDetailsRow>
+        ) : (
+          <DateDetail
+            item={{
+              label: t('Staked until'),
+              type: DetailItemType.DATE,
+              value: String(stakedUntil),
+            }}
+          />
+        ))}
       {threshold !== undefined && threshold > 1 && (
         <TxDetailsRow label={t('Signatures required')}>
           <Typography variant="body3">

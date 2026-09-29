@@ -24,7 +24,7 @@ export const DetailsSection = ({
 }: DetailsSectionProps) => {
   return (
     <Card sx={combineSx({ overflow: 'visible', width: '100%' }, sx)} {...props}>
-      {heading && (
+      {heading?.trim() && (
         <Typography variant="subtitle3" px={2} py={0.5}>
           {heading}
         </Typography>
