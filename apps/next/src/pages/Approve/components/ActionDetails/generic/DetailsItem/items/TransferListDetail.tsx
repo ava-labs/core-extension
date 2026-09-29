@@ -9,6 +9,7 @@ import { NetworkWithCaipId } from '@core/types';
 import { NoScrollStack } from '@/components/NoScrollStack';
 import { AddressDetail } from './AddressDetail';
 import { CurrencyDetail } from './CurrencyDetail';
+import { DateDetail } from './DateDetail';
 import { TxDetailsRow } from './DetailRow';
 
 type TransferListDetailProps = {
@@ -18,7 +19,6 @@ type TransferListDetailProps = {
 
 const MAX_HEIGHT = 260;
 
-const _getDate = (seconds: number) => new Date(seconds * 1000).toUTCString();
 const _isLocked = (seconds?: number): seconds is number =>
   seconds !== undefined && seconds * 1000 > Date.now();
 
@@ -106,16 +106,22 @@ const TransferRows = ({
         </TxDetailsRow>
       )}
       {_isLocked(lockedUntil) && (
-        <TxDetailsRow label={t('Locked until')}>
-          <Typography variant="body3">{_getDate(lockedUntil)}</Typography>
-        </TxDetailsRow>
+        <DateDetail
+          item={{
+            label: t('Locked until'),
+            type: DetailItemType.DATE,
+            value: String(lockedUntil),
+          }}
+        />
       )}
       {_isLocked(stakeableLockedUntil) && (
-        <TxDetailsRow label={t('Usable for staking only until')}>
-          <Typography variant="body3">
-            {_getDate(stakeableLockedUntil)}
-          </Typography>
-        </TxDetailsRow>
+        <DateDetail
+          item={{
+            label: t('Staking only until'),
+            type: DetailItemType.DATE,
+            value: String(stakeableLockedUntil),
+          }}
+        />
       )}
     </>
   );
