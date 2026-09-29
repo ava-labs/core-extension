@@ -40,6 +40,7 @@ const TransferRows = ({
     threshold,
     lockedUntil,
     stakeableLockedUntil,
+    isNativeToken,
   } = transfer;
 
   return (
@@ -71,6 +72,7 @@ const TransferRows = ({
             value: amount,
             maxDecimals: decimals,
             symbol,
+            isNativeToken,
           }}
           network={network}
         />
