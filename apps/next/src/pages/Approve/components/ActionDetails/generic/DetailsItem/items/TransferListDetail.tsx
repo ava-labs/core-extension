@@ -19,6 +19,12 @@ type TransferListDetailProps = {
 const _isLocked = (seconds?: number): seconds is number =>
   seconds !== undefined && seconds * 1000 > Date.now();
 
+const _shouldDisplayThreshold = (
+  addresses: string[],
+  threshold?: number,
+): threshold is number =>
+  threshold !== undefined && (threshold > 1 || addresses.length > 1);
+
 const TransferRows = ({
   transfer,
   network,
@@ -119,10 +125,12 @@ const TransferRows = ({
             }}
           />
         ))}
-      {threshold !== undefined && threshold > 1 && (
+      {_shouldDisplayThreshold(addresses, threshold) && (
         <TxDetailsRow label={t('Signatures required')}>
           <Typography variant="body3">
-            {threshold}/{addresses.length}
+            {addresses.length > 0
+              ? `${threshold}/${addresses.length}`
+              : threshold}
           </Typography>
         </TxDetailsRow>
       )}
