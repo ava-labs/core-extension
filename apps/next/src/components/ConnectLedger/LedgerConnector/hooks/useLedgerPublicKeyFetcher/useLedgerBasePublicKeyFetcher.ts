@@ -352,10 +352,14 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     // user action. Returning here prevents the AVALANCHE branch below from
     // re-flipping status to 'ready' and re-triggering the connector's
     // auto-fetch.
+    // `wasTransportAttempted` flips synchronously when the probe starts (before
+    // its device request resolves), so `needs-user-gesture` can be set mid-probe.
+    // Keep it sticky only while transport is still missing, so an
+    // already-authorized device recovers without an unnecessary retry click.
     if (
       error === 'duplicated-wallet' ||
       error === 'retrieval-failed' ||
-      status === 'needs-user-gesture'
+      (status === 'needs-user-gesture' && !hasLedgerTransport)
     ) {
       return;
     }
