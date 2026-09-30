@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "big.js": "6.1.1",
-    "bitcoinjs-lib": "5.2.0"
+    "bitcoinjs-lib": "6.1.8"
   },
   "peerDependencies": {
     "@sentry/browser": "7.66.0"

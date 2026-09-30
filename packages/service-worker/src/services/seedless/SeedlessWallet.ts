@@ -6,7 +6,7 @@ import {
   BitcoinOutputUTXO,
   BitcoinProvider,
   compileSolanaTx,
-  createPsbt,
+  createPSBT,
   deserializeTransactionMessage,
   getEvmAddressFromPubKey,
   serializeSolanaTx,
@@ -20,6 +20,7 @@ import {
   typedSignatureHash,
 } from '@metamask/eth-sig-util';
 import { sha256 } from '@noble/hashes/sha256';
+import { secp256k1 } from '@noble/curves/secp256k1';
 import {
   BytesLike,
   getBytes,
@@ -549,7 +550,7 @@ export class SeedlessWallet {
     }
 
     const btcNetwork = provider.getNetwork();
-    const psbt = createPsbt(ins, outs, btcNetwork);
+    const psbt = createPSBT(ins, outs, btcNetwork);
     const session = await this.#getSession();
 
     try {
@@ -574,9 +575,15 @@ export class SeedlessWallet {
       this.#handleError(err);
     }
 
-    // Validate inputs
-    psbt.validateSignaturesOfAllInputs();
-    // Finalize inputs
+    // bitcoinjs-lib 6 requires an explicit ECDSA verifier; the partial sig is
+    // passed as a 64-byte compact signature.
+    psbt.validateSignaturesOfAllInputs((pubkey, msghash, signature) =>
+      secp256k1.verify(
+        Uint8Array.from(signature),
+        Uint8Array.from(msghash),
+        Uint8Array.from(pubkey),
+      ),
+    );
     psbt.finalizeAllInputs();
     return psbt.extractTransaction();
   }

@@ -34,7 +34,7 @@ import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { OnLock, OnUnlock } from '../../runtime/lifecycleCallbacks';
 import { AnalyticsServicePosthog } from '../analytics/AnalyticsServicePosthog';
-import { LedgerService } from '../ledger/LedgerService';
+import { LedgerDmkService } from '../ledger/LedgerDmkService';
 import { NetworkService } from '../network/NetworkService';
 import { PermissionsService } from '../permissions/PermissionsService';
 import { AddressResolver } from '../secrets/AddressResolver';
@@ -104,7 +104,7 @@ export class AccountsService implements OnLock, OnUnlock {
     private permissionsService: PermissionsService,
     private analyticsServicePosthog: AnalyticsServicePosthog,
     private secretsService: SecretsService,
-    private ledgerService: LedgerService,
+    private ledgerDmkService: LedgerDmkService,
     private walletConnectService: WalletConnectService,
     private addressResolver: AddressResolver,
   ) {}
@@ -389,7 +389,7 @@ export class AccountsService implements OnLock, OnUnlock {
           await this.secretsService.addAddress({
             index: account.index,
             walletId,
-            ledgerService: this.ledgerService,
+            ledgerDmkService: this.ledgerDmkService,
             addressResolver: this.addressResolver,
           });
         }
@@ -485,7 +485,7 @@ export class AccountsService implements OnLock, OnUnlock {
     await this.secretsService.addAddress({
       index: nextIndex,
       walletId,
-      ledgerService: this.ledgerService,
+      ledgerDmkService: this.ledgerDmkService,
       addressResolver: this.addressResolver,
     });
 

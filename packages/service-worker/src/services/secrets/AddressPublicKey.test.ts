@@ -165,7 +165,9 @@ describe('AddressPublicKey', () => {
 
       jest
         .spyOn(ed25519, 'getPublicKey')
-        .mockReturnValueOnce(hex.decode(publicKey) as Buffer);
+        .mockReturnValueOnce(
+          Buffer.from(hex.decode(publicKey)) as Buffer<ArrayBuffer>,
+        );
 
       const addressPublicKey = AddressPublicKey.fromPrivateKey(
         privateKey,
@@ -184,7 +186,9 @@ describe('AddressPublicKey', () => {
 
       jest
         .mocked(getPublicKeyFromPrivateKey)
-        .mockReturnValueOnce(hex.decode(publicKey) as Buffer);
+        .mockReturnValueOnce(
+          Buffer.from(hex.decode(publicKey)) as Buffer<ArrayBuffer>,
+        );
 
       const addressPublicKey = AddressPublicKey.fromPrivateKey(
         privateKey,

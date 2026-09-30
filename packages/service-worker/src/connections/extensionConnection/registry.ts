@@ -51,6 +51,7 @@ import { LedgerDiscoverTransportsEvents } from '../../services/ledger/events/led
 import { CloseLedgerTransportHandler } from '../../services/ledger/handlers/closeOpenTransporters';
 import { GetLedgerVersionWarningHandler } from '../../services/ledger/handlers/getLedgerVersionWarning';
 import { InitLedgerTransportHandler } from '../../services/ledger/handlers/initLedgerTransport';
+import { LedgerDeviceRequestHandler } from '../../services/ledger/handlers/ledgerDeviceRequest';
 import { LedgerResponseHandler } from '../../services/ledger/handlers/ledgerResponse';
 import { MigrateMissingPublicKeysFromLedgerHandler } from '../../services/ledger/handlers/migrateMissingPublicKeysFromLedger';
 import { RemoveLedgerTransportHandler } from '../../services/ledger/handlers/removeLedgerTransport';
@@ -201,6 +202,7 @@ import { SetBridgeDevEnvHandler } from '~/services/settings/handlers/setBridgeDe
   { token: 'ExtensionRequestHandler', useToken: InitLedgerTransportHandler },
   { token: 'ExtensionRequestHandler', useToken: RemoveLedgerTransportHandler },
   { token: 'ExtensionRequestHandler', useToken: LedgerResponseHandler },
+  { token: 'ExtensionRequestHandler', useToken: LedgerDeviceRequestHandler },
   { token: 'ExtensionRequestHandler', useToken: LockChangePasswordHandler },
   { token: 'ExtensionRequestHandler', useToken: LockWalletHandler },
   { token: 'ExtensionRequestHandler', useToken: UnlockWalletHandler },

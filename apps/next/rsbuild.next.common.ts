@@ -83,6 +83,10 @@ export default ({ generateLavaMoatPolicy }: CommonConfigOptions) =>
       extensions: ['.ts', '.tsx', '.js'],
       alias: {
         path: require.resolve('path-browserify'),
+        // `@hpke/core`'s `require` build (`script/mod.js`) does a dynamic
+        // `require('@hpke/common')` that can't be statically bundled; force the
+        // ESM build (matches the service worker).
+        '@hpke/core': '../../node_modules/@hpke/core/esm/mod.js',
       },
       fallback: {
         path: false,
@@ -124,6 +128,15 @@ export default ({ generateLavaMoatPolicy }: CommonConfigOptions) =>
             // can't silently widen permissions without a code review.
             generatePolicy: generateLavaMoatPolicy,
             policyLocation: path.join(__dirname, 'lavamoat/rspack'),
+            // `reflect-metadata` (reached via cubesigner-sdk and the DMK
+            // `device-signer-kit-ethereum`/inversify stack that core-wallets-sdk
+            // pulls in) polyfills `Reflect.decorate`/`.metadata` by calling
+            // `Object.defineProperty` on `Reflect`. As a normal module it runs
+            // after `hardenIntrinsics()` freezes `Reflect` and throws "Cannot
+            // define property decorate, object is not extensible". Register it as
+            // a static shim so it installs before lockdown, matching the service
+            // worker. Pinned to 0.1.13 (see root package.json resolutions).
+            staticShims_experimental: [require.resolve('reflect-metadata')],
             // Packages whose code statically appears to mutate JS primordials
             // (e.g. Object.keys, Function.prototype), which SES lockdown freezes.
             // The build will fail if an unlisted package triggers this warning.

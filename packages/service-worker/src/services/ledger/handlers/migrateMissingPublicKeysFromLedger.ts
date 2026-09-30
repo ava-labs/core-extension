@@ -1,7 +1,4 @@
-import {
-  getLedgerExtendedPublicKey,
-  getAddressDerivationPath,
-} from '@avalabs/core-wallets-sdk';
+import { getAddressDerivationPath } from '@avalabs/core-wallets-sdk';
 import {
   ExtensionRequest,
   ExtensionRequestHandler,
@@ -11,7 +8,7 @@ import {
 } from '@core/types';
 import { injectable } from 'tsyringe';
 import { SecretsService } from '../../secrets/SecretsService';
-import { LedgerService } from '../LedgerService';
+import { LedgerDmkService } from '../LedgerDmkService';
 import { AccountsService } from '../../accounts/AccountsService';
 import {
   buildExtendedPublicKey,
@@ -32,7 +29,7 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
 
   constructor(
     private secretsService: SecretsService,
-    private ledgerService: LedgerService,
+    private ledgerDmkService: LedgerDmkService,
     private accountsService: AccountsService,
   ) {}
 
@@ -58,12 +55,6 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
 
       if (!walletId) {
         throw new Error('Wallet id is missing');
-      }
-
-      const transport = this.ledgerService.recentTransport;
-
-      if (!transport) {
-        throw new Error('Ledger transport not available');
       }
 
       const accounts =
@@ -112,11 +103,11 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
           );
 
           if (!xpubXP) {
-            const xpubXPString = await getLedgerExtendedPublicKey(
-              transport,
-              false,
-              xpubXPPath,
-            );
+            const xpubXPString =
+              await this.ledgerDmkService.getExtendedPublicKey(
+                xpubXPPath,
+                false,
+              );
 
             xpubXP = buildExtendedPublicKey(xpubXPString, xpubXPPath);
             newExtendedPublicKeys.push(xpubXP);
