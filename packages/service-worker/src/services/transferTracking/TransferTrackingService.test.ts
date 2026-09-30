@@ -62,7 +62,7 @@ describe('src/services/transferTracking/TransferTrackingService', () => {
   } as any;
 
   const posthogAnalyticsService = {
-    captureEncryptedEvent: jest.fn(),
+    captureEvent: jest.fn(),
   } as any;
 
   beforeEach(() => {
@@ -491,9 +491,7 @@ describe('src/services/transferTracking/TransferTrackingService', () => {
 
       await new Promise(process.nextTick);
 
-      expect(
-        posthogAnalyticsService.captureEncryptedEvent,
-      ).toHaveBeenCalledWith({
+      expect(posthogAnalyticsService.captureEvent).toHaveBeenCalledWith({
         name: 'SwapSuccessful',
         windowId: expect.any(String),
         properties: {
@@ -536,9 +534,7 @@ describe('src/services/transferTracking/TransferTrackingService', () => {
 
       await new Promise(process.nextTick);
 
-      expect(
-        posthogAnalyticsService.captureEncryptedEvent,
-      ).toHaveBeenCalledWith({
+      expect(posthogAnalyticsService.captureEvent).toHaveBeenCalledWith({
         name: 'SwapFailed',
         windowId: expect.any(String),
         properties: {
@@ -581,9 +577,7 @@ describe('src/services/transferTracking/TransferTrackingService', () => {
 
       await new Promise(process.nextTick);
 
-      expect(
-        posthogAnalyticsService.captureEncryptedEvent,
-      ).toHaveBeenCalledWith({
+      expect(posthogAnalyticsService.captureEvent).toHaveBeenCalledWith({
         name: 'SwapRefunded',
         windowId: expect.any(String),
         properties: {
@@ -625,9 +619,7 @@ describe('src/services/transferTracking/TransferTrackingService', () => {
 
       await new Promise(process.nextTick);
 
-      expect(
-        posthogAnalyticsService.captureEncryptedEvent,
-      ).not.toHaveBeenCalled();
+      expect(posthogAnalyticsService.captureEvent).not.toHaveBeenCalled();
     });
   });
 });

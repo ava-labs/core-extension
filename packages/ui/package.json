@@ -23,7 +23,6 @@
     "@ethereumjs/common": "2.6.5",
     "@ethereumjs/tx": "3.4.0",
     "@google/generative-ai": "0.22.0",
-    "@hpke/core": "1.7.5",
     "@ledgerhq/hw-app-btc": "10.11.0",
     "@ledgerhq/hw-app-eth": "6.45.18",
     "@ledgerhq/hw-app-solana": "7.5.3",

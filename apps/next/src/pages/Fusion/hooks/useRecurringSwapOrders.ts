@@ -104,7 +104,7 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
     accounts: { active },
   } = useAccountsContext();
   const { getNetwork } = useNetworkContext();
-  const { captureEncrypted } = useAnalyticsContext();
+  const { capture } = useAnalyticsContext();
   const getTranslatedError = useErrorMessage();
 
   const address = active?.addressC as Address | undefined;
@@ -267,7 +267,7 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
           setOptimisticStatus(id, 'cancelled');
         }
 
-        captureEncrypted(ORDER_ACTION_EVENT_NAME[action], {
+        capture(ORDER_ACTION_EVENT_NAME[action], {
           chainId: RECURRING_CHAIN_ID,
           orderId: id,
         });
@@ -300,7 +300,7 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
       refetch,
       getTranslatedError,
       setOptimisticStatus,
-      captureEncrypted,
+      capture,
     ],
   );
 

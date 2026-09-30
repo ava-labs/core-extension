@@ -40,7 +40,7 @@ const { getEthSendTransactionHandlers } = jest.requireMock(
 describe('TransactionStatusEventsSubscriber', () => {
   let transactionStatusEvents: TransactionStatusEventsClass;
   let addListenerSpy: jest.SpyInstance;
-  let mockAnalytics: { captureEncryptedEvent: jest.Mock };
+  let mockAnalytics: { captureEvent: jest.Mock };
   let mockAccountsService: { getAccountList: jest.Mock };
   let mockNetworkService: { getNetwork: jest.Mock };
 
@@ -55,7 +55,7 @@ describe('TransactionStatusEventsSubscriber', () => {
     jest.clearAllMocks();
     transactionStatusEvents = new TransactionStatusEventsClass();
     addListenerSpy = jest.spyOn(transactionStatusEvents, 'addListener');
-    mockAnalytics = { captureEncryptedEvent: jest.fn() };
+    mockAnalytics = { captureEvent: jest.fn() };
     mockAccountsService = { getAccountList: jest.fn() };
     mockNetworkService = { getNetwork: jest.fn() };
   });
@@ -104,8 +104,8 @@ describe('TransactionStatusEventsSubscriber', () => {
     const handlers = getAvalancheSendTransactionHandlers.mock.results[0].value;
     expect(handlers[TransactionStatusEvents.PENDING]).toHaveBeenCalledTimes(1);
 
-    expect(mockAnalytics.captureEncryptedEvent).toHaveBeenCalledTimes(1);
-    expect(mockAnalytics.captureEncryptedEvent).toHaveBeenCalledWith(
+    expect(mockAnalytics.captureEvent).toHaveBeenCalledTimes(1);
+    expect(mockAnalytics.captureEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         name: 'avalanche_sendTransaction_success',
         properties: { txHash: '0xabc', chainId: 43114 },
@@ -142,8 +142,8 @@ describe('TransactionStatusEventsSubscriber', () => {
     const handlers = getEthSendTransactionHandlers.mock.results[0].value;
     expect(handlers[TransactionStatusEvents.PENDING]).toHaveBeenCalledTimes(1);
 
-    expect(mockAnalytics.captureEncryptedEvent).toHaveBeenCalledTimes(1);
-    expect(mockAnalytics.captureEncryptedEvent).toHaveBeenCalledWith(
+    expect(mockAnalytics.captureEvent).toHaveBeenCalledTimes(1);
+    expect(mockAnalytics.captureEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         name: 'eth_sendTransaction_success',
         properties: { txHash: '0xdef', chainId: 43114 },
@@ -167,6 +167,6 @@ describe('TransactionStatusEventsSubscriber', () => {
 
     await new Promise(process.nextTick);
 
-    expect(mockAnalytics.captureEncryptedEvent).not.toHaveBeenCalled();
+    expect(mockAnalytics.captureEvent).not.toHaveBeenCalled();
   });
 });

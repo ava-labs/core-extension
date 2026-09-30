@@ -355,7 +355,7 @@ export class TransferTrackingService implements OnStorageReady {
         ? 'SwapFailed'
         : 'SwapRefunded';
 
-    this.posthogAnalyticsService.captureEncryptedEvent({
+    this.posthogAnalyticsService.captureEvent({
       name: eventName,
       windowId,
       properties,

@@ -14,12 +14,12 @@ export const useTransactionCallbacks = (
   fromAddress?: string,
 ) => {
   const { t } = useTranslation();
-  const { captureEncrypted } = useAnalyticsContext();
+  const { capture } = useAnalyticsContext();
 
   return {
     onSendApproved: () => {
       if (fromAddress) {
-        captureEncrypted('SendApproved', {
+        capture('SendApproved', {
           address: fromAddress,
           chainId: network?.chainId,
         });
@@ -28,7 +28,7 @@ export const useTransactionCallbacks = (
     // When transaction is successfully sent to the network
     onSendSuccess: (hash: string) => {
       if (fromAddress) {
-        captureEncrypted('SendSuccessful', {
+        capture('SendSuccessful', {
           address: fromAddress,
           txHash: hash,
           chainId: network?.chainId,
