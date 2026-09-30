@@ -1,5 +1,4 @@
-import { ExtensionRequest } from '@core/types';
-import { LedgerEvent } from '@core/types';
+import { ExtensionRequest, LedgerEvent, LockEvents } from '@core/types';
 import {
   fireEvent,
   render,
@@ -7,8 +6,9 @@ import {
   screen,
   cleanup,
 } from '@shared/tests/test-utils';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Subject } from 'rxjs';
+
 import { useConnectionContext } from '../ConnectionProvider';
 import {
   LedgerAppType,
@@ -16,29 +16,11 @@ import {
   useActiveLedgerAppInfo,
   useLedgerContext,
 } from '.';
-import { StatusCodes } from '@ledgerhq/hw-transport';
-import { getLedgerTransport } from '../utils/getLedgerTransport';
-import AppAvalanche from '@avalabs/hw-app-avalanche';
-import {
-  AppClient as Btc,
-  DefaultWalletPolicy,
-  WalletPolicy,
-} from 'ledger-bitcoin';
 import {
   DerivationPath,
-  getLedgerAppInfo,
-  getPubKeyFromTransport,
-  getSolanaPublicKeyFromLedger,
-  quitLedgerApp,
+  getAddressPublicKeyFromXPub,
 } from '@avalabs/core-wallets-sdk';
-import { ensureLedgerAppOpen } from '@core/common';
-import { getAvalancheLedgerExtendedPublicKey } from './getAvalancheLedgerExtendedPublicKey';
-import { LockEvents } from '@core/types';
-import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
-import Eth from '@ledgerhq/hw-app-eth';
-import Solana from '@ledgerhq/hw-app-solana';
-import TransportWebHID from '@ledgerhq/hw-transport-webhid';
-import { shouldUseWebHID } from '../utils/shouldUseWebHID';
+import { getEvmExtendedKeyPath } from '@core/common';
 
 jest.mock('../ConnectionProvider', () => {
   const connectionFunctions = {
@@ -50,24 +32,44 @@ jest.mock('../ConnectionProvider', () => {
   };
 });
 
-jest.mock('@avalabs/core-wallets-sdk');
+jest.mock('../WalletProvider', () => ({
+  useWalletContext: () => ({ isLedgerWallet: false }),
+}));
+
+jest.mock('@avalabs/core-wallets-sdk', () => ({
+  DerivationPath: { BIP44: 'bip44', LedgerLive: 'ledger_live' },
+  ETH_ACCOUNT_PATH: "m/44'/60'/0'/0/0",
+  getAddressPublicKeyFromXPub: jest.fn(),
+}));
+
 jest.mock('@core/common', () => ({
   resolve: (promise: Promise<unknown>) =>
     promise.then((res) => [res, null]).catch((err) => [null, err]),
-  withTimeout: <T,>(promise: Promise<T>, _timeout: number) => promise,
   isLockStateChangedEvent: (evt: { name: string }) =>
     evt.name === LockEvents.LOCK_STATE_CHANGED,
-  ensureLedgerAppOpen: jest.fn().mockResolvedValue(undefined),
+  getEvmExtendedKeyPath: jest.fn((index: number) => `m/44'/60'/${index}'`),
 }));
-jest.mock('./getAvalancheLedgerExtendedPublicKey');
-jest.mock('@avalabs/hw-app-avalanche');
-jest.mock('@ledgerhq/hw-app-eth');
-jest.mock('@ledgerhq/hw-app-solana');
-jest.mock('ledger-bitcoin');
-jest.mock('@ledgerhq/hw-transport-webusb');
-jest.mock('@ledgerhq/hw-transport-webhid');
-jest.mock('../utils/getLedgerTransport');
-jest.mock('../utils/shouldUseWebHID');
+
+type DeviceResponders = Partial<
+  Record<string, (params: Record<string, unknown>) => unknown>
+>;
+
+let deviceResponders: DeviceResponders;
+
+const defaultDeviceResponders = (): DeviceResponders => ({
+  getAppInfo: () => ({
+    applicationName: LedgerAppType.BITCOIN,
+    version: '1.0.0',
+  }),
+  getEthAppConfig: () => ({ isBlindSigningEnabled: false }),
+  ensureAppOpen: () => null,
+  closeApp: () => null,
+  getExtendedPublicKey: () => ({ xpub: 'default-xpub' }),
+  getSolanaPublicKey: () => ({ publicKeyHex: '010203' }),
+  getBtcMasterFingerprint: () => ({ fingerprint: 'default-fingerprint' }),
+  getBtcExtendedPublicKey: () => ({ xpub: 'default-btc-xpub' }),
+  registerBtcWalletPolicy: () => ({ policyIdHex: 'aa', hmacHex: 'bb' }),
+});
 
 const TestComponent = ({ methodParams }) => {
   const {
@@ -121,7 +123,6 @@ const TestComponent = ({ methodParams }) => {
 
       <span data-testid="error">{`${error}`}</span>
       <span data-testid="result">{`${result}`}</span>
-
       <span data-testid="wasTransportAttempted">{`${wasTransportAttempted}`}</span>
       <span data-testid="hasLedgerTransport">{`${hasLedgerTransport}`}</span>
       <span data-testid="appType">{appType}</span>
@@ -141,13 +142,15 @@ const renderTestComponent = (...args: unknown[]) => {
   );
 };
 
-const MOCKED_TRANSPORT_UUID = '00000000-0000-0000-0000-000000000000';
+const deviceRequestCall = (
+  op: string,
+  extra: Record<string, unknown> = {},
+) => ({
+  method: ExtensionRequest.LEDGER_DEVICE_REQUEST,
+  params: [{ op, ...extra }],
+});
 
 describe('src/contexts/LedgerProvider.tsx', () => {
-  const refMock = {
-    send: jest.fn(),
-  };
-
   beforeAll(() => {
     jest.useFakeTimers();
   });
@@ -158,542 +161,47 @@ describe('src/contexts/LedgerProvider.tsx', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
-    const connectionMocks = useConnectionContext();
-    (connectionMocks.request as jest.Mock).mockResolvedValue(jest.fn());
-    (connectionMocks.events as jest.Mock).mockReturnValue(new Subject());
-    (getLedgerAppInfo as jest.Mock).mockResolvedValue({
-      applicationName: LedgerAppType.BITCOIN,
-    });
-    jest.mocked(shouldUseWebHID).mockResolvedValue(false);
+    deviceResponders = defaultDeviceResponders();
 
-    jest.spyOn(React, 'useRef').mockReturnValue({
-      current: refMock,
+    const connectionMocks = useConnectionContext();
+    (connectionMocks.events as jest.Mock).mockReturnValue(new Subject());
+    (connectionMocks.request as jest.Mock).mockImplementation(async (req) => {
+      switch (req.method) {
+        case ExtensionRequest.SHOW_LEDGER_VERSION_WARNING:
+          return false;
+        case ExtensionRequest.LEDGER_VERSION_WARNING_CLOSED:
+          return true;
+        case ExtensionRequest.LEDGER_DEVICE_REQUEST: {
+          const [params] = req.params;
+          const responder = deviceResponders[params.op];
+          if (!responder) {
+            throw new Error(`Unexpected ledger op: ${params.op}`);
+          }
+          return responder(params);
+        }
+        default:
+          return undefined;
+      }
     });
+
+    jest
+      .mocked(getEvmExtendedKeyPath)
+      .mockImplementation((index: number) => `m/44'/60'/${index}'`);
   });
 
   afterEach(() => {
     cleanup();
   });
 
-  describe('event sending to ledger', () => {
-    it('does not forward non-transport requests', async () => {
-      const eventSubject = new Subject();
-      const connectionMocks = useConnectionContext();
-      (connectionMocks.events as jest.Mock).mockReturnValue(eventSubject);
-
-      renderTestComponent();
-
-      eventSubject.next({
-        name: 'some-non-transport-event',
-        value: {},
-      });
-
-      await waitFor(() => {
-        expect(refMock.send).not.toHaveBeenCalled();
-        expect(connectionMocks.request).not.toHaveBeenCalledWith(
-          expect.objectContaining({
-            method: ExtensionRequest.LEDGER_RESPONSE,
-          }),
-        );
-      });
-    });
-
-    it('does not forward requests upon instance ID missmatch', async () => {
-      const eventSubject = new Subject();
-      const connectionMocks = useConnectionContext();
-      (connectionMocks.events as jest.Mock).mockReturnValue(eventSubject);
-
-      renderTestComponent();
-
-      eventSubject.next({
-        name: LedgerEvent.TRANSPORT_REQUEST,
-        value: {
-          connectionUUID: '1',
-        },
-      });
-
-      await waitFor(() => {
-        expect(refMock.send).not.toHaveBeenCalled();
-        expect(connectionMocks.request).not.toHaveBeenCalledWith(
-          expect.objectContaining({
-            method: ExtensionRequest.LEDGER_RESPONSE,
-          }),
-        );
-      });
-    });
-
-    it('forwards response errors properly', async () => {
-      const error = new Error('some error');
-      refMock.send.mockRejectedValueOnce(error);
-
-      const eventSubject = new Subject();
-      const connectionMocks = useConnectionContext();
-      (connectionMocks.events as jest.Mock).mockReturnValue(eventSubject);
-
-      renderTestComponent();
-
-      eventSubject.next({
-        name: LedgerEvent.TRANSPORT_REQUEST,
-        value: {
-          requestId: '1',
-          connectionUUID: '00000000-0000-0000-0000-000000000000',
-          method: 'SEND',
-          params: {
-            cla: 1,
-            ins: 2,
-            p1: 3,
-            p2: 4,
-            data: '0x1',
-            statusList: [StatusCodes.OK],
-          },
-        },
-      });
-
-      await waitFor(() => {
-        expect(refMock.send).toHaveBeenCalledWith(
-          1,
-          2,
-          3,
-          4,
-          Buffer.from('0x1'),
-          [StatusCodes.OK],
-        );
-        expect(connectionMocks.request).toHaveBeenCalledWith({
-          method: ExtensionRequest.LEDGER_RESPONSE,
-          params: [
-            {
-              requestId: '1',
-              method: 'SEND',
-              error: error.message,
-            },
-          ],
-        });
-      });
-    });
-    it('forwards errors with statusCode', async () => {
-      const error = {
-        statusCode: 0x123,
-      };
-      refMock.send.mockRejectedValueOnce(error);
-
-      const eventSubject = new Subject();
-      const connectionMocks = useConnectionContext();
-      (connectionMocks.events as jest.Mock).mockReturnValue(eventSubject);
-
-      renderTestComponent();
-
-      eventSubject.next({
-        name: LedgerEvent.TRANSPORT_REQUEST,
-        value: {
-          requestId: '1',
-          connectionUUID: '00000000-0000-0000-0000-000000000000',
-          method: 'SEND',
-          params: {
-            cla: 1,
-            ins: 2,
-            p1: 3,
-            p2: 4,
-            data: '0x1',
-            statusList: [StatusCodes.OK],
-          },
-        },
-      });
-
-      await waitFor(() => {
-        expect(refMock.send).toHaveBeenCalledWith(
-          1,
-          2,
-          3,
-          4,
-          Buffer.from('0x1'),
-          [StatusCodes.OK],
-        );
-        expect(connectionMocks.request).toHaveBeenCalledWith({
-          method: ExtensionRequest.LEDGER_RESPONSE,
-          params: [
-            {
-              requestId: '1',
-              method: 'SEND',
-              error: error.statusCode,
-            },
-          ],
-        });
-      });
-    });
-
-    it('forwards responses properly', async () => {
-      const result = { foo: 'bar' };
-      refMock.send.mockResolvedValueOnce(result);
-
-      const eventSubject = new Subject();
-      const connectionMocks = useConnectionContext();
-      (connectionMocks.events as jest.Mock).mockReturnValue(eventSubject);
-
-      renderTestComponent();
-
-      eventSubject.next({
-        name: LedgerEvent.TRANSPORT_REQUEST,
-        value: {
-          requestId: '1',
-          connectionUUID: '00000000-0000-0000-0000-000000000000',
-          method: 'SEND',
-          params: {
-            cla: 1,
-            ins: 2,
-            p1: 3,
-            p2: 4,
-            data: '0x1',
-            statusList: [StatusCodes.OK],
-          },
-        },
-      });
-
-      await waitFor(() => {
-        expect(refMock.send).toHaveBeenCalledWith(
-          1,
-          2,
-          3,
-          4,
-          Buffer.from('0x1'),
-          [StatusCodes.OK],
-        );
-        expect(connectionMocks.request).toHaveBeenCalledWith({
-          method: ExtensionRequest.LEDGER_RESPONSE,
-          params: [
-            {
-              requestId: '1',
-              method: 'SEND',
-              result,
-            },
-          ],
-        });
-      });
-    });
-  });
-
-  // For some reason these tests alone are passing, but when run with others, they make them fail.
-  describe.skip('transport handling', () => {
-    it('initializes a new transport only once', async () => {
-      const connectionMocks = useConnectionContext();
-
-      renderTestComponent();
-      fireEvent.click(screen.getByTestId('initLedgerTransport'));
-
-      await waitFor(() => {
-        expect(connectionMocks.request).toHaveBeenCalledWith({
-          method: ExtensionRequest.LEDGER_INIT_TRANSPORT,
-          params: ['00000000-0000-0000-0000-000000000000'],
-        });
-      });
-
-      jest.clearAllMocks();
-      fireEvent.click(screen.getByTestId('initLedgerTransport'));
-
-      await waitFor(() => {
-        expect(connectionMocks.request).not.toHaveBeenCalledWith(
-          expect.objectContaining({
-            method: ExtensionRequest.LEDGER_INIT_TRANSPORT,
-          }),
-        );
-      });
-    });
-
-    it('removes transport when window closes', async () => {
-      jest.spyOn(window, 'addEventListener');
-      const connectionMocks = useConnectionContext();
-
-      renderTestComponent();
-
-      await waitFor(() => {
-        expect(window.addEventListener).toHaveBeenCalledWith(
-          'beforeunload',
-          expect.any(Function),
-        );
-        expect(connectionMocks.request).not.toHaveBeenCalledWith(
-          expect.objectContaining({
-            method: ExtensionRequest.LEDGER_REMOVE_TRANSPORT,
-          }),
-        );
-      });
-
-      const [, beforeUnloadCallback] = (
-        window.addEventListener as jest.Mock
-      ).mock.calls.find((events) => events[0] === 'beforeunload');
-
-      const eventMock = {
-        preventDefault: jest.fn(),
-      };
-
-      // trigger window.beforeunload callback manually
-      beforeUnloadCallback(eventMock);
-
-      await waitFor(() => {
-        expect(connectionMocks.request).toHaveBeenCalledWith(
-          expect.objectContaining({
-            method: ExtensionRequest.LEDGER_REMOVE_TRANSPORT,
-            params: ['00000000-0000-0000-0000-000000000000'],
-          }),
-        );
-      });
-    });
-
-    it('does not close the window if it is the most recent one with the transport', async () => {
-      jest.spyOn(window, 'close');
-      const eventSubject = new Subject();
-      const connectionMocks = useConnectionContext();
-      (connectionMocks.events as jest.Mock).mockReturnValue(eventSubject);
-      const transportMock = { foo: 'bar', on: jest.fn(), off: jest.fn() };
-      const avalancheAppMock = {
-        name: 'Avalanche',
-        getAppInfo: jest.fn().mockResolvedValue({
-          appName: LedgerAppType.AVALANCHE,
-          appVersion: '1.0',
-        }),
-      };
-      (getLedgerTransport as jest.Mock).mockResolvedValue(transportMock);
-      (AppAvalanche as unknown as jest.Mock).mockReturnValue(avalancheAppMock);
-
-      renderTestComponent();
-
-      eventSubject.next({
-        name: LedgerEvent.TRANSPORT_CLOSE_REQUEST,
-        value: {
-          currentTransportUUID: MOCKED_TRANSPORT_UUID,
-        },
-      });
-
-      await waitFor(() => {
-        expect(window.close).not.toHaveBeenCalled();
-      });
-    });
-
-    // FIXME: this test only succeeds if run alone. Something is leaking from other tests that makes it fail.
-    it.skip('closes the window if transport should be released', async () => {
-      jest.spyOn(window, 'close').mockReturnValueOnce(undefined);
-      const eventSubject = new Subject();
-      const connectionMocks = useConnectionContext();
-      (connectionMocks.events as jest.Mock).mockReturnValue(eventSubject);
-      const transportMock = { foo: 'bar', on: jest.fn(), off: jest.fn() };
-      const avalancheAppMock = {
-        name: 'Avalanche',
-        getAppInfo: jest.fn().mockResolvedValue({
-          appName: LedgerAppType.AVALANCHE,
-          appVersion: '1.0',
-        }),
-      };
-      (getLedgerTransport as jest.Mock).mockResolvedValue(transportMock);
-      (AppAvalanche as unknown as jest.Mock).mockReturnValue(avalancheAppMock);
-
-      renderTestComponent();
-
-      fireEvent.click(screen.getByTestId('initLedgerTransport'));
-
-      await waitFor(() => {
-        expect(AppAvalanche).toHaveBeenCalledWith(transportMock);
-      });
-      eventSubject.next({
-        name: LedgerEvent.TRANSPORT_CLOSE_REQUEST,
-        value: {
-          connectionUUID: '1',
-        },
-      });
-
-      await waitFor(() => {
-        expect(window.close).toHaveBeenCalled();
-      });
-    });
-  });
-
-  // For some reason these tests alone are passing, but when run with others, they make them fail.
-  describe.skip('app init', () => {
-    it('initializes Avalanche app correctly', async () => {
-      const transportMock = { foo: 'bar' };
-      const avalancheAppMock = {
-        name: 'Avalanche',
-        getAppInfo: jest.fn().mockResolvedValue({
-          appName: LedgerAppType.AVALANCHE,
-          appVersion: '1.0',
-        }),
-      };
-      (getLedgerTransport as jest.Mock).mockResolvedValue(transportMock);
-      (AppAvalanche as unknown as jest.Mock).mockReturnValue(avalancheAppMock);
-
-      const connectionMocks = useConnectionContext();
-
-      renderTestComponent();
-      fireEvent.click(screen.getByTestId('initLedgerTransport'));
-
-      await waitFor(() => {
-        expect(connectionMocks.request).toHaveBeenCalledWith({
-          method: ExtensionRequest.LEDGER_CLOSE_TRANSPORT,
-          params: {
-            currentTransportUUID: MOCKED_TRANSPORT_UUID,
-          },
-        });
-        expect(getLedgerTransport).toHaveBeenCalled();
-        expect(AppAvalanche).toHaveBeenCalledWith(transportMock);
-        expect(Btc).not.toHaveBeenCalledWith(transportMock);
-        expect(screen.getByTestId('wasTransportAttempted').textContent).toBe(
-          'true',
-        );
-        expect(screen.getByTestId('hasLedgerTransport').textContent).toBe(
-          'true',
-        );
-        expect(screen.getByTestId('appType').textContent).toBe(
-          LedgerAppType.AVALANCHE,
-        );
-        expect(screen.getByTestId('avaxAppVersion').textContent).toBe('1.0');
-      });
-    });
-
-    it('initializes Ethereum app correctly', async () => {
-      const transportMock = { foo: 'bar' };
-      const avalancheAppMock = {
-        name: 'Ethereum',
-        getAppInfo: jest.fn().mockResolvedValue({
-          appName: LedgerAppType.ETHEREUM,
-          appVersion: '1.0',
-        }),
-      };
-      (getLedgerTransport as jest.Mock).mockResolvedValue(transportMock);
-
-      jest.spyOn(Eth.prototype, 'getAppConfiguration').mockResolvedValue({
-        arbitraryDataEnabled: 1,
-      } as any);
-      (AppAvalanche as unknown as jest.Mock).mockReturnValue(avalancheAppMock);
-
-      const connectionMocks = useConnectionContext();
-
-      renderTestComponent();
-      fireEvent.click(screen.getByTestId('initLedgerTransport'));
-
-      await waitFor(() => {
-        expect(connectionMocks.request).toHaveBeenCalledWith({
-          method: ExtensionRequest.LEDGER_CLOSE_TRANSPORT,
-          params: {
-            currentTransportUUID: MOCKED_TRANSPORT_UUID,
-          },
-        });
-        expect(getLedgerTransport).toHaveBeenCalled();
-        expect(AppAvalanche).toHaveBeenCalledWith(transportMock);
-        expect(Eth).toHaveBeenCalledWith(transportMock);
-        expect(Btc).not.toHaveBeenCalledWith(transportMock);
-        expect(screen.getByTestId('wasTransportAttempted').textContent).toBe(
-          'true',
-        );
-        expect(screen.getByTestId('hasLedgerTransport').textContent).toBe(
-          'true',
-        );
-        expect(screen.getByTestId('appType').textContent).toBe(
-          LedgerAppType.ETHEREUM,
-        );
-      });
-    });
-
-    it('initializes Bitcoin app correctly', async () => {
-      const transportMock = { foo: 'bar' };
-      const avalancheAppError = new Error('some avalanche error');
-      const avalancheAppMock = {
-        name: 'Avalanche',
-        getAppInfo: jest.fn().mockRejectedValue(avalancheAppError),
-      };
-      const btcAppMock = {
-        name: 'Bitcoin',
-      };
-      (getLedgerTransport as jest.Mock).mockResolvedValue(transportMock);
-      (getLedgerAppInfo as jest.Mock).mockResolvedValue({
-        applicationName: LedgerAppType.BITCOIN,
-      });
-      (AppAvalanche as unknown as jest.Mock).mockReturnValue(avalancheAppMock);
-      (Btc as unknown as jest.Mock).mockReturnValue(btcAppMock);
-
-      const connectionMocks = useConnectionContext();
-
-      renderTestComponent();
-      fireEvent.click(screen.getByTestId('initLedgerTransport'));
-
-      await waitFor(() => {
-        expect(connectionMocks.request).toHaveBeenCalledWith({
-          method: ExtensionRequest.LEDGER_CLOSE_TRANSPORT,
-          params: {
-            currentTransportUUID: MOCKED_TRANSPORT_UUID,
-          },
-        });
-        expect(getLedgerTransport).toHaveBeenCalled();
-        expect(AppAvalanche).toHaveBeenCalledWith(transportMock);
-        expect(Btc).toHaveBeenCalledWith(transportMock);
-        expect(screen.getByTestId('wasTransportAttempted').textContent).toBe(
-          'true',
-        );
-        expect(screen.getByTestId('hasLedgerTransport').textContent).toBe(
-          'true',
-        );
-        expect(screen.getByTestId('appType').textContent).toBe(
-          LedgerAppType.BITCOIN,
-        );
-      });
-    });
-
-    it('initializes Solana app correctly', async () => {
-      const transportMock = { foo: 'bar' };
-      const avalancheAppError = new Error('some avalanche error');
-      const avalancheAppMock = {
-        name: 'Avalanche',
-        getAppInfo: jest.fn().mockRejectedValue(avalancheAppError),
-      };
-      const btcAppMock = {
-        name: 'Bitcoin',
-      };
-      const solanaAppMock = {
-        name: 'Solana',
-      };
-      (getLedgerTransport as jest.Mock).mockResolvedValue(transportMock);
-      (getLedgerAppInfo as jest.Mock).mockResolvedValue({
-        applicationName: LedgerAppType.SOLANA,
-      });
-      (AppAvalanche as unknown as jest.Mock).mockReturnValue(avalancheAppMock);
-      (Btc as unknown as jest.Mock).mockReturnValue(btcAppMock);
-      (Solana as unknown as jest.Mock).mockReturnValue(solanaAppMock);
-
-      const connectionMocks = useConnectionContext();
-
-      renderTestComponent();
-      fireEvent.click(screen.getByTestId('initLedgerTransport'));
-
-      await waitFor(() => {
-        expect(connectionMocks.request).toHaveBeenCalledWith({
-          method: ExtensionRequest.LEDGER_CLOSE_TRANSPORT,
-          params: {
-            currentTransportUUID: MOCKED_TRANSPORT_UUID,
-          },
-        });
-        expect(getLedgerTransport).toHaveBeenCalled();
-        expect(AppAvalanche).toHaveBeenCalledWith(transportMock);
-        expect(Btc).toHaveBeenCalledWith(transportMock);
-        expect(Solana).toHaveBeenCalledWith(transportMock);
-        expect(screen.getByTestId('wasTransportAttempted').textContent).toBe(
-          'true',
-        );
-        expect(screen.getByTestId('hasLedgerTransport').textContent).toBe(
-          'true',
-        );
-        expect(screen.getByTestId('appType').textContent).toBe(
-          LedgerAppType.SOLANA,
-        );
-      });
-    });
-  });
-
   describe('ledger version warning', () => {
-    it('sets show warning flag properly', async () => {
+    it('reflects the persisted warning flag on mount', async () => {
       const connectionMocks = useConnectionContext();
-      (connectionMocks.request as jest.Mock).mockImplementation(
-        async (param) => {
-          if (param.method === ExtensionRequest.SHOW_LEDGER_VERSION_WARNING) {
-            return true;
-          }
-        },
-      );
+      (connectionMocks.request as jest.Mock).mockImplementation(async (req) => {
+        if (req.method === ExtensionRequest.SHOW_LEDGER_VERSION_WARNING) {
+          return true;
+        }
+        return undefined;
+      });
 
       renderTestComponent();
 
@@ -707,7 +215,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
       });
     });
 
-    it('sets show warning flag to false when extension gets locked', async () => {
+    it('resets the warning flag to false when the extension gets locked', async () => {
       const eventSubject = new Subject();
       const connectionMocks = useConnectionContext();
       (connectionMocks.events as jest.Mock).mockReturnValue(eventSubject);
@@ -718,170 +226,265 @@ describe('src/contexts/LedgerProvider.tsx', () => {
         expect(connectionMocks.request).toHaveBeenCalledWith({
           method: ExtensionRequest.SHOW_LEDGER_VERSION_WARNING,
         });
-        eventSubject.next({
-          name: LockEvents.LOCK_STATE_CHANGED,
-          value: true,
-        });
+      });
+
+      eventSubject.next({ name: LockEvents.LOCK_STATE_CHANGED, value: true });
+
+      await waitFor(() => {
         expect(
           screen.getByTestId('ledgerVersionWarningClosed').textContent,
         ).toBe('false');
       });
     });
+
+    it('ignores non-lock connection events', async () => {
+      const eventSubject = new Subject();
+      const connectionMocks = useConnectionContext();
+      (connectionMocks.events as jest.Mock).mockReturnValue(eventSubject);
+      (connectionMocks.request as jest.Mock).mockImplementation(async (req) => {
+        if (req.method === ExtensionRequest.SHOW_LEDGER_VERSION_WARNING) {
+          return true;
+        }
+        return undefined;
+      });
+
+      renderTestComponent();
+
+      await waitFor(() => {
+        expect(
+          screen.getByTestId('ledgerVersionWarningClosed').textContent,
+        ).toBe('true');
+      });
+
+      eventSubject.next({ name: LedgerEvent.TRANSPORT_REQUEST, value: {} });
+
+      await waitFor(() => {
+        expect(
+          screen.getByTestId('ledgerVersionWarningClosed').textContent,
+        ).toBe('true');
+      });
+    });
+  });
+
+  describe('updateLedgerVersionWarningClosed', () => {
+    it('persists the closed flag via the service worker', async () => {
+      const connectionMocks = useConnectionContext();
+      renderTestComponent();
+
+      fireEvent.click(screen.getByTestId('updateLedgerVersionWarningClosed'));
+
+      await waitFor(() => {
+        expect(connectionMocks.request).toHaveBeenCalledWith({
+          method: ExtensionRequest.LEDGER_VERSION_WARNING_CLOSED,
+        });
+        expect(
+          screen.getByTestId('ledgerVersionWarningClosed').textContent,
+        ).toBe('true');
+      });
+    });
+  });
+
+  describe('initLedgerTransport', () => {
+    it('marks the transport as attempted and available for a connected device', async () => {
+      deviceResponders.getAppInfo = () => ({
+        applicationName: LedgerAppType.AVALANCHE,
+        version: '2.3.4',
+      });
+
+      const connectionMocks = useConnectionContext();
+      renderTestComponent();
+      fireEvent.click(screen.getByTestId('initLedgerTransport'));
+
+      await waitFor(() => {
+        expect(connectionMocks.request).toHaveBeenCalledWith(
+          deviceRequestCall('getAppInfo'),
+        );
+        expect(screen.getByTestId('wasTransportAttempted').textContent).toBe(
+          'true',
+        );
+        expect(screen.getByTestId('hasLedgerTransport').textContent).toBe(
+          'true',
+        );
+        expect(screen.getByTestId('appType').textContent).toBe(
+          LedgerAppType.AVALANCHE,
+        );
+        expect(screen.getByTestId('avaxAppVersion').textContent).toBe('2.3.4');
+      });
+    });
+
+    it('reports no transport when the device has no active app', async () => {
+      deviceResponders.getAppInfo = () => null;
+
+      renderTestComponent();
+      fireEvent.click(screen.getByTestId('initLedgerTransport'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('wasTransportAttempted').textContent).toBe(
+          'true',
+        );
+        expect(screen.getByTestId('hasLedgerTransport').textContent).toBe(
+          'false',
+        );
+        expect(screen.getByTestId('appType').textContent).toBe(
+          LedgerAppType.UNKNOWN,
+        );
+      });
+    });
+
+    it('queries the Ethereum app config when the Ethereum app is open', async () => {
+      deviceResponders.getAppInfo = () => ({
+        applicationName: LedgerAppType.ETHEREUM,
+        version: '1.0.0',
+      });
+
+      const connectionMocks = useConnectionContext();
+      renderTestComponent();
+      fireEvent.click(screen.getByTestId('initLedgerTransport'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('appType').textContent).toBe(
+          LedgerAppType.ETHEREUM,
+        );
+        expect(connectionMocks.request).toHaveBeenCalledWith(
+          deviceRequestCall('getEthAppConfig'),
+        );
+      });
+    });
   });
 
   describe('getExtendedPublicKey', () => {
-    beforeEach(() => {
-      jest.mocked(ensureLedgerAppOpen).mockResolvedValue(undefined);
+    it('returns the extended public key for the given path', async () => {
+      const path = "m/44'/60'/0'";
+      deviceResponders.getExtendedPublicKey = () => ({ xpub: 'the-xpub' });
+
+      const connectionMocks = useConnectionContext();
+      renderTestComponent(path);
+      fireEvent.click(screen.getByTestId('getExtendedPublicKey'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('result').textContent).toBe('the-xpub');
+        expect(connectionMocks.request).toHaveBeenCalledWith(
+          deviceRequestCall('getExtendedPublicKey', { path }),
+        );
+      });
     });
 
-    it('throws error if transport is missing', async () => {
-      (React.useRef as jest.Mock).mockReturnValue({ current: undefined });
-      renderTestComponent();
+    it('surfaces device errors', async () => {
+      const path = "m/44'/60'/0'";
+      deviceResponders.getExtendedPublicKey = () => {
+        throw new Error('some device error');
+      };
 
+      renderTestComponent(path);
       fireEvent.click(screen.getByTestId('getExtendedPublicKey'));
 
       await waitFor(() => {
         expect(screen.getByTestId('error').textContent).toBe(
-          'no device detected',
-        );
-        expect(ensureLedgerAppOpen).not.toHaveBeenCalled();
-        expect(getAvalancheLedgerExtendedPublicKey).not.toHaveBeenCalled();
-      });
-    });
-
-    it('throws error if the device thrown an error', async () => {
-      const path = "m/44'/60'/0'";
-      const error = new Error('some error');
-      jest
-        .mocked(getAvalancheLedgerExtendedPublicKey)
-        .mockRejectedValueOnce(error);
-      renderTestComponent(path);
-
-      fireEvent.click(screen.getByTestId('getExtendedPublicKey'));
-
-      await waitFor(() => {
-        expect(screen.getByTestId('error').textContent).toBe(error.message);
-        expect(ensureLedgerAppOpen).toHaveBeenCalledWith(refMock, 'Avalanche');
-        expect(getAvalancheLedgerExtendedPublicKey).toHaveBeenCalledWith(
-          refMock,
-          path,
-          false,
+          'some device error',
         );
       });
     });
 
-    it('returns the extended public key correctly', async () => {
-      const path = "m/44'/60'/0'";
-      const xPub = '0x1';
-      jest
-        .mocked(getAvalancheLedgerExtendedPublicKey)
-        .mockResolvedValueOnce(xPub);
-      renderTestComponent(path);
+    it('throws when the device returns no extended public key', async () => {
+      deviceResponders.getExtendedPublicKey = () => ({});
 
+      renderTestComponent("m/44'/60'/0'");
       fireEvent.click(screen.getByTestId('getExtendedPublicKey'));
 
       await waitFor(() => {
-        expect(screen.getByTestId('result').textContent).toBe(xPub);
-        expect(ensureLedgerAppOpen).toHaveBeenCalledWith(refMock, 'Avalanche');
-        expect(getAvalancheLedgerExtendedPublicKey).toHaveBeenCalledWith(
-          refMock,
-          path,
-          false,
+        expect(screen.getByTestId('error').textContent).toBe(
+          'Ledger returned no extended public key',
         );
       });
     });
   });
 
   describe('getPublicKey', () => {
-    beforeEach(() => {
-      jest.mocked(ensureLedgerAppOpen).mockResolvedValue(undefined);
+    it('derives the EVM public key from the account extended public key', async () => {
+      deviceResponders.getExtendedPublicKey = () => ({ xpub: 'evm-xpub' });
+      jest
+        .mocked(getAddressPublicKeyFromXPub)
+        .mockReturnValue(Buffer.from('cafe', 'hex'));
+
+      const connectionMocks = useConnectionContext();
+      renderTestComponent(1, DerivationPath.BIP44, 'EVM');
+      fireEvent.click(screen.getByTestId('getPublicKey'));
+
+      await waitFor(() => {
+        expect(getEvmExtendedKeyPath).toHaveBeenCalledWith(0);
+        expect(connectionMocks.request).toHaveBeenCalledWith(
+          deviceRequestCall('getExtendedPublicKey', { path: "m/44'/60'/0'" }),
+        );
+        expect(getAddressPublicKeyFromXPub).toHaveBeenCalledWith('evm-xpub', 1);
+      });
     });
 
-    it('throws error if transport is missing', async () => {
-      (React.useRef as jest.Mock).mockReturnValue({ current: undefined });
-      renderTestComponent();
+    it('requests the Solana public key for SVM accounts', async () => {
+      deviceResponders.getSolanaPublicKey = () => ({ publicKeyHex: 'aabbcc' });
 
+      const connectionMocks = useConnectionContext();
+      renderTestComponent(2, DerivationPath.LedgerLive, 'SVM');
+      fireEvent.click(screen.getByTestId('getPublicKey'));
+
+      await waitFor(() => {
+        expect(connectionMocks.request).toHaveBeenCalledWith(
+          deviceRequestCall('getSolanaPublicKey', { accountIndex: 2 }),
+        );
+        expect(getAddressPublicKeyFromXPub).not.toHaveBeenCalled();
+      });
+    });
+
+    it('throws when the device returns no Solana public key', async () => {
+      deviceResponders.getSolanaPublicKey = () => ({});
+
+      renderTestComponent(0, DerivationPath.LedgerLive, 'SVM');
       fireEvent.click(screen.getByTestId('getPublicKey'));
 
       await waitFor(() => {
         expect(screen.getByTestId('error').textContent).toBe(
-          'no device detected',
+          'Ledger returned no Solana public key',
         );
-        expect(getPubKeyFromTransport).not.toHaveBeenCalled();
-      });
-    });
-
-    it('returns the public key correctly', async () => {
-      const pubkey = '0x1';
-      (getPubKeyFromTransport as jest.Mock).mockResolvedValueOnce(pubkey);
-      renderTestComponent(1, DerivationPath.BIP44, 'EVM');
-
-      fireEvent.click(screen.getByTestId('getPublicKey'));
-
-      await waitFor(() => {
-        expect(screen.getByTestId('result').textContent).toBe(pubkey);
-        expect(getPubKeyFromTransport).toHaveBeenCalledWith(
-          refMock,
-          1,
-          DerivationPath.BIP44,
-          'EVM',
-        );
-        expect(ensureLedgerAppOpen).not.toHaveBeenCalledWith(
-          expect.anything(),
-          'Solana',
-        );
-      });
-    });
-
-    it('ensures the Solana app is open before deriving SVM public keys', async () => {
-      const pubkey = Buffer.from([1, 2, 3]);
-      jest
-        .mocked(getSolanaPublicKeyFromLedger)
-        .mockResolvedValueOnce(pubkey as never);
-      renderTestComponent(0, DerivationPath.LedgerLive, 'SVM');
-
-      fireEvent.click(screen.getByTestId('getPublicKey'));
-
-      await waitFor(() => {
-        expect(ensureLedgerAppOpen).toHaveBeenCalledWith(refMock, 'Solana');
-        expect(getSolanaPublicKeyFromLedger).toHaveBeenCalledWith(0, refMock);
-        expect(getPubKeyFromTransport).not.toHaveBeenCalled();
       });
     });
   });
 
   describe('popDeviceSelection', () => {
-    it('does nothing if app has been already initialized', async () => {
-      const transportMock = { foo: 'bar', on: jest.fn(), off: jest.fn() };
-      const avalancheAppMock = {
-        name: 'Avalanche',
-        getAppInfo: jest.fn().mockResolvedValue({
-          appName: LedgerAppType.AVALANCHE,
-          appVersion: '1.0',
-        }),
-      };
-      (getLedgerTransport as jest.Mock).mockResolvedValue(transportMock);
-      (AppAvalanche as unknown as jest.Mock).mockReturnValue(avalancheAppMock);
+    const originalNavigator = global.navigator;
 
-      renderTestComponent();
-      fireEvent.click(screen.getByTestId('initLedgerTransport'));
-
-      await waitFor(() => {
-        expect(AppAvalanche).toHaveBeenCalledWith(transportMock);
-      });
-
-      fireEvent.click(screen.getByTestId('popDeviceSelection'));
-
-      await waitFor(() => {
-        expect(TransportWebUSB.request).not.toHaveBeenCalled();
-        expect(screen.getByTestId('result').textContent).toBe('true');
+    afterEach(() => {
+      Object.defineProperty(global, 'navigator', {
+        value: originalNavigator,
+        configurable: true,
       });
     });
 
-    it('throws on transport error', async () => {
-      (TransportWebUSB.request as jest.Mock).mockRejectedValueOnce(
-        'some error',
-      );
+    const stubHid = (requestDevice: jest.Mock) => {
+      Object.defineProperty(global, 'navigator', {
+        value: { ...originalNavigator, hid: { requestDevice } },
+        configurable: true,
+      });
+    };
+
+    it('refreshes the active app once access is granted', async () => {
+      const requestDevice = jest.fn().mockResolvedValue([{}]);
+      stubHid(requestDevice);
+
+      const connectionMocks = useConnectionContext();
+      renderTestComponent();
+      fireEvent.click(screen.getByTestId('popDeviceSelection'));
+
+      await waitFor(() => {
+        expect(requestDevice).toHaveBeenCalled();
+        expect(screen.getByTestId('result').textContent).toBe('true');
+        expect(connectionMocks.request).toHaveBeenCalledWith(
+          deviceRequestCall('getAppInfo'),
+        );
+      });
+    });
+
+    it('throws when no device is granted', async () => {
+      const requestDevice = jest.fn().mockResolvedValue([]);
+      stubHid(requestDevice);
 
       renderTestComponent();
       fireEvent.click(screen.getByTestId('popDeviceSelection'));
@@ -892,229 +495,135 @@ describe('src/contexts/LedgerProvider.tsx', () => {
         );
       });
     });
+  });
 
-    it('pops up usb device selection properly', async () => {
-      (TransportWebUSB.request as jest.Mock).mockResolvedValueOnce({});
+  describe('getMasterFingerprint', () => {
+    it('returns the master fingerprint from the device', async () => {
+      deviceResponders.getBtcMasterFingerprint = () => ({
+        fingerprint: 'deadbeef',
+      });
 
+      const connectionMocks = useConnectionContext();
       renderTestComponent();
-      fireEvent.click(screen.getByTestId('popDeviceSelection'));
+      fireEvent.click(screen.getByTestId('getMasterFingerprint'));
 
       await waitFor(() => {
-        expect(TransportWebUSB.request).toHaveBeenCalled();
-        expect(screen.getByTestId('result').textContent).toBe('true');
+        expect(screen.getByTestId('result').textContent).toBe('deadbeef');
+        expect(connectionMocks.request).toHaveBeenCalledWith(
+          deviceRequestCall('getBtcMasterFingerprint'),
+        );
       });
     });
 
-    it('pops up hid device selection properly', async () => {
-      jest.mocked(shouldUseWebHID).mockResolvedValue(true);
-      (TransportWebHID.request as jest.Mock).mockResolvedValueOnce({});
+    it('throws when the device returns no fingerprint', async () => {
+      deviceResponders.getBtcMasterFingerprint = () => ({});
 
       renderTestComponent();
-      fireEvent.click(screen.getByTestId('popDeviceSelection'));
+      fireEvent.click(screen.getByTestId('getMasterFingerprint'));
 
       await waitFor(() => {
-        expect(TransportWebHID.request).toHaveBeenCalled();
-        expect(screen.getByTestId('result').textContent).toBe('true');
+        expect(screen.getByTestId('error').textContent).toBe(
+          'Ledger returned no master fingerprint',
+        );
       });
     });
   });
 
-  describe('getMasterFingerprint', () => {
-    it('throws if app type is not Bitcoin', async () => {
-      renderTestComponent();
+  describe('getBtcExtendedPublicKey', () => {
+    it('returns the BTC extended public key for the given path', async () => {
+      const path = "m/84'/0'/0'";
+      deviceResponders.getBtcExtendedPublicKey = () => ({ xpub: 'btc-xpub' });
 
-      fireEvent.click(screen.getByTestId('getMasterFingerprint'));
+      const connectionMocks = useConnectionContext();
+      renderTestComponent(path);
+      fireEvent.click(screen.getByTestId('getBtcExtendedPublicKey'));
 
       await waitFor(() => {
-        expect(screen.getByTestId('error').textContent).toBe('wrong app');
+        expect(screen.getByTestId('result').textContent).toBe('btc-xpub');
+        expect(connectionMocks.request).toHaveBeenCalledWith(
+          deviceRequestCall('getBtcExtendedPublicKey', { path }),
+        );
       });
     });
 
-    it('returns the master fingerprint correctly', async () => {
-      const masterFingerprint = '0x1';
-      const transportMock = { foo: 'bar', on: jest.fn(), off: jest.fn() };
-      const avalancheAppError = new Error('some avalanche error');
-      const avalancheAppMock = {
-        name: 'Avalanche',
-        getAppInfo: jest.fn().mockRejectedValue(avalancheAppError),
-      };
-      const btcAppMock = new Btc({} as any);
-      (btcAppMock.getMasterFingerprint as jest.Mock).mockResolvedValueOnce(
-        masterFingerprint,
-      );
-      (getLedgerTransport as jest.Mock).mockResolvedValue(transportMock);
-      (getLedgerAppInfo as jest.Mock).mockResolvedValue({
-        applicationName: LedgerAppType.BITCOIN,
-      });
-      (AppAvalanche as unknown as jest.Mock).mockReturnValue(avalancheAppMock);
-      (Btc as unknown as jest.Mock).mockReturnValue(btcAppMock);
+    it('throws when the device returns no BTC extended public key', async () => {
+      deviceResponders.getBtcExtendedPublicKey = () => ({});
 
-      renderTestComponent();
-      fireEvent.click(screen.getByTestId('initLedgerTransport'));
+      renderTestComponent("m/84'/0'/0'");
+      fireEvent.click(screen.getByTestId('getBtcExtendedPublicKey'));
 
       await waitFor(() => {
-        expect(Btc).toHaveBeenCalledWith(transportMock);
+        expect(screen.getByTestId('error').textContent).toBe(
+          'Ledger returned no BTC extended public key',
+        );
+      });
+    });
+  });
+
+  describe('registerBtcWalletPolicy', () => {
+    it('registers the policy and returns the policy id and hmac', async () => {
+      deviceResponders.registerBtcWalletPolicy = () => ({
+        policyIdHex: 'aa',
+        hmacHex: 'bb',
       });
 
-      fireEvent.click(screen.getByTestId('getMasterFingerprint'));
+      const connectionMocks = useConnectionContext();
+      renderTestComponent('the-xpub', 'the-fingerprint', "m/84'/0'/0'", 'name');
+      fireEvent.click(screen.getByTestId('registerBtcWalletPolicy'));
 
       await waitFor(() => {
-        expect(screen.getByTestId('result').textContent).toBe(
-          masterFingerprint,
+        expect(connectionMocks.request).toHaveBeenCalledWith(
+          deviceRequestCall('registerBtcWalletPolicy', {
+            xpub: 'the-xpub',
+            masterFingerprint: 'the-fingerprint',
+            derivationPath: "m/84'/0'/0'",
+            name: 'name',
+          }),
+        );
+        expect(screen.getByTestId('error').textContent).toBe('undefined');
+      });
+    });
+
+    it('throws when the device fails to register the policy', async () => {
+      deviceResponders.registerBtcWalletPolicy = () => ({});
+
+      renderTestComponent('the-xpub', 'the-fingerprint', "m/84'/0'/0'", 'name');
+      fireEvent.click(screen.getByTestId('registerBtcWalletPolicy'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('error').textContent).toBe(
+          'Ledger failed to register the BTC wallet policy',
         );
       });
     });
   });
 
   describe('closeCurrentApp', () => {
-    it('does nothing if transport is missing', async () => {
-      (React.useRef as jest.Mock).mockResolvedValue({ current: undefined });
-      renderTestComponent();
-
-      fireEvent.click(screen.getByTestId('closeCurrentApp'));
-
-      await waitFor(() => {
-        expect(getLedgerAppInfo).not.toHaveBeenCalled();
-        expect(quitLedgerApp).not.toHaveBeenCalled();
-      });
-    });
-
-    it('closes the app properly', async () => {
-      renderTestComponent();
-
-      fireEvent.click(screen.getByTestId('closeCurrentApp'));
-
-      await waitFor(() => {
-        expect(getLedgerAppInfo).toHaveBeenCalledWith(refMock);
-        expect(quitLedgerApp).toHaveBeenCalledWith(refMock);
-      });
-    });
-  });
-
-  describe('getBtcExtendedPublicKey', () => {
-    it('throws if app type is not Bitcoin', async () => {
-      renderTestComponent();
-
-      fireEvent.click(screen.getByTestId('getBtcExtendedPublicKey'));
-
-      await waitFor(() => {
-        expect(screen.getByTestId('error').textContent).toBe('wrong app');
-      });
-    });
-
-    it('returns the extended public key correctly', async () => {
-      const path = "m/44'/60'/0'";
-      const xPub = '0x1';
-      const transportMock = { foo: 'bar', on: jest.fn(), off: jest.fn() };
-      const avalancheAppError = new Error('some avalanche error');
-      const avalancheAppMock = {
-        name: 'Avalanche',
-        getAppInfo: jest.fn().mockRejectedValue(avalancheAppError),
-      };
-      const btcAppMock = new Btc({} as any);
-      (btcAppMock.getExtendedPubkey as jest.Mock).mockResolvedValueOnce(xPub);
-      (getLedgerTransport as jest.Mock).mockResolvedValue(transportMock);
-      (getLedgerAppInfo as jest.Mock).mockResolvedValue({
+    it('closes the app and resets the active app type', async () => {
+      deviceResponders.getAppInfo = () => ({
         applicationName: LedgerAppType.BITCOIN,
-      });
-      (AppAvalanche as unknown as jest.Mock).mockReturnValue(avalancheAppMock);
-      (Btc as unknown as jest.Mock).mockReturnValue(btcAppMock);
-
-      renderTestComponent(path);
-      fireEvent.click(screen.getByTestId('initLedgerTransport'));
-
-      await waitFor(() => {
-        expect(Btc).toHaveBeenCalledWith(transportMock);
+        version: '1.0.0',
       });
 
-      fireEvent.click(screen.getByTestId('getBtcExtendedPublicKey'));
-
-      await waitFor(() => {
-        expect(screen.getByTestId('result').textContent).toBe(xPub);
-        expect(btcAppMock.getExtendedPubkey).toHaveBeenCalledWith(path, true);
-      });
-    });
-  });
-
-  describe('registerBtcWalletPolicy', () => {
-    it('throws if app type is not Bitcoin', async () => {
-      renderTestComponent();
-
-      fireEvent.click(screen.getByTestId('getBtcExtendedPublicKey'));
-
-      await waitFor(() => {
-        expect(screen.getByTestId('error').textContent).toBe('wrong app');
-      });
-    });
-
-    it('returns the extended public key correctly', async () => {
-      const result = Buffer.from('0x0');
-      const xPub = '0x1';
-      const masterFingerprint = '0x2';
-      const path = "m/44'/60'/0'";
-      const name = 'test policy';
-      const transportMock = { foo: 'bar', on: jest.fn(), off: jest.fn() };
-      const avalancheAppError = new Error('some avalanche error');
-      const avalancheAppMock = {
-        name: 'Avalanche',
-        getAppInfo: jest.fn().mockRejectedValue(avalancheAppError),
-      };
-      const btcAppMock = new Btc({} as any);
-      (btcAppMock.registerWallet as jest.Mock).mockResolvedValueOnce(result);
-      (getLedgerTransport as jest.Mock).mockResolvedValue(transportMock);
-      (getLedgerAppInfo as jest.Mock).mockResolvedValue({
-        applicationName: LedgerAppType.BITCOIN,
-      });
-      (AppAvalanche as unknown as jest.Mock).mockReturnValue(avalancheAppMock);
-      (Btc as unknown as jest.Mock).mockReturnValue(btcAppMock);
-
-      const defaultWalletPolicyMock = { keys: [1, 2, 3] };
-      (DefaultWalletPolicy as jest.Mock).mockReturnValueOnce(
-        defaultWalletPolicyMock,
-      );
-
-      const walletPolicyMock = { foo: 'bar' };
-      (WalletPolicy as jest.Mock).mockReturnValueOnce(walletPolicyMock);
-
-      renderTestComponent(xPub, masterFingerprint, path, name);
-      fireEvent.click(screen.getByTestId('initLedgerTransport'));
-
-      await waitFor(() => {
-        expect(Btc).toHaveBeenCalledWith(transportMock);
-      });
-
-      fireEvent.click(screen.getByTestId('registerBtcWalletPolicy'));
-
-      await waitFor(() => {
-        expect(screen.getByTestId('result').textContent).toBe(
-          result.toString(),
-        );
-        expect(btcAppMock.registerWallet).toHaveBeenCalledWith(
-          walletPolicyMock,
-        );
-        expect(DefaultWalletPolicy).toHaveBeenCalledWith(
-          'wpkh(@0/**)',
-          `[${masterFingerprint}/${path}]${xPub}`,
-        );
-        expect(WalletPolicy).toHaveBeenCalledWith(
-          name,
-          'wpkh(@0/**)',
-          defaultWalletPolicyMock.keys,
-        );
-      });
-    });
-  });
-
-  describe('updateLedgerVersionWarningClosed', () => {
-    it('sets show warning flag correctly', async () => {
       const connectionMocks = useConnectionContext();
       renderTestComponent();
-      fireEvent.click(screen.getByTestId('updateLedgerVersionWarningClosed'));
+
+      fireEvent.click(screen.getByTestId('initLedgerTransport'));
+      await waitFor(() => {
+        expect(screen.getByTestId('appType').textContent).toBe(
+          LedgerAppType.BITCOIN,
+        );
+      });
+
+      fireEvent.click(screen.getByTestId('closeCurrentApp'));
 
       await waitFor(() => {
-        expect(connectionMocks.request).toHaveBeenCalledWith({
-          method: ExtensionRequest.LEDGER_VERSION_WARNING_CLOSED,
-        });
+        expect(connectionMocks.request).toHaveBeenCalledWith(
+          deviceRequestCall('closeApp'),
+        );
+        expect(screen.getByTestId('appType').textContent).toBe(
+          LedgerAppType.UNKNOWN,
+        );
       });
     });
   });
