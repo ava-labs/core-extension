@@ -50,6 +50,12 @@ export default ({ generateLavaMoatPolicy }: CommonConfigOptions) =>
       },
       resolve: {
         extensions: ['.ts', '.tsx', '.js'],
+        alias: {
+          // `@hpke/core`'s `require` build (`script/mod.js`) does a dynamic
+          // `require('@hpke/common')` that can't be statically bundled; force
+          // the ESM build (matches the service worker).
+          '@hpke/core': '../../node_modules/@hpke/core/esm/mod.js',
+        },
         fallback: {
           path: false,
           fs: false,

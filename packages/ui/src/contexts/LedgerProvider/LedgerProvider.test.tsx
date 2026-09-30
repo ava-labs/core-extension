@@ -835,7 +835,9 @@ describe('src/contexts/LedgerProvider.tsx', () => {
 
     it('ensures the Solana app is open before deriving SVM public keys', async () => {
       const pubkey = Buffer.from([1, 2, 3]);
-      jest.mocked(getSolanaPublicKeyFromLedger).mockResolvedValueOnce(pubkey);
+      jest
+        .mocked(getSolanaPublicKeyFromLedger)
+        .mockResolvedValueOnce(pubkey as never);
       renderTestComponent(0, DerivationPath.LedgerLive, 'SVM');
 
       fireEvent.click(screen.getByTestId('getPublicKey'));

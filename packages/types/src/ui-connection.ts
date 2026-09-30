@@ -115,6 +115,8 @@ export enum ExtensionRequest {
   LEDGER_RESPONSE = 'ledger_response',
   LEDGER_REMOVE_TRANSPORT = 'ledger_remove_transport',
   LEDGER_CLOSE_TRANSPORT = 'ledger_close_transport',
+
+  LEDGER_DEVICE_REQUEST = 'ledger_device_request',
   SHOW_LEDGER_VERSION_WARNING = 'show_ledger_version_warning',
   LEDGER_VERSION_WARNING_CLOSED = 'ledger_version_warning_closed',
   LEDGER_MIGRATE_MISSING_PUBKEYS = 'ledger_migrate_missing_pubkeys',

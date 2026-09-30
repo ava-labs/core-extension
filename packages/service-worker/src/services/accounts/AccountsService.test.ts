@@ -1,7 +1,7 @@
 import { NetworkService } from '../network/NetworkService';
 import { AccountsService } from './AccountsService';
 import { StorageService } from '../storage/StorageService';
-import { LedgerService } from '../ledger/LedgerService';
+import { LedgerDmkService } from '../ledger/LedgerDmkService';
 import {
   AccountsEvents,
   ACCOUNTS_STORAGE_KEY,
@@ -34,7 +34,7 @@ import { NetworkVMType } from '@avalabs/vm-module-types';
 
 jest.mock('../storage/StorageService');
 jest.mock('../secrets/SecretsService');
-jest.mock('../ledger/LedgerService');
+jest.mock('../ledger/LedgerDmkService');
 jest.mock('../lock/LockService');
 jest.mock('../permissions/PermissionsService');
 jest.mock('../secrets/AddressResolver');
@@ -59,7 +59,7 @@ describe('background/services/accounts/AccountsService', () => {
   );
   networkService.getUnknownUsedNetwork = jest.fn();
   const storageService = new StorageService({} as any);
-  const ledgerService = new LedgerService();
+  const ledgerDmkService = new LedgerDmkService();
   const walletConnectService = new WalletConnectService(
     new WalletConnectStorage(storageService),
   );
@@ -224,7 +224,7 @@ describe('background/services/accounts/AccountsService', () => {
       permissionsService,
       analyticsServicePosthog,
       secretsService,
-      ledgerService,
+      ledgerDmkService,
       walletConnectService,
       addressResolver,
     );
@@ -627,7 +627,7 @@ describe('background/services/accounts/AccountsService', () => {
       expect(secretsService.addAddress).toBeCalledWith({
         index: 0,
         walletId: WALLET_ID,
-        ledgerService,
+        ledgerDmkService,
         addressResolver,
       });
 
@@ -677,7 +677,7 @@ describe('background/services/accounts/AccountsService', () => {
       expect(secretsService.addAddress).toBeCalledWith({
         index: 2,
         walletId: WALLET_ID,
-        ledgerService,
+        ledgerDmkService,
         addressResolver,
       });
       expect(permissionsService.whitelistCoreDomains).toHaveBeenCalledTimes(1);
@@ -718,7 +718,7 @@ describe('background/services/accounts/AccountsService', () => {
       expect(secretsService.addAddress).toBeCalledWith({
         index: 2,
         walletId: WALLET_ID,
-        ledgerService,
+        ledgerDmkService,
         addressResolver,
       });
       expect(permissionsService.whitelistCoreDomains).toHaveBeenCalledTimes(1);

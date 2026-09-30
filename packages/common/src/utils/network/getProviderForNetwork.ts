@@ -18,6 +18,11 @@ export type SupportedProvider =
   | Avalanche.JsonRpcProvider
   | SolanaProvider;
 
+export const getSolanaRpcUrl = (network: Network): string =>
+  network.isTestnet
+    ? 'https://api.devnet.solana.com'
+    : `${process.env.PROXY_URL}/proxy/nownodes/sol`;
+
 export const getProviderForNetwork = async (
   network: Network,
   useMulticall = false,
@@ -25,9 +30,7 @@ export const getProviderForNetwork = async (
   if (network.vmName === NetworkVMType.SVM) {
     return getSolanaProvider({
       isTestnet: Boolean(network.isTestnet),
-      rpcUrl: network.isTestnet
-        ? 'https://api.devnet.solana.com' // NowNodes does not support Solana Devnet
-        : `${process.env.PROXY_URL}/proxy/nownodes/sol`,
+      rpcUrl: getSolanaRpcUrl(network),
     });
   }
 

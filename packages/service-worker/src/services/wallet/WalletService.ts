@@ -22,6 +22,7 @@ import {
   getAvalancheExtendedKeyPath,
   getLegacyXPDerivationPath,
   getProviderForNetwork,
+  getSolanaRpcUrl,
   hasAtLeastOneElement,
   isEthereumNetwork,
   isDirectLedgerHyperEvmTransactionUnsupported,
@@ -45,7 +46,6 @@ import {
   isMultiSigAvalancheTxRequest,
   isSolanaMsgRequest,
   isSolanaRequest,
-  LedgerError,
   MessageParams,
   MessageSigningData,
   MessageType,
@@ -83,6 +83,7 @@ import { AccountsService } from '../accounts/AccountsService';
 import { FireblocksBTCSigner } from '../fireblocks/FireblocksBTCSigner';
 import { FireblocksService } from '../fireblocks/FireblocksService';
 import { LedgerService } from '../ledger/LedgerService';
+import { LedgerDmkService } from '../ledger/LedgerDmkService';
 import { NetworkService } from '../network/NetworkService';
 import { AddressResolver } from '../secrets/AddressResolver';
 import { SecretsService } from '../secrets/SecretsService';
@@ -98,7 +99,6 @@ import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { WalletConnectSigner } from '../walletConnect/WalletConnectSigner';
 import { HVMWallet } from './HVMWallet';
 import ensureMessageIsValid from './utils/ensureMessageFormatIsValid';
-import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import { isTypedData } from '@avalabs/evm-module';
 import { isPersonalSign } from './utils/isPersonalSignRequest';
 import { rpcMethodToMessageType } from './utils/rpcMethodToMessageType';
@@ -110,6 +110,7 @@ export class WalletService implements OnUnlock {
   constructor(
     private networkService: NetworkService,
     private ledgerService: LedgerService,
+    private ledgerDmkService: LedgerDmkService,
     private walletConnectService: WalletConnectService,
     private fireblocksService: FireblocksService,
     private secretService: SecretsService,
@@ -299,16 +300,12 @@ export class WalletService implements OnUnlock {
           return new SolanaSigner(Buffer.from(secrets.secret, 'hex'));
         case SecretType.Ledger:
         case SecretType.LedgerLive: {
-          if (!this.ledgerService.recentTransport) {
-            throw new Error('Ledger transport not available');
-          }
           const accountIndexToUse =
             accountIndex === undefined ? secrets.account.index : accountIndex;
 
-          return new SolanaLedgerSigner(
-            accountIndexToUse,
-            this.ledgerService.recentTransport,
-          );
+          const { dmk, sessionId } = await this.ledgerDmkService.getSession();
+
+          return new SolanaLedgerSigner(accountIndexToUse, dmk, sessionId);
         }
         case SecretType.Seedless:
           return this.#getSeedlessWallet(secrets, network, accountIndex);
@@ -361,15 +358,15 @@ export class WalletService implements OnUnlock {
         secretType === SecretType.Ledger ||
         secretType === SecretType.LedgerLive
       ) {
-        if (!this.ledgerService.recentTransport) {
-          throw new Error('Ledger transport not available');
-        }
         const accountIndexToUse =
           accountIndex === undefined ? secrets.account.index : accountIndex;
 
+        const { dmk, sessionId } = await this.ledgerDmkService.getSession();
+
         return new LedgerSigner(
           accountIndexToUse,
-          this.ledgerService.recentTransport,
+          dmk,
+          sessionId,
           secrets.derivationPathSpec,
           provider as JsonRpcBatchInternal,
         );
@@ -463,37 +460,34 @@ export class WalletService implements OnUnlock {
       }
 
       if (secretType === SecretType.Ledger) {
-        if (!this.ledgerService.recentTransport) {
-          throw new Error('Ledger transport not available');
-        }
-
         const walletPolicy = await this.parseWalletPolicyDetails(
           secrets.account,
         );
+        const { dmk, sessionId } = await this.ledgerDmkService.getSession();
 
         return new BitcoinLedgerWallet(
           Buffer.from(publicKey.key, 'hex'),
           derivationPath,
           provider as BitcoinProviderAbstract,
-          this.ledgerService.recentTransport,
+          dmk,
+          sessionId,
           walletPolicy,
         );
       }
 
       if (secretType === SecretType.LedgerLive) {
         // Use LedgerLive derivation paths for address public keys (m/44'/60'/n'/0/0) in storage
-        if (!this.ledgerService.recentTransport) {
-          throw new Error('Ledger transport not available');
-        }
         const walletPolicy = await this.parseWalletPolicyDetails(
           secrets.account,
         );
+        const { dmk, sessionId } = await this.ledgerDmkService.getSession();
 
         return new BitcoinLedgerWallet(
           Buffer.from(publicKey.key, 'hex'),
           derivationPath,
           provider as BitcoinProviderAbstract,
-          this.ledgerService.recentTransport,
+          dmk,
+          sessionId,
           walletPolicy,
         );
       }
@@ -516,11 +510,6 @@ export class WalletService implements OnUnlock {
         secretType === SecretType.Ledger ||
         secretType === SecretType.LedgerLive
       ) {
-        assertPresent(
-          this.ledgerService.recentTransport,
-          LedgerError.TransportNotFound,
-        );
-
         const extPublicKey = getExtendedPublicKey(
           secrets.extendedPublicKeys,
           getAvalancheExtendedKeyPath(secrets.account.index),
@@ -597,12 +586,8 @@ export class WalletService implements OnUnlock {
     );
   }
 
-  #requireLedgerTransport() {
-    const transport = this.ledgerService.recentTransport;
-    if (!transport) {
-      throw new Error('Ledger transport not available');
-    }
-    return transport;
+  async #requireLedgerTransport() {
+    return this.ledgerDmkService.getTransport();
   }
 
   /**
@@ -610,7 +595,7 @@ export class WalletService implements OnUnlock {
    * Ethereum app; Avalanche C/X/P and all other EVM chains → Avalanche app.
    */
   async #ensureEvmLedgerAppOpenForSigning(network: Network): Promise<void> {
-    const transport = this.#requireLedgerTransport();
+    const transport = await this.#requireLedgerTransport();
     await ensureLedgerAppOpen(
       transport,
       isEthereumNetwork(network) ? 'Ethereum' : 'Avalanche',
@@ -677,7 +662,18 @@ export class WalletService implements OnUnlock {
       }
 
       if (wallet instanceof SolanaLedgerSigner) {
-        await ensureLedgerAppOpen(this.#requireLedgerTransport(), 'Solana');
+        await ensureLedgerAppOpen(
+          await this.#requireLedgerTransport(),
+          'Solana',
+        );
+
+        return {
+          signedTx: await wallet.signTx(
+            tx.data,
+            getSolanaRpcUrl(network),
+            Boolean(network.isTestnet),
+          ),
+        };
       }
 
       return {
@@ -698,21 +694,12 @@ export class WalletService implements OnUnlock {
 
       if (wallet instanceof BitcoinLedgerWallet) {
         await ensureLedgerAppOpen(
-          this.#requireLedgerTransport(),
+          await this.#requireLedgerTransport(),
           'Bitcoin Recovery',
         );
       }
 
-      // prepare transaction for ledger signing
-      const txToSign =
-        wallet instanceof BitcoinLedgerWallet
-          ? await prepareBtcTxForLedger(
-              tx,
-              await this.networkService.getBitcoinProvider(),
-            )
-          : tx;
-
-      const result = await wallet.signTx(txToSign.inputs, txToSign.outputs);
+      const result = await wallet.signTx(tx.inputs, tx.outputs);
 
       return this.#normalizeSigningResult(result);
     }
@@ -759,14 +746,22 @@ export class WalletService implements OnUnlock {
         );
       }
 
-      if (isLedgerSigner) {
-        await ensureLedgerAppOpen(this.#requireLedgerTransport(), 'Avalanche');
+      const moduleLedgerSession = isLedgerSigner
+        ? await this.ledgerDmkService.getSession()
+        : undefined;
+
+      if (moduleLedgerSession) {
+        await ensureLedgerAppOpen(
+          await this.#requireLedgerTransport(),
+          'Avalanche',
+        );
       }
 
       const signRequest = {
         tx: unsignedTx,
-        ...(isLedgerSigner && {
-          transport: this.ledgerService.recentTransport,
+        ...(moduleLedgerSession && {
+          dmk: moduleLedgerSession.dmk,
+          sessionId: moduleLedgerSession.sessionId,
         }),
         externalIndices,
         internalIndices,
@@ -817,14 +812,22 @@ export class WalletService implements OnUnlock {
         throw new Error('Signing error, wrong network');
       }
 
-      if (isLedgerSigner) {
-        await ensureLedgerAppOpen(this.#requireLedgerTransport(), 'Avalanche');
+      const xpLedgerSession = isLedgerSigner
+        ? await this.ledgerDmkService.getSession()
+        : undefined;
+
+      if (xpLedgerSession) {
+        await ensureLedgerAppOpen(
+          await this.#requireLedgerTransport(),
+          'Avalanche',
+        );
       }
 
       const txToSign = {
         tx: tx.tx,
-        ...(isLedgerSigner && {
-          transport: this.ledgerService.recentTransport,
+        ...(xpLedgerSession && {
+          dmk: xpLedgerSession.dmk,
+          sessionId: xpLedgerSession.sessionId,
         }),
         externalIndices: tx.externalIndices,
         internalIndices: tx.internalIndices,
@@ -1095,13 +1098,17 @@ export class WalletService implements OnUnlock {
       wallet instanceof Avalanche.SimpleLedgerSigner ||
       wallet instanceof Avalanche.LedgerSigner
     ) {
-      const transport = this.#requireLedgerTransport();
-      await ensureLedgerAppOpen(transport, 'Avalanche');
+      const { dmk, sessionId } = await this.ledgerDmkService.getSession();
+      await ensureLedgerAppOpen(
+        await this.#requireLedgerTransport(),
+        'Avalanche',
+      );
 
       return await wallet.signMessage({
         message,
         chain: 'X',
-        transport,
+        dmk,
+        sessionId,
       });
     }
 
