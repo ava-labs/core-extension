@@ -19,7 +19,7 @@ jest.mock('@core/common', () => ({
   caipToChainId: jest.fn().mockReturnValue(137),
 }));
 
-const mockCaptureEncrypted = jest.fn();
+const mockCapture = jest.fn();
 
 const defaultNetworkFeeContext: ReturnType<typeof useNetworkFeeContext> = {
   isGaslessOn: true,
@@ -54,8 +54,7 @@ describe('useGasless', () => {
     jest.clearAllMocks();
     jest.mocked(caipToChainId).mockReturnValue(137);
     jest.mocked(useAnalyticsContext).mockReturnValue({
-      captureEncrypted: mockCaptureEncrypted,
-      capture: jest.fn(),
+      capture: mockCapture,
       initAnalyticsIds: jest.fn(),
       isInitialized: true,
       stopDataCollection: jest.fn(),
@@ -77,10 +76,9 @@ describe('useGasless', () => {
         await result.current.tryFunding(approveCallback);
       });
 
-      expect(mockCaptureEncrypted).toHaveBeenCalledWith(
-        'GaslessFundSuccessful',
-        { fundTxHex: '0xfundedHash' },
-      );
+      expect(mockCapture).toHaveBeenCalledWith('GaslessFundSuccessful', {
+        fundTxHex: '0xfundedHash',
+      });
       expect(approveCallback).toHaveBeenCalledTimes(1);
     });
 
@@ -98,7 +96,7 @@ describe('useGasless', () => {
         await result.current.tryFunding(approveCallback);
       });
 
-      expect(mockCaptureEncrypted).not.toHaveBeenCalledWith(
+      expect(mockCapture).not.toHaveBeenCalledWith(
         'GaslessFundSuccessful',
         expect.anything(),
       );
@@ -126,7 +124,7 @@ describe('useGasless', () => {
       expect(toast.error).toHaveBeenCalledWith('Gasless funding failed');
       expect(setGaslessDefaultValues).toHaveBeenCalled();
       expect(approveCallback).not.toHaveBeenCalled();
-      expect(mockCaptureEncrypted).not.toHaveBeenCalledWith(
+      expect(mockCapture).not.toHaveBeenCalledWith(
         'GaslessFundSuccessful',
         expect.anything(),
       );
@@ -200,7 +198,7 @@ describe('useGasless', () => {
 
       renderHook(() => useGasless({ action: mockAction }));
 
-      expect(mockCaptureEncrypted).toHaveBeenCalledWith('GaslessFundFailed');
+      expect(mockCapture).toHaveBeenCalledWith('GaslessFundFailed');
     });
 
     it('does not capture GaslessFundFailed when phase is READY', () => {
@@ -211,9 +209,7 @@ describe('useGasless', () => {
 
       renderHook(() => useGasless({ action: mockAction }));
 
-      expect(mockCaptureEncrypted).not.toHaveBeenCalledWith(
-        'GaslessFundFailed',
-      );
+      expect(mockCapture).not.toHaveBeenCalledWith('GaslessFundFailed');
     });
   });
 

@@ -38,7 +38,6 @@ jest.mock('../ledger/LedgerService');
 jest.mock('../lock/LockService');
 jest.mock('../permissions/PermissionsService');
 jest.mock('../secrets/AddressResolver');
-jest.mock('../analytics/utils/encryptAnalyticsData');
 jest.mock('@core/common', () => ({
   ...jest.requireActual('@core/common'),
   Monitoring: {
@@ -210,7 +209,7 @@ describe('background/services/accounts/AccountsService', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     (storageService.load as jest.Mock).mockResolvedValue(emptyAccounts);
-    analyticsServicePosthog.captureEncryptedEvent = jest.fn();
+    analyticsServicePosthog.captureEvent = jest.fn();
     (secretsService.addAddress as jest.Mock).mockResolvedValue(undefined);
     jest.mocked(secretsService.getSecretsById).mockResolvedValue({
       id: walletId,
@@ -650,9 +649,7 @@ describe('background/services/accounts/AccountsService', () => {
         active: undefined,
       });
 
-      expect(
-        analyticsServicePosthog.captureEncryptedEvent,
-      ).toHaveBeenNthCalledWith(
+      expect(analyticsServicePosthog.captureEvent).toHaveBeenNthCalledWith(
         1,
         expect.objectContaining({
           windowId: uuid,
@@ -836,9 +833,7 @@ describe('background/services/accounts/AccountsService', () => {
         active: undefined,
       });
 
-      expect(
-        analyticsServicePosthog.captureEncryptedEvent,
-      ).toHaveBeenNthCalledWith(
+      expect(analyticsServicePosthog.captureEvent).toHaveBeenNthCalledWith(
         1,
         expect.objectContaining({
           name: 'addedNewImportedAccount',

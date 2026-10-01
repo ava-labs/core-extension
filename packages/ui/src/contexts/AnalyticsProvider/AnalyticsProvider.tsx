@@ -22,7 +22,6 @@ type CaptureFn = (
   eventName: string,
   properties?: Record<string, any>,
   forceRequestAttempt?: boolean,
-  useEncryption?: boolean,
 ) => Promise<void>;
 
 const AnalyticsContext = createContext<{
@@ -30,7 +29,6 @@ const AnalyticsContext = createContext<{
   isInitialized: boolean;
   stopDataCollection: () => Promise<void>;
   capture: CaptureFn;
-  captureEncrypted: CaptureFn;
 }>({} as any);
 
 const windowId = crypto.randomUUID();
@@ -50,7 +48,6 @@ export function AnalyticsContextProvider({ children }: PropsWithChildren) {
        * Useful when you don't want to / can't wait for the changes to be reflected in the state (e.g: when disabling analytics)
        */
       forceRequestAttempt,
-      useEncryption = false,
     ) => {
       if (
         analyticsConsent === AnalyticsConsent.Denied &&
@@ -68,7 +65,6 @@ export function AnalyticsContextProvider({ children }: PropsWithChildren) {
               windowId,
               properties: { ...properties },
             },
-            useEncryption,
           ],
         });
       } catch (err) {
@@ -76,13 +72,6 @@ export function AnalyticsContextProvider({ children }: PropsWithChildren) {
       }
     },
     [analyticsConsent, request],
-  );
-
-  /** Same as capture(), but always sets useEncryption param to true */
-  const captureEncrypted: CaptureFn = useCallback(
-    async (eventName, properties, forceRequestAttempt) =>
-      capture(eventName, properties, forceRequestAttempt, true),
-    [capture],
   );
 
   const initAnalyticsIds = useCallback(
@@ -127,7 +116,6 @@ export function AnalyticsContextProvider({ children }: PropsWithChildren) {
     <AnalyticsContext.Provider
       value={{
         capture,
-        captureEncrypted,
         isInitialized,
         initAnalyticsIds,
         stopDataCollection,

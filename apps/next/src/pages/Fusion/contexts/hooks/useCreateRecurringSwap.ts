@@ -62,7 +62,7 @@ export const useCreateRecurringSwap = ({
   onCreated,
 }: UseCreateRecurringSwapProps) => {
   const { t } = useTranslation();
-  const { captureEncrypted } = useAnalyticsContext();
+  const { capture } = useAnalyticsContext();
   const { replace } = useHistory();
   const { request } = useConnectionContext();
   const { getNetworkFee } = useNetworkFeeContext();
@@ -106,7 +106,7 @@ export const useCreateRecurringSwap = ({
         slippage: slippageBps,
       });
 
-      captureEncrypted('RecurringSwapReviewOrder', {
+      capture('RecurringSwapReviewOrder', {
         frequencyUnit: frequency.unit,
         frequencyValue: frequency.value,
         numberOfOrders: quote.numberOfOrders,
@@ -141,7 +141,7 @@ export const useCreateRecurringSwap = ({
         signerContext,
       });
 
-      captureEncrypted('RecurringSwapScheduled', {
+      capture('RecurringSwapScheduled', {
         chainId: caipToChainId(sourceChain.chainId),
         scheduleUuid: quote.uuid,
         fromTokenSymbol: sourceAsset.symbol,
@@ -194,7 +194,7 @@ export const useCreateRecurringSwap = ({
     numberOfOrders,
     getNetworkFee,
     feeSetting,
-    captureEncrypted,
+    capture,
     getTranslatedError,
     replace,
     onCreated,

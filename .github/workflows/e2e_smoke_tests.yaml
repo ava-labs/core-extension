@@ -65,8 +65,6 @@ jobs:
           touch .env.dev
           echo 'POSTHOG_KEY="${{ secrets.DEV_POSTHOG_KEY }}"' >> .env.dev
           echo 'POSTHOG_URL="${{ secrets.DEV_POSTHOG_URL }}"' >> .env.dev
-          echo 'ANALYTICS_ENCRYPTION_KEY="${{ secrets.DEV_ANALYTICS_ENCRYPTION_KEY }}"' >> .env.dev
-          echo 'ANALYTICS_ENCRYPTION_KEY_ID="${{ secrets.DEV_ANALYTICS_ENCRYPTION_KEY_ID }}"' >> .env.dev
           echo 'COVALENT_API_KEY="${{ secrets.DEV_COVALENT_API_KEY }}"' >> .env.dev
           echo 'GLACIER_URL="${{ secrets.DEV_GLACIER_URL }}"' >> .env.dev
           echo 'CORE_PROXY_GLACIER_BASE_URL="${{ secrets.CORE_PROXY_GLACIER_BASE_URL }}"' >> .env.production
