@@ -83,17 +83,7 @@
   },
   "lavamoat": {
     "allowScripts": {
-      "@ethereumjs/common>ethereumjs-util>ethereum-cryptography>keccak": false,
       "@lavamoat/preinstall-always-fail": false,
-      "@types/web3>web3": false,
-      "@types/web3>web3>web3-bzz": false,
-      "@types/web3>web3>web3-shh": false,
-      "postinstall-postinstall": false,
-      "web3": false,
-      "web3>web3-bzz": false,
-      "web3>web3-shh": false,
-      "web3>web3-core>web3-core-requestmanager>web3-providers-ws>websocket>bufferutil": false,
-      "web3>web3-core>web3-core-requestmanager>web3-providers-ws>websocket>es5-ext": false,
       "yarn": false,
       "@avalabs/vm-module-types": false,
       "@avalabs/vm-module-types>@avalabs/wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,

@@ -164,7 +164,7 @@ export default ({ generateLavaMoatPolicy }: CommonConfigOptions) =>
                 // Polyfills Array.isArray and ArrayBuffer.isView behind
                 // `JS_SHA3_NO_NODE_JS` flag checks; both exist natively in
                 // Chromium.
-                'web3>web3-utils>ethereum-bloom-filters>js-sha3',
+                'fireblocks-sdk>@notabene/pii-sdk>did-jwt>js-sha3',
               ],
             }),
           );

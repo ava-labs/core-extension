@@ -419,6 +419,7 @@
         "@core/ui>ledger-bitcoin": true,
         "@core/ui>lodash": true,
         "@core/ui>micro-signals": true,
+        "@rsbuild/plugin-node-polyfill>process": true,
         "react": true,
         "react-i18next": true,
         "@core/ui>react-router-dom": true,
@@ -504,7 +505,7 @@
     },
     "@avalabs/k2-alpine>@emotion/styled": {
       "packages": {
-        "@avalabs/k2-alpine>@emotion/styled>@babel/runtime": true,
+        "@emotion/react>@babel/runtime": true,
         "motion>@emotion/is-prop-valid": true,
         "@emotion/react": true,
         "@emotion/react>@emotion/serialize": true,
@@ -537,7 +538,7 @@
         "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>@ethereumjs/rlp": true,
         "@core/service-worker>buffer": true,
         "@rsbuild/plugin-node-polyfill>buffer": true,
-        "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>ethereum-cryptography": true,
+        "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>ethereum-cryptography": true,
         "@core/ui>events": true,
         "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>micro-ftch": true
       }
@@ -732,7 +733,7 @@
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/signing-key>@ethersproject/logger": true,
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/properties": true,
         "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/signing-key>bn.js": true,
-        "@core/ui>bip32>tiny-secp256k1>elliptic>hash.js": true
+        "@core/common>ethereumjs-util>ethereum-cryptography>hash.js": true
       }
     },
     "@core/ui>@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/strings": {
@@ -803,7 +804,7 @@
     },
     "@core/ui>@ledgerhq/hw-app-eth>@ledgerhq/domain-service": {
       "packages": {
-        "@core/ui>@ledgerhq/hw-app-btc>@ledgerhq/logs": true,
+        "@core/ui>@ledgerhq/hw-app-eth>@ledgerhq/logs": true,
         "@core/ui>@ledgerhq/hw-app-eth>axios": true
       }
     },
@@ -840,7 +841,7 @@
         "@core/ui>@ledgerhq/hw-app-eth>@ledgerhq/domain-service": true,
         "@core/ui>@ledgerhq/hw-app-eth>@ledgerhq/errors": true,
         "@core/ui>@ledgerhq/hw-app-eth>@ledgerhq/evm-tools": true,
-        "@core/ui>@ledgerhq/hw-app-btc>@ledgerhq/logs": true,
+        "@core/ui>@ledgerhq/hw-app-eth>@ledgerhq/logs": true,
         "@core/ui>@ledgerhq/hw-app-eth>axios": true,
         "@core/ui>@ledgerhq/hw-app-eth>bignumber.js": true,
         "@rsbuild/plugin-node-polyfill>buffer": true,
@@ -868,7 +869,7 @@
         "@core/ui>@ledgerhq/hw-transport-webhid>@ledgerhq/devices": true,
         "@core/ui>@ledgerhq/hw-app-eth>@ledgerhq/errors": true,
         "@avalabs/core-wallets-sdk>@ledgerhq/hw-transport": true,
-        "@core/ui>@ledgerhq/hw-app-btc>@ledgerhq/logs": true,
+        "@core/ui>@ledgerhq/hw-app-eth>@ledgerhq/logs": true,
         "@rsbuild/plugin-node-polyfill>buffer": true
       }
     },
@@ -883,7 +884,7 @@
         "@core/ui>@ledgerhq/hw-transport-webhid>@ledgerhq/devices": true,
         "@core/ui>@ledgerhq/hw-app-eth>@ledgerhq/errors": true,
         "@avalabs/core-wallets-sdk>@ledgerhq/hw-transport": true,
-        "@core/ui>@ledgerhq/hw-app-btc>@ledgerhq/logs": true,
+        "@core/ui>@ledgerhq/hw-app-eth>@ledgerhq/logs": true,
         "@rsbuild/plugin-node-polyfill>buffer": true
       }
     },
@@ -898,7 +899,7 @@
       },
       "packages": {
         "@core/ui>@ledgerhq/hw-app-eth>@ledgerhq/errors": true,
-        "@core/ui>@ledgerhq/hw-app-btc>@ledgerhq/logs": true,
+        "@core/ui>@ledgerhq/hw-app-eth>@ledgerhq/logs": true,
         "@rsbuild/plugin-node-polyfill>buffer": true,
         "@core/ui>events": true
       }
@@ -911,7 +912,7 @@
         "@core/ui>@ledgerhq/hw-app-eth>@ledgerhq/evm-tools>@ledgerhq/live-env>rxjs": true
       }
     },
-    "@core/ui>@ledgerhq/hw-app-btc>@ledgerhq/logs": {
+    "@core/ui>@ledgerhq/hw-app-eth>@ledgerhq/logs": {
       "globals": {
         "__ledgerLogsListen": "write",
         "console.error": true
@@ -1132,12 +1133,12 @@
         "ethers>@noble/hashes": true
       }
     },
-    "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>ethereum-cryptography>@noble/curves": {
+    "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>ethereum-cryptography>@noble/curves": {
       "globals": {
         "TextEncoder": true
       },
       "packages": {
-        "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>ethereum-cryptography>@noble/curves>@noble/hashes": true
+        "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>ethereum-cryptography>@noble/hashes": true
       }
     },
     "ethers>@noble/curves": {
@@ -1181,12 +1182,6 @@
         "crypto": true
       }
     },
-    "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>ethereum-cryptography>@noble/curves>@noble/hashes": {
-      "globals": {
-        "TextEncoder": true,
-        "crypto": true
-      }
-    },
     "viem>@noble/curves>@noble/hashes": {
       "globals": {
         "TextDecoder": true,
@@ -1195,12 +1190,6 @@
       }
     },
     "@avalabs/core-wallets-sdk>bip39>@noble/hashes": {
-      "globals": {
-        "TextEncoder": true,
-        "crypto": true
-      }
-    },
-    "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>ethereum-cryptography>@noble/hashes": {
       "globals": {
         "TextEncoder": true,
         "crypto": true
@@ -2022,7 +2011,7 @@
     },
     "@core/service-worker>fireblocks-sdk>@notabene/pii-sdk>axios-oauth-client": {
       "packages": {
-        "@core/service-worker>fireblocks-sdk>@notabene/pii-sdk>axios-oauth-client>qs": true
+        "@core/service-worker>fireblocks-sdk>qs": true
       }
     },
     "@core/service-worker>fireblocks-sdk>@notabene/pii-sdk>axios-token-interceptor": {
@@ -2131,7 +2120,7 @@
         "@rsbuild/plugin-node-polyfill>buffer": true
       }
     },
-    "@core/ui>@ledgerhq/hw-app-btc>bs58>base-x": {
+    "@core/ui>bip32>bs58check>bs58>base-x": {
       "packages": {
         "@avalabs/core-wallets-sdk>hdkey>safe-buffer": true
       }
@@ -2364,12 +2353,12 @@
         "msCrypto": true
       }
     },
-    "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>browserify-aes": {
+    "@core/common>ethereumjs-util>ethereum-cryptography>browserify-aes": {
       "globals": {
         "Buffer.concat": true
       },
       "packages": {
-        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>browserify-aes>buffer-xor": true,
+        "@core/common>ethereumjs-util>ethereum-cryptography>browserify-aes>buffer-xor": true,
         "@rsbuild/plugin-node-polyfill>buffer": true,
         "@avalabs/core-wallets-sdk>create-hash>cipher-base": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>evp_bytestokey": true,
@@ -2379,7 +2368,7 @@
     },
     "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher": {
       "packages": {
-        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>browserify-aes": true,
+        "@core/common>ethereumjs-util>ethereum-cryptography>browserify-aes": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>browserify-des": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>evp_bytestokey": true
       }
@@ -2442,7 +2431,7 @@
     },
     "@core/ui>bip32>bs58check>bs58": {
       "packages": {
-        "@core/ui>@ledgerhq/hw-app-btc>bs58>base-x": true
+        "@core/ui>bip32>bs58check>bs58>base-x": true
       }
     },
     "@core/ui>bip32>bs58check": {
@@ -2469,7 +2458,7 @@
         "@core/service-worker>buffer": true
       }
     },
-    "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>browserify-aes>buffer-xor": {
+    "@core/common>ethereumjs-util>ethereum-cryptography>browserify-aes>buffer-xor": {
       "globals": {
         "Buffer": true
       },
@@ -2590,8 +2579,8 @@
         "@avalabs/core-wallets-sdk>create-hash>cipher-base": true,
         "bestzip>glob>inherits": true,
         "@avalabs/core-wallets-sdk>create-hash>md5.js": true,
-        "@core/ui>@ledgerhq/hw-app-btc>ripemd160": true,
-        "@core/ui>@ledgerhq/hw-app-btc>sha.js": true
+        "@avalabs/core-wallets-sdk>create-hash>ripemd160": true,
+        "@avalabs/core-wallets-sdk>create-hash>sha.js": true
       }
     },
     "@core/ui>bip39>pbkdf2>create-hash": {
@@ -2607,9 +2596,9 @@
         "@avalabs/core-wallets-sdk>create-hash>cipher-base": true,
         "@avalabs/core-wallets-sdk>create-hash": true,
         "bestzip>glob>inherits": true,
-        "@core/ui>@ledgerhq/hw-app-btc>ripemd160": true,
+        "@avalabs/core-wallets-sdk>create-hash>ripemd160": true,
         "@avalabs/core-wallets-sdk>hdkey>safe-buffer": true,
-        "@core/ui>@ledgerhq/hw-app-btc>sha.js": true
+        "@avalabs/core-wallets-sdk>create-hash>sha.js": true
       }
     },
     "@core/ui>i18next-http-backend>cross-fetch": {
@@ -2748,7 +2737,7 @@
       "packages": {
         "@core/ui>bip32>tiny-secp256k1>elliptic>bn.js": true,
         "@core/ui>bip32>tiny-secp256k1>elliptic>brorand": true,
-        "@core/ui>bip32>tiny-secp256k1>elliptic>hash.js": true,
+        "@core/common>ethereumjs-util>ethereum-cryptography>hash.js": true,
         "@core/ui>bip32>tiny-secp256k1>elliptic>hmac-drbg": true,
         "bestzip>glob>inherits": true,
         "@core/ui>bip32>tiny-secp256k1>elliptic>minimalistic-assert": true,
@@ -2778,22 +2767,13 @@
         "@core/ui>eth-rpc-errors>fast-safe-stringify": true
       }
     },
-    "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>ethereum-cryptography": {
-      "globals": {
-        "TextDecoder": true,
-        "crypto": true
-      },
-      "packages": {
-        "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>ethereum-cryptography>@noble/curves": true,
-        "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>ethereum-cryptography>@noble/hashes": true
-      }
-    },
     "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>ethereum-cryptography": {
       "globals": {
         "TextDecoder": true,
         "crypto": true
       },
       "packages": {
+        "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>ethereum-cryptography>@noble/curves": true,
         "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>ethereum-cryptography>@noble/hashes": true
       }
     },
@@ -3069,7 +3049,7 @@
         "@avalabs/core-wallets-sdk>hdkey>safe-buffer": true
       }
     },
-    "@core/ui>@ledgerhq/hw-app-btc>ripemd160>hash-base": {
+    "@avalabs/core-wallets-sdk>create-hash>ripemd160>hash-base": {
       "packages": {
         "bestzip>glob>inherits": true,
         "bestzip>archiver>readable-stream": true,
@@ -3086,7 +3066,7 @@
         "@rsbuild/plugin-node-polyfill>stream-browserify": true
       }
     },
-    "@core/ui>bip32>tiny-secp256k1>elliptic>hash.js": {
+    "@core/common>ethereumjs-util>ethereum-cryptography>hash.js": {
       "packages": {
         "bestzip>glob>inherits": true,
         "@core/ui>bip32>tiny-secp256k1>elliptic>minimalistic-assert": true
@@ -3140,7 +3120,7 @@
     },
     "@core/ui>bip32>tiny-secp256k1>elliptic>hmac-drbg": {
       "packages": {
-        "@core/ui>bip32>tiny-secp256k1>elliptic>hash.js": true,
+        "@core/common>ethereumjs-util>ethereum-cryptography>hash.js": true,
         "@core/ui>bip32>tiny-secp256k1>elliptic>minimalistic-assert": true,
         "@core/ui>bip32>tiny-secp256k1>elliptic>minimalistic-crypto-utils": true
       }
@@ -3538,7 +3518,7 @@
     "@core/service-worker>fireblocks-sdk>@notabene/pii-sdk>multicodec": {
       "packages": {
         "@core/service-worker>@walletconnect/core>uint8arrays": true,
-        "@core/service-worker>fireblocks-sdk>@notabene/pii-sdk>multicodec>varint": true
+        "@avalabs/core-utils-sdk>is-ipfs>multiaddr>varint": true
       }
     },
     "@avalabs/core-utils-sdk>is-ipfs>multiformats": {
@@ -3603,7 +3583,7 @@
     "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>parse-asn1": {
       "packages": {
         "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>parse-asn1>asn1.js": true,
-        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>browserify-aes": true,
+        "@core/common>ethereumjs-util>ethereum-cryptography>browserify-aes": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>evp_bytestokey": true,
         "@core/ui>bip39>pbkdf2": true,
         "@avalabs/core-wallets-sdk>hdkey>safe-buffer": true
@@ -3612,7 +3592,7 @@
     "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>parse-asn1": {
       "packages": {
         "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>parse-asn1>asn1.js": true,
-        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>browserify-aes": true,
+        "@core/common>ethereumjs-util>ethereum-cryptography>browserify-aes": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>evp_bytestokey": true,
         "@core/ui>bip39>pbkdf2": true,
         "@avalabs/core-wallets-sdk>hdkey>safe-buffer": true
@@ -3636,7 +3616,7 @@
         "@rsbuild/plugin-node-polyfill>process": true,
         "@core/ui>bip39>pbkdf2>ripemd160": true,
         "@avalabs/core-wallets-sdk>hdkey>safe-buffer": true,
-        "@core/ui>@ledgerhq/hw-app-btc>sha.js": true,
+        "@avalabs/core-wallets-sdk>create-hash>sha.js": true,
         "@core/ui>bip39>pbkdf2>to-buffer": true
       }
     },
@@ -3708,11 +3688,6 @@
         "eslint-plugin-react>prop-types": true,
         "@core/ui>qrcode.react>qr.js": true,
         "react": true
-      }
-    },
-    "@core/service-worker>fireblocks-sdk>@notabene/pii-sdk>axios-oauth-client>qs": {
-      "packages": {
-        "eslint-plugin-react>es-iterator-helpers>internal-slot>side-channel": true
       }
     },
     "@core/service-worker>fireblocks-sdk>qs": {
@@ -3921,7 +3896,7 @@
         "setTimeout": true
       },
       "packages": {
-        "react-transition-group>@babel/runtime": true,
+        "@emotion/react>@babel/runtime": true,
         "react-transition-group>dom-helpers": true,
         "eslint-plugin-react>prop-types": true,
         "react": true,
@@ -3935,7 +3910,7 @@
         "setTimeout": true
       },
       "packages": {
-        "@avalabs/k2-alpine>@mui/material>react-transition-group>@babel/runtime": true,
+        "@emotion/react>@babel/runtime": true,
         "eslint-plugin-react>prop-types": true,
         "react": true,
         "react-dom": true
@@ -4003,10 +3978,10 @@
         "react-markdown>mdast-util-to-hast": true
       }
     },
-    "@core/ui>@ledgerhq/hw-app-btc>ripemd160": {
+    "@avalabs/core-wallets-sdk>create-hash>ripemd160": {
       "packages": {
         "@core/service-worker>buffer": true,
-        "@core/ui>@ledgerhq/hw-app-btc>ripemd160>hash-base": true,
+        "@avalabs/core-wallets-sdk>create-hash>ripemd160>hash-base": true,
         "bestzip>glob>inherits": true
       }
     },
@@ -4097,7 +4072,7 @@
         "eslint-plugin-react>es-iterator-helpers>has-property-descriptors": true
       }
     },
-    "@core/ui>@ledgerhq/hw-app-btc>sha.js": {
+    "@avalabs/core-wallets-sdk>create-hash>sha.js": {
       "packages": {
         "bestzip>glob>inherits": true,
         "@avalabs/core-wallets-sdk>hdkey>safe-buffer": true,
