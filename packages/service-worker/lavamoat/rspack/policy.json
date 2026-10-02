@@ -335,7 +335,7 @@
       },
       "packages": {
         "@ledgerhq/device-management-kit": true,
-        "@avalabs/hw-app-avalanche>@ledgerhq/device-signer-kit-ethereum": true,
+        "@ledgerhq/device-signer-kit-ethereum": true,
         "@avalabs/hw-app-avalanche>bs58": true,
         "buffer": true
       }
@@ -772,23 +772,12 @@
         "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>tiny-invariant": true
       }
     },
-    "@avalabs/hw-app-avalanche>@ledgerhq/context-module": {
+    "@ledgerhq/context-module": {
       "packages": {
         "@ledgerhq/device-management-kit": true,
-        "@avalabs/hw-app-avalanche>bs58": true,
+        "@ledgerhq/context-module>bs58": true,
         "@ledgerhq/context-module>crypto-js": true,
-        "@avalabs/hw-app-avalanche>@ledgerhq/context-module>ethers": true,
-        "@ledgerhq/context-module>inversify": true,
-        "@ledgerhq/context-module>purify-ts": true,
-        "reflect-metadata": true
-      }
-    },
-    "@ledgerhq/device-signer-kit-solana>@ledgerhq/context-module": {
-      "packages": {
-        "@ledgerhq/device-management-kit": true,
-        "@ledgerhq/device-signer-kit-solana>bs58": true,
-        "@ledgerhq/context-module>crypto-js": true,
-        "@ledgerhq/device-signer-kit-solana>@ledgerhq/context-module>ethers": true,
+        "@ledgerhq/context-module>ethers": true,
         "@ledgerhq/context-module>inversify": true,
         "@ledgerhq/context-module>purify-ts": true,
         "reflect-metadata": true
@@ -858,16 +847,16 @@
         "@ledgerhq/device-management-kit>xstate": true
       }
     },
-    "@avalabs/hw-app-avalanche>@ledgerhq/device-signer-kit-ethereum": {
+    "@ledgerhq/device-signer-kit-ethereum": {
       "globals": {
         "TextEncoder": true
       },
       "packages": {
-        "@avalabs/hw-app-avalanche>@ledgerhq/context-module": true,
+        "@ledgerhq/context-module": true,
         "@ledgerhq/device-signer-kit-ethereum>@ledgerhq/device-contacts-kit": true,
         "@ledgerhq/device-management-kit": true,
         "@ledgerhq/device-signer-kit-solana>@ledgerhq/signer-utils": true,
-        "@avalabs/hw-app-avalanche>@ledgerhq/context-module>ethers": true,
+        "@ledgerhq/device-signer-kit-ethereum>ethers": true,
         "@ledgerhq/context-module>inversify": true,
         "@ledgerhq/context-module>purify-ts": true,
         "reflect-metadata": true,
@@ -880,7 +869,7 @@
         "TextEncoder": true
       },
       "packages": {
-        "@ledgerhq/device-signer-kit-solana>@ledgerhq/context-module": true,
+        "@ledgerhq/context-module": true,
         "@ledgerhq/device-management-kit": true,
         "@ledgerhq/device-signer-kit-solana>@ledgerhq/signer-utils": true,
         "@ledgerhq/device-signer-kit-solana>@solana/web3.js": true,
@@ -1198,7 +1187,7 @@
         "@noble/hashes": true
       }
     },
-    "@avalabs/hw-app-avalanche>@ledgerhq/context-module>ethers>@noble/curves": {
+    "@ledgerhq/device-signer-kit-ethereum>ethers>@noble/curves": {
       "globals": {
         "TextEncoder": true
       },
@@ -2785,6 +2774,11 @@
         "@avalabs/hw-app-avalanche>bs58>base-x": true
       }
     },
+    "@ledgerhq/context-module>bs58": {
+      "packages": {
+        "@ledgerhq/context-module>bs58>base-x": true
+      }
+    },
     "@ledgerhq/device-signer-kit-solana>bs58": {
       "packages": {
         "@ledgerhq/device-signer-kit-solana>bs58>base-x": true
@@ -3322,20 +3316,17 @@
         "ethers>tslib": true
       }
     },
-    "@avalabs/hw-app-avalanche>@ledgerhq/context-module>ethers": {
+    "@ledgerhq/context-module>ethers": {
       "globals": {
         "console.log": true
       },
       "packages": {
-        "@avalabs/hw-app-avalanche>@ledgerhq/context-module>ethers>@noble/curves": true,
         "@noble/hashes": true
       }
     },
-    "@ledgerhq/device-signer-kit-solana>@ledgerhq/context-module>ethers": {
-      "globals": {
-        "console.log": true
-      },
+    "@ledgerhq/device-signer-kit-ethereum>ethers": {
       "packages": {
+        "@ledgerhq/device-signer-kit-ethereum>ethers>@noble/curves": true,
         "@noble/hashes": true
       }
     },
