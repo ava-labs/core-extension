@@ -74,9 +74,12 @@ export class LedgerDmkService implements OnLock {
     // Share a single in-flight connect across concurrent callers (the frontend
     // polls `getAppInfo` repeatedly) so we never open competing sessions.
     if (!this.#pendingConnect) {
-      this.#pendingConnect = this.#connect(dmk).finally(() => {
-        this.#pendingConnect = undefined;
+      const pending = this.#connect(dmk).finally(() => {
+        if (this.#pendingConnect === pending) {
+          this.#pendingConnect = undefined;
+        }
       });
+      this.#pendingConnect = pending;
     }
     const sessionId = await this.#pendingConnect;
     return { dmk, sessionId };
@@ -97,6 +100,13 @@ export class LedgerDmkService implements OnLock {
     // `getLedgerAppInfo`) queued forever.
     const sessionId = await dmk.connect({ device });
 
+    // The wallet was locked while connecting; don't attach a session to a
+    // DMK instance that has been discarded.
+    if (this.#dmk !== dmk) {
+      await dmk.disconnect({ sessionId }).catch(() => undefined);
+      throw new Error('Ledger connection was reset');
+    }
+
     this.#sessionId = sessionId;
     return sessionId;
   }
@@ -116,7 +126,12 @@ export class LedgerDmkService implements OnLock {
   async getAppInfo(): Promise<{ applicationName: string; version: string }> {
     try {
       return await this.#readAppInfo();
-    } catch {
+    } catch (error) {
+      // No session means device discovery itself timed out (e.g. no WebHID
+      // grant yet); retrying would only repeat the same 30s wait.
+      if (!this.#sessionId) {
+        throw error;
+      }
       // A stale cached session can be stuck at `Connected`/`BUSY` (e.g. a prior
       // exchange never completed) and never advance to a state that reports the
       // running app. Drop it and reconnect once before giving up.
@@ -220,18 +235,20 @@ export class LedgerDmkService implements OnLock {
   }
 
   async disconnect(): Promise<void> {
-    if (this.#dmk && this.#sessionId) {
-      await this.#dmk
-        .disconnect({ sessionId: this.#sessionId })
-        .catch(() => undefined);
-    }
+    const dmk = this.#dmk;
+    const sessionId = this.#sessionId;
     this.#sessionId = undefined;
     this.#pendingConnect = undefined;
+
+    if (dmk && sessionId) {
+      await dmk.disconnect({ sessionId }).catch(() => undefined);
+    }
   }
 
   onLock(): void {
-    void this.disconnect();
-    this.#dmk?.close();
+    const dmk = this.#dmk;
+    const disconnecting = this.disconnect();
     this.#dmk = undefined;
+    void disconnecting.finally(() => dmk?.close());
   }
 }
