@@ -1,5 +1,6 @@
 import { ExtensionRequest, LedgerEvent, LockEvents } from '@core/types';
 import {
+  act,
   fireEvent,
   render,
   waitFor,
@@ -85,6 +86,9 @@ const TestComponent = ({ methodParams }) => {
     getBtcExtendedPublicKey,
     registerBtcWalletPolicy,
     updateLedgerVersionWarningClosed,
+    prepareTransportForOnboarding,
+    registerSubscriber,
+    unregisterSubscriber,
   } = useLedgerContext();
 
   const [error, setError] = useState<string | undefined>();
@@ -99,6 +103,9 @@ const TestComponent = ({ methodParams }) => {
     getBtcExtendedPublicKey,
     registerBtcWalletPolicy,
     updateLedgerVersionWarningClosed,
+    prepareTransportForOnboarding,
+    registerSubscriber,
+    unregisterSubscriber,
   };
 
   const { appType, appVersion } = useActiveLedgerAppInfo();
@@ -625,6 +632,54 @@ describe('src/contexts/LedgerProvider.tsx', () => {
           LedgerAppType.UNKNOWN,
         );
       });
+    });
+  });
+
+  describe('prepareTransportForOnboarding', () => {
+    it('opens the requested app and refreshes the active app', async () => {
+      deviceResponders.getAppInfo = () => ({
+        applicationName: LedgerAppType.SOLANA,
+        version: '1.4.0',
+      });
+
+      const connectionMocks = useConnectionContext();
+      renderTestComponent(LedgerAppType.SOLANA);
+
+      fireEvent.click(screen.getByTestId('prepareTransportForOnboarding'));
+
+      await waitFor(() => {
+        expect(connectionMocks.request).toHaveBeenCalledWith(
+          deviceRequestCall('ensureAppOpen', { appName: LedgerAppType.SOLANA }),
+        );
+        expect(screen.getByTestId('appType').textContent).toBe(
+          LedgerAppType.SOLANA,
+        );
+      });
+    });
+  });
+
+  describe('active app polling', () => {
+    it('polls the device every 2 seconds while there are subscribers', async () => {
+      const { request } = useConnectionContext();
+      const getAppInfoCalls = () =>
+        (request as jest.Mock).mock.calls.filter(
+          ([req]) =>
+            req.method === ExtensionRequest.LEDGER_DEVICE_REQUEST &&
+            req.params[0].op === 'getAppInfo',
+        ).length;
+
+      renderTestComponent();
+      expect(getAppInfoCalls()).toBe(0);
+
+      fireEvent.click(screen.getByTestId('registerSubscriber'));
+      await waitFor(() => expect(getAppInfoCalls()).toBe(1));
+
+      await act(() => jest.advanceTimersByTimeAsync(2_000));
+      expect(getAppInfoCalls()).toBe(2);
+
+      fireEvent.click(screen.getByTestId('unregisterSubscriber'));
+      await act(() => jest.advanceTimersByTimeAsync(10_000));
+      expect(getAppInfoCalls()).toBe(2);
     });
   });
 });

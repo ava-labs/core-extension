@@ -1,5 +1,11 @@
 import { of, throwError } from 'rxjs';
+import {
+  getLedgerExtendedPublicKey,
+  quitLedgerApp,
+} from '@avalabs/core-wallets-sdk';
+import { ensureLedgerAppOpen } from '@core/common';
 import { LedgerDmkService } from './LedgerDmkService';
+import { DmkLedgerTransport } from './dmk/DmkLedgerTransport';
 
 const mockBuild = jest.fn();
 
@@ -15,8 +21,13 @@ jest.mock('@ledgerhq/device-management-kit', () => ({
   },
 }));
 jest.mock('@ledgerhq/device-signer-kit-solana', () => ({}));
-jest.mock('@avalabs/core-wallets-sdk', () => ({}));
-jest.mock('@core/common', () => ({}));
+jest.mock('@avalabs/core-wallets-sdk', () => ({
+  getLedgerExtendedPublicKey: jest.fn(),
+  quitLedgerApp: jest.fn(),
+}));
+jest.mock('@core/common', () => ({
+  ensureLedgerAppOpen: jest.fn(),
+}));
 jest.mock('ledger-bitcoin', () => ({}));
 
 const device = { id: 'device-id' };
@@ -27,6 +38,7 @@ const createDmk = () => ({
   disconnect: jest.fn().mockResolvedValue(undefined),
   close: jest.fn(),
   getDeviceSessionState: jest.fn(),
+  sendApdu: jest.fn(),
 });
 
 const deferred = <T>() => {
@@ -76,6 +88,71 @@ describe('src/background/services/ledger/LedgerDmkService.ts', () => {
       expect(dmk.getDeviceSessionState).toHaveBeenLastCalledWith({
         sessionId: 'session-2',
       });
+    });
+  });
+
+  describe('device operations', () => {
+    let dmk: ReturnType<typeof createDmk>;
+
+    beforeEach(() => {
+      dmk = createDmk();
+      dmk.connect.mockResolvedValue('session-1');
+      mockBuild.mockReturnValue(dmk);
+    });
+
+    it('reads the blind-signing flag from the Ethereum app configuration', async () => {
+      dmk.sendApdu.mockResolvedValue({
+        data: new Uint8Array([0x01, 0x01, 0x0a, 0x02]),
+        statusCode: new Uint8Array([0x90, 0x00]),
+      });
+
+      await expect(service.getEthAppConfig()).resolves.toEqual({
+        isBlindSigningEnabled: true,
+      });
+      expect(dmk.sendApdu).toHaveBeenCalledWith({
+        sessionId: 'session-1',
+        apdu: new Uint8Array([0xe0, 0x06, 0x00, 0x00, 0x00]),
+      });
+    });
+
+    it('opens the requested app through the DMK transport', async () => {
+      await service.ensureAppOpen('Avalanche');
+
+      expect(ensureLedgerAppOpen).toHaveBeenCalledWith(
+        expect.any(DmkLedgerTransport),
+        'Avalanche',
+      );
+    });
+
+    it('quits the running app', async () => {
+      await service.closeApp();
+
+      expect(quitLedgerApp).toHaveBeenCalledWith(dmk, 'session-1');
+    });
+
+    it('derives the extended public key from the Avalanche app', async () => {
+      jest.mocked(getLedgerExtendedPublicKey).mockResolvedValue('xpub');
+
+      await expect(
+        service.getExtendedPublicKey("m/44'/60'/0'", true),
+      ).resolves.toBe('xpub');
+      expect(ensureLedgerAppOpen).toHaveBeenCalledWith(
+        expect.any(DmkLedgerTransport),
+        'Avalanche',
+      );
+      expect(getLedgerExtendedPublicKey).toHaveBeenCalledWith(
+        dmk,
+        'session-1',
+        true,
+        "m/44'/60'/0'",
+      );
+    });
+
+    it('reuses the established session across operations', async () => {
+      await service.getTransport();
+      await service.getSession();
+
+      expect(dmk.connect).toHaveBeenCalledTimes(1);
     });
   });
 
