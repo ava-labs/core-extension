@@ -45,6 +45,11 @@ export type { GetHistoryHandler } from './services/history/handlers/getHistory';
 export type { CloseLedgerTransportHandler } from './services/ledger/handlers/closeOpenTransporters';
 export type { GetLedgerVersionWarningHandler } from './services/ledger/handlers/getLedgerVersionWarning';
 export type { InitLedgerTransportHandler } from './services/ledger/handlers/initLedgerTransport';
+export type {
+  LedgerDeviceRequestHandler,
+  LedgerDeviceRequestParams,
+  LedgerDeviceRequestResult,
+} from './services/ledger/handlers/ledgerDeviceRequest';
 export type { LedgerResponseHandler } from './services/ledger/handlers/ledgerResponse';
 export type { MigrateMissingPublicKeysFromLedgerHandler } from './services/ledger/handlers/migrateMissingPublicKeysFromLedger';
 export type { RemoveLedgerTransportHandler } from './services/ledger/handlers/removeLedgerTransport';

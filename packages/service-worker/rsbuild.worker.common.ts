@@ -54,7 +54,6 @@ export default ({ generateLavaMoatPolicy }: CommonConfigOptions) =>
         extensions: ['.ts', '.tsx', '.js'],
         alias: {
           path: require.resolve('path-browserify'),
-          '@hpke/core': '../../node_modules/@hpke/core/esm/mod.js',
           // Joi by default goes to browser-specific version which does not include the list of TLDS (which we need for email validation)
           joi: require.resolve('joi/lib/index.js'),
         },

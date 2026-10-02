@@ -29,7 +29,6 @@ import { MAX_ACCOUNTS_TO_CREATE } from '@/config/onboarding';
 import { useCheckAddressActivity } from '@/hooks/useCheckAddressActivity';
 import { useCheckXPAddressBalance } from '@/hooks/useCheckXPAddressBalance';
 
-import { getLedgerTransport } from '@core/ui/src/contexts/utils/getLedgerTransport';
 import {
   DerivedKeys,
   ErrorType,
@@ -353,10 +352,14 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     // user action. Returning here prevents the AVALANCHE branch below from
     // re-flipping status to 'ready' and re-triggering the connector's
     // auto-fetch.
+    // `wasTransportAttempted` flips synchronously when the probe starts (before
+    // its device request resolves), so `needs-user-gesture` can be set mid-probe.
+    // Keep it sticky only while transport is still missing, so an
+    // already-authorized device recovers without an unnecessary retry click.
     if (
       error === 'duplicated-wallet' ||
       error === 'retrieval-failed' ||
-      status === 'needs-user-gesture'
+      (status === 'needs-user-gesture' && !hasLedgerTransport)
     ) {
       return;
     }
@@ -367,13 +370,11 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     }
 
     if (!hasLedgerTransport && !wasManualConnectionAttempted) {
-      getLedgerTransport().then((transport) => {
-        if (!transport) {
-          // If it fails, it's either disconnected or the call was not triggered by user gesture.
-          setStatus('needs-user-gesture');
-          setWasManualConnectionAttempted(true);
-        }
-      });
+      // The service worker owns the WebHID connection; if it can't see a
+      // granted device, the user must grant access via a gesture
+      // (popDeviceSelection on a tab view).
+      setStatus('needs-user-gesture');
+      setWasManualConnectionAttempted(true);
       return;
     }
 

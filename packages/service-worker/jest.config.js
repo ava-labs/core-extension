@@ -17,6 +17,10 @@ module.exports = {
     '\\.(css|less|scss)$': 'identity-obj-proxy',
     '^uuid$': require.resolve('uuid'),
     '^@avalabs/crypto-wasm$': '<rootDir>/../../src/tests/mocks/cryptoWasm.js',
+    '^@ledgerhq/device-management-kit$':
+      '<rootDir>/../../src/tests/mocks/ledgerDmk.js',
+    '^@ledgerhq/device-transport-kit-web-hid$':
+      '<rootDir>/../../src/tests/mocks/ledgerDmk.js',
   },
   transform: {
     '^.+\\.(js|jsx)$': 'babel-jest',

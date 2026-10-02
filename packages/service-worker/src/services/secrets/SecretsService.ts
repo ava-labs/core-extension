@@ -1,11 +1,7 @@
 import { omit, pick, uniqWith } from 'lodash';
 import { singleton } from 'tsyringe';
 
-import {
-  Avalanche,
-  DerivationPath,
-  getLedgerExtendedPublicKey,
-} from '@avalabs/core-wallets-sdk';
+import { Avalanche, DerivationPath } from '@avalabs/core-wallets-sdk';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 import {
   assertPresent,
@@ -40,7 +36,7 @@ import {
 } from '@core/types';
 import EventEmitter from 'events';
 import { OnUnlock } from '../../runtime/lifecycleCallbacks';
-import { LedgerService } from '../ledger/LedgerService';
+import { LedgerDmkService } from '../ledger/LedgerDmkService';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { StorageService } from '../storage/StorageService';
@@ -783,12 +779,12 @@ export class SecretsService implements OnUnlock {
   async addAddress({
     index,
     walletId,
-    ledgerService,
+    ledgerDmkService,
     addressResolver,
   }: {
     index: number;
     walletId: string;
-    ledgerService: LedgerService;
+    ledgerDmkService: LedgerDmkService;
     addressResolver: AddressResolver;
   }): Promise<void> {
     const secrets = await this.getWalletAccountsSecretsById(walletId);
@@ -858,11 +854,6 @@ export class SecretsService implements OnUnlock {
       // Adding Solana public keys must be performed via separate flow,
       // as it requires a different app to be enabled on the device.
       if (!hasEVMPublicKey) {
-        assertPresent(
-          ledgerService.recentTransport,
-          LedgerError.TransportNotFound,
-        );
-
         const evmExtPath =
           secrets.secretType === SecretType.LedgerLive
             ? getEvmExtendedKeyPath(index)
@@ -882,10 +873,9 @@ export class SecretsService implements OnUnlock {
             ).toJSON(),
           );
         } else {
-          const evmXpubString = await getLedgerExtendedPublicKey(
-            ledgerService.recentTransport,
-            false,
+          const evmXpubString = await ledgerDmkService.getExtendedPublicKey(
             evmExtPath,
+            false,
           );
 
           assertPresent(
@@ -913,11 +903,6 @@ export class SecretsService implements OnUnlock {
       }
 
       if (!hasAVMPublicKey) {
-        assertPresent(
-          ledgerService.recentTransport,
-          LedgerError.TransportNotFound,
-        );
-
         const existingXPXpub = getAvalancheXPub(secrets, index);
 
         if (existingXPXpub) {
@@ -931,10 +916,9 @@ export class SecretsService implements OnUnlock {
         } else {
           const avalancheXpubPath = getAvalancheExtendedKeyPath(index);
           try {
-            const xpXpubString = await getLedgerExtendedPublicKey(
-              ledgerService.recentTransport,
-              false,
+            const xpXpubString = await ledgerDmkService.getExtendedPublicKey(
               avalancheXpubPath,
+              false,
             );
 
             assertPresent(

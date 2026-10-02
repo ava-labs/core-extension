@@ -1,6 +1,5 @@
 import {
   DerivationPath,
-  getLedgerExtendedPublicKey,
   getAddressDerivationPath,
 } from '@avalabs/core-wallets-sdk';
 import {
@@ -10,7 +9,6 @@ import {
   SecretType,
 } from '@core/types';
 import { SecretsService } from '../../secrets/SecretsService';
-import { LedgerTransport } from '../LedgerTransport';
 import { MigrateMissingPublicKeysFromLedgerHandler } from './migrateMissingPublicKeysFromLedger';
 import { buildRpcCall } from '@shared/tests/test-utils';
 import { AccountsService } from '../../accounts/AccountsService';
@@ -22,11 +20,6 @@ import {
 } from '@core/common';
 
 jest.mock('../../secrets/SecretsService');
-jest.mock('@avalabs/core-wallets-sdk', () => ({
-  ...jest.requireActual('@avalabs/core-wallets-sdk'),
-  getLedgerExtendedPublicKey: jest.fn(),
-  getPubKeyFromTransport: jest.fn(),
-}));
 
 const WALLET_ID = 'wallet_id';
 
@@ -61,11 +54,13 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
   } as any;
 
   const secretsService = jest.mocked(new SecretsService({} as any));
-  const ledgerService = {} as any;
+  const ledgerDmkService = {
+    getExtendedPublicKey: jest.fn(),
+  } as any;
   const handleRequest = async () => {
     const handler = new MigrateMissingPublicKeysFromLedgerHandler(
       secretsService,
-      ledgerService,
+      ledgerDmkService,
       accountsService,
     );
     return handler.handle(buildRpcCall(request));
@@ -73,7 +68,6 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
 
   beforeEach(() => {
     jest.resetAllMocks();
-    (ledgerService as any).recentTransport = {} as LedgerTransport;
   });
 
   it('returns error if storage is empty', async () => {
@@ -94,18 +88,6 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
 
     expect(secretsService.updateSecrets).not.toHaveBeenCalled();
     expect(result).toEqual({ ...request, result: true });
-  });
-
-  it('returns error if transport is missing', async () => {
-    (ledgerService as any).recentTransport = undefined;
-    secretsService.getAccountSecrets.mockResolvedValue({
-      secretType: SecretType.Ledger,
-      id: WALLET_ID,
-    } as any);
-
-    const { error } = await handleRequest();
-
-    expect(error).toEqual('Ledger transport not available');
   });
 
   it('terminates early if there is nothing to update', async () => {
@@ -166,8 +148,7 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
         ),
       );
 
-    jest
-      .mocked(getLedgerExtendedPublicKey)
+    ledgerDmkService.getExtendedPublicKey
       .mockResolvedValueOnce('xpubXP1')
       .mockRejectedValueOnce('some error');
 
@@ -221,8 +202,7 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
         ),
       );
 
-    jest
-      .mocked(getLedgerExtendedPublicKey)
+    ledgerDmkService.getExtendedPublicKey
       .mockResolvedValueOnce('xpubXP1')
       .mockResolvedValueOnce('xpubXP2');
 

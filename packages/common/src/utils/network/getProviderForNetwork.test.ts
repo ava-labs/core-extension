@@ -7,9 +7,13 @@ import {
   BitcoinProvider,
   JsonRpcBatchInternal,
   Avalanche,
+  getSolanaProvider,
 } from '@avalabs/core-wallets-sdk';
 import { FetchRequest, Network } from 'ethers';
-import { getProviderForNetwork } from './getProviderForNetwork';
+import {
+  getProviderForNetwork,
+  getSolanaRpcUrl,
+} from './getProviderForNetwork';
 import { addGlacierAPIKeyIfNeeded } from './addGlacierAPIKeyIfNeeded';
 import { decorateWithCaipId } from '../caipConversion';
 
@@ -26,6 +30,7 @@ jest.mock('@avalabs/core-wallets-sdk', () => {
     ...actual,
     BitcoinProvider: BitcoinProviderMock,
     JsonRpcBatchInternal: JsonRpcBatchInternalMock,
+    getSolanaProvider: jest.fn(),
     Avalanche: {
       ...actual.Avalanche,
       JsonRpcProvider: {
@@ -247,6 +252,47 @@ describe('src/utils/network/getProviderForNetwork', () => {
     expect(
       Avalanche.JsonRpcProvider.getDefaultMainnetProvider,
     ).toHaveBeenCalledTimes(1);
+  });
+
+  describe('Solana', () => {
+    const mockSolanaProviderInstance = {};
+    const mockSolanaNetwork = (isTestnet: boolean) => ({
+      ...mockNetwork(NetworkVMType.EVM, isTestnet),
+      vmName: NetworkVMType.SVM,
+    });
+
+    beforeEach(() => {
+      jest
+        .mocked(getSolanaProvider)
+        .mockReturnValue(mockSolanaProviderInstance as any);
+    });
+
+    it('uses the public devnet RPC for testnet', async () => {
+      const network = mockSolanaNetwork(true);
+
+      expect(getSolanaRpcUrl(network)).toBe('https://api.devnet.solana.com');
+      await expect(getProviderForNetwork(network)).resolves.toBe(
+        mockSolanaProviderInstance,
+      );
+      expect(getSolanaProvider).toHaveBeenCalledWith({
+        isTestnet: true,
+        rpcUrl: 'https://api.devnet.solana.com',
+      });
+    });
+
+    it('uses the proxied RPC for mainnet', async () => {
+      const network = mockSolanaNetwork(false);
+      const proxyUrl = `${process.env.PROXY_URL}/proxy/nownodes/sol`;
+
+      expect(getSolanaRpcUrl(network)).toBe(proxyUrl);
+      await expect(getProviderForNetwork(network)).resolves.toBe(
+        mockSolanaProviderInstance,
+      );
+      expect(getSolanaProvider).toHaveBeenCalledWith({
+        isTestnet: false,
+        rpcUrl: proxyUrl,
+      });
+    });
   });
 
   it('returns error when VM is not supported', async () => {
