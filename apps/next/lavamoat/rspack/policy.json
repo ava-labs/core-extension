@@ -161,7 +161,7 @@
       },
       "packages": {
         "@core/service-worker>@ledgerhq/device-management-kit": true,
-        "@core/ui>@avalabs/hw-app-avalanche>@ledgerhq/device-signer-kit-ethereum": true,
+        "@core/service-worker>@ledgerhq/device-signer-kit-ethereum": true,
         "@core/ui>@avalabs/hw-app-avalanche>bs58": true,
         "@rsbuild/plugin-node-polyfill>buffer": true
       }
@@ -589,23 +589,12 @@
         "@core/service-worker>@ledgerhq/context-module>inversify>@inversifyjs/core>@inversifyjs/reflect-metadata-utils": true
       }
     },
-    "@core/ui>@avalabs/hw-app-avalanche>@ledgerhq/context-module": {
+    "@core/service-worker>@ledgerhq/context-module": {
       "packages": {
         "@core/service-worker>@ledgerhq/device-management-kit": true,
-        "@core/ui>@avalabs/hw-app-avalanche>bs58": true,
+        "@core/service-worker>@ledgerhq/context-module>bs58": true,
         "@core/service-worker>@ledgerhq/context-module>crypto-js": true,
-        "@core/ui>@avalabs/hw-app-avalanche>@ledgerhq/context-module>ethers": true,
-        "@core/service-worker>@ledgerhq/context-module>inversify": true,
-        "@core/service-worker>@ledgerhq/context-module>purify-ts": true,
-        "@core/ui>reflect-metadata": true
-      }
-    },
-    "@core/service-worker>@ledgerhq/device-signer-kit-solana>@ledgerhq/context-module": {
-      "packages": {
-        "@core/service-worker>@ledgerhq/device-management-kit": true,
-        "@core/service-worker>@ledgerhq/device-signer-kit-solana>bs58": true,
-        "@core/service-worker>@ledgerhq/context-module>crypto-js": true,
-        "@core/service-worker>@ledgerhq/device-signer-kit-solana>@ledgerhq/context-module>ethers": true,
+        "@core/service-worker>@ledgerhq/context-module>ethers": true,
         "@core/service-worker>@ledgerhq/context-module>inversify": true,
         "@core/service-worker>@ledgerhq/context-module>purify-ts": true,
         "@core/ui>reflect-metadata": true
@@ -660,16 +649,16 @@
         "@core/service-worker>@ledgerhq/device-management-kit>xstate": true
       }
     },
-    "@core/ui>@avalabs/hw-app-avalanche>@ledgerhq/device-signer-kit-ethereum": {
+    "@core/service-worker>@ledgerhq/device-signer-kit-ethereum": {
       "globals": {
         "TextEncoder": true
       },
       "packages": {
-        "@core/ui>@avalabs/hw-app-avalanche>@ledgerhq/context-module": true,
+        "@core/service-worker>@ledgerhq/context-module": true,
         "@core/service-worker>@ledgerhq/device-signer-kit-ethereum>@ledgerhq/device-contacts-kit": true,
         "@core/service-worker>@ledgerhq/device-management-kit": true,
         "@core/service-worker>@ledgerhq/device-signer-kit-solana>@ledgerhq/signer-utils": true,
-        "@core/ui>@avalabs/hw-app-avalanche>@ledgerhq/context-module>ethers": true,
+        "@core/service-worker>@ledgerhq/device-signer-kit-ethereum>ethers": true,
         "@core/service-worker>@ledgerhq/context-module>inversify": true,
         "@core/service-worker>@ledgerhq/context-module>purify-ts": true,
         "@core/ui>reflect-metadata": true,
@@ -682,7 +671,7 @@
         "TextEncoder": true
       },
       "packages": {
-        "@core/service-worker>@ledgerhq/device-signer-kit-solana>@ledgerhq/context-module": true,
+        "@core/service-worker>@ledgerhq/context-module": true,
         "@core/service-worker>@ledgerhq/device-management-kit": true,
         "@core/service-worker>@ledgerhq/device-signer-kit-solana>@ledgerhq/signer-utils": true,
         "@core/service-worker>@ledgerhq/device-signer-kit-solana>@solana/web3.js": true,
@@ -961,7 +950,7 @@
         "ethers>@noble/hashes": true
       }
     },
-    "@core/ui>@avalabs/hw-app-avalanche>@ledgerhq/context-module>ethers>@noble/curves": {
+    "@core/service-worker>@ledgerhq/device-signer-kit-ethereum>ethers>@noble/curves": {
       "globals": {
         "TextEncoder": true
       },
@@ -2243,6 +2232,11 @@
         "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>bs58>base-x": true
       }
     },
+    "@core/service-worker>@ledgerhq/context-module>bs58": {
+      "packages": {
+        "@core/service-worker>@ledgerhq/context-module>bs58>base-x": true
+      }
+    },
     "@core/service-worker>@ledgerhq/device-signer-kit-solana>bs58": {
       "packages": {
         "@core/service-worker>@ledgerhq/device-signer-kit-solana>bs58>base-x": true
@@ -2632,20 +2626,17 @@
         "ethers>@noble/hashes": true
       }
     },
-    "@core/ui>@avalabs/hw-app-avalanche>@ledgerhq/context-module>ethers": {
+    "@core/service-worker>@ledgerhq/context-module>ethers": {
       "globals": {
         "console.log": true
       },
       "packages": {
-        "@core/ui>@avalabs/hw-app-avalanche>@ledgerhq/context-module>ethers>@noble/curves": true,
         "ethers>@noble/hashes": true
       }
     },
-    "@core/service-worker>@ledgerhq/device-signer-kit-solana>@ledgerhq/context-module>ethers": {
-      "globals": {
-        "console.log": true
-      },
+    "@core/service-worker>@ledgerhq/device-signer-kit-ethereum>ethers": {
       "packages": {
+        "@core/service-worker>@ledgerhq/device-signer-kit-ethereum>ethers>@noble/curves": true,
         "ethers>@noble/hashes": true
       }
     },
