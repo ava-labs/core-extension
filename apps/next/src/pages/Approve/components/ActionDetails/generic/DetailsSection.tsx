@@ -5,22 +5,30 @@ import {
   DividerProps,
   Stack,
   styled,
+  Typography,
 } from '@avalabs/k2-alpine';
 
 import { Card } from '@/components/Card';
 
 type DetailsSectionProps = CardProps & {
   dimmedDivider?: boolean;
+  heading?: string;
 };
 
 export const DetailsSection = ({
   children,
   sx,
   dimmedDivider = false,
+  heading,
   ...props
 }: DetailsSectionProps) => {
   return (
     <Card sx={combineSx({ overflow: 'visible', width: '100%' }, sx)} {...props}>
+      {heading?.trim() && (
+        <Typography variant="subtitle3" px={2} py={0.5}>
+          {heading}
+        </Typography>
+      )}
       <Stack divider={<StyledDivider dimmed={dimmedDivider} />}>
         {children}
       </Stack>

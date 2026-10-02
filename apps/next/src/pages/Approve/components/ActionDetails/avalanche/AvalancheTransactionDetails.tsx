@@ -16,8 +16,8 @@ export const AvalancheTransactionDetails: FC<
 > = ({ action, network }) => {
   return (
     <Stack gap={1}>
-      {action.displayData.details.map((section) => (
-        <DetailsSection key={section.title}>
+      {action.displayData.details.map((section, sectionIndex) => (
+        <DetailsSection key={sectionIndex} heading={section.title}>
           {section.items.map((item, index) => (
             <DetailsItem key={index} item={item} network={network} />
           ))}
