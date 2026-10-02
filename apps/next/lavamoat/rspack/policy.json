@@ -436,7 +436,7 @@
         "setTimeout": true
       },
       "packages": {
-        "@avalabs/core-utils-sdk>@hpke/core": true,
+        "@cubist-labs/cubesigner-sdk>@hpke/core": true,
         "@rsbuild/plugin-node-polyfill>buffer": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify": true,
         "@cubist-labs/cubesigner-sdk>openapi-fetch": true
@@ -557,7 +557,7 @@
         "setTimeout": true
       }
     },
-    "@avalabs/core-utils-sdk>@hpke/core>@hpke/common": {
+    "@cubist-labs/cubesigner-sdk>@hpke/core>@hpke/common": {
       "globals": {
         "TextDecoder": true,
         "TextEncoder": true,
@@ -569,9 +569,9 @@
         "@rsbuild/plugin-node-polyfill>crypto-browserify": true
       }
     },
-    "@avalabs/core-utils-sdk>@hpke/core": {
+    "@cubist-labs/cubesigner-sdk>@hpke/core": {
       "packages": {
-        "@avalabs/core-utils-sdk>@hpke/core>@hpke/common": true
+        "@cubist-labs/cubesigner-sdk>@hpke/core>@hpke/common": true
       }
     },
     "@core/service-worker>@ledgerhq/context-module>inversify>@inversifyjs/container": {
