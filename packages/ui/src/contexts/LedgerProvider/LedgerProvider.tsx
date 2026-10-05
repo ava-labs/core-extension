@@ -178,8 +178,12 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       return;
     }
 
+    let cancelled = false;
     let timeout: NodeJS.Timeout | null = null;
     const scheduleNextCheck = () => {
+      if (cancelled) {
+        return;
+      }
       timeout = setTimeout(
         () => refreshActiveApp().finally(scheduleNextCheck),
         2_000,
@@ -189,6 +193,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     refreshActiveApp().finally(scheduleNextCheck);
 
     return () => {
+      cancelled = true;
       if (timeout) {
         clearTimeout(timeout);
       }

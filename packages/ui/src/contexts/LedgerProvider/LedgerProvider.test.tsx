@@ -681,5 +681,37 @@ describe('src/contexts/LedgerProvider.tsx', () => {
       await act(() => jest.advanceTimersByTimeAsync(10_000));
       expect(getAppInfoCalls()).toBe(2);
     });
+
+    it('stops polling when the last subscriber leaves during a pending device request', async () => {
+      const { request } = useConnectionContext();
+      const getAppInfoCalls = () =>
+        (request as jest.Mock).mock.calls.filter(
+          ([req]) =>
+            req.method === ExtensionRequest.LEDGER_DEVICE_REQUEST &&
+            req.params[0].op === 'getAppInfo',
+        ).length;
+
+      let settleAppInfo!: (info: unknown) => void;
+      deviceResponders.getAppInfo = () =>
+        new Promise((resolve) => {
+          settleAppInfo = resolve;
+        });
+
+      renderTestComponent();
+
+      fireEvent.click(screen.getByTestId('registerSubscriber'));
+      await waitFor(() => expect(getAppInfoCalls()).toBe(1));
+
+      fireEvent.click(screen.getByTestId('unregisterSubscriber'));
+      await act(async () => {
+        settleAppInfo({
+          applicationName: LedgerAppType.AVALANCHE,
+          version: '1.0.0',
+        });
+      });
+      await act(() => jest.advanceTimersByTimeAsync(10_000));
+
+      expect(getAppInfoCalls()).toBe(1);
+    });
   });
 });

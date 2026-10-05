@@ -1,4 +1,4 @@
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import {
   getLedgerExtendedPublicKey,
   quitLedgerApp,
@@ -88,6 +88,36 @@ describe('src/background/services/ledger/LedgerDmkService.ts', () => {
       expect(dmk.getDeviceSessionState).toHaveBeenLastCalledWith({
         sessionId: 'session-2',
       });
+    });
+
+    it('leaves a replacement session alone when a read from before lock fails', async () => {
+      const oldDmk = createDmk();
+      const newDmk = createDmk();
+      const oldRead = new Subject<never>();
+      oldDmk.connect.mockResolvedValue('session-1');
+      oldDmk.getDeviceSessionState.mockReturnValue(oldRead);
+      newDmk.connect.mockResolvedValue('session-2');
+      mockBuild.mockReturnValueOnce(oldDmk).mockReturnValueOnce(newDmk);
+
+      const pendingRead = service.getAppInfo();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(oldDmk.getDeviceSessionState).toHaveBeenCalled();
+
+      service.onLock();
+      await expect(service.getSession()).resolves.toEqual({
+        dmk: newDmk,
+        sessionId: 'session-2',
+      });
+
+      oldRead.error(new Error('Timeout'));
+
+      await expect(pendingRead).rejects.toThrow('Timeout');
+      expect(newDmk.disconnect).not.toHaveBeenCalled();
+      await expect(service.getSession()).resolves.toEqual({
+        dmk: newDmk,
+        sessionId: 'session-2',
+      });
+      expect(newDmk.connect).toHaveBeenCalledTimes(1);
     });
   });
 

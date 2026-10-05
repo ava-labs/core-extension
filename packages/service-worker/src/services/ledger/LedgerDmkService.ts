@@ -124,24 +124,31 @@ export class LedgerDmkService implements OnLock {
   }
 
   async getAppInfo(): Promise<{ applicationName: string; version: string }> {
+    const session = await this.#ensureSession();
+
     try {
-      return await this.#readAppInfo();
+      return await this.#readAppInfo(session);
     } catch (error) {
-      // No session means device discovery itself timed out (e.g. no WebHID
-      // grant yet); retrying would only repeat the same 30s wait.
-      if (!this.#sessionId) {
+      // The session was replaced (e.g. lock + reconnect) while this read was
+      // pending; resetting now would tear down the new, healthy session.
+      if (this.#dmk !== session.dmk || this.#sessionId !== session.sessionId) {
         throw error;
       }
       // A stale cached session can be stuck at `Connected`/`BUSY` (e.g. a prior
       // exchange never completed) and never advance to a state that reports the
       // running app. Drop it and reconnect once before giving up.
       await this.disconnect();
-      return this.#readAppInfo();
+      return this.#readAppInfo(await this.#ensureSession());
     }
   }
 
-  async #readAppInfo(): Promise<{ applicationName: string; version: string }> {
-    const { dmk, sessionId } = await this.#ensureSession();
+  async #readAppInfo({
+    dmk,
+    sessionId,
+  }: {
+    dmk: DeviceManagementKit;
+    sessionId: DeviceSessionId;
+  }): Promise<{ applicationName: string; version: string }> {
     // Read the running app from the DMK session state (kept fresh by the
     // session refresher) instead of exchanging a raw `sendApdu`: the raw call
     // races the refresher's polling and is rejected while the device is BUSY.
