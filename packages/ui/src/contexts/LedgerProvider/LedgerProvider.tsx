@@ -163,7 +163,10 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
 
     if (type === LedgerAppType.ETHEREUM) {
       const [config] = await resolve(deviceRequest({ op: 'getEthAppConfig' }));
-      setAppConfig(config && 'isBlindSigningEnabled' in config ? config : null);
+
+      if (config && 'isBlindSigningEnabled' in config) {
+        setAppConfig(config);
+      }
     } else {
       setAppConfig(null);
     }
@@ -270,20 +273,10 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       return true;
     }
 
-    // WebHID isn't in the DOM lib typings; the runtime API is present in the
-    // extension's Chromium target.
-    const hid = (
-      navigator as unknown as {
-        hid: {
-          requestDevice(options: {
-            filters: { vendorId: number }[];
-          }): Promise<unknown[]>;
-        };
-      }
-    ).hid;
-
     const [devices] = await resolve(
-      hid.requestDevice({ filters: [{ vendorId: LEDGER_USB_VENDOR_ID }] }),
+      navigator.hid.requestDevice({
+        filters: [{ vendorId: LEDGER_USB_VENDOR_ID }],
+      }),
     );
 
     if (devices && devices.length > 0) {

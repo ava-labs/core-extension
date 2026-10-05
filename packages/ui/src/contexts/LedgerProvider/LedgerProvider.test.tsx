@@ -114,7 +114,7 @@ const TestComponent = ({ methodParams }) => {
     unregisterSubscriber,
   };
 
-  const { appType, appVersion } = useActiveLedgerAppInfo();
+  const { appType, appVersion, appConfig } = useActiveLedgerAppInfo();
 
   return (
     <>
@@ -141,6 +141,9 @@ const TestComponent = ({ methodParams }) => {
       <span data-testid="hasMultipleDevices">{`${hasMultipleDevices}`}</span>
       <span data-testid="appType">{appType}</span>
       <span data-testid="avaxAppVersion">{appVersion}</span>
+      <span data-testid="isBlindSigningEnabled">
+        {`${appConfig?.isBlindSigningEnabled}`}
+      </span>
       <span data-testid="ledgerVersionWarningClosed">
         {`${ledgerVersionWarningClosed}`}
       </span>
@@ -384,13 +387,13 @@ describe('src/contexts/LedgerProvider.tsx', () => {
       };
 
       renderTestComponent();
-      fireEvent.click(screen.getByTestId('initLedgerTransport'));
-
-      await waitFor(() => {
-        expect(screen.getByTestId('wasTransportAttempted').textContent).toBe(
-          'true',
-        );
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('initLedgerTransport'));
       });
+
+      expect(screen.getByTestId('wasTransportAttempted').textContent).toBe(
+        'true',
+      );
       expect(screen.getByTestId('hasMultipleDevices').textContent).toBe(
         'false',
       );
@@ -413,6 +416,54 @@ describe('src/contexts/LedgerProvider.tsx', () => {
         expect(connectionMocks.request).toHaveBeenCalledWith(
           deviceRequestCall('getEthAppConfig'),
         );
+      });
+    });
+
+    describe('Ethereum app config', () => {
+      const openApp = (applicationName: LedgerAppType) => {
+        deviceResponders.getAppInfo = () => ({
+          applicationName,
+          version: '1.0.0',
+        });
+        fireEvent.click(screen.getByTestId('initLedgerTransport'));
+      };
+
+      const blindSigning = () =>
+        screen.getByTestId('isBlindSigningEnabled').textContent;
+
+      beforeEach(async () => {
+        deviceResponders.getEthAppConfig = () => ({
+          isBlindSigningEnabled: true,
+        });
+        renderTestComponent();
+        openApp(LedgerAppType.ETHEREUM);
+        await waitFor(() => expect(blindSigning()).toBe('true'));
+      });
+
+      it('keeps the last known config when a read fails while the device is busy', async () => {
+        const failedRead = jest.fn(() => {
+          throw 'Device is busy';
+        });
+        deviceResponders.getEthAppConfig = failedRead;
+
+        openApp(LedgerAppType.ETHEREUM);
+
+        await waitFor(() => expect(failedRead).toHaveBeenCalled());
+        await act(async () => {});
+        expect(blindSigning()).toBe('true');
+      });
+
+      it('clears the config once another app is opened', async () => {
+        openApp(LedgerAppType.AVALANCHE);
+
+        await waitFor(() => expect(blindSigning()).toBe('undefined'));
+      });
+
+      it('clears the config when the device goes away', async () => {
+        deviceResponders.getAppInfo = () => null;
+        fireEvent.click(screen.getByTestId('initLedgerTransport'));
+
+        await waitFor(() => expect(blindSigning()).toBe('undefined'));
       });
     });
   });
@@ -729,8 +780,10 @@ describe('src/contexts/LedgerProvider.tsx', () => {
       renderTestComponent();
       expect(getAppInfoCalls()).toBe(0);
 
-      fireEvent.click(screen.getByTestId('registerSubscriber'));
-      await waitFor(() => expect(getAppInfoCalls()).toBe(1));
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('registerSubscriber'));
+      });
+      expect(getAppInfoCalls()).toBe(1);
 
       await act(() => jest.advanceTimersByTimeAsync(2_000));
       expect(getAppInfoCalls()).toBe(2);

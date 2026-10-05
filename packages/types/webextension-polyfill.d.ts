@@ -41,3 +41,34 @@ declare module 'webextension-polyfill' {
     }
   }
 }
+
+// WebHID isn't part of TypeScript's DOM lib yet; only the subset we use is typed.
+// https://wicg.github.io/webhid/
+declare global {
+  interface HIDDeviceFilter {
+    vendorId?: number;
+    productId?: number;
+    usagePage?: number;
+    usage?: number;
+  }
+
+  interface HIDDeviceRequestOptions {
+    filters: HIDDeviceFilter[];
+  }
+
+  interface HIDDevice {
+    readonly opened: boolean;
+    readonly vendorId: number;
+    readonly productId: number;
+    readonly productName: string;
+  }
+
+  interface HID {
+    getDevices(): Promise<HIDDevice[]>;
+    requestDevice(options: HIDDeviceRequestOptions): Promise<HIDDevice[]>;
+  }
+
+  interface Navigator {
+    readonly hid: HID;
+  }
+}
