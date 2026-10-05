@@ -1,4 +1,9 @@
-import { ExtensionRequest, LedgerEvent, LockEvents } from '@core/types';
+import {
+  ExtensionRequest,
+  LEDGER_MULTIPLE_DEVICES_ERROR,
+  LedgerEvent,
+  LockEvents,
+} from '@core/types';
 import {
   act,
   fireEvent,
@@ -76,6 +81,7 @@ const TestComponent = ({ methodParams }) => {
   const {
     initLedgerTransport,
     hasLedgerTransport,
+    hasMultipleDevices,
     wasTransportAttempted,
     ledgerVersionWarningClosed,
     getExtendedPublicKey,
@@ -132,6 +138,7 @@ const TestComponent = ({ methodParams }) => {
       <span data-testid="result">{`${result}`}</span>
       <span data-testid="wasTransportAttempted">{`${wasTransportAttempted}`}</span>
       <span data-testid="hasLedgerTransport">{`${hasLedgerTransport}`}</span>
+      <span data-testid="hasMultipleDevices">{`${hasMultipleDevices}`}</span>
       <span data-testid="appType">{appType}</span>
       <span data-testid="avaxAppVersion">{appVersion}</span>
       <span data-testid="ledgerVersionWarningClosed">
@@ -336,6 +343,57 @@ describe('src/contexts/LedgerProvider.tsx', () => {
           LedgerAppType.UNKNOWN,
         );
       });
+    });
+
+    it('flags multiple connected Ledgers until a single device is found', async () => {
+      deviceResponders.getAppInfo = () => {
+        throw LEDGER_MULTIPLE_DEVICES_ERROR;
+      };
+
+      renderTestComponent();
+      fireEvent.click(screen.getByTestId('initLedgerTransport'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('hasMultipleDevices').textContent).toBe(
+          'true',
+        );
+        expect(screen.getByTestId('hasLedgerTransport').textContent).toBe(
+          'false',
+        );
+      });
+
+      deviceResponders.getAppInfo = () => ({
+        applicationName: LedgerAppType.AVALANCHE,
+        version: '2.3.4',
+      });
+      fireEvent.click(screen.getByTestId('initLedgerTransport'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('hasMultipleDevices').textContent).toBe(
+          'false',
+        );
+        expect(screen.getByTestId('hasLedgerTransport').textContent).toBe(
+          'true',
+        );
+      });
+    });
+
+    it('does not flag multiple Ledgers for other connection errors', async () => {
+      deviceResponders.getAppInfo = () => {
+        throw 'Timeout';
+      };
+
+      renderTestComponent();
+      fireEvent.click(screen.getByTestId('initLedgerTransport'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('wasTransportAttempted').textContent).toBe(
+          'true',
+        );
+      });
+      expect(screen.getByTestId('hasMultipleDevices').textContent).toBe(
+        'false',
+      );
     });
 
     it('queries the Ethereum app config when the Ethereum app is open', async () => {

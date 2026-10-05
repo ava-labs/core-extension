@@ -4,6 +4,7 @@ import {
   quitLedgerApp,
 } from '@avalabs/core-wallets-sdk';
 import { ensureLedgerAppOpen } from '@core/common';
+import { LEDGER_MULTIPLE_DEVICES_ERROR } from '@core/types';
 import { LedgerDmkService } from './LedgerDmkService';
 import { DmkLedgerTransport } from './dmk/DmkLedgerTransport';
 
@@ -118,6 +119,33 @@ describe('src/background/services/ledger/LedgerDmkService.ts', () => {
         sessionId: 'session-2',
       });
       expect(newDmk.connect).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('device discovery', () => {
+    it('refuses to pick a device when several Ledgers are available', async () => {
+      const dmk = createDmk();
+      dmk.listenToAvailableDevices.mockReturnValue(
+        of([device, { id: 'other-device-id' }]),
+      );
+      mockBuild.mockReturnValue(dmk);
+
+      await expect(service.getSession()).rejects.toThrow(
+        LEDGER_MULTIPLE_DEVICES_ERROR,
+      );
+      expect(dmk.connect).not.toHaveBeenCalled();
+    });
+
+    it('connects to the only available Ledger', async () => {
+      const dmk = createDmk();
+      dmk.connect.mockResolvedValue('session-1');
+      mockBuild.mockReturnValue(dmk);
+
+      await expect(service.getSession()).resolves.toEqual({
+        dmk,
+        sessionId: 'session-1',
+      });
+      expect(dmk.connect).toHaveBeenCalledWith({ device });
     });
   });
 

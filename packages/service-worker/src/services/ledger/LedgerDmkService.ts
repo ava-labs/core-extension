@@ -14,6 +14,7 @@ import {
   quitLedgerApp,
 } from '@avalabs/core-wallets-sdk';
 import { ensureLedgerAppOpen } from '@core/common';
+import { LEDGER_MULTIPLE_DEVICES_ERROR } from '@core/types';
 import { base58 } from '@scure/base';
 import {
   AppClient as Btc,
@@ -86,13 +87,19 @@ export class LedgerDmkService implements OnLock {
   }
 
   async #connect(dmk: DeviceManagementKit): Promise<DeviceSessionId> {
-    const device: DiscoveredDevice = await firstValueFrom(
+    const devices: DiscoveredDevice[] = await firstValueFrom(
       dmk.listenToAvailableDevices({}).pipe(
-        filter((devices) => devices.length > 0),
-        map((devices) => devices[0]!),
+        filter((available) => available.length > 0),
         timeout(DEVICE_DISCOVERY_TIMEOUT_MS),
       ),
     );
+
+    // WebHID exposes no stable identifier the frontend could pass along from
+    // its `requestDevice()` pick, so we can't tell which Ledger the user chose.
+    if (devices.length > 1) {
+      throw new Error(LEDGER_MULTIPLE_DEVICES_ERROR);
+    }
+    const device = devices[0]!;
 
     // Keep the session refresher enabled: the DMK gates its `sendApdu` intent
     // queue on the device-session state the refresher establishes, so

@@ -19,6 +19,7 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   const {
     popDeviceSelection,
     hasLedgerTransport,
+    hasMultipleDevices,
     wasTransportAttempted,
     initLedgerTransport,
     getPublicKey,
@@ -88,6 +89,20 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
 
   // Attempt to automatically connect as soon as we establish the transport.
   useEffect(() => {
+    if (hasMultipleDevices) {
+      setStatus('error');
+      setError('multiple-devices');
+      return;
+    }
+
+    // Polling keeps probing the device, so this clears by itself once the
+    // extra Ledgers are unplugged.
+    if (error === 'multiple-devices') {
+      setStatus('waiting');
+      setError(undefined);
+      return;
+    }
+
     // Same guard as the Avalanche fetcher: never re-flip status back to
     // 'ready' from the SOLANA branch below when a retrieval has failed.
     if (
@@ -150,6 +165,7 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     appType,
     error,
     hasLedgerTransport,
+    hasMultipleDevices,
     initLedgerTransport,
     prepareTransportForOnboarding,
     status,

@@ -51,6 +51,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   const {
     popDeviceSelection,
     hasLedgerTransport,
+    hasMultipleDevices,
     wasTransportAttempted,
     initLedgerTransport,
     getExtendedPublicKey,
@@ -348,6 +349,20 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
 
   // Attempt to automatically connect as soon as we establish the transport.
   useEffect(() => {
+    if (hasMultipleDevices) {
+      setStatus('error');
+      setError('multiple-devices');
+      return;
+    }
+
+    // Polling keeps probing the device, so this clears by itself once the
+    // extra Ledgers are unplugged.
+    if (error === 'multiple-devices') {
+      setStatus('waiting');
+      setError(undefined);
+      return;
+    }
+
     // If we have a duplicated wallet or retrieval error, always wait for
     // user action. Returning here prevents the AVALANCHE branch below from
     // re-flipping status to 'ready' and re-triggering the connector's
@@ -422,6 +437,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     appType,
     appVersion,
     hasLedgerTransport,
+    hasMultipleDevices,
     initLedgerTransport,
     status,
     wasTransportAttempted,

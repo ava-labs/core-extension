@@ -1,4 +1,4 @@
-import { ExtensionRequest } from '@core/types';
+import { ExtensionRequest, LEDGER_MULTIPLE_DEVICES_ERROR } from '@core/types';
 import {
   getEvmExtendedKeyPath,
   isLockStateChangedEvent,
@@ -72,6 +72,7 @@ const LedgerContext = createContext<{
   prepareTransportForOnboarding(appName: LedgerAppType): Promise<void>;
   initLedgerTransport(): Promise<void>;
   hasLedgerTransport: boolean;
+  hasMultipleDevices: boolean;
   appType: LedgerAppType;
   wasTransportAttempted: boolean;
   getPublicKey(
@@ -109,6 +110,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
   const [wasTransportAttempted, setWasTransportAttempted] = useState(false);
   const [hasDevice, setHasDevice] = useState(false);
+  const [hasMultipleDevices, setHasMultipleDevices] = useState(false);
   const [appType, setAppType] = useState<LedgerAppType>(LedgerAppType.UNKNOWN);
   const [avaxAppVersion, setAvaxAppVersion] = useState<string | null>(null);
   const [appVersion, setAppVersion] = useState<string | null>(null);
@@ -137,6 +139,10 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     setWasTransportAttempted(true);
 
     const [info, error] = await resolve(deviceRequest({ op: 'getAppInfo' }));
+
+    setHasMultipleDevices(
+      String(error).includes(LEDGER_MULTIPLE_DEVICES_ERROR),
+    );
 
     if (error || !info || !('applicationName' in info)) {
       setHasDevice(false);
@@ -386,6 +392,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         prepareTransportForOnboarding,
         initLedgerTransport,
         hasLedgerTransport: hasDevice,
+        hasMultipleDevices,
         wasTransportAttempted,
         appType,
         appConfig,

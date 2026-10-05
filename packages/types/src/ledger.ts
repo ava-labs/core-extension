@@ -24,6 +24,9 @@ export type DerivationStatus =
   | 'error'
   | 'needs-user-gesture';
 
+export const LEDGER_MULTIPLE_DEVICES_ERROR =
+  'Multiple Ledger devices are connected';
+
 export const LEDGER_VERSION_WARNING_WAS_CLOSED =
   'LEDGER_VERSION_WARNING_WAS_CLOSED';
 
