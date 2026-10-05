@@ -47,7 +47,7 @@ const createDmk = () => ({
       deviceStatus: 'CONNECTED',
       currentApp: { name: 'Avalanche', version: '1.0.0' },
     }),
-  ),
+  ) as jest.Mock,
   sendApdu: jest.fn(),
 });
 
