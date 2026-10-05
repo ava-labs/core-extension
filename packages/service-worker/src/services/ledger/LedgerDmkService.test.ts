@@ -4,7 +4,10 @@ import {
   quitLedgerApp,
 } from '@avalabs/core-wallets-sdk';
 import { ensureLedgerAppOpen } from '@core/common';
-import { LEDGER_MULTIPLE_DEVICES_ERROR } from '@core/types';
+import {
+  LEDGER_DEVICE_LOCKED_ERROR,
+  LEDGER_MULTIPLE_DEVICES_ERROR,
+} from '@core/types';
 import { LedgerDmkService } from './LedgerDmkService';
 import { DmkLedgerTransport } from './dmk/DmkLedgerTransport';
 
@@ -12,6 +15,7 @@ const mockBuild = jest.fn();
 
 jest.mock('@ledgerhq/device-management-kit', () => ({
   DeviceActionStatus: {},
+  DeviceStatus: { LOCKED: 'LOCKED', BUSY: 'BUSY', CONNECTED: 'CONNECTED' },
   DeviceManagementKitBuilder: class {
     addTransport() {
       return this;
@@ -38,7 +42,12 @@ const createDmk = () => ({
   connect: jest.fn(),
   disconnect: jest.fn().mockResolvedValue(undefined),
   close: jest.fn(),
-  getDeviceSessionState: jest.fn(),
+  getDeviceSessionState: jest.fn(() =>
+    of({
+      deviceStatus: 'CONNECTED',
+      currentApp: { name: 'Avalanche', version: '1.0.0' },
+    }),
+  ),
   sendApdu: jest.fn(),
 });
 
@@ -91,6 +100,19 @@ describe('src/background/services/ledger/LedgerDmkService.ts', () => {
       });
     });
 
+    it('fails immediately when the device is locked without reconnecting', async () => {
+      const dmk = createDmk();
+      dmk.connect.mockResolvedValue('session-1');
+      dmk.getDeviceSessionState.mockReturnValue(of({ deviceStatus: 'LOCKED' }));
+      mockBuild.mockReturnValue(dmk);
+
+      await expect(service.getAppInfo()).rejects.toThrow(
+        LEDGER_DEVICE_LOCKED_ERROR,
+      );
+      expect(dmk.disconnect).not.toHaveBeenCalled();
+      expect(dmk.connect).toHaveBeenCalledTimes(1);
+    });
+
     it('leaves a replacement session alone when a read from before lock fails', async () => {
       const oldDmk = createDmk();
       const newDmk = createDmk();
@@ -134,6 +156,32 @@ describe('src/background/services/ledger/LedgerDmkService.ts', () => {
         LEDGER_MULTIPLE_DEVICES_ERROR,
       );
       expect(dmk.connect).not.toHaveBeenCalled();
+    });
+
+    it('rechecks the permitted-device list until a Ledger appears', async () => {
+      jest.useFakeTimers();
+      const dmk = createDmk();
+      dmk.listenToAvailableDevices
+        .mockReturnValueOnce(of([]))
+        .mockReturnValueOnce(of([device]));
+      dmk.connect.mockResolvedValue('session-1');
+      mockBuild.mockReturnValue(dmk);
+
+      try {
+        const pending = service.getSession();
+        await jest.advanceTimersByTimeAsync(0);
+        expect(dmk.listenToAvailableDevices).toHaveBeenCalledTimes(1);
+        expect(dmk.connect).not.toHaveBeenCalled();
+
+        await jest.advanceTimersByTimeAsync(1_000);
+        await expect(pending).resolves.toEqual({
+          dmk,
+          sessionId: 'session-1',
+        });
+        expect(dmk.listenToAvailableDevices).toHaveBeenCalledTimes(2);
+      } finally {
+        jest.useRealTimers();
+      }
     });
 
     it('connects to the only available Ledger', async () => {

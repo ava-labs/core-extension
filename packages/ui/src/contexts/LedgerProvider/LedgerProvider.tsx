@@ -1,4 +1,8 @@
-import { ExtensionRequest, LEDGER_MULTIPLE_DEVICES_ERROR } from '@core/types';
+import {
+  ExtensionRequest,
+  LEDGER_DEVICE_LOCKED_ERROR,
+  LEDGER_MULTIPLE_DEVICES_ERROR,
+} from '@core/types';
 import {
   getEvmExtendedKeyPath,
   isLockStateChangedEvent,
@@ -73,6 +77,7 @@ const LedgerContext = createContext<{
   initLedgerTransport(): Promise<void>;
   hasLedgerTransport: boolean;
   hasMultipleDevices: boolean;
+  isDeviceLocked: boolean;
   appType: LedgerAppType;
   wasTransportAttempted: boolean;
   getPublicKey(
@@ -110,7 +115,9 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
   const [wasTransportAttempted, setWasTransportAttempted] = useState(false);
   const [hasDevice, setHasDevice] = useState(false);
+  const [hasHidGrant, setHasHidGrant] = useState(false);
   const [hasMultipleDevices, setHasMultipleDevices] = useState(false);
+  const [isDeviceLocked, setIsDeviceLocked] = useState(false);
   const [appType, setAppType] = useState<LedgerAppType>(LedgerAppType.UNKNOWN);
   const [avaxAppVersion, setAvaxAppVersion] = useState<string | null>(null);
   const [appVersion, setAppVersion] = useState<string | null>(null);
@@ -143,6 +150,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     setHasMultipleDevices(
       String(error).includes(LEDGER_MULTIPLE_DEVICES_ERROR),
     );
+    setIsDeviceLocked(String(error).includes(LEDGER_DEVICE_LOCKED_ERROR));
 
     if (error || !info || !('applicationName' in info)) {
       setHasDevice(false);
@@ -269,7 +277,9 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
    * service worker opens the device via `navigator.hid.getDevices()`.
    */
   const popDeviceSelection = useCallback(async () => {
-    if (hasDevice) {
+    // A locked device still has a WebHID grant — don't re-prompt, just refresh.
+    if (hasDevice || hasHidGrant) {
+      await refreshActiveApp();
       return true;
     }
 
@@ -280,12 +290,13 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     );
 
     if (devices && devices.length > 0) {
+      setHasHidGrant(true);
       await refreshActiveApp();
       return true;
     }
 
     throw new Error('Ledger device selection failed');
-  }, [hasDevice, refreshActiveApp]);
+  }, [hasDevice, hasHidGrant, refreshActiveApp]);
 
   const initLedgerTransport = useCallback(async () => {
     await refreshActiveApp();
@@ -386,6 +397,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         initLedgerTransport,
         hasLedgerTransport: hasDevice,
         hasMultipleDevices,
+        isDeviceLocked,
         wasTransportAttempted,
         appType,
         appConfig,

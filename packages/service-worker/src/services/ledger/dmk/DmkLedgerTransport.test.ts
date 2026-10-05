@@ -59,6 +59,20 @@ describe('src/background/services/ledger/dmk/DmkLedgerTransport.ts', () => {
     );
   });
 
+  it('retries when the DMK is already sending an APDU', async () => {
+    sendApdu
+      .mockRejectedValueOnce({ _tag: 'AlreadySendingApduError' })
+      .mockResolvedValue({
+        data: new Uint8Array([0x01]),
+        statusCode: new Uint8Array([0x90, 0x00]),
+      });
+
+    await expect(transport.exchange(Buffer.from([0xe0]))).resolves.toEqual(
+      Buffer.from([0x01, 0x90, 0x00]),
+    );
+    expect(sendApdu).toHaveBeenCalledTimes(2);
+  });
+
   it('propagates DMK rejections', async () => {
     const error = new Error('device disconnected');
     sendApdu.mockRejectedValue(error);

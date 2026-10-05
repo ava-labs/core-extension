@@ -1,5 +1,6 @@
 import {
   ExtensionRequest,
+  LEDGER_DEVICE_LOCKED_ERROR,
   LEDGER_MULTIPLE_DEVICES_ERROR,
   LedgerEvent,
   LockEvents,
@@ -82,6 +83,7 @@ const TestComponent = ({ methodParams }) => {
     initLedgerTransport,
     hasLedgerTransport,
     hasMultipleDevices,
+    isDeviceLocked,
     wasTransportAttempted,
     ledgerVersionWarningClosed,
     getExtendedPublicKey,
@@ -139,6 +141,7 @@ const TestComponent = ({ methodParams }) => {
       <span data-testid="wasTransportAttempted">{`${wasTransportAttempted}`}</span>
       <span data-testid="hasLedgerTransport">{`${hasLedgerTransport}`}</span>
       <span data-testid="hasMultipleDevices">{`${hasMultipleDevices}`}</span>
+      <span data-testid="isDeviceLocked">{`${isDeviceLocked}`}</span>
       <span data-testid="appType">{appType}</span>
       <span data-testid="avaxAppVersion">{appVersion}</span>
       <span data-testid="isBlindSigningEnabled">
@@ -397,6 +400,36 @@ describe('src/contexts/LedgerProvider.tsx', () => {
       expect(screen.getByTestId('hasMultipleDevices').textContent).toBe(
         'false',
       );
+      expect(screen.getByTestId('isDeviceLocked').textContent).toBe('false');
+    });
+
+    it('flags a locked Ledger until the device is unlocked', async () => {
+      deviceResponders.getAppInfo = () => {
+        throw LEDGER_DEVICE_LOCKED_ERROR;
+      };
+
+      renderTestComponent();
+      fireEvent.click(screen.getByTestId('initLedgerTransport'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('isDeviceLocked').textContent).toBe('true');
+        expect(screen.getByTestId('hasLedgerTransport').textContent).toBe(
+          'false',
+        );
+      });
+
+      deviceResponders.getAppInfo = () => ({
+        applicationName: LedgerAppType.AVALANCHE,
+        version: '2.3.4',
+      });
+      fireEvent.click(screen.getByTestId('initLedgerTransport'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('isDeviceLocked').textContent).toBe('false');
+        expect(screen.getByTestId('hasLedgerTransport').textContent).toBe(
+          'true',
+        );
+      });
     });
 
     it('queries the Ethereum app config when the Ethereum app is open', async () => {
@@ -610,6 +643,29 @@ describe('src/contexts/LedgerProvider.tsx', () => {
           'Ledger device selection failed',
         );
       });
+    });
+
+    it('does not re-prompt WebHID after a grant, even if the device is locked', async () => {
+      const requestDevice = jest.fn().mockResolvedValue([{}]);
+      stubHid(requestDevice);
+      deviceResponders.getAppInfo = () => {
+        throw LEDGER_DEVICE_LOCKED_ERROR;
+      };
+
+      renderTestComponent();
+      fireEvent.click(screen.getByTestId('popDeviceSelection'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('isDeviceLocked').textContent).toBe('true');
+      });
+      expect(requestDevice).toHaveBeenCalledTimes(1);
+
+      fireEvent.click(screen.getByTestId('popDeviceSelection'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('result').textContent).toBe('true');
+      });
+      expect(requestDevice).toHaveBeenCalledTimes(1);
     });
   });
 

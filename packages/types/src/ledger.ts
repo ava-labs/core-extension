@@ -27,6 +27,8 @@ export type DerivationStatus =
 export const LEDGER_MULTIPLE_DEVICES_ERROR =
   'Multiple Ledger devices are connected';
 
+export const LEDGER_DEVICE_LOCKED_ERROR = 'Ledger device is locked';
+
 export const LEDGER_VERSION_WARNING_WAS_CLOSED =
   'LEDGER_VERSION_WARNING_WAS_CLOSED';
 

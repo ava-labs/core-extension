@@ -52,6 +52,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     popDeviceSelection,
     hasLedgerTransport,
     hasMultipleDevices,
+    isDeviceLocked,
     wasTransportAttempted,
     initLedgerTransport,
     getExtendedPublicKey,
@@ -355,9 +356,15 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
       return;
     }
 
-    // Polling keeps probing the device, so this clears by itself once the
-    // extra Ledgers are unplugged.
-    if (error === 'multiple-devices') {
+    if (isDeviceLocked) {
+      setStatus('error');
+      setError('device-locked');
+      return;
+    }
+
+    // Polling keeps probing the device, so these clear by themselves once the
+    // extra Ledgers are unplugged or the device is unlocked.
+    if (error === 'multiple-devices' || error === 'device-locked') {
       setStatus('waiting');
       setError(undefined);
       return;
@@ -438,6 +445,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     appVersion,
     hasLedgerTransport,
     hasMultipleDevices,
+    isDeviceLocked,
     initLedgerTransport,
     status,
     wasTransportAttempted,
@@ -451,8 +459,6 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     try {
       await popDeviceSelection();
       await initLedgerTransport();
-      setError(undefined);
-      setStatus('waiting');
     } catch {
       setStatus('error');
       setError('unable-to-connect');

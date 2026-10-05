@@ -20,6 +20,7 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     popDeviceSelection,
     hasLedgerTransport,
     hasMultipleDevices,
+    isDeviceLocked,
     wasTransportAttempted,
     initLedgerTransport,
     getPublicKey,
@@ -95,9 +96,15 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
       return;
     }
 
-    // Polling keeps probing the device, so this clears by itself once the
-    // extra Ledgers are unplugged.
-    if (error === 'multiple-devices') {
+    if (isDeviceLocked) {
+      setStatus('error');
+      setError('device-locked');
+      return;
+    }
+
+    // Polling keeps probing the device, so these clear by themselves once the
+    // extra Ledgers are unplugged or the device is unlocked.
+    if (error === 'multiple-devices' || error === 'device-locked') {
       setStatus('waiting');
       setError(undefined);
       return;
@@ -166,6 +173,7 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     error,
     hasLedgerTransport,
     hasMultipleDevices,
+    isDeviceLocked,
     initLedgerTransport,
     prepareTransportForOnboarding,
     status,
@@ -176,8 +184,6 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     try {
       await popDeviceSelection();
       await initLedgerTransport();
-      setError(undefined);
-      setStatus('waiting');
     } catch {
       setStatus('error');
       setError('unable-to-connect');

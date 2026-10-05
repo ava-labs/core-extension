@@ -27,7 +27,7 @@ jest.mock('@/hooks/useCheckXPAddressBalance', () => ({
 describe.each<[LedgerAppType, UseLedgerPublicKeyFetcher]>([
   [LedgerAppType.AVALANCHE, useLedgerBasePublicKeyFetcher],
   [LedgerAppType.SOLANA, useLedgerSolanaPublicKeyFetcher],
-])('%s public key fetcher with multiple Ledgers', (requiredApp, useFetcher) => {
+])('%s public key fetcher with a locked Ledger', (requiredApp, useFetcher) => {
   const ledgerContext = {
     popDeviceSelection: jest.fn(),
     initLedgerTransport: jest.fn(),
@@ -35,8 +35,8 @@ describe.each<[LedgerAppType, UseLedgerPublicKeyFetcher]>([
     getExtendedPublicKey: jest.fn(),
     getPublicKey: jest.fn(),
     hasLedgerTransport: false,
-    hasMultipleDevices: true,
-    isDeviceLocked: false,
+    hasMultipleDevices: false,
+    isDeviceLocked: true,
     wasTransportAttempted: true,
   };
 
@@ -49,28 +49,28 @@ describe.each<[LedgerAppType, UseLedgerPublicKeyFetcher]>([
     mockLedgerContext();
   });
 
-  it('reports a multiple-devices error', async () => {
+  it('reports a device-locked error', async () => {
     const { result } = renderHook(() =>
       useFetcher(DerivationPath.BIP44, undefined),
     );
 
     await waitFor(() => {
       expect(result.current.status).toBe('error');
-      expect(result.current.error).toBe('multiple-devices');
+      expect(result.current.error).toBe('device-locked');
     });
   });
 
-  it('recovers once a single Ledger remains', async () => {
+  it('recovers once the Ledger is unlocked', async () => {
     const { result, rerender } = renderHook(() =>
       useFetcher(DerivationPath.BIP44, undefined),
     );
-    await waitFor(() => expect(result.current.error).toBe('multiple-devices'));
+    await waitFor(() => expect(result.current.error).toBe('device-locked'));
 
-    mockLedgerContext({ hasMultipleDevices: false, hasLedgerTransport: true });
+    mockLedgerContext({ isDeviceLocked: false, hasLedgerTransport: true });
     rerender();
 
     await waitFor(() => {
-      expect(result.current.error).not.toBe('multiple-devices');
+      expect(result.current.error).not.toBe('device-locked');
       expect(result.current.status).not.toBe('error');
     });
     expect(ledgerContext.prepareTransportForOnboarding).toHaveBeenCalledWith(

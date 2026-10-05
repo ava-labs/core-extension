@@ -12,6 +12,16 @@ import type {
  * Implementing `exchange` is enough: the base `Transport` builds `send` (and
  * therefore the status-word check) on top of it.
  */
+const APDU_BUSY_RETRIES = 8;
+const APDU_BUSY_RETRY_MS = 150;
+
+const isAlreadySendingApdu = (error: unknown): boolean => {
+  if (error && typeof error === 'object' && '_tag' in error) {
+    return error._tag === 'AlreadySendingApduError';
+  }
+  return String(error).includes('AlreadySendingApduError');
+};
+
 export class DmkLedgerTransport extends Transport {
   constructor(
     private dmk: DeviceManagementKit,
@@ -21,10 +31,21 @@ export class DmkLedgerTransport extends Transport {
   }
 
   exchange = async (apdu: Buffer): Promise<Buffer> => {
-    const response = await this.dmk.sendApdu({
-      sessionId: this.sessionId,
-      apdu: Uint8Array.from(apdu),
-    });
+    let response: Awaited<ReturnType<DeviceManagementKit['sendApdu']>>;
+    for (let attempt = 0; ; attempt++) {
+      try {
+        response = await this.dmk.sendApdu({
+          sessionId: this.sessionId,
+          apdu: Uint8Array.from(apdu),
+        });
+        break;
+      } catch (error) {
+        if (!isAlreadySendingApdu(error) || attempt >= APDU_BUSY_RETRIES) {
+          throw error;
+        }
+        await new Promise((resolve) => setTimeout(resolve, APDU_BUSY_RETRY_MS));
+      }
+    }
 
     // hw-transport consumers expect the 2-byte status word appended to the payload.
     const payload = new Uint8Array(
