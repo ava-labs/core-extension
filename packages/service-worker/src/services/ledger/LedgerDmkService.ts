@@ -14,7 +14,7 @@ import {
   getLedgerExtendedPublicKey,
   quitLedgerApp,
 } from '@avalabs/core-wallets-sdk';
-import { ensureLedgerAppOpen } from '@core/common';
+import { ensureLedgerAppOpen, getSolanaRpcUrl } from '@core/common';
 import {
   LEDGER_DEVICE_LOCKED_ERROR,
   LEDGER_MULTIPLE_DEVICES_ERROR,
@@ -37,10 +37,6 @@ import {
 import { singleton } from 'tsyringe';
 import { OnLock } from '../../runtime/lifecycleCallbacks';
 import { DmkLedgerTransport } from './dmk/DmkLedgerTransport';
-
-// `SignerSolanaBuilder` requires a `solanaRPCURL` even though address
-// derivation is a device-only operation.
-const SOLANA_LEDGER_RPC_URL = `${process.env.PROXY_URL}/proxy/nownodes/sol`;
 
 const DEVICE_DISCOVERY_TIMEOUT_MS = 30_000;
 const DEVICE_DISCOVERY_POLL_MS = 1_000;
@@ -290,7 +286,8 @@ export class LedgerDmkService implements OnLock {
     const solanaApp = new SignerSolanaBuilder({
       dmk,
       sessionId,
-      solanaRPCURL: SOLANA_LEDGER_RPC_URL,
+      // Address derivation never hits the RPC, so the network choice doesn't matter here.
+      solanaRPCURL: getSolanaRpcUrl({ isTestnet: false }),
     }).build();
     // Solana app expects the derivation path without the `m/` root.
     const path = `44'/501'/${accountIndex}'/0'`;

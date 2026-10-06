@@ -18,7 +18,7 @@ export type SupportedProvider =
   | Avalanche.JsonRpcProvider
   | SolanaProvider;
 
-export const getSolanaRpcUrl = (network: Network): string =>
+export const getSolanaRpcUrl = (network: Pick<Network, 'isTestnet'>): string =>
   network.isTestnet
     ? 'https://api.devnet.solana.com'
     : `${process.env.PROXY_URL}/proxy/nownodes/sol`;
