@@ -7,7 +7,6 @@ import { AnalyticsService } from './AnalyticsService';
 import { SettingsService } from '../settings/SettingsService';
 import { Monitoring } from '@core/common';
 import browser from 'webextension-polyfill';
-import { encryptAnalyticsData } from './utils/encryptAnalyticsData';
 import { ChainId } from '@avalabs/core-chains-sdk';
 
 jest.mock('@core/common', () => ({
@@ -19,7 +18,6 @@ jest.mock('@core/common', () => ({
   },
 }));
 jest.mock('@avalabs/core-utils-sdk');
-jest.mock('./utils/encryptAnalyticsData');
 jest.mock('webextension-polyfill', () => ({
   runtime: {
     getManifest: jest.fn().mockReturnValue({
@@ -89,115 +87,6 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
           : AnalyticsConsent.Denied,
       }),
     }) as unknown as SettingsService;
-
-  describe('.captureEncryptedEvent()', () => {
-    const encryptedData = {
-      data: 'data',
-      enc: 'enc',
-      keyID: 'keyID',
-    };
-
-    beforeEach(() => {
-      jest.mocked(encryptAnalyticsData).mockResolvedValue(encryptedData);
-    });
-
-    it('encrypts the properties before sending them to posthog', async () => {
-      const service = new AnalyticsServicePosthog(
-        buildFlagsService(),
-        buildAnalyticsService(),
-        buildSettingsService(),
-      );
-
-      await service.captureEncryptedEvent(dummyEvent);
-
-      const call = jest.mocked(HttpClient.prototype.post).mock.calls[0];
-
-      const requestBody = call?.[1] as Record<string, any>;
-
-      // Expect request body to contain encrypted data
-      expect(requestBody.properties).toEqual(
-        expect.objectContaining(encryptedData),
-      );
-
-      // Expect request body NOT TO contain unencrypted data
-      Object.keys(dummyEvent.properties).forEach((key) => {
-        expect(key in requestBody.properties).toBe(false);
-      });
-    });
-
-    it('keeps chain ID fields unencrypted in the posthog payload', async () => {
-      const service = new AnalyticsServicePosthog(
-        buildFlagsService(),
-        buildAnalyticsService(),
-        buildSettingsService(),
-      );
-
-      const eventWithChainIds = {
-        name: 'SwapSuccessful',
-        windowId: 'windowId',
-        properties: {
-          sourceChainId: 'eip155:43114',
-          targetChainId: 'eip155:1',
-          sourceAddress: '0xabc',
-        },
-      };
-
-      await service.captureEncryptedEvent(eventWithChainIds);
-
-      const call = jest.mocked(HttpClient.prototype.post).mock.calls[0];
-      const requestBody = call?.[1] as Record<string, any>;
-
-      // Chain ID fields should be present as plain values
-      expect(requestBody.properties.sourceChainId).toBe('eip155:43114');
-      expect(requestBody.properties.targetChainId).toBe('eip155:1');
-
-      // Non-chain-ID fields should not be present as plain values (they are encrypted)
-      expect('sourceAddress' in requestBody.properties).toBe(false);
-
-      // encryptAnalyticsData should have been called WITHOUT the chain ID fields
-      expect(encryptAnalyticsData).toHaveBeenCalledWith(
-        JSON.stringify({ sourceAddress: '0xabc' }),
-      );
-    });
-
-    it('does not encrypt when only chain ID fields are present', async () => {
-      const service = new AnalyticsServicePosthog(
-        buildFlagsService(),
-        buildAnalyticsService(),
-        buildSettingsService(),
-      );
-
-      await service.captureEncryptedEvent({
-        name: 'SwapSuccessful',
-        windowId: 'windowId',
-        properties: {
-          sourceChainId: ChainId.AVALANCHE_MAINNET_ID,
-          targetChainId: ChainId.ETHEREUM_HOMESTEAD,
-        },
-      });
-
-      expect(encryptAnalyticsData).not.toHaveBeenCalled();
-    });
-
-    it('normalizes P/X chain IDs when keeping them unencrypted', async () => {
-      const service = new AnalyticsServicePosthog(
-        buildFlagsService(),
-        buildAnalyticsService(),
-        buildSettingsService(),
-      );
-
-      await service.captureEncryptedEvent({
-        name: 'Transfer',
-        windowId: 'windowId',
-        properties: { chainId: ChainId.AVALANCHE_P },
-      });
-
-      const call = jest.mocked(HttpClient.prototype.post).mock.calls[0];
-      const requestBody = call?.[1] as Record<string, any>;
-
-      expect(requestBody.properties.chainId).toBe(BlockchainId.P_CHAIN);
-    });
-  });
 
   describe('.captureEvent()', () => {
     describe('when no consent is given', () => {
@@ -372,6 +261,26 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
           expect.objectContaining({
             properties: expect.objectContaining({
               chainId: BlockchainId.X_CHAIN_TESTNET,
+            }),
+          }),
+          { headers: { 'Content-Type': 'application/json' } },
+        );
+      });
+      it('normalizes sourceChainId and targetChainId', async () => {
+        await service.captureEvent({
+          name: 'name',
+          windowId: 'windowId',
+          properties: {
+            sourceChainId: ChainId.AVALANCHE_P,
+            targetChainId: ChainId.AVALANCHE_X,
+          },
+        });
+        expect(HttpClient.prototype.post).toHaveBeenCalledWith(
+          '/capture/',
+          expect.objectContaining({
+            properties: expect.objectContaining({
+              sourceChainId: BlockchainId.P_CHAIN,
+              targetChainId: BlockchainId.X_CHAIN,
             }),
           }),
           { headers: { 'Content-Type': 'application/json' } },

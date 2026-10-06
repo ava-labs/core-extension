@@ -82,7 +82,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   } = useAccountsContext();
   const { selectFeatureFlag } = useFeatureFlagContext();
   const { trackTransfer } = useTransferTrackingContext();
-  const { captureEncrypted } = useAnalyticsContext();
+  const { capture } = useAnalyticsContext();
   const { replace } = useHistory();
   const { getNetworkFee } = useNetworkFeeContext();
   const getTranslatedError = useErrorMessage();
@@ -452,7 +452,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         throw new Error('Quote not found');
       }
 
-      captureEncrypted('SwapReviewOrder', {
+      capture('SwapReviewOrder', {
         provider: quoteToUse.aggregator.name,
         slippage,
       });
@@ -479,7 +479,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
           },
         });
 
-        captureEncrypted('SwapConfirmed', {
+        capture('SwapConfirmed', {
           sourceAddress: fromAddress,
           targetAddress: toAddress,
           sourceChainId: quoteToUse.sourceChain.chainId,
@@ -559,7 +559,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       toAddress,
       slippage,
       replace,
-      captureEncrypted,
+      capture,
       getTranslatedError,
       quotes,
       isUserSelectedQuote,

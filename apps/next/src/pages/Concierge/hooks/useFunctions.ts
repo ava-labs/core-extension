@@ -77,7 +77,7 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
   const { request } = useConnectionContext();
   const { setModel, sendMessage, prompts, setPrompts } = useFirebaseContext();
   const isModelReady = useRef(false);
-  const { captureEncrypted } = useAnalyticsContext();
+  const { capture } = useAnalyticsContext();
   const tokens = useTokensWithBalances();
   const allAvailableTokens = useTokensWithBalances({
     forceShowTokensWithoutBalances: true,
@@ -682,7 +682,7 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
           // with the arguments specified in the function call and
           // let it call the hypothetical API.
           try {
-            captureEncrypted('CoreAssistantFunctionCall', {
+            capture('CoreAssistantFunctionCall', {
               functionName: call.name,
               userMessage: message,
             });
@@ -758,7 +758,7 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
           e as Error,
           Monitoring.SentryExceptionTypes.AI_AGENT,
         );
-        captureEncrypted('CoreAssistantFunctionCallError', {
+        capture('CoreAssistantFunctionCallError', {
           errorName: e.name,
           errorMessage: e.message,
           userMessage: message,
@@ -809,7 +809,7 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
       prompts,
       systemPrompt,
       setModel,
-      captureEncrypted,
+      capture,
       functions,
     ],
   );

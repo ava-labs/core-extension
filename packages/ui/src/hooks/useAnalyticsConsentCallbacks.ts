@@ -9,13 +9,8 @@ type ConsentChangeOrigin = 'settings' | 're-opt-in-dialog';
 
 export const useAnalyticsConsentCallbacks = (origin: ConsentChangeOrigin) => {
   const { setAnalyticsConsent } = useSettingsContext();
-  const {
-    capture,
-    captureEncrypted,
-    isInitialized,
-    initAnalyticsIds,
-    stopDataCollection,
-  } = useAnalyticsContext();
+  const { capture, isInitialized, initAnalyticsIds, stopDataCollection } =
+    useAnalyticsContext();
   const { allAccounts } = useAccountsContext();
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
@@ -37,7 +32,7 @@ export const useAnalyticsConsentCallbacks = (origin: ConsentChangeOrigin) => {
         await initAnalyticsIds(true);
       }
 
-      captureEncrypted(
+      capture(
         'AnalyticsEnabled',
         {
           origin,
@@ -50,7 +45,7 @@ export const useAnalyticsConsentCallbacks = (origin: ConsentChangeOrigin) => {
     }
   }, [
     allAccounts,
-    captureEncrypted,
+    capture,
     initAnalyticsIds,
     isInitialized,
     origin,

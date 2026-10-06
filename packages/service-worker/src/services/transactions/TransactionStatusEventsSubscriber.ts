@@ -45,7 +45,7 @@ export class TransactionStatusEventsSubscriber {
       return;
     }
 
-    this.analyticsServicePosthog.captureEncryptedEvent({
+    this.analyticsServicePosthog.captureEvent({
       name: result.name,
       windowId: crypto.randomUUID(),
       properties: result.properties,

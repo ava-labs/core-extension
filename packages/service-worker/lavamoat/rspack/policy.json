@@ -12,7 +12,7 @@
       },
       "packages": {
         "@avalabs/avalanchejs": true,
-        "@avalabs/core-coingecko-sdk": true,
+        "@avalabs/evm-module>@avalabs/core-coingecko-sdk": true,
         "@avalabs/avalanche-module>@avalabs/core-utils-sdk": true,
         "@avalabs/core-wallets-sdk": true,
         "@avalabs/evm-module>@avalabs/crypto-sdk": true,
@@ -50,7 +50,7 @@
         "setTimeout": true
       },
       "packages": {
-        "@avalabs/core-coingecko-sdk": true,
+        "@avalabs/evm-module>@avalabs/core-coingecko-sdk": true,
         "@avalabs/bitcoin-module>@avalabs/core-utils-sdk": true,
         "@avalabs/core-wallets-sdk": true,
         "@avalabs/evm-module>@avalabs/crypto-sdk": true,
@@ -78,7 +78,7 @@
         "@avalabs/bridge-unified>zod": true
       }
     },
-    "@avalabs/core-coingecko-sdk": {
+    "@avalabs/evm-module>@avalabs/core-coingecko-sdk": {
       "globals": {
         "URLSearchParams": true
       },
@@ -229,7 +229,7 @@
       },
       "packages": {
         "@avalabs/core-chains-sdk": true,
-        "@avalabs/core-coingecko-sdk": true,
+        "@avalabs/evm-module>@avalabs/core-coingecko-sdk": true,
         "@avalabs/evm-module>@avalabs/core-utils-sdk": true,
         "@avalabs/core-wallets-sdk": true,
         "@avalabs/evm-module>@avalabs/crypto-sdk": true,
@@ -377,7 +377,7 @@
       },
       "packages": {
         "@avalabs/core-chains-sdk": true,
-        "@avalabs/core-coingecko-sdk": true,
+        "@avalabs/evm-module>@avalabs/core-coingecko-sdk": true,
         "@avalabs/core-utils-sdk": true,
         "@avalabs/core-wallets-sdk": true,
         "@avalabs/evm-module>@avalabs/crypto-sdk": true,
@@ -514,7 +514,7 @@
         "setTimeout": true
       },
       "packages": {
-        "@hpke/core": true,
+        "@avalabs/core-utils-sdk>@hpke/core": true,
         "buffer": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify": true,
         "@cubist-labs/cubesigner-sdk>openapi-fetch": true
@@ -927,7 +927,7 @@
         "joi>@hapi/hoek": true
       }
     },
-    "@hpke/core>@hpke/common": {
+    "@avalabs/core-utils-sdk>@hpke/core>@hpke/common": {
       "globals": {
         "TextDecoder": true,
         "TextEncoder": true,
@@ -939,9 +939,9 @@
         "@rsbuild/plugin-node-polyfill>crypto-browserify": true
       }
     },
-    "@hpke/core": {
+    "@avalabs/core-utils-sdk>@hpke/core": {
       "packages": {
-        "@hpke/core>@hpke/common": true
+        "@avalabs/core-utils-sdk>@hpke/core>@hpke/common": true
       }
     },
     "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities": {
@@ -3303,7 +3303,7 @@
         "external:../../node_modules/react-i18next/node_modules/@babel/runtime/helpers/esm/classCallCheck.js": true,
         "external:../../node_modules/react-i18next/node_modules/@babel/runtime/helpers/esm/createClass.js": true,
         "external:../../node_modules/react-i18next/node_modules/@babel/runtime/helpers/esm/defineProperty.js": true,
-        "@avalabs/core-bridge-sdk>react": true
+        "hypersdk-client>@metamask/sdk>react": true
       }
     },
     "external:../common/node_modules/@solana/addresses/dist/index.browser.mjs": {
@@ -4765,7 +4765,7 @@
         "bip32>bs58check>safe-buffer": true
       }
     },
-    "@avalabs/core-bridge-sdk>react": {
+    "hypersdk-client>@metamask/sdk>react": {
       "globals": {
         "ErrorEvent": true,
         "console.error": true,

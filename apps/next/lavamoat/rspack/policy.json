@@ -445,7 +445,7 @@
         "setTimeout": true
       },
       "packages": {
-        "@core/ui>@hpke/core": true,
+        "@avalabs/core-utils-sdk>@hpke/core": true,
         "@rsbuild/plugin-node-polyfill>buffer": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify": true,
         "@cubist-labs/cubesigner-sdk>openapi-fetch": true
@@ -774,7 +774,7 @@
         "setTimeout": true
       }
     },
-    "@core/ui>@hpke/core>@hpke/common": {
+    "@avalabs/core-utils-sdk>@hpke/core>@hpke/common": {
       "globals": {
         "TextDecoder": true,
         "TextEncoder": true,
@@ -786,9 +786,9 @@
         "@rsbuild/plugin-node-polyfill>crypto-browserify": true
       }
     },
-    "@core/ui>@hpke/core": {
+    "@avalabs/core-utils-sdk>@hpke/core": {
       "packages": {
-        "@core/ui>@hpke/core>@hpke/common": true
+        "@avalabs/core-utils-sdk>@hpke/core>@hpke/common": true
       }
     },
     "@core/ui>@ledgerhq/hw-transport-webhid>@ledgerhq/devices": {

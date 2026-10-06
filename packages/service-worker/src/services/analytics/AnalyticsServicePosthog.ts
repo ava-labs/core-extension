@@ -10,13 +10,10 @@ import {
   FeatureGates,
   AnalyticsConsent,
 } from '@core/types';
-import { encryptAnalyticsData } from './utils/encryptAnalyticsData';
 import { Monitoring } from '@core/common';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { getUserEnvironment } from './utils/getUserEnvironment';
 
-// These fields are extracted from the encrypted payload and sent as plain properties
-// so PostHog can filter/segment by network without requiring decryption.
 const CHAIN_ID_PROP_KEYS = new Set([
   'chainId',
   'networkChainId',
@@ -37,21 +34,8 @@ export class AnalyticsServicePosthog {
     private settingsService: SettingsService,
   ) {}
 
-  /**
-   * Alias for {@link AnalyticsServicePosthog.captureEvent} with enforced data encryption.
-   */
-  async captureEncryptedEvent(event: AnalyticsCapturedEvent) {
-    return this.#captureEvent(event, true).catch((err) => {
-      // Capture all errors and report them to Sentry instead of breaking the execution chain.
-      Monitoring.sentryCaptureException(
-        err,
-        Monitoring.SentryExceptionTypes.ANALYTICS,
-      );
-    });
-  }
-
   async captureEvent(event: AnalyticsCapturedEvent) {
-    return this.#captureEvent(event, false).catch((err) => {
+    return this.#captureEvent(event).catch((err) => {
       // Capture all errors and report them to Sentry instead of breaking the execution chain.
       Monitoring.sentryCaptureException(
         err,
@@ -60,7 +44,7 @@ export class AnalyticsServicePosthog {
     });
   }
 
-  async #captureEvent(event: AnalyticsCapturedEvent, useEncryption: boolean) {
+  async #captureEvent(event: AnalyticsCapturedEvent) {
     const { analyticsConsent } = await this.settingsService.getSettings();
 
     if (
@@ -81,24 +65,8 @@ export class AnalyticsServicePosthog {
     const extensionVersion = chrome.runtime.getManifest().version;
     const featureFlagsData = this.getFeatureFlagsData();
 
-    // When encrypting, pull chain ID fields out so they remain readable in
-    // PostHog without needing decryption (useful for real-time network analysis).
-    const { chainIdProps, encryptableProps } =
-      useEncryption && event.properties
-        ? this.#splitChainIdProps(event.properties)
-        : { chainIdProps: {}, encryptableProps: event.properties };
-
-    const shouldEncryptProps =
-      useEncryption &&
-      !!encryptableProps &&
-      Object.keys(encryptableProps).length > 0;
-
-    const preppedProperties = encryptableProps
-      ? await this.prepProperties(
-          event.windowId,
-          encryptableProps,
-          shouldEncryptProps,
-        )
+    const preppedProperties = event.properties
+      ? await this.prepProperties(event.windowId, event.properties)
       : {};
 
     const body = {
@@ -106,7 +74,6 @@ export class AnalyticsServicePosthog {
       event: event.name,
       properties: {
         ...preppedProperties,
-        ...chainIdProps,
         ...featureFlagsData,
         distinct_id: analyticsState.userId,
         $user_id: analyticsState.userId,
@@ -150,24 +117,6 @@ export class AnalyticsServicePosthog {
     };
   }
 
-  #splitChainIdProps(properties: Record<string, unknown>): {
-    chainIdProps: Record<string, unknown>;
-    encryptableProps: Record<string, unknown>;
-  } {
-    const chainIdProps: Record<string, unknown> = {};
-    const encryptableProps: Record<string, unknown> = {};
-
-    for (const [key, value] of Object.entries(properties)) {
-      if (CHAIN_ID_PROP_KEYS.has(key)) {
-        chainIdProps[key] = this.updateChainIdIfNeeded(value);
-      } else {
-        encryptableProps[key] = value;
-      }
-    }
-
-    return { chainIdProps, encryptableProps };
-  }
-
   // TODO update with real value
   private updateChainIdIfNeeded(original: unknown) {
     if (typeof original !== 'number') {
@@ -189,23 +138,15 @@ export class AnalyticsServicePosthog {
   private async prepProperties(
     windowId: string,
     properties: Record<string, unknown>,
-    useEncryption = false,
   ) {
     const userEnv = await getUserEnvironment();
 
-    if (Object.keys(properties).includes('chainId')) {
-      properties.chainId = this.updateChainIdIfNeeded(properties.chainId);
-    }
-
-    if (Object.keys(properties).includes('networkChainId')) {
-      properties.networkChainId = this.updateChainIdIfNeeded(
-        properties.networkChainId,
-      );
-    }
-
-    const preppedProps = useEncryption
-      ? await encryptAnalyticsData(JSON.stringify(properties ?? {}))
-      : properties;
+    const preppedProps = Object.fromEntries(
+      Object.entries(properties).map(([key, value]) => [
+        key,
+        CHAIN_ID_PROP_KEYS.has(key) ? this.updateChainIdIfNeeded(value) : value,
+      ]),
+    );
 
     return {
       ...preppedProps,

@@ -514,7 +514,7 @@ export class AccountsService implements OnLock, OnUnlock {
       }),
     );
 
-    this.analyticsServicePosthog.captureEncryptedEvent({
+    this.analyticsServicePosthog.captureEvent({
       name: 'addedNewPrimaryAccount',
       windowId: crypto.randomUUID(),
       properties: { addresses: await this.#getAllAddresses() },
@@ -564,7 +564,7 @@ export class AccountsService implements OnLock, OnUnlock {
       await this.permissionsService.whitelistCoreDomains(
         mapAddressesToVMs(newAccount),
       );
-      this.analyticsServicePosthog.captureEncryptedEvent({
+      this.analyticsServicePosthog.captureEvent({
         name: 'addedNewImportedAccount',
         windowId: crypto.randomUUID(),
         properties: { addresses: await this.#getAllAddresses() },

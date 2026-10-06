@@ -11,7 +11,7 @@ import { AnalyticsServicePosthog } from '../AnalyticsServicePosthog';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ANALYTICS_CAPTURE_EVENT,
   null,
-  [event: AnalyticsCapturedEvent, useEncryption?: boolean]
+  [event: AnalyticsCapturedEvent]
 >;
 
 @injectable()
@@ -31,14 +31,10 @@ export class CaptureAnalyticsEventHandler implements HandlerType {
       };
     }
 
-    const [event, useEncryption] = request.params;
+    const [event] = request.params;
 
     try {
-      if (useEncryption) {
-        await this.analyticsServicePosthog.captureEncryptedEvent(event);
-      } else {
-        await this.analyticsServicePosthog.captureEvent(event);
-      }
+      await this.analyticsServicePosthog.captureEvent(event);
 
       return {
         ...request,

@@ -23,7 +23,7 @@ export const useGasless: UseGasless = ({ action }) => {
     fetchAndSolveGaslessChallange,
     isGaslessEligible,
   } = useNetworkFeeContext();
-  const { captureEncrypted } = useAnalyticsContext();
+  const { capture } = useAnalyticsContext();
 
   const eligibilityParams = useMemo(
     () => (action ? getEligibilityParams(action) : null),
@@ -65,9 +65,9 @@ export const useGasless: UseGasless = ({ action }) => {
   // Capture analytics for gasless funding errors
   useEffect(() => {
     if (gaslessPhase === GaslessPhase.ERROR) {
-      captureEncrypted('GaslessFundFailed');
+      capture('GaslessFundFailed');
     }
-  }, [captureEncrypted, gaslessPhase]);
+  }, [capture, gaslessPhase]);
 
   // Wrapper around the approval screen's approve callback so we don't pollute it with gasless funding logic
   const tryFunding = useCallback(
@@ -77,7 +77,7 @@ export const useGasless: UseGasless = ({ action }) => {
           const fundedTxHex = await gaslessFundTx(action?.signingData);
 
           if (fundedTxHex) {
-            captureEncrypted('GaslessFundSuccessful', {
+            capture('GaslessFundSuccessful', {
               fundTxHex: fundedTxHex,
             });
           }
@@ -95,7 +95,7 @@ export const useGasless: UseGasless = ({ action }) => {
       isGaslessEligible,
       gaslessFundTx,
       action?.signingData,
-      captureEncrypted,
+      capture,
       t,
       setGaslessDefaultValues,
     ],
