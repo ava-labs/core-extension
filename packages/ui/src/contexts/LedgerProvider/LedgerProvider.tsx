@@ -96,7 +96,7 @@ const LedgerContext = createContext<{
     masterFingerprint: string,
     derivationpath: string,
     name: string,
-  ): Promise<readonly [Buffer, Buffer]>;
+  ): Promise<Buffer>;
   updateLedgerVersionWarningClosed(): Promise<void>;
   ledgerVersionWarningClosed: boolean | undefined;
   closeCurrentApp: () => Promise<void>;
@@ -362,7 +362,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       fingerprint: string,
       derivationpath: string,
       name: string,
-    ): Promise<readonly [Buffer, Buffer]> => {
+    ): Promise<Buffer> => {
       const result = await deviceRequest({
         op: 'registerBtcWalletPolicy',
         xpub,
@@ -370,13 +370,10 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         derivationPath: derivationpath,
         name,
       });
-      if (!result || !('policyIdHex' in result)) {
+      if (!result || !('hmacHex' in result)) {
         throw new Error('Ledger failed to register the BTC wallet policy');
       }
-      return [
-        Buffer.from(result.policyIdHex, 'hex'),
-        Buffer.from(result.hmacHex, 'hex'),
-      ];
+      return Buffer.from(result.hmacHex, 'hex');
     },
     [deviceRequest],
   );

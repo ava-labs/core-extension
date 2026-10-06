@@ -75,7 +75,7 @@ const defaultDeviceResponders = (): DeviceResponders => ({
   getSolanaPublicKey: () => ({ publicKeyHex: '010203' }),
   getBtcMasterFingerprint: () => ({ fingerprint: 'default-fingerprint' }),
   getBtcExtendedPublicKey: () => ({ xpub: 'default-btc-xpub' }),
-  registerBtcWalletPolicy: () => ({ policyIdHex: 'aa', hmacHex: 'bb' }),
+  registerBtcWalletPolicy: () => ({ hmacHex: 'bb' }),
 });
 
 const TestComponent = ({ methodParams }) => {
@@ -733,11 +733,8 @@ describe('src/contexts/LedgerProvider.tsx', () => {
   });
 
   describe('registerBtcWalletPolicy', () => {
-    it('registers the policy and returns the policy id and hmac', async () => {
-      deviceResponders.registerBtcWalletPolicy = () => ({
-        policyIdHex: 'aa',
-        hmacHex: 'bb',
-      });
+    it('registers the policy and returns the hmac', async () => {
+      deviceResponders.registerBtcWalletPolicy = () => ({ hmacHex: 'bb' });
 
       const connectionMocks = useConnectionContext();
       renderTestComponent('the-xpub', 'the-fingerprint', "m/84'/0'/0'", 'name');
@@ -753,6 +750,9 @@ describe('src/contexts/LedgerProvider.tsx', () => {
           }),
         );
         expect(screen.getByTestId('error').textContent).toBe('undefined');
+        expect(screen.getByTestId('result').textContent).toBe(
+          `${Buffer.from('bb', 'hex')}`,
+        );
       });
     });
 

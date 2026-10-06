@@ -6,8 +6,8 @@ import type {
 
 /**
  * Adapts a Device Management Kit session to the `@ledgerhq/hw-transport`
- * interface so the X/P (`hw-app-avalanche`), Bitcoin (`ledger-bitcoin`) and
- * Solana (`hw-app-solana`) apps can talk to the device through the DMK.
+ * interface for the raw-APDU helpers (`ensureLedgerAppOpen`, Ethereum app
+ * configuration) that have no DMK device-action equivalent wired up yet.
  *
  * Implementing `exchange` is enough: the base `Transport` builds `send` (and
  * therefore the status-word check) on top of it.

@@ -2,12 +2,18 @@ import {
   DeviceActionStatus,
   DeviceManagementKitBuilder,
   DeviceStatus,
+  type DeviceActionState,
   type DeviceManagementKit,
   type DeviceSessionId,
   type DeviceSessionState,
   type DiscoveredDevice,
 } from '@ledgerhq/device-management-kit';
 import { webHidTransportFactory } from '@ledgerhq/device-transport-kit-web-hid';
+import {
+  DefaultDescriptorTemplate,
+  SignerBtcBuilder,
+  WalletPolicy,
+} from '@ledgerhq/device-signer-kit-bitcoin';
 import { SignerSolanaBuilder } from '@ledgerhq/device-signer-kit-solana';
 import type Transport from '@ledgerhq/hw-transport';
 import {
@@ -21,15 +27,11 @@ import {
 } from '@core/types';
 import { base58 } from '@scure/base';
 import {
-  AppClient as Btc,
-  DefaultWalletPolicy,
-  WalletPolicy,
-} from 'ledger-bitcoin';
-import {
   filter,
   firstValueFrom,
   lastValueFrom,
   map,
+  type Observable,
   switchMap,
   timeout,
   timer,
@@ -49,6 +51,28 @@ type ReadyDeviceSessionState = Extract<
   DeviceSessionState,
   { currentApp: unknown }
 >;
+
+const completeDeviceAction = async <Output>(
+  operation: string,
+  {
+    observable,
+  }: { observable: Observable<DeviceActionState<Output, unknown, unknown>> },
+): Promise<Output> => {
+  // Device actions emit intermediate (pending) states before completing, so
+  // wait for the terminal value rather than taking the first emission.
+  const result = await lastValueFrom(observable);
+  if (result.status !== DeviceActionStatus.Completed) {
+    const detail =
+      result.status === DeviceActionStatus.Error ? result.error : result;
+    throw new Error(
+      `${operation} failed (${result.status}): ${JSON.stringify(detail)}`,
+    );
+  }
+  return result.output;
+};
+
+// The DMK BTC signer splits paths without accepting the `m/` root.
+const stripRootPrefix = (path: string) => path.replace(/^m\//, '');
 
 const APDU_BUSY_RETRY_MS = 150;
 
@@ -291,46 +315,62 @@ export class LedgerDmkService implements OnLock {
     }).build();
     // Solana app expects the derivation path without the `m/` root.
     const path = `44'/501'/${accountIndex}'/0'`;
-    const { observable } = await solanaApp.getAddress(path);
-    // Device actions emit intermediate (pending) states before completing, so
-    // wait for the terminal value rather than taking the first emission.
-    const result = await lastValueFrom(observable);
-    if (result.status !== DeviceActionStatus.Completed) {
-      const detail =
-        result.status === DeviceActionStatus.Error ? result.error : result;
-      throw new Error(
-        `Solana getAddress failed (${result.status}): ${JSON.stringify(detail)}`,
-      );
-    }
+    const address = await completeDeviceAction(
+      'Solana getAddress',
+      await solanaApp.getAddress(path),
+    );
     // `getAddress` returns the base58-encoded address; decode it back to the
     // raw 32-byte public key the caller expects.
-    return Buffer.from(base58.decode(result.output));
+    return Buffer.from(base58.decode(address));
   }
 
+  // `skipOpenApp`: the signer would otherwise switch to the "Bitcoin" app, but
+  // Core's 44'/60' paths need the "Bitcoin Recovery" app the user has open.
   async getBtcMasterFingerprint(): Promise<string> {
-    const app = new Btc(await this.getTransport());
-    return app.getMasterFingerprint();
+    return this.#withUnlockedSession(async ({ dmk, sessionId }) => {
+      const signer = new SignerBtcBuilder({ dmk, sessionId }).build();
+      const { masterFingerprint } = await completeDeviceAction(
+        'Bitcoin getMasterFingerprint',
+        signer.getMasterFingerprint({ skipOpenApp: true }),
+      );
+      return Buffer.from(masterFingerprint).toString('hex');
+    });
   }
 
   async getBtcExtendedPublicKey(path: string): Promise<string> {
-    const app = new Btc(await this.getTransport());
-    return app.getExtendedPubkey(path, true);
+    return this.#withUnlockedSession(async ({ dmk, sessionId }) => {
+      const signer = new SignerBtcBuilder({ dmk, sessionId }).build();
+      const { extendedPublicKey } = await completeDeviceAction(
+        'Bitcoin getExtendedPublicKey',
+        signer.getExtendedPublicKey(stripRootPrefix(path), {
+          checkOnDevice: true,
+          skipOpenApp: true,
+        }),
+      );
+      return extendedPublicKey;
+    });
   }
 
+  /** Returns the HMAC the device issues for the registered policy. */
   async registerBtcWalletPolicy(
     xpub: string,
     masterFingerprint: string,
     derivationPath: string,
     name: string,
-  ): Promise<readonly [Buffer, Buffer]> {
-    const app = new Btc(await this.getTransport());
-    const template = new DefaultWalletPolicy(
-      `wpkh(@0/**)`,
-      `[${masterFingerprint}/${derivationPath}]${xpub}`,
-    );
-    const walletPolicy = new WalletPolicy(name, `wpkh(@0/**)`, template.keys);
-
-    return app.registerWallet(walletPolicy);
+  ): Promise<Buffer> {
+    return this.#withUnlockedSession(async ({ dmk, sessionId }) => {
+      const signer = new SignerBtcBuilder({ dmk, sessionId }).build();
+      const { hmac } = await completeDeviceAction(
+        'Bitcoin registerWallet',
+        signer.registerWallet(
+          new WalletPolicy(name, DefaultDescriptorTemplate.NATIVE_SEGWIT, [
+            `[${masterFingerprint}/${stripRootPrefix(derivationPath)}]${xpub}`,
+          ]),
+          { skipOpenApp: true },
+        ),
+      );
+      return Buffer.from(hmac);
+    });
   }
 
   async disconnect(): Promise<void> {

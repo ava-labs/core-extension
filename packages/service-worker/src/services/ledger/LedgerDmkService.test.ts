@@ -12,9 +12,14 @@ import { LedgerDmkService } from './LedgerDmkService';
 import { DmkLedgerTransport } from './dmk/DmkLedgerTransport';
 
 const mockBuild = jest.fn();
+const mockBtcSigner = {
+  getMasterFingerprint: jest.fn(),
+  getExtendedPublicKey: jest.fn(),
+  registerWallet: jest.fn(),
+};
 
 jest.mock('@ledgerhq/device-management-kit', () => ({
-  DeviceActionStatus: {},
+  DeviceActionStatus: { Completed: 'completed', Error: 'error' },
   DeviceStatus: { LOCKED: 'LOCKED', BUSY: 'BUSY', CONNECTED: 'CONNECTED' },
   DeviceManagementKitBuilder: class {
     addTransport() {
@@ -26,6 +31,21 @@ jest.mock('@ledgerhq/device-management-kit', () => ({
   },
 }));
 jest.mock('@ledgerhq/device-signer-kit-solana', () => ({}));
+jest.mock('@ledgerhq/device-signer-kit-bitcoin', () => ({
+  DefaultDescriptorTemplate: { NATIVE_SEGWIT: 'wpkh(@0/**)' },
+  SignerBtcBuilder: class {
+    build() {
+      return mockBtcSigner;
+    }
+  },
+  WalletPolicy: class {
+    constructor(
+      readonly name: string,
+      readonly descriptorTemplate: string,
+      readonly keys: string[],
+    ) {}
+  },
+}));
 jest.mock('@avalabs/core-wallets-sdk', () => ({
   getLedgerExtendedPublicKey: jest.fn(),
   quitLedgerApp: jest.fn(),
@@ -33,8 +53,6 @@ jest.mock('@avalabs/core-wallets-sdk', () => ({
 jest.mock('@core/common', () => ({
   ensureLedgerAppOpen: jest.fn(),
 }));
-jest.mock('ledger-bitcoin', () => ({}));
-
 const device = { id: 'device-id' };
 
 const createDmk = () => ({
@@ -259,6 +277,79 @@ describe('src/background/services/ledger/LedgerDmkService.ts', () => {
       await service.getSession();
 
       expect(dmk.connect).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('Bitcoin', () => {
+    const completed = (output: unknown) => ({
+      observable: of({ status: 'completed', output }),
+    });
+
+    beforeEach(() => {
+      const dmk = createDmk();
+      dmk.connect.mockResolvedValue('session-1');
+      mockBuild.mockReturnValue(dmk);
+    });
+
+    it('returns the master fingerprint hex-encoded without switching apps', async () => {
+      mockBtcSigner.getMasterFingerprint.mockReturnValue(
+        completed({ masterFingerprint: new Uint8Array([0xf0, 0x0d]) }),
+      );
+
+      await expect(service.getBtcMasterFingerprint()).resolves.toBe('f00d');
+      expect(mockBtcSigner.getMasterFingerprint).toHaveBeenCalledWith({
+        skipOpenApp: true,
+      });
+    });
+
+    it('returns the extended public key verified on device', async () => {
+      mockBtcSigner.getExtendedPublicKey.mockReturnValue(
+        completed({ extendedPublicKey: 'xpub123' }),
+      );
+
+      await expect(
+        service.getBtcExtendedPublicKey("m/44'/60'/0'"),
+      ).resolves.toBe('xpub123');
+      expect(mockBtcSigner.getExtendedPublicKey).toHaveBeenCalledWith(
+        "44'/60'/0'",
+        { checkOnDevice: true, skipOpenApp: true },
+      );
+    });
+
+    it('registers a native segwit policy and returns its hmac', async () => {
+      mockBtcSigner.registerWallet.mockReturnValue(
+        completed({ hmac: new Uint8Array([0xab, 0xcd]) }),
+      );
+
+      await expect(
+        service.registerBtcWalletPolicy(
+          'xpub',
+          'f00dbabe',
+          "44'/60'/0'",
+          'Core',
+        ),
+      ).resolves.toEqual(Buffer.from([0xab, 0xcd]));
+      expect(mockBtcSigner.registerWallet).toHaveBeenCalledWith(
+        {
+          name: 'Core',
+          descriptorTemplate: 'wpkh(@0/**)',
+          keys: ["[f00dbabe/44'/60'/0']xpub"],
+        },
+        { skipOpenApp: true },
+      );
+    });
+
+    it('surfaces device action errors', async () => {
+      mockBtcSigner.getMasterFingerprint.mockReturnValue({
+        observable: of({
+          status: 'error',
+          error: { _tag: 'DeviceLockedError' },
+        }),
+      });
+
+      await expect(service.getBtcMasterFingerprint()).rejects.toThrow(
+        'Bitcoin getMasterFingerprint failed (error): {"_tag":"DeviceLockedError"}',
+      );
     });
   });
 

@@ -122,7 +122,7 @@ export const LedgerPolicyRegistrationStateProvider = ({
       inProgress.current = true;
       const masterFingerprint = await getMasterFingerprint();
 
-      const [, hmac] = await registerBtcWalletPolicy(
+      const hmac = await registerBtcWalletPolicy(
         xpub,
         masterFingerprint,
         walletPolicyDerivationpath,

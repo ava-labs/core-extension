@@ -121,11 +121,10 @@ describe('src/background/services/ledger/handlers/ledgerDeviceRequest.ts', () =>
     expect(response.result).toEqual({ xpub: 'xpubBtc' });
   });
 
-  it('returns the registered Bitcoin wallet policy hex-encoded', async () => {
-    ledgerDmkService.registerBtcWalletPolicy.mockResolvedValue([
-      Buffer.from([0x01]),
+  it('returns the registered Bitcoin wallet policy hmac hex-encoded', async () => {
+    ledgerDmkService.registerBtcWalletPolicy.mockResolvedValue(
       Buffer.from([0x02]),
-    ]);
+    );
 
     const response = await handle({
       op: 'registerBtcWalletPolicy',
@@ -141,7 +140,7 @@ describe('src/background/services/ledger/handlers/ledgerDeviceRequest.ts', () =>
       "44'/60'/0'",
       'Core',
     );
-    expect(response.result).toEqual({ policyIdHex: '01', hmacHex: '02' });
+    expect(response.result).toEqual({ hmacHex: '02' });
   });
 
   describe('errors', () => {

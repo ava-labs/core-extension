@@ -32,7 +32,7 @@ export type LedgerDeviceRequestResult =
   | { publicKeyHex: string }
   | { xpub: string }
   | { fingerprint: string }
-  | { policyIdHex: string; hmacHex: string }
+  | { hmacHex: string }
   | null;
 
 type HandlerType = ExtensionRequestHandler<
@@ -122,17 +122,13 @@ export class LedgerDeviceRequestHandler implements HandlerType {
           ),
         };
       case 'registerBtcWalletPolicy': {
-        const [policyId, hmac] =
-          await this.ledgerDmkService.registerBtcWalletPolicy(
-            params.xpub,
-            params.masterFingerprint,
-            params.derivationPath,
-            params.name,
-          );
-        return {
-          policyIdHex: policyId.toString('hex'),
-          hmacHex: hmac.toString('hex'),
-        };
+        const hmac = await this.ledgerDmkService.registerBtcWalletPolicy(
+          params.xpub,
+          params.masterFingerprint,
+          params.derivationPath,
+          params.name,
+        );
+        return { hmacHex: hmac.toString('hex') };
       }
     }
   };
