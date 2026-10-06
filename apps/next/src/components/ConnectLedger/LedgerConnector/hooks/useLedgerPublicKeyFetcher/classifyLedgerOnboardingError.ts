@@ -1,7 +1,4 @@
-import {
-  getLedgerAutoOpenAppFailedMessage,
-  getLedgerQuitAppFailedMessage,
-} from '@core/common';
+import { getLedgerAutoOpenAppFailedMessage } from '@core/common';
 
 import { ErrorType } from '../../types';
 
@@ -19,9 +16,6 @@ export function classifyLedgerOnboardingError(
     return 'app-not-installed';
   }
   if (message === getLedgerAutoOpenAppFailedMessage(appName)) {
-    return 'no-app';
-  }
-  if (message === getLedgerQuitAppFailedMessage()) {
     return 'no-app';
   }
   if (message.includes('no device detected')) {

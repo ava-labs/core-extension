@@ -31,7 +31,6 @@ import {
   LedgerSigner,
   getWalletFromMnemonic,
 } from '@avalabs/core-wallets-sdk';
-import type Transport from '@ledgerhq/hw-transport';
 import getDerivationPath from './utils/getDerivationPath';
 import ensureMessageFormatIsValid from './utils/ensureMessageFormatIsValid';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
@@ -87,55 +86,6 @@ jest.mock('@metamask/eth-sig-util', () => {
     SignTypedDataVersion: signTypedDataVersionMock,
   };
 });
-
-/** Built at load time — some tests replace global `Buffer` in beforeEach. */
-const LEDGER_GET_APP_AND_VERSION_AVALANCHE_OK = Buffer.concat([
-  Buffer.from([0x01]),
-  Buffer.from([9]),
-  Buffer.from('Avalanche', 'ascii'),
-  Buffer.from([5]),
-  Buffer.from('1.0.0', 'ascii'),
-  Buffer.from([0x90, 0x00]),
-]);
-
-const LEDGER_GET_APP_AND_VERSION_ETHEREUM_OK = Buffer.concat([
-  Buffer.from([0x01]),
-  Buffer.from([8]),
-  Buffer.from('Ethereum', 'ascii'),
-  Buffer.from([5]),
-  Buffer.from('1.0.0', 'ascii'),
-  Buffer.from([0x90, 0x00]),
-]);
-
-const LEDGER_GET_APP_AND_VERSION_BITCOIN_OK = Buffer.concat([
-  Buffer.from([0x01]),
-  Buffer.from([16]),
-  Buffer.from('Bitcoin Recovery', 'ascii'),
-  Buffer.from([5]),
-  Buffer.from('2.0.0', 'ascii'),
-  Buffer.from([0x90, 0x00]),
-]);
-
-/** Transport `send` shape so `ensureLedgerAppOpen` is a no-op (already on Avalanche). */
-function createLedgerTransportMockWithAvalancheAppOpen(): Transport {
-  return {
-    send: jest.fn().mockResolvedValue(LEDGER_GET_APP_AND_VERSION_AVALANCHE_OK),
-  } as unknown as Transport;
-}
-
-/** Transport `send` shape so `ensureLedgerAppOpen` is a no-op (already on Ethereum). */
-function createLedgerTransportMockWithEthereumAppOpen(): Transport {
-  return {
-    send: jest.fn().mockResolvedValue(LEDGER_GET_APP_AND_VERSION_ETHEREUM_OK),
-  } as unknown as Transport;
-}
-
-/** Transport `send` shape so `ensureLedgerAppOpen` is a no-op (already on Bitcoin Recovery). */
-function createLedgerTransportMockWithBitcoinAppOpen(): Transport {
-  return {
-    send: jest.fn().mockResolvedValue(LEDGER_GET_APP_AND_VERSION_BITCOIN_OK),
-  } as unknown as Transport;
-}
 
 const dmkMock = { id: 'dmk' } as any;
 const sessionIdMock = 'session-id' as any;
@@ -398,9 +348,10 @@ describe('background/services/wallet/WalletService.ts', () => {
       dmk: dmkMock,
       sessionId: sessionIdMock,
     });
-    ledgerDmkService.getTransport.mockResolvedValue(
-      createLedgerTransportMockWithAvalancheAppOpen() as any,
+    ledgerDmkService.runDeviceOperation.mockImplementation((fn) =>
+      fn({ dmk: dmkMock, sessionId: sessionIdMock }),
     );
+    ledgerDmkService.ensureAppOpen.mockResolvedValue(undefined);
 
     walletConnectService = new WalletConnectService(
       new WalletConnectStorage({} as any),
@@ -707,9 +658,6 @@ describe('background/services/wallet/WalletService.ts', () => {
     });
 
     it('signs btc tx correctly using BitcoinLedgerWallet', async () => {
-      ledgerDmkService.getTransport.mockResolvedValue(
-        createLedgerTransportMockWithBitcoinAppOpen() as any,
-      );
       const buffer = Buffer.from('0x1');
       const tx = new Transaction();
       tx.toHex = jest.fn().mockReturnValue(buffer.toString('hex'));
@@ -726,6 +674,10 @@ describe('background/services/wallet/WalletService.ts', () => {
         btcTxMock.outputs,
       );
       expect(signedTx).toBe(buffer.toString('hex'));
+      expect(ledgerDmkService.runDeviceOperation).toHaveBeenCalledTimes(1);
+      expect(ledgerDmkService.ensureAppOpen).toHaveBeenCalledWith(
+        'Bitcoin Recovery',
+      );
     });
 
     it('signs evm tx correctly using Wallet', async () => {
@@ -1268,9 +1220,6 @@ describe('background/services/wallet/WalletService.ts', () => {
     });
 
     it('signs messages with Ledger', async () => {
-      ledgerDmkService.getTransport.mockResolvedValue(
-        createLedgerTransportMockWithEthereumAppOpen() as any,
-      );
       evmLedgerSignerMock.signMessage = jest
         .fn()
         .mockResolvedValueOnce('0x00001')
@@ -1294,6 +1243,8 @@ describe('background/services/wallet/WalletService.ts', () => {
       ).resolves.toBe('0x00002');
       expect(evmLedgerSignerMock.signMessage).toHaveBeenCalledTimes(2);
       expect(evmLedgerSignerMock.signMessage).toHaveBeenNthCalledWith(2, {});
+      expect(ledgerDmkService.runDeviceOperation).toHaveBeenCalledTimes(2);
+      expect(ledgerDmkService.ensureAppOpen).toHaveBeenCalledTimes(2);
     });
 
     it('blocks Ledger message signing on HyperEVM', async () => {
@@ -1309,9 +1260,6 @@ describe('background/services/wallet/WalletService.ts', () => {
     });
 
     it('signs typed data with Ledger', async () => {
-      ledgerDmkService.getTransport.mockResolvedValue(
-        createLedgerTransportMockWithEthereumAppOpen() as any,
-      );
       evmLedgerSignerMock.signTypedData = jest
         .fn()
         .mockResolvedValue('0x00001');

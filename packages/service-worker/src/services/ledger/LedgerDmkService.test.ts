@@ -3,13 +3,12 @@ import {
   getLedgerExtendedPublicKey,
   quitLedgerApp,
 } from '@avalabs/core-wallets-sdk';
-import { ensureLedgerAppOpen } from '@core/common';
+import { OpenAppDeviceAction } from '@ledgerhq/device-management-kit';
 import {
   LEDGER_DEVICE_LOCKED_ERROR,
   LEDGER_MULTIPLE_DEVICES_ERROR,
 } from '@core/types';
 import { LedgerDmkService } from './LedgerDmkService';
-import { DmkLedgerTransport } from './dmk/DmkLedgerTransport';
 
 const mockBuild = jest.fn();
 const mockBtcSigner = {
@@ -28,6 +27,9 @@ jest.mock('@ledgerhq/device-management-kit', () => ({
     build() {
       return mockBuild();
     }
+  },
+  OpenAppDeviceAction: class {
+    constructor(readonly args: { input: { appName: string } }) {}
   },
 }));
 jest.mock('@ledgerhq/device-signer-kit-solana', () => ({}));
@@ -51,23 +53,35 @@ jest.mock('@avalabs/core-wallets-sdk', () => ({
   quitLedgerApp: jest.fn(),
 }));
 jest.mock('@core/common', () => ({
-  ensureLedgerAppOpen: jest.fn(),
+  getLedgerAppNotInstalledMessage: (appName: string) =>
+    `${appName} not installed`,
+  getLedgerAutoOpenAppFailedMessage: (appName: string) =>
+    `Could not open ${appName}`,
+  getSolanaRpcUrl: () => 'https://solana.example',
 }));
 const device = { id: 'device-id' };
 
-const createDmk = () => ({
-  listenToAvailableDevices: jest.fn(() => of([device])),
-  connect: jest.fn(),
-  disconnect: jest.fn().mockResolvedValue(undefined),
-  close: jest.fn(),
-  getDeviceSessionState: jest.fn(() =>
-    of({
-      deviceStatus: 'CONNECTED',
-      currentApp: { name: 'Avalanche', version: '1.0.0' },
-    }),
-  ) as jest.Mock,
-  sendApdu: jest.fn(),
-});
+const createDmk = () => {
+  const resumeRefresher = jest.fn();
+  return {
+    listenToAvailableDevices: jest.fn(() => of([device])),
+    connect: jest.fn(),
+    disconnect: jest.fn().mockResolvedValue(undefined),
+    close: jest.fn(),
+    getDeviceSessionState: jest.fn(() =>
+      of({
+        deviceStatus: 'CONNECTED',
+        currentApp: { name: 'Avalanche', version: '1.0.0' },
+      }),
+    ) as jest.Mock,
+    sendApdu: jest.fn(),
+    resumeRefresher,
+    disableDeviceSessionRefresher: jest.fn(() => resumeRefresher),
+    executeDeviceAction: jest.fn(() => ({
+      observable: of({ status: 'completed', output: undefined }),
+    })) as jest.Mock,
+  };
+};
 
 const deferred = <T>() => {
   let resolve!: (value: T) => void;
@@ -239,13 +253,40 @@ describe('src/background/services/ledger/LedgerDmkService.ts', () => {
       });
     });
 
-    it('opens the requested app through the DMK transport', async () => {
-      await service.ensureAppOpen('Avalanche');
+    it('opens the requested app with the DMK open-app device action', async () => {
+      await service.ensureAppOpen('Bitcoin Recovery');
 
-      expect(ensureLedgerAppOpen).toHaveBeenCalledWith(
-        expect.any(DmkLedgerTransport),
-        'Avalanche',
-      );
+      expect(dmk.executeDeviceAction).toHaveBeenCalledWith({
+        sessionId: 'session-1',
+        deviceAction: expect.any(OpenAppDeviceAction),
+      });
+      expect(
+        dmk.executeDeviceAction.mock.calls[0][0].deviceAction.args,
+      ).toEqual({ input: { appName: 'Bitcoin Recovery' } });
+    });
+
+    it.each([
+      [
+        'a locked device',
+        { _tag: 'DeviceLockedError' },
+        LEDGER_DEVICE_LOCKED_ERROR,
+      ],
+      [
+        'a missing app',
+        { _tag: 'GlobalCommandError', errorCode: '5123' },
+        'Solana not installed',
+      ],
+      [
+        'a rejected switch',
+        { _tag: 'OpenAppCommandError', errorCode: '6807' },
+        'Could not open Solana',
+      ],
+    ])('maps %s to a user-facing error', async (_, error, message) => {
+      dmk.executeDeviceAction.mockReturnValue({
+        observable: of({ status: 'error', error }),
+      });
+
+      await expect(service.ensureAppOpen('Solana')).rejects.toThrow(message);
     });
 
     it('quits the running app', async () => {
@@ -260,10 +301,9 @@ describe('src/background/services/ledger/LedgerDmkService.ts', () => {
       await expect(
         service.getExtendedPublicKey("m/44'/60'/0'", true),
       ).resolves.toBe('xpub');
-      expect(ensureLedgerAppOpen).toHaveBeenCalledWith(
-        expect.any(DmkLedgerTransport),
-        'Avalanche',
-      );
+      expect(
+        dmk.executeDeviceAction.mock.calls[0][0].deviceAction.args,
+      ).toEqual({ input: { appName: 'Avalanche' } });
       expect(getLedgerExtendedPublicKey).toHaveBeenCalledWith(
         dmk,
         'session-1',
@@ -273,10 +313,59 @@ describe('src/background/services/ledger/LedgerDmkService.ts', () => {
     });
 
     it('reuses the established session across operations', async () => {
-      await service.getTransport();
+      await service.closeApp();
       await service.getSession();
 
       expect(dmk.connect).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('runDeviceOperation', () => {
+    let dmk: ReturnType<typeof createDmk>;
+
+    beforeEach(() => {
+      dmk = createDmk();
+      dmk.connect.mockResolvedValue('session-1');
+      mockBuild.mockReturnValue(dmk);
+    });
+
+    it('pauses the session refresher for the duration of the operation', async () => {
+      const operation = jest.fn(async () => {
+        expect(dmk.resumeRefresher).not.toHaveBeenCalled();
+        return 'done';
+      });
+
+      await expect(service.runDeviceOperation(operation)).resolves.toBe('done');
+      expect(dmk.disableDeviceSessionRefresher).toHaveBeenCalledWith({
+        sessionId: 'session-1',
+        blockerId: expect.any(String),
+      });
+      expect(operation).toHaveBeenCalledWith({ dmk, sessionId: 'session-1' });
+      expect(dmk.resumeRefresher).toHaveBeenCalledTimes(1);
+    });
+
+    it('resumes the refresher when the operation fails', async () => {
+      await expect(
+        service.runDeviceOperation(async () => {
+          throw new Error('user rejected');
+        }),
+      ).rejects.toThrow('user rejected');
+      expect(dmk.resumeRefresher).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not reset the session when app info fails mid-operation', async () => {
+      const operation = deferred<void>();
+      const pending = service.runDeviceOperation(() => operation.promise);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      dmk.getDeviceSessionState.mockReturnValue(
+        throwError(() => new Error('Timeout')),
+      );
+      await expect(service.getAppInfo()).rejects.toThrow('Timeout');
+      expect(dmk.disconnect).not.toHaveBeenCalled();
+
+      operation.resolve();
+      await pending;
     });
   });
 

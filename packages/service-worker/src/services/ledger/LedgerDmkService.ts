@@ -2,6 +2,7 @@ import {
   DeviceActionStatus,
   DeviceManagementKitBuilder,
   DeviceStatus,
+  OpenAppDeviceAction,
   type DeviceActionState,
   type DeviceManagementKit,
   type DeviceSessionId,
@@ -15,12 +16,15 @@ import {
   WalletPolicy,
 } from '@ledgerhq/device-signer-kit-bitcoin';
 import { SignerSolanaBuilder } from '@ledgerhq/device-signer-kit-solana';
-import type Transport from '@ledgerhq/hw-transport';
 import {
   getLedgerExtendedPublicKey,
   quitLedgerApp,
 } from '@avalabs/core-wallets-sdk';
-import { ensureLedgerAppOpen, getSolanaRpcUrl } from '@core/common';
+import {
+  getLedgerAppNotInstalledMessage,
+  getLedgerAutoOpenAppFailedMessage,
+  getSolanaRpcUrl,
+} from '@core/common';
 import {
   LEDGER_DEVICE_LOCKED_ERROR,
   LEDGER_MULTIPLE_DEVICES_ERROR,
@@ -47,6 +51,16 @@ const APP_INFO_TIMEOUT_MS = 30_000;
 /** hw-app-eth `getAppConfiguration`: CLA, INS, P1, P2. */
 export const ETH_GET_APP_CONFIGURATION = [0xe0, 0x06, 0x00, 0x00] as const;
 
+/** BOLOS status word for "application not installed". */
+const APP_NOT_INSTALLED_STATUS = '5123';
+
+const REFRESHER_BLOCKER_ID = 'core-device-operation';
+
+export type DmkSession = {
+  dmk: DeviceManagementKit;
+  sessionId: DeviceSessionId;
+};
+
 type ReadyDeviceSessionState = Extract<
   DeviceSessionState,
   { currentApp: unknown }
@@ -71,17 +85,29 @@ const completeDeviceAction = async <Output>(
   return result.output;
 };
 
+const toOpenAppError = (appName: string, error: unknown): Error => {
+  const tag =
+    error && typeof error === 'object' && '_tag' in error
+      ? error._tag
+      : undefined;
+  const errorCode =
+    error && typeof error === 'object' && 'errorCode' in error
+      ? error.errorCode
+      : undefined;
+
+  if (tag === 'DeviceLockedError') {
+    return new Error(LEDGER_DEVICE_LOCKED_ERROR);
+  }
+  // 0x6807 ("unknown application name") is also returned when BOLOS rejects
+  // the switch, so only 0x5123 is treated as a definitive "not installed".
+  if (errorCode === APP_NOT_INSTALLED_STATUS) {
+    return new Error(getLedgerAppNotInstalledMessage(appName));
+  }
+  return new Error(getLedgerAutoOpenAppFailedMessage(appName));
+};
+
 // The DMK BTC signer splits paths without accepting the `m/` root.
 const stripRootPrefix = (path: string) => path.replace(/^m\//, '');
-
-const APDU_BUSY_RETRY_MS = 150;
-
-const isAlreadySendingApdu = (error: unknown): boolean => {
-  if (error && typeof error === 'object' && '_tag' in error) {
-    return error._tag === 'AlreadySendingApduError';
-  }
-  return String(error).includes('AlreadySendingApduError');
-};
 
 /**
  * Owns the single WebHID connection to the Ledger device on the service
@@ -94,6 +120,7 @@ export class LedgerDmkService implements OnLock {
   #dmk?: DeviceManagementKit;
   #sessionId?: DeviceSessionId;
   #pendingConnect?: Promise<DeviceSessionId>;
+  #activeOperations = 0;
 
   #getDmk(): DeviceManagementKit {
     if (!this.#dmk) {
@@ -104,10 +131,7 @@ export class LedgerDmkService implements OnLock {
     return this.#dmk;
   }
 
-  async #ensureSession(): Promise<{
-    dmk: DeviceManagementKit;
-    sessionId: DeviceSessionId;
-  }> {
+  async #ensureSession(): Promise<DmkSession> {
     const dmk = this.#getDmk();
 
     if (this.#sessionId) {
@@ -131,10 +155,7 @@ export class LedgerDmkService implements OnLock {
   async #waitUntilDeviceCanExchange({
     dmk,
     sessionId,
-  }: {
-    dmk: DeviceManagementKit;
-    sessionId: DeviceSessionId;
-  }): Promise<void> {
+  }: DmkSession): Promise<void> {
     await firstValueFrom(
       dmk.getDeviceSessionState({ sessionId }).pipe(
         map((s) => {
@@ -147,27 +168,6 @@ export class LedgerDmkService implements OnLock {
         timeout(APP_INFO_TIMEOUT_MS),
       ),
     );
-  }
-
-  async #withUnlockedSession<T>(
-    fn: (session: {
-      dmk: DeviceManagementKit;
-      sessionId: DeviceSessionId;
-    }) => Promise<T>,
-  ): Promise<T> {
-    const session = await this.#ensureSession();
-    await this.#waitUntilDeviceCanExchange(session);
-    try {
-      return await fn(session);
-    } catch (error) {
-      if (!isAlreadySendingApdu(error)) {
-        throw error;
-      }
-      await new Promise((resolve) => setTimeout(resolve, APDU_BUSY_RETRY_MS));
-      const retrySession = await this.#ensureSession();
-      await this.#waitUntilDeviceCanExchange(retrySession);
-      return fn(retrySession);
-    }
   }
 
   async #connect(dmk: DeviceManagementKit): Promise<DeviceSessionId> {
@@ -186,10 +186,9 @@ export class LedgerDmkService implements OnLock {
     }
     const device = devices[0]!;
 
-    // Keep the session refresher enabled: the DMK gates its `sendApdu` intent
-    // queue on the device-session state the refresher establishes, so
-    // connecting with it disabled leaves the very first `sendApdu` (e.g.
-    // `getLedgerAppInfo`) queued forever.
+    // The session refresher keeps the running app and lock status in the
+    // session state that `getAppInfo` reads; `runDeviceOperation` pauses it
+    // while a device flow is in progress.
     const sessionId = await dmk.connect({ device });
 
     // The wallet was locked while connecting; don't attach a session to a
@@ -203,16 +202,32 @@ export class LedgerDmkService implements OnLock {
     return sessionId;
   }
 
-  async getTransport(): Promise<Transport> {
-    const { dmk, sessionId } = await this.#ensureSession();
-    return new DmkLedgerTransport(dmk, sessionId);
+  async getSession(): Promise<DmkSession> {
+    return this.#ensureSession();
   }
 
-  async getSession(): Promise<{
-    dmk: DeviceManagementKit;
-    sessionId: DeviceSessionId;
-  }> {
-    return this.#ensureSession();
+  /**
+   * Runs a device flow (app switch, key derivation, signing) with the session
+   * refresher paused, so its background polling can't interleave with the
+   * flow's APDUs or desync the session while a review is on screen.
+   */
+  async runDeviceOperation<T>(
+    fn: (session: DmkSession) => Promise<T>,
+  ): Promise<T> {
+    const session = await this.#ensureSession();
+    const resumeRefresher = session.dmk.disableDeviceSessionRefresher({
+      sessionId: session.sessionId,
+      blockerId: REFRESHER_BLOCKER_ID,
+    });
+    this.#activeOperations += 1;
+
+    try {
+      await this.#waitUntilDeviceCanExchange(session);
+      return await fn(session);
+    } finally {
+      this.#activeOperations -= 1;
+      resumeRefresher();
+    }
   }
 
   async getAppInfo(): Promise<{ applicationName: string; version: string }> {
@@ -221,13 +236,14 @@ export class LedgerDmkService implements OnLock {
     try {
       return await this.#readAppInfo(session);
     } catch (error) {
-      // The session was replaced (e.g. lock + reconnect) while this read was
-      // pending; resetting now would tear down the new, healthy session.
-      // A locked device also must not trigger a reconnect loop — the session is
-      // fine, the user just needs to unlock.
+      // Don't reset when the session was replaced (e.g. lock + reconnect), the
+      // device is merely locked, or a device flow is running: the state isn't
+      // refreshed while the refresher is paused, and tearing the session down
+      // would abort that flow.
       if (
         this.#dmk !== session.dmk ||
         this.#sessionId !== session.sessionId ||
+        this.#activeOperations > 0 ||
         (error instanceof Error && error.message === LEDGER_DEVICE_LOCKED_ERROR)
       ) {
         throw error;
@@ -243,10 +259,7 @@ export class LedgerDmkService implements OnLock {
   async #readAppInfo({
     dmk,
     sessionId,
-  }: {
-    dmk: DeviceManagementKit;
-    sessionId: DeviceSessionId;
-  }): Promise<{ applicationName: string; version: string }> {
+  }: DmkSession): Promise<{ applicationName: string; version: string }> {
     // Read the running app from the DMK session state (kept fresh by the
     // session refresher) instead of exchanging a raw `sendApdu`: the raw call
     // races the refresher's polling and is rejected while the device is BUSY.
@@ -270,25 +283,40 @@ export class LedgerDmkService implements OnLock {
   }
 
   async getEthAppConfig(): Promise<{ isBlindSigningEnabled: boolean }> {
-    return this.#withUnlockedSession(async ({ dmk, sessionId }) => {
+    return this.runDeviceOperation(async ({ dmk, sessionId }) => {
       const transport = new DmkLedgerTransport(dmk, sessionId);
       const response = await transport.send(...ETH_GET_APP_CONFIGURATION);
       return { isBlindSigningEnabled: Boolean((response[0] ?? 0) & 0x01) };
     });
   }
 
+  /**
+   * Opens `appName` (a BOLOS application name, e.g. `'Avalanche'`,
+   * `'Bitcoin Recovery'`) unless it's already running, quitting any other app
+   * first. Prompts for unlock / open-app confirmation on the device as needed.
+   */
   async ensureAppOpen(appName: string): Promise<void> {
-    await this.#withUnlockedSession(async ({ dmk, sessionId }) => {
-      await ensureLedgerAppOpen(
-        new DmkLedgerTransport(dmk, sessionId),
-        appName,
+    await this.runDeviceOperation(async ({ dmk, sessionId }) => {
+      const result = await lastValueFrom(
+        dmk.executeDeviceAction({
+          sessionId,
+          deviceAction: new OpenAppDeviceAction({ input: { appName } }),
+        }).observable,
       );
+
+      if (result.status !== DeviceActionStatus.Completed) {
+        throw toOpenAppError(
+          appName,
+          result.status === DeviceActionStatus.Error ? result.error : undefined,
+        );
+      }
     });
   }
 
   async closeApp(): Promise<void> {
-    const { dmk, sessionId } = await this.#ensureSession();
-    await quitLedgerApp(dmk, sessionId);
+    await this.runDeviceOperation(({ dmk, sessionId }) =>
+      quitLedgerApp(dmk, sessionId),
+    );
   }
 
   /**
@@ -296,38 +324,36 @@ export class LedgerDmkService implements OnLock {
    * path (serves both `m/44'/60'` and `m/44'/9000'`).
    */
   async getExtendedPublicKey(path: string, display = false): Promise<string> {
-    return this.#withUnlockedSession(async ({ dmk, sessionId }) => {
-      await ensureLedgerAppOpen(
-        new DmkLedgerTransport(dmk, sessionId),
-        'Avalanche',
-      );
+    return this.runDeviceOperation(async ({ dmk, sessionId }) => {
+      await this.ensureAppOpen('Avalanche');
       return getLedgerExtendedPublicKey(dmk, sessionId, display, path);
     });
   }
 
   async getSolanaPublicKey(accountIndex: number): Promise<Buffer> {
-    const { dmk, sessionId } = await this.#ensureSession();
-    const solanaApp = new SignerSolanaBuilder({
-      dmk,
-      sessionId,
-      // Address derivation never hits the RPC, so the network choice doesn't matter here.
-      solanaRPCURL: getSolanaRpcUrl({ isTestnet: false }),
-    }).build();
-    // Solana app expects the derivation path without the `m/` root.
-    const path = `44'/501'/${accountIndex}'/0'`;
-    const address = await completeDeviceAction(
-      'Solana getAddress',
-      await solanaApp.getAddress(path),
-    );
-    // `getAddress` returns the base58-encoded address; decode it back to the
-    // raw 32-byte public key the caller expects.
-    return Buffer.from(base58.decode(address));
+    return this.runDeviceOperation(async ({ dmk, sessionId }) => {
+      const solanaApp = new SignerSolanaBuilder({
+        dmk,
+        sessionId,
+        // Address derivation never hits the RPC, so the network choice doesn't matter here.
+        solanaRPCURL: getSolanaRpcUrl({ isTestnet: false }),
+      }).build();
+      // Solana app expects the derivation path without the `m/` root.
+      const path = `44'/501'/${accountIndex}'/0'`;
+      const address = await completeDeviceAction(
+        'Solana getAddress',
+        await solanaApp.getAddress(path),
+      );
+      // `getAddress` returns the base58-encoded address; decode it back to the
+      // raw 32-byte public key the caller expects.
+      return Buffer.from(base58.decode(address));
+    });
   }
 
   // `skipOpenApp`: the signer would otherwise switch to the "Bitcoin" app, but
   // Core's 44'/60' paths need the "Bitcoin Recovery" app the user has open.
   async getBtcMasterFingerprint(): Promise<string> {
-    return this.#withUnlockedSession(async ({ dmk, sessionId }) => {
+    return this.runDeviceOperation(async ({ dmk, sessionId }) => {
       const signer = new SignerBtcBuilder({ dmk, sessionId }).build();
       const { masterFingerprint } = await completeDeviceAction(
         'Bitcoin getMasterFingerprint',
@@ -338,7 +364,7 @@ export class LedgerDmkService implements OnLock {
   }
 
   async getBtcExtendedPublicKey(path: string): Promise<string> {
-    return this.#withUnlockedSession(async ({ dmk, sessionId }) => {
+    return this.runDeviceOperation(async ({ dmk, sessionId }) => {
       const signer = new SignerBtcBuilder({ dmk, sessionId }).build();
       const { extendedPublicKey } = await completeDeviceAction(
         'Bitcoin getExtendedPublicKey',
@@ -358,7 +384,7 @@ export class LedgerDmkService implements OnLock {
     derivationPath: string,
     name: string,
   ): Promise<Buffer> {
-    return this.#withUnlockedSession(async ({ dmk, sessionId }) => {
+    return this.runDeviceOperation(async ({ dmk, sessionId }) => {
       const signer = new SignerBtcBuilder({ dmk, sessionId }).build();
       const { hmac } = await completeDeviceAction(
         'Bitcoin registerWallet',

@@ -18,7 +18,6 @@ import {
 import { NetworkVMType, PartialBy, RpcMethod } from '@avalabs/vm-module-types';
 import {
   assertPresent,
-  ensureLedgerAppOpen,
   getAvalancheExtendedKeyPath,
   getLegacyXPDerivationPath,
   getProviderForNetwork,
@@ -584,20 +583,19 @@ export class WalletService implements OnUnlock {
     );
   }
 
-  async #requireLedgerTransport() {
-    return this.ledgerDmkService.getTransport();
+  #withLedgerApp<T>(appName: string, fn: () => Promise<T>): Promise<T> {
+    return this.ledgerDmkService.runDeviceOperation(async () => {
+      await this.ledgerDmkService.ensureAppOpen(appName);
+      return fn();
+    });
   }
 
   /**
    * Match approval UI `getRequiredApp`: Ethereum (homestead + listed testnets) →
    * Ethereum app; Avalanche C/X/P and all other EVM chains → Avalanche app.
    */
-  async #ensureEvmLedgerAppOpenForSigning(network: Network): Promise<void> {
-    const transport = await this.#requireLedgerTransport();
-    await ensureLedgerAppOpen(
-      transport,
-      isEthereumNetwork(network) ? 'Ethereum' : 'Avalanche',
-    );
+  #evmLedgerAppName(network: Network): string {
+    return isEthereumNetwork(network) ? 'Ethereum' : 'Avalanche';
   }
 
   async sign(
@@ -660,18 +658,13 @@ export class WalletService implements OnUnlock {
       }
 
       if (wallet instanceof SolanaLedgerSigner) {
-        await ensureLedgerAppOpen(
-          await this.#requireLedgerTransport(),
-          'Solana',
-        );
-
-        return {
+        return this.#withLedgerApp('Solana', async () => ({
           signedTx: await wallet.signTx(
             tx.data,
             getSolanaRpcUrl(network),
             Boolean(network.isTestnet),
           ),
-        };
+        }));
       }
 
       return {
@@ -690,14 +683,12 @@ export class WalletService implements OnUnlock {
         throw new Error('Signing error, wrong network');
       }
 
-      if (wallet instanceof BitcoinLedgerWallet) {
-        await ensureLedgerAppOpen(
-          await this.#requireLedgerTransport(),
-          'Bitcoin Recovery',
-        );
-      }
-
-      const result = await wallet.signTx(tx.inputs, tx.outputs);
+      const result =
+        wallet instanceof BitcoinLedgerWallet
+          ? await this.#withLedgerApp('Bitcoin Recovery', () =>
+              wallet.signTx(tx.inputs, tx.outputs),
+            )
+          : await wallet.signTx(tx.inputs, tx.outputs);
 
       return this.#normalizeSigningResult(result);
     }
@@ -748,13 +739,6 @@ export class WalletService implements OnUnlock {
         ? await this.ledgerDmkService.getSession()
         : undefined;
 
-      if (moduleLedgerSession) {
-        await ensureLedgerAppOpen(
-          await this.#requireLedgerTransport(),
-          'Avalanche',
-        );
-      }
-
       const signRequest = {
         tx: unsignedTx,
         ...(moduleLedgerSession && {
@@ -765,10 +749,14 @@ export class WalletService implements OnUnlock {
         internalIndices,
       };
 
-      const signingResult =
+      const signModuleTx = async () =>
         wallet instanceof SeedlessWallet
-          ? await wallet.signAvalancheTx(signRequest)
-          : await wallet.signTx(signRequest, originalRequestMethod);
+          ? wallet.signAvalancheTx(signRequest)
+          : wallet.signTx(signRequest, originalRequestMethod);
+
+      const signingResult = moduleLedgerSession
+        ? await this.#withLedgerApp('Avalanche', signModuleTx)
+        : await signModuleTx();
 
       // WalletConnectSigner returns a txHash.
       if ('txHash' in signingResult) {
@@ -814,13 +802,6 @@ export class WalletService implements OnUnlock {
         ? await this.ledgerDmkService.getSession()
         : undefined;
 
-      if (xpLedgerSession) {
-        await ensureLedgerAppOpen(
-          await this.#requireLedgerTransport(),
-          'Avalanche',
-        );
-      }
-
       const txToSign = {
         tx: tx.tx,
         ...(xpLedgerSession && {
@@ -831,10 +812,14 @@ export class WalletService implements OnUnlock {
         internalIndices: tx.internalIndices,
       };
 
-      const result =
+      const signXpTx = async () =>
         wallet instanceof SeedlessWallet
-          ? await wallet.signAvalancheTx(txToSign)
-          : await wallet.signTx(txToSign, originalRequestMethod);
+          ? wallet.signAvalancheTx(txToSign)
+          : wallet.signTx(txToSign, originalRequestMethod);
+
+      const result = xpLedgerSession
+        ? await this.#withLedgerApp('Avalanche', signXpTx)
+        : await signXpTx();
 
       return this.#normalizeSigningResult(result);
     }
@@ -858,7 +843,11 @@ export class WalletService implements OnUnlock {
     }
 
     if (wallet instanceof LedgerSigner) {
-      await this.#ensureEvmLedgerAppOpenForSigning(network);
+      return this.#normalizeSigningResult(
+        await this.#withLedgerApp(this.#evmLedgerAppName(network), () =>
+          wallet.signTransaction(tx),
+        ),
+      );
     }
 
     return this.#normalizeSigningResult(await wallet.signTransaction(tx));
@@ -1006,23 +995,23 @@ export class WalletService implements OnUnlock {
     }
 
     if (wallet instanceof LedgerSigner) {
-      await this.#ensureEvmLedgerAppOpenForSigning(network);
+      return this.#withLedgerApp(this.#evmLedgerAppName(network), async () => {
+        if (isTypedData(data.data)) {
+          return wallet.signTypedData(
+            data.data.domain,
+            data.data.types,
+            data.data.message,
+          );
+        } else if (isPersonalSign(data)) {
+          const dataToSign = isHexString(data.data)
+            ? utils.hexToBuffer(data.data)
+            : data.data;
 
-      if (isTypedData(data.data)) {
-        return wallet.signTypedData(
-          data.data.domain,
-          data.data.types,
-          data.data.message,
-        );
-      } else if (isPersonalSign(data)) {
-        const dataToSign = isHexString(data.data)
-          ? utils.hexToBuffer(data.data)
-          : data.data;
-
-        return wallet.signMessage(dataToSign);
-      } else {
-        throw new Error(`this function is not supported on your wallet`);
-      }
+          return wallet.signMessage(dataToSign);
+        } else {
+          throw new Error(`this function is not supported on your wallet`);
+        }
+      });
     }
 
     if (!(wallet instanceof BaseWallet)) {
@@ -1097,17 +1086,15 @@ export class WalletService implements OnUnlock {
       wallet instanceof Avalanche.LedgerSigner
     ) {
       const { dmk, sessionId } = await this.ledgerDmkService.getSession();
-      await ensureLedgerAppOpen(
-        await this.#requireLedgerTransport(),
-        'Avalanche',
-      );
 
-      return await wallet.signMessage({
-        message,
-        chain: 'X',
-        dmk,
-        sessionId,
-      });
+      return this.#withLedgerApp('Avalanche', () =>
+        wallet.signMessage({
+          message,
+          chain: 'X',
+          dmk,
+          sessionId,
+        }),
+      );
     }
 
     return await wallet.signMessage({ message, chain: 'X' });
@@ -1143,26 +1130,28 @@ export class WalletService implements OnUnlock {
     }
 
     if (wallet instanceof LedgerSigner) {
-      await this.#ensureEvmLedgerAppOpenForSigning(network);
+      return this.#withLedgerApp(this.#evmLedgerAppName(network), async () => {
+        if (
+          [
+            MessageType.SIGN_TYPED_DATA,
+            MessageType.SIGN_TYPED_DATA_V1,
+            MessageType.SIGN_TYPED_DATA_V3,
+            MessageType.SIGN_TYPED_DATA_V4,
+          ].includes(messageType)
+        ) {
+          return wallet.signTypedData(data.domain, data.types, data.message);
+        } else if (
+          [MessageType.ETH_SIGN, MessageType.PERSONAL_SIGN].includes(
+            messageType,
+          )
+        ) {
+          const dataToSign = isHexString(data) ? utils.hexToBuffer(data) : data;
 
-      if (
-        [
-          MessageType.SIGN_TYPED_DATA,
-          MessageType.SIGN_TYPED_DATA_V1,
-          MessageType.SIGN_TYPED_DATA_V3,
-          MessageType.SIGN_TYPED_DATA_V4,
-        ].includes(messageType)
-      ) {
-        return wallet.signTypedData(data.domain, data.types, data.message);
-      } else if (
-        [MessageType.ETH_SIGN, MessageType.PERSONAL_SIGN].includes(messageType)
-      ) {
-        const dataToSign = isHexString(data) ? utils.hexToBuffer(data) : data;
-
-        return wallet.signMessage(dataToSign);
-      } else {
-        throw new Error(`this function is not supported on your wallet`);
-      }
+          return wallet.signMessage(dataToSign);
+        } else {
+          throw new Error(`this function is not supported on your wallet`);
+        }
+      });
     }
 
     if (messageType === MessageType.AVALANCHE_SIGN) {
