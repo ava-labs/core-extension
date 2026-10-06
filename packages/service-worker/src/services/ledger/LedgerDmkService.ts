@@ -2,6 +2,7 @@ import {
   DeviceActionStatus,
   DeviceManagementKitBuilder,
   DeviceStatus,
+  isSuccessCommandResult,
   OpenAppDeviceAction,
   type DeviceActionState,
   type DeviceManagementKit,
@@ -15,6 +16,8 @@ import {
   SignerBtcBuilder,
   WalletPolicy,
 } from '@ledgerhq/device-signer-kit-bitcoin';
+// Not re-exported from the package root; the kit only uses it internally.
+import { GetAppConfiguration } from '@ledgerhq/device-signer-kit-ethereum/internal/app-binder/command/GetAppConfigurationCommand.js';
 import { SignerSolanaBuilder } from '@ledgerhq/device-signer-kit-solana';
 import {
   getLedgerExtendedPublicKey,
@@ -42,14 +45,10 @@ import {
 } from 'rxjs';
 import { singleton } from 'tsyringe';
 import { OnLock } from '../../runtime/lifecycleCallbacks';
-import { DmkLedgerTransport } from './dmk/DmkLedgerTransport';
 
 const DEVICE_DISCOVERY_TIMEOUT_MS = 30_000;
 const DEVICE_DISCOVERY_POLL_MS = 1_000;
 const APP_INFO_TIMEOUT_MS = 30_000;
-
-/** hw-app-eth `getAppConfiguration`: CLA, INS, P1, P2. */
-export const ETH_GET_APP_CONFIGURATION = [0xe0, 0x06, 0x00, 0x00] as const;
 
 /** BOLOS status word for "application not installed". */
 const APP_NOT_INSTALLED_STATUS = '5123';
@@ -284,9 +283,16 @@ export class LedgerDmkService implements OnLock {
 
   async getEthAppConfig(): Promise<{ isBlindSigningEnabled: boolean }> {
     return this.runDeviceOperation(async ({ dmk, sessionId }) => {
-      const transport = new DmkLedgerTransport(dmk, sessionId);
-      const response = await transport.send(...ETH_GET_APP_CONFIGURATION);
-      return { isBlindSigningEnabled: Boolean((response[0] ?? 0) & 0x01) };
+      const result = await dmk.sendCommand({
+        sessionId,
+        command: new GetAppConfiguration(),
+      });
+      if (!isSuccessCommandResult(result)) {
+        throw new Error(
+          `Ethereum getAppConfiguration failed: ${JSON.stringify(result.error)}`,
+        );
+      }
+      return { isBlindSigningEnabled: result.data.blindSigningEnabled };
     });
   }
 

@@ -4,6 +4,7 @@ import {
   quitLedgerApp,
 } from '@avalabs/core-wallets-sdk';
 import { OpenAppDeviceAction } from '@ledgerhq/device-management-kit';
+import { GetAppConfiguration } from '@ledgerhq/device-signer-kit-ethereum/internal/app-binder/command/GetAppConfigurationCommand.js';
 import {
   LEDGER_DEVICE_LOCKED_ERROR,
   LEDGER_MULTIPLE_DEVICES_ERROR,
@@ -31,7 +32,13 @@ jest.mock('@ledgerhq/device-management-kit', () => ({
   OpenAppDeviceAction: class {
     constructor(readonly args: { input: { appName: string } }) {}
   },
+  isSuccessCommandResult: (result: { status: string }) =>
+    result.status === 'SUCCESS',
 }));
+jest.mock(
+  '@ledgerhq/device-signer-kit-ethereum/internal/app-binder/command/GetAppConfigurationCommand.js',
+  () => ({ GetAppConfiguration: class {} }),
+);
 jest.mock('@ledgerhq/device-signer-kit-solana', () => ({}));
 jest.mock('@ledgerhq/device-signer-kit-bitcoin', () => ({
   DefaultDescriptorTemplate: { NATIVE_SEGWIT: 'wpkh(@0/**)' },
@@ -74,7 +81,7 @@ const createDmk = () => {
         currentApp: { name: 'Avalanche', version: '1.0.0' },
       }),
     ) as jest.Mock,
-    sendApdu: jest.fn(),
+    sendCommand: jest.fn(),
     resumeRefresher,
     disableDeviceSessionRefresher: jest.fn(() => resumeRefresher),
     executeDeviceAction: jest.fn(() => ({
@@ -239,18 +246,29 @@ describe('src/background/services/ledger/LedgerDmkService.ts', () => {
     });
 
     it('reads the blind-signing flag from the Ethereum app configuration', async () => {
-      dmk.sendApdu.mockResolvedValue({
-        data: new Uint8Array([0x01, 0x01, 0x0a, 0x02]),
-        statusCode: new Uint8Array([0x90, 0x00]),
+      dmk.sendCommand.mockResolvedValue({
+        status: 'SUCCESS',
+        data: { blindSigningEnabled: true, version: '1.10.2' },
       });
 
       await expect(service.getEthAppConfig()).resolves.toEqual({
         isBlindSigningEnabled: true,
       });
-      expect(dmk.sendApdu).toHaveBeenCalledWith({
+      expect(dmk.sendCommand).toHaveBeenCalledWith({
         sessionId: 'session-1',
-        apdu: new Uint8Array([0xe0, 0x06, 0x00, 0x00, 0x00]),
+        command: expect.any(GetAppConfiguration),
       });
+    });
+
+    it('surfaces Ethereum app configuration errors', async () => {
+      dmk.sendCommand.mockResolvedValue({
+        status: 'ERROR',
+        error: { _tag: 'EthAppCommandError', errorCode: '6d00' },
+      });
+
+      await expect(service.getEthAppConfig()).rejects.toThrow(
+        'Ethereum getAppConfiguration failed: {"_tag":"EthAppCommandError","errorCode":"6d00"}',
+      );
     });
 
     it('opens the requested app with the DMK open-app device action', async () => {

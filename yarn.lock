@@ -2996,7 +2996,6 @@ __metadata:
     "@ledgerhq/device-signer-kit-ethereum": "npm:1.18.0"
     "@ledgerhq/device-signer-kit-solana": "npm:1.13.0"
     "@ledgerhq/device-transport-kit-web-hid": "npm:1.2.4"
-    "@ledgerhq/hw-transport": "npm:6.31.10"
     "@metamask/eth-sig-util": "npm:4.0.1"
     "@metamask/rpc-errors": "npm:6.3.0"
     "@noble/curves": "npm:1.6.0"

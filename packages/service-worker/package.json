@@ -47,7 +47,6 @@
     "@ledgerhq/device-signer-kit-ethereum": "1.18.0",
     "@ledgerhq/device-signer-kit-solana": "1.13.0",
     "@ledgerhq/device-transport-kit-web-hid": "1.2.4",
-    "@ledgerhq/hw-transport": "6.31.10",
     "@metamask/eth-sig-util": "4.0.1",
     "@metamask/rpc-errors": "6.3.0",
     "@noble/curves": "1.6.0",
