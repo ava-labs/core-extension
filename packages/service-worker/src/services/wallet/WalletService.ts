@@ -82,7 +82,6 @@ import { OnUnlock } from '../../runtime/lifecycleCallbacks';
 import { AccountsService } from '../accounts/AccountsService';
 import { FireblocksBTCSigner } from '../fireblocks/FireblocksBTCSigner';
 import { FireblocksService } from '../fireblocks/FireblocksService';
-import { LedgerService } from '../ledger/LedgerService';
 import { LedgerDmkService } from '../ledger/LedgerDmkService';
 import { NetworkService } from '../network/NetworkService';
 import { AddressResolver } from '../secrets/AddressResolver';
@@ -109,7 +108,6 @@ export class WalletService implements OnUnlock {
 
   constructor(
     private networkService: NetworkService,
-    private ledgerService: LedgerService,
     private ledgerDmkService: LedgerDmkService,
     private walletConnectService: WalletConnectService,
     private fireblocksService: FireblocksService,

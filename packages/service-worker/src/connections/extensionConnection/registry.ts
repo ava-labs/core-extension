@@ -45,16 +45,9 @@ import { FundTxHandler } from '../../services/gasless/handlers/fundTx';
 import { GetGaslessEligibilityHandler } from '../../services/gasless/handlers/getGaslessEligibility';
 import { SetDefaultStateValuesHandler } from '../../services/gasless/handlers/setDefaultStateValues';
 import { GetHistoryHandler } from '../../services/history/handlers/getHistory';
-import { LedgerCloseTransportEvent } from '../../services/ledger/events/ledgerCloseTransport';
-import { LedgerTransportRequestEvents } from '../../services/ledger/events/ledgerDeviceRequest';
-import { LedgerDiscoverTransportsEvents } from '../../services/ledger/events/ledgerDiscoverTransports';
-import { CloseLedgerTransportHandler } from '../../services/ledger/handlers/closeOpenTransporters';
 import { GetLedgerVersionWarningHandler } from '../../services/ledger/handlers/getLedgerVersionWarning';
-import { InitLedgerTransportHandler } from '../../services/ledger/handlers/initLedgerTransport';
 import { LedgerDeviceRequestHandler } from '../../services/ledger/handlers/ledgerDeviceRequest';
-import { LedgerResponseHandler } from '../../services/ledger/handlers/ledgerResponse';
 import { MigrateMissingPublicKeysFromLedgerHandler } from '../../services/ledger/handlers/migrateMissingPublicKeysFromLedger';
-import { RemoveLedgerTransportHandler } from '../../services/ledger/handlers/removeLedgerTransport';
 import { LedgerVersionWarningClosedHandler } from '../../services/ledger/handlers/setLedgerVersionWarningClosed';
 import { LockStateChangedEvents } from '../../services/lock/events/lockStateChangedEvent';
 import { LockChangePasswordHandler } from '../../services/lock/handlers/changeWalletPassword';
@@ -199,16 +192,12 @@ import { SetBridgeDevEnvHandler } from '~/services/settings/handlers/setBridgeDe
   { token: 'ExtensionRequestHandler', useToken: GetContactsHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateContactHandler },
   { token: 'ExtensionRequestHandler', useToken: RemoveContactHandler },
-  { token: 'ExtensionRequestHandler', useToken: InitLedgerTransportHandler },
-  { token: 'ExtensionRequestHandler', useToken: RemoveLedgerTransportHandler },
-  { token: 'ExtensionRequestHandler', useToken: LedgerResponseHandler },
   { token: 'ExtensionRequestHandler', useToken: LedgerDeviceRequestHandler },
   { token: 'ExtensionRequestHandler', useToken: LockChangePasswordHandler },
   { token: 'ExtensionRequestHandler', useToken: LockWalletHandler },
   { token: 'ExtensionRequestHandler', useToken: UnlockWalletHandler },
   { token: 'ExtensionRequestHandler', useToken: GetLockStateHandler },
   { token: 'ExtensionRequestHandler', useToken: GetNavigationHistoryHandler },
-  { token: 'ExtensionRequestHandler', useToken: CloseLedgerTransportHandler },
   {
     token: 'ExtensionRequestHandler',
     useToken: GetNavigationHistoryDataHandler,
@@ -543,11 +532,8 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: ContactsUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: SettingsUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: PermissionStateUpdateEvents },
-  { token: 'ExtensionEventEmitter', useToken: LedgerTransportRequestEvents },
-  { token: 'ExtensionEventEmitter', useToken: LedgerDiscoverTransportsEvents },
   { token: 'ExtensionEventEmitter', useToken: LockStateChangedEvents },
   { token: 'ExtensionEventEmitter', useToken: FeatureFlagsUpdatedEvent },
-  { token: 'ExtensionEventEmitter', useToken: LedgerCloseTransportEvent },
   { token: 'ExtensionEventEmitter', useToken: WalletUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: CurrencyRatesUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: DefiPortfolioUpdatedEvents },

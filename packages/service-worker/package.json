@@ -47,10 +47,7 @@
     "@ledgerhq/device-signer-kit-ethereum": "1.18.0",
     "@ledgerhq/device-signer-kit-solana": "1.13.0",
     "@ledgerhq/device-transport-kit-web-hid": "1.2.4",
-    "@ledgerhq/hw-app-btc": "10.11.0",
-    "@ledgerhq/hw-app-eth": "6.45.18",
-    "@ledgerhq/hw-app-solana": "7.5.3",
-    "@ledgerhq/hw-transport-webusb": "6.29.10",
+    "@ledgerhq/hw-transport": "6.31.10",
     "@metamask/eth-sig-util": "4.0.1",
     "@metamask/rpc-errors": "6.3.0",
     "@noble/curves": "1.6.0",
@@ -84,7 +81,6 @@
     "joi": "17.7.0",
     "jose": "4.15.5",
     "json-rpc-engine": "6.1.0",
-    "ledger-bitcoin": "0.2.3",
     "lodash": "4.17.23",
     "lru-cache": "7.10.1",
     "micro-key-producer": "0.7.5",
@@ -174,7 +170,6 @@
     "nth-check": "2.0.1",
     "json5": "2.2.2",
     "got": "11.8.5",
-    "@ledgerhq/hw-app-eth": "6.45.18",
     "@ledgerhq/hw-transport": "6.31.10"
   },
   "private": true

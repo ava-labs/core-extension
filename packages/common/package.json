@@ -13,6 +13,7 @@
     "test:watch": "yarn jest --watch"
   },
   "dependencies": {
+    "@ledgerhq/hw-transport": "6.31.10",
     "big.js": "6.1.1",
     "bitcoinjs-lib": "6.1.8"
   },

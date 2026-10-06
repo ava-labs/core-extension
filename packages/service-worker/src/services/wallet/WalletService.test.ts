@@ -3,7 +3,6 @@ import { BaseWallet, HDNodeWallet, SigningKey, Wallet } from 'ethers';
 import { WalletService } from './WalletService';
 import { AddressPublicKeyJson, MessageType } from '@core/types';
 import { NetworkService } from '../network/NetworkService';
-import { LedgerService } from '../ledger/LedgerService';
 import { LedgerDmkService } from '../ledger/LedgerDmkService';
 import {
   personalSign,
@@ -32,11 +31,11 @@ import {
   LedgerSigner,
   getWalletFromMnemonic,
 } from '@avalabs/core-wallets-sdk';
-import { LedgerTransport } from '../ledger/LedgerTransport';
+import type Transport from '@ledgerhq/hw-transport';
 import getDerivationPath from './utils/getDerivationPath';
 import ensureMessageFormatIsValid from './utils/ensureMessageFormatIsValid';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
-import { WalletPolicy } from 'ledger-bitcoin';
+import type { WalletPolicy } from '@ledgerhq/device-signer-kit-bitcoin';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { WalletConnectStorage } from '../walletConnect/WalletConnectStorage';
 import { WalletConnectSigner } from '../walletConnect/WalletConnectSigner';
@@ -64,7 +63,6 @@ import { NetworkVMType } from '@avalabs/vm-module-types';
 jest.mock('../network/NetworkService');
 jest.mock('../secrets/SecretsService');
 jest.mock('../secrets/AddressResolver');
-jest.mock('../ledger/LedgerService');
 jest.mock('../ledger/LedgerDmkService');
 jest.mock('./utils/ensureMessageFormatIsValid');
 jest.mock('@avalabs/core-wallets-sdk');
@@ -119,24 +117,24 @@ const LEDGER_GET_APP_AND_VERSION_BITCOIN_OK = Buffer.concat([
 ]);
 
 /** Transport `send` shape so `ensureLedgerAppOpen` is a no-op (already on Avalanche). */
-function createLedgerTransportMockWithAvalancheAppOpen(): LedgerTransport {
+function createLedgerTransportMockWithAvalancheAppOpen(): Transport {
   return {
     send: jest.fn().mockResolvedValue(LEDGER_GET_APP_AND_VERSION_AVALANCHE_OK),
-  } as unknown as LedgerTransport;
+  } as unknown as Transport;
 }
 
 /** Transport `send` shape so `ensureLedgerAppOpen` is a no-op (already on Ethereum). */
-function createLedgerTransportMockWithEthereumAppOpen(): LedgerTransport {
+function createLedgerTransportMockWithEthereumAppOpen(): Transport {
   return {
     send: jest.fn().mockResolvedValue(LEDGER_GET_APP_AND_VERSION_ETHEREUM_OK),
-  } as unknown as LedgerTransport;
+  } as unknown as Transport;
 }
 
 /** Transport `send` shape so `ensureLedgerAppOpen` is a no-op (already on Bitcoin Recovery). */
-function createLedgerTransportMockWithBitcoinAppOpen(): LedgerTransport {
+function createLedgerTransportMockWithBitcoinAppOpen(): Transport {
   return {
     send: jest.fn().mockResolvedValue(LEDGER_GET_APP_AND_VERSION_BITCOIN_OK),
-  } as unknown as LedgerTransport;
+  } as unknown as Transport;
 }
 
 const dmkMock = { id: 'dmk' } as any;
@@ -145,7 +143,6 @@ const sessionIdMock = 'session-id' as any;
 describe('background/services/wallet/WalletService.ts', () => {
   let walletService: WalletService;
   let networkService: NetworkService;
-  let ledgerService: LedgerService;
   let ledgerDmkService: jest.Mocked<LedgerDmkService>;
   let walletConnectService: WalletConnectService;
   let fireblocksService: FireblocksService;
@@ -396,7 +393,6 @@ describe('background/services/wallet/WalletService.ts', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     networkService = new NetworkService({} as any, {} as any, {} as any);
-    ledgerService = new LedgerService();
     ledgerDmkService = new LedgerDmkService() as jest.Mocked<LedgerDmkService>;
     ledgerDmkService.getSession.mockResolvedValue({
       dmk: dmkMock,
@@ -440,7 +436,6 @@ describe('background/services/wallet/WalletService.ts', () => {
 
     walletService = new WalletService(
       networkService,
-      ledgerService,
       ledgerDmkService,
       walletConnectService,
       fireblocksService,

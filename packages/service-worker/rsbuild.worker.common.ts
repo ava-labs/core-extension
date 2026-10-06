@@ -57,7 +57,7 @@ export default ({ generateLavaMoatPolicy }: CommonConfigOptions) =>
           // Joi by default goes to browser-specific version which does not include the list of TLDS (which we need for email validation)
           joi: require.resolve('joi/lib/index.js'),
         },
-        dedupe: ['bn.js', 'ledger-bitcoin'],
+        dedupe: ['bn.js'],
         fallback: {
           path: false,
           fs: false,

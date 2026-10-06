@@ -2,7 +2,6 @@ import {
   ExtensionRequest,
   LEDGER_DEVICE_LOCKED_ERROR,
   LEDGER_MULTIPLE_DEVICES_ERROR,
-  LedgerEvent,
   LockEvents,
 } from '@core/types';
 import {
@@ -276,7 +275,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
         ).toBe('true');
       });
 
-      eventSubject.next({ name: LedgerEvent.TRANSPORT_REQUEST, value: {} });
+      eventSubject.next({ name: 'some-unrelated-event', value: {} });
 
       await waitFor(() => {
         expect(

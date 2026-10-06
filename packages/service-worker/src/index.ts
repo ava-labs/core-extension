@@ -42,17 +42,13 @@ export type { GetGaslessEligibilityHandler } from './services/gasless/handlers/g
 export type { SetDefaultStateValuesHandler } from './services/gasless/handlers/setDefaultStateValues';
 export type { SetGaslessHexValues } from './services/gasless/handlers/setHexValues';
 export type { GetHistoryHandler } from './services/history/handlers/getHistory';
-export type { CloseLedgerTransportHandler } from './services/ledger/handlers/closeOpenTransporters';
 export type { GetLedgerVersionWarningHandler } from './services/ledger/handlers/getLedgerVersionWarning';
-export type { InitLedgerTransportHandler } from './services/ledger/handlers/initLedgerTransport';
 export type {
   LedgerDeviceRequestHandler,
   LedgerDeviceRequestParams,
   LedgerDeviceRequestResult,
 } from './services/ledger/handlers/ledgerDeviceRequest';
-export type { LedgerResponseHandler } from './services/ledger/handlers/ledgerResponse';
 export type { MigrateMissingPublicKeysFromLedgerHandler } from './services/ledger/handlers/migrateMissingPublicKeysFromLedger';
-export type { RemoveLedgerTransportHandler } from './services/ledger/handlers/removeLedgerTransport';
 export type { LedgerVersionWarningClosedHandler } from './services/ledger/handlers/setLedgerVersionWarningClosed';
 export type { LockChangePasswordHandler } from './services/lock/handlers/changeWalletPassword';
 export type { GetLockStateHandler } from './services/lock/handlers/getLockState';

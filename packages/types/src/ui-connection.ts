@@ -110,12 +110,6 @@ export enum ExtensionRequest {
 
   NETWORK_FEE_GET = 'network_fee_get',
 
-  LEDGER_INIT_TRANSPORT = 'ledger_init_transport',
-  LEDGER_HAS_TRANSPORT = 'ledger_has_transport',
-  LEDGER_RESPONSE = 'ledger_response',
-  LEDGER_REMOVE_TRANSPORT = 'ledger_remove_transport',
-  LEDGER_CLOSE_TRANSPORT = 'ledger_close_transport',
-
   LEDGER_DEVICE_REQUEST = 'ledger_device_request',
   SHOW_LEDGER_VERSION_WARNING = 'show_ledger_version_warning',
   LEDGER_VERSION_WARNING_CLOSED = 'ledger_version_warning_closed',

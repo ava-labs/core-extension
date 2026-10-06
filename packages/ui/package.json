@@ -23,11 +23,6 @@
     "@ethereumjs/common": "2.6.5",
     "@ethereumjs/tx": "3.4.0",
     "@google/generative-ai": "0.22.0",
-    "@ledgerhq/hw-app-btc": "10.11.0",
-    "@ledgerhq/hw-app-eth": "6.45.18",
-    "@ledgerhq/hw-app-solana": "7.5.3",
-    "@ledgerhq/hw-transport-webhid": "patch:@ledgerhq/hw-transport-webhid@npm%3A6.30.6#~/.yarn/patches/@ledgerhq-hw-transport-webhid-npm-6.30.6-fe45318f22.patch",
-    "@ledgerhq/hw-transport-webusb": "6.29.10",
     "@metamask/eth-sig-util": "4.0.1",
     "@metamask/rpc-errors": "6.3.0",
     "@noble/curves": "1.6.0",
@@ -55,7 +50,6 @@
     "hypersdk-client": "0.4.17",
     "i18next": "21.9.2",
     "i18next-http-backend": "1.4.4",
-    "ledger-bitcoin": "0.2.3",
     "lodash": "4.17.23",
     "lru-cache": "7.10.1",
     "micro-signals": "2.4.0",
@@ -146,9 +140,7 @@
     "minimatch": "3.0.5",
     "nth-check": "2.0.1",
     "json5": "2.2.2",
-    "got": "11.8.5",
-    "@ledgerhq/hw-app-eth": "6.36.1",
-    "@ledgerhq/hw-transport": "6.31.10"
+    "got": "11.8.5"
   },
   "private": true
 }
