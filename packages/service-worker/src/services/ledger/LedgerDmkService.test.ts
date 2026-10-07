@@ -362,6 +362,14 @@ describe('src/background/services/ledger/LedgerDmkService.ts', () => {
       expect(dmk.resumeRefresher).toHaveBeenCalledTimes(1);
     });
 
+    it('does not wait for a BUSY session status to clear before running', async () => {
+      dmk.getDeviceSessionState.mockReturnValue(of({ deviceStatus: 'BUSY' }));
+
+      await expect(
+        service.runDeviceOperation(async () => 'done'),
+      ).resolves.toBe('done');
+    });
+
     it('resumes the refresher when the operation fails', async () => {
       await expect(
         service.runDeviceOperation(async () => {

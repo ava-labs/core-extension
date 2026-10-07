@@ -151,24 +151,6 @@ export class LedgerDmkService implements OnLock {
     return { dmk, sessionId };
   }
 
-  async #waitUntilDeviceCanExchange({
-    dmk,
-    sessionId,
-  }: DmkSession): Promise<void> {
-    await firstValueFrom(
-      dmk.getDeviceSessionState({ sessionId }).pipe(
-        map((s) => {
-          if (s.deviceStatus === DeviceStatus.LOCKED) {
-            throw new Error(LEDGER_DEVICE_LOCKED_ERROR);
-          }
-          return s;
-        }),
-        filter((s) => s.deviceStatus !== DeviceStatus.BUSY),
-        timeout(APP_INFO_TIMEOUT_MS),
-      ),
-    );
-  }
-
   async #connect(dmk: DeviceManagementKit): Promise<DeviceSessionId> {
     const devices: DiscoveredDevice[] = await firstValueFrom(
       timer(0, DEVICE_DISCOVERY_POLL_MS).pipe(
@@ -221,7 +203,6 @@ export class LedgerDmkService implements OnLock {
     this.#activeOperations += 1;
 
     try {
-      await this.#waitUntilDeviceCanExchange(session);
       return await fn(session);
     } finally {
       this.#activeOperations -= 1;
