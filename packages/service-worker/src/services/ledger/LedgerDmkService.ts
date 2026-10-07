@@ -43,6 +43,7 @@ import {
   timeout,
   timer,
 } from 'rxjs';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { singleton } from 'tsyringe';
 import { OnLock } from '../../runtime/lifecycleCallbacks';
 
@@ -323,7 +324,7 @@ export class LedgerDmkService implements OnLock {
         dmk,
         sessionId,
         // Address derivation never hits the RPC, so the network choice doesn't matter here.
-        solanaRPCURL: getSolanaRpcUrl({ isTestnet: false }),
+        solanaRPCURL: getSolanaRpcUrl({ chainId: ChainId.SOLANA_MAINNET_ID }),
       }).build();
       // Solana app expects the derivation path without the `m/` root.
       const path = `44'/501'/${accountIndex}'/0'`;

@@ -1,6 +1,7 @@
 import {
   BITCOIN_NETWORK,
   BITCOIN_TEST_NETWORK,
+  ChainId,
   NetworkVMType,
 } from '@avalabs/core-chains-sdk';
 import {
@@ -10,10 +11,7 @@ import {
   getSolanaProvider,
 } from '@avalabs/core-wallets-sdk';
 import { FetchRequest, Network } from 'ethers';
-import {
-  getProviderForNetwork,
-  getSolanaRpcUrl,
-} from './getProviderForNetwork';
+import { getProviderForNetwork } from './getProviderForNetwork';
 import { addGlacierAPIKeyIfNeeded } from './addGlacierAPIKeyIfNeeded';
 import { decorateWithCaipId } from '../caipConversion';
 
@@ -28,9 +26,9 @@ jest.mock('@avalabs/core-wallets-sdk', () => {
 
   return {
     ...actual,
+    getSolanaProvider: jest.fn().mockReturnValue({ solana: true }),
     BitcoinProvider: BitcoinProviderMock,
     JsonRpcBatchInternal: JsonRpcBatchInternalMock,
-    getSolanaProvider: jest.fn(),
     Avalanche: {
       ...actual.Avalanche,
       JsonRpcProvider: {
@@ -254,43 +252,48 @@ describe('src/utils/network/getProviderForNetwork', () => {
     ).toHaveBeenCalledTimes(1);
   });
 
-  describe('Solana', () => {
-    const mockSolanaProviderInstance = {};
-    const mockSolanaNetwork = (isTestnet: boolean) => ({
-      ...mockNetwork(NetworkVMType.EVM, isTestnet),
-      vmName: NetworkVMType.SVM,
-    });
+  describe('Solana cluster routing', () => {
+    // Built directly rather than through `mockNetwork`, whose `decorateWithCaipId`
+    // does not know this test's synthetic chain ids.
+    const solanaNetwork = (chainId: number, isTestnet: boolean) =>
+      ({
+        chainName: 'Solana',
+        chainId,
+        vmName: NetworkVMType.SVM,
+        rpcUrl: 'https://rpcurl.example',
+        isTestnet,
+      }) as any;
 
-    beforeEach(() => {
-      jest
-        .mocked(getSolanaProvider)
-        .mockReturnValue(mockSolanaProviderInstance as any);
-    });
-
-    it('uses the public devnet RPC for testnet', async () => {
-      const network = mockSolanaNetwork(true);
-
-      expect(getSolanaRpcUrl(network)).toBe('https://api.devnet.solana.com');
-      await expect(getProviderForNetwork(network)).resolves.toBe(
-        mockSolanaProviderInstance,
+    it('routes Devnet to the Devnet RPC', async () => {
+      await getProviderForNetwork(
+        solanaNetwork(ChainId.SOLANA_DEVNET_ID, true),
       );
+
       expect(getSolanaProvider).toHaveBeenCalledWith({
         isTestnet: true,
         rpcUrl: 'https://api.devnet.solana.com',
       });
     });
 
-    it('uses the proxied RPC for mainnet', async () => {
-      const network = mockSolanaNetwork(false);
-      const proxyUrl = `${process.env.PROXY_URL}/proxy/nownodes/sol`;
-
-      expect(getSolanaRpcUrl(network)).toBe(proxyUrl);
-      await expect(getProviderForNetwork(network)).resolves.toBe(
-        mockSolanaProviderInstance,
+    it('routes Testnet to the Testnet RPC rather than Devnet', async () => {
+      await getProviderForNetwork(
+        solanaNetwork(ChainId.SOLANA_TESTNET_ID, true),
       );
+
+      expect(getSolanaProvider).toHaveBeenCalledWith({
+        isTestnet: true,
+        rpcUrl: 'https://api.testnet.solana.com',
+      });
+    });
+
+    it('routes Mainnet through the proxy', async () => {
+      await getProviderForNetwork(
+        solanaNetwork(ChainId.SOLANA_MAINNET_ID, false),
+      );
+
       expect(getSolanaProvider).toHaveBeenCalledWith({
         isTestnet: false,
-        rpcUrl: proxyUrl,
+        rpcUrl: expect.stringContaining('/proxy/nownodes/sol'),
       });
     });
   });

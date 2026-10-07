@@ -272,7 +272,9 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
     type: MfaRequestType,
     request: CubeSignerResponse<T>,
     tabId?: number,
+    retryCount = 0,
   ): Promise<CubeSignerResponse<T>> {
+    const MAX_MFA_RETRIES = 5;
     try {
       if (type === MfaRequestType.Totp) {
         const code = await this.requestMfa({
@@ -321,10 +323,14 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
     } catch (err) {
       // Only repeat the prompt if it was an MFA failure
       if (isFailedMfaError(err)) {
+        if (retryCount >= MAX_MFA_RETRIES) {
+          this.clearMfaChallenge(request.mfaId(), tabId);
+          throw new Error('Maximum MFA attempts exceeded');
+        }
         // Emit error & retry
         await this.emitMfaError(request.mfaId(), tabId);
 
-        return this.approveWithMfa(type, request, tabId);
+        return this.approveWithMfa(type, request, tabId, retryCount + 1);
       }
 
       this.clearMfaChallenge(request.mfaId(), tabId);

@@ -1,6 +1,6 @@
 import { Fade, Stack, Typography } from '@avalabs/k2-alpine';
 
-import { stringToBigint } from '@core/common';
+import { safeStringToBigint } from '@core/common';
 import {
   BtcCapableAccount,
   BtcTokenBalance,
@@ -32,7 +32,7 @@ export const BtcSendBody = ({
   network,
 }: BtcSendBodyProps) => {
   const to = getRecipientAddressByType(recipient, 'BTC');
-  const amountBigInt = stringToBigint(amount || '0', token.decimals);
+  const amountBigInt = safeStringToBigint(amount || '0', token.decimals);
   const { t } = useTranslation();
 
   const { isSending, isValid, error, send } = useBtcSend({

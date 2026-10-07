@@ -63,6 +63,7 @@ describe('background/services/actions/ActionsService.ts', () => {
 
     approvalController = {
       onApproved: jest.fn(),
+      ownsAction: jest.fn().mockReturnValue(true),
       onRejected: jest.fn(),
       updateTx: jest.fn(),
       updateTxInBatch: jest.fn(),
@@ -317,6 +318,34 @@ describe('background/services/actions/ActionsService.ts', () => {
         uuid: expectedResult,
       });
     });
+
+    // Bounty #83628: actions are keyed by `actionId`, so re-using a pending
+    // id would swap the payload out from under an approval the user is
+    // reviewing.
+    it('rejects an action whose id is already pending', async () => {
+      (storageService.load as jest.Mock).mockResolvedValue({
+        uuid: mockAction,
+      });
+
+      await expect(
+        actionsService.addAction({ ...mockAction } as any),
+      ).rejects.toThrow('An action with id uuid already exists');
+
+      expect(storageService.save).not.toHaveBeenCalled();
+    });
+
+    it('rejects an action without an id', async () => {
+      (storageService.load as jest.Mock).mockResolvedValue({});
+
+      await expect(
+        actionsService.addAction({
+          ...mockAction,
+          actionId: undefined,
+        } as any),
+      ).rejects.toThrow('Cannot add an action without an id');
+
+      expect(storageService.save).not.toHaveBeenCalled();
+    });
   });
 
   describe('removeAction', () => {
@@ -380,6 +409,28 @@ describe('background/services/actions/ActionsService.ts', () => {
 
         expect(approvalController.onApproved).toHaveBeenCalledWith(action);
         expect(actionsService.removeAction).toHaveBeenCalledWith(1);
+      });
+
+      // Bounty #83628 (CX-4): the module marker is just a field on the stored
+      // action. A request that merely claims to be module-handled must still
+      // run through its real handler instead of the signing path.
+      it('ignores the module marker when the ApprovalController does not own the action', async () => {
+        approvalController.ownsAction.mockReturnValue(false);
+
+        const action = {
+          ...mockAction,
+          method: 'handler_with_callback',
+          [ACTION_HANDLED_BY_MODULE]: true,
+        };
+        (storageService.load as jest.Mock).mockResolvedValue({ 1: action });
+
+        await actionsService.updateAction({
+          status: ActionStatus.SUBMITTING,
+          id: 1,
+        });
+
+        expect(approvalController.onApproved).not.toHaveBeenCalled();
+        expect(handlerWithCallback.onActionApproved).toHaveBeenCalled();
       });
 
       it('emits error when handler not compatible or missing', async () => {

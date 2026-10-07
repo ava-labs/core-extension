@@ -642,9 +642,15 @@ describe('background/services/network/NetworkService', () => {
 
   describe('saveCustomNetwork()', () => {
     let customNetwork;
+    let rpcSpy: jest.SpyInstance;
 
     beforeEach(async () => {
       customNetwork = mockNetwork(NetworkVMType.EVM, false);
+      rpcSpy = jest.spyOn(service, 'isValidRPCUrl').mockResolvedValue(true);
+    });
+
+    afterEach(() => {
+      rpcSpy.mockRestore();
     });
 
     it('should throw an error because of the chainlist failed to load', async () => {
@@ -660,7 +666,11 @@ describe('background/services/network/NetworkService', () => {
     });
 
     it('should throw an error because of duplicated ID', async () => {
-      const newCustomNetwork = { ...customNetwork, chainId: 43114 };
+      const newCustomNetwork = {
+        ...customNetwork,
+        chainId: 43114,
+        caipId: 'eip155:43114',
+      };
       await expect(service.saveCustomNetwork(newCustomNetwork)).rejects.toThrow(
         'chain ID already exists',
       );
@@ -772,6 +782,88 @@ describe('background/services/network/NetworkService', () => {
       expect(storedNetwork).toBeDefined();
       expect('customRpcHeaders' in storedNetwork!).toBe(
         'customRpcHeaders' in networkWithoutHeaders,
+      );
+    });
+
+    it('rejects a network that carries neither chainId nor caipId', async () => {
+      await expect(
+        service.saveCustomNetwork({
+          ...customNetwork,
+          chainId: undefined,
+          caipId: undefined,
+        }),
+      ).rejects.toThrow('Network is missing a usable chain ID');
+      expect(service.isValidRPCUrl).not.toHaveBeenCalled();
+    });
+
+    it('rejects a network whose chainId is not a number', async () => {
+      await expect(
+        service.saveCustomNetwork({
+          ...customNetwork,
+          chainId: 'not-a-chain-id',
+        } as any),
+      ).rejects.toThrow('Network is missing a usable chain ID');
+    });
+
+    it('rejects a chainId that disagrees with caipId', async () => {
+      await expect(
+        service.saveCustomNetwork({
+          ...customNetwork,
+          chainId: 123,
+          caipId: 'eip155:999',
+        }),
+      ).rejects.toThrow('chainId does not match caipId');
+    });
+
+    it('derives the chain id from caipId when chainId is absent', async () => {
+      const saved = await service.saveCustomNetwork({
+        ...customNetwork,
+        chainId: undefined,
+        caipId: 'eip155:4242',
+      } as any);
+
+      expect(saved.chainId).toBe(4242);
+      expect(saved.caipId).toBe('eip155:4242');
+      expect(service.isValidRPCUrl).toHaveBeenCalledWith(
+        4242,
+        customNetwork.rpcUrl,
+      );
+    });
+
+    it('rejects a private RPC URL while the wallet is on mainnet', async () => {
+      await expect(
+        service.saveCustomNetwork({
+          ...customNetwork,
+          rpcUrl: 'http://127.0.0.1:8545',
+        }),
+      ).rejects.toThrow(
+        'RPC URL must use HTTPS and must not target a private address',
+      );
+      expect(service.isValidRPCUrl).not.toHaveBeenCalled();
+    });
+
+    it('allows a private RPC URL in testnet mode', async () => {
+      const networkService = service as any;
+      const previous = networkService._uiActiveNetwork;
+      networkService._uiActiveNetwork = { isTestnet: true };
+
+      try {
+        const saved = await service.saveCustomNetwork({
+          ...customNetwork,
+          rpcUrl: 'http://127.0.0.1:8545',
+        });
+
+        expect(saved.rpcUrl).toBe('http://127.0.0.1:8545');
+      } finally {
+        networkService._uiActiveNetwork = previous;
+      }
+    });
+
+    it('rejects an RPC URL that does not serve the chain id', async () => {
+      jest.mocked(service.isValidRPCUrl).mockResolvedValue(false);
+
+      await expect(service.saveCustomNetwork(customNetwork)).rejects.toThrow(
+        'ChainID does not match the rpc url',
       );
     });
 

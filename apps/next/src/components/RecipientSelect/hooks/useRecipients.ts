@@ -1,13 +1,18 @@
 import { useMemo } from 'react';
 import { AddressType } from '@core/types';
 import {
+  isBtcAddressInNetwork,
   isValidAddress,
   isValidPvmAddress,
   isValidAvmAddress,
   isValidBtcAddress,
   isValidSvmAddress,
 } from '@core/common';
-import { useAccountsContext, useContactsContext } from '@core/ui';
+import {
+  useAccountsContext,
+  useContactsContext,
+  useNetworkContext,
+} from '@core/ui';
 
 import { getAddressByType } from '@/utils/getAddressByType';
 
@@ -21,6 +26,7 @@ export const useRecipients = (
 ): Recipient[] => {
   const { allAccounts } = useAccountsContext();
   const { contacts } = useContactsContext();
+  const { isDeveloperMode } = useNetworkContext();
 
   const accountRecipients = useMemo(
     () =>
@@ -65,7 +71,7 @@ export const useRecipients = (
   // Only include unknown recipient if address is valid and doesn't exist in accounts/contacts
   const unknownRecipient =
     unknownAddress &&
-    isValidAddressForType(unknownAddress, addressType) &&
+    isValidAddressForType(unknownAddress, addressType, isDeveloperMode) &&
     !addressExistsInRecipients
       ? buildRecipient('unknown', unknownAddress)
       : undefined;
@@ -77,16 +83,23 @@ export const useRecipients = (
   ] as const;
 };
 
-const isValidAddressForType = (address: string, addressType: AddressType) => {
+const isValidAddressForType = (
+  address: string,
+  addressType: AddressType,
+  // BTC and X/P addresses must be validated against the active network
+  isTestnet: boolean,
+) => {
   switch (addressType) {
     case 'C':
       return isValidAddress(address);
     case 'BTC':
-      return isValidBtcAddress(address);
+      return (
+        isValidBtcAddress(address) && isBtcAddressInNetwork(address, !isTestnet)
+      );
     case 'AVM':
-      return isValidAvmAddress(address);
+      return isValidAvmAddress(address, isTestnet);
     case 'PVM':
-      return isValidPvmAddress(address);
+      return isValidPvmAddress(address, isTestnet);
     case 'SVM':
       return isValidSvmAddress(address);
     default:
