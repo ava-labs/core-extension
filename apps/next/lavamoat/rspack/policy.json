@@ -307,7 +307,7 @@
         "@avalabs/vm-module-types": true,
         "@core/types": true,
         "@cubist-labs/cubesigner-sdk": true,
-        "@core/ui>ledger-bitcoin>@ledgerhq/hw-transport": true,
+        "@core/common>@ledgerhq/hw-transport": true,
         "ethers>@noble/hashes": true,
         "@core/ui>@sentry/browser": true,
         "@core/ui>@sentry/browser>@sentry/core": true,
@@ -682,12 +682,12 @@
         "@core/service-worker>@ledgerhq/device-management-kit>xstate": true
       }
     },
-    "@core/ui>@ledgerhq/hw-app-eth>@ledgerhq/errors": {
+    "@core/common>@ledgerhq/hw-transport>@ledgerhq/errors": {
       "globals": {
         "console.warn": true
       }
     },
-    "@core/ui>ledger-bitcoin>@ledgerhq/hw-transport": {
+    "@core/common>@ledgerhq/hw-transport": {
       "globals": {
         "Buffer.alloc": true,
         "Buffer.concat": true,
@@ -697,13 +697,13 @@
         "setTimeout": true
       },
       "packages": {
-        "@core/ui>@ledgerhq/hw-app-eth>@ledgerhq/errors": true,
-        "@core/ui>@ledgerhq/hw-app-btc>@ledgerhq/logs": true,
+        "@core/common>@ledgerhq/hw-transport>@ledgerhq/errors": true,
+        "@core/common>@ledgerhq/hw-transport>@ledgerhq/logs": true,
         "@rsbuild/plugin-node-polyfill>buffer": true,
         "@core/ui>events": true
       }
     },
-    "@core/ui>@ledgerhq/hw-app-btc>@ledgerhq/logs": {
+    "@core/common>@ledgerhq/hw-transport>@ledgerhq/logs": {
       "globals": {
         "__ledgerLogsListen": "write",
         "console.error": true
@@ -1969,7 +1969,7 @@
         "@rsbuild/plugin-node-polyfill>buffer": true
       }
     },
-    "@core/ui>@ledgerhq/hw-app-btc>bs58>base-x": {
+    "@core/ui>bip32>bs58check>bs58>base-x": {
       "packages": {
         "@avalabs/core-wallets-sdk>hdkey>safe-buffer": true
       }
@@ -2244,17 +2244,17 @@
     },
     "@core/service-worker>@ledgerhq/device-signer-kit-solana>@solana/web3.js>bs58": {
       "packages": {
-        "@core/ui>@ledgerhq/hw-app-btc>bs58>base-x": true
+        "@core/ui>bip32>bs58check>bs58>base-x": true
       }
     },
     "@core/service-worker>@ledgerhq/device-signer-kit-solana>@solana/web3.js>borsh>bs58": {
       "packages": {
-        "@core/ui>@ledgerhq/hw-app-btc>bs58>base-x": true
+        "@core/ui>bip32>bs58check>bs58>base-x": true
       }
     },
     "@core/ui>bip32>bs58check>bs58": {
       "packages": {
-        "@core/ui>@ledgerhq/hw-app-btc>bs58>base-x": true
+        "@core/ui>bip32>bs58check>bs58>base-x": true
       }
     },
     "@core/ui>bip32>bs58check": {
@@ -2402,8 +2402,8 @@
         "@avalabs/core-wallets-sdk>create-hash>cipher-base": true,
         "bestzip>glob>inherits": true,
         "@avalabs/core-wallets-sdk>create-hash>md5.js": true,
-        "@core/ui>@ledgerhq/hw-app-btc>ripemd160": true,
-        "@core/ui>@ledgerhq/hw-app-btc>sha.js": true
+        "@avalabs/core-wallets-sdk>create-hash>ripemd160": true,
+        "@avalabs/core-wallets-sdk>create-hash>sha.js": true
       }
     },
     "@core/ui>bip39>pbkdf2>create-hash": {
@@ -2419,9 +2419,9 @@
         "@avalabs/core-wallets-sdk>create-hash>cipher-base": true,
         "@avalabs/core-wallets-sdk>create-hash": true,
         "bestzip>glob>inherits": true,
-        "@core/ui>@ledgerhq/hw-app-btc>ripemd160": true,
+        "@avalabs/core-wallets-sdk>create-hash>ripemd160": true,
         "@avalabs/core-wallets-sdk>hdkey>safe-buffer": true,
-        "@core/ui>@ledgerhq/hw-app-btc>sha.js": true
+        "@avalabs/core-wallets-sdk>create-hash>sha.js": true
       }
     },
     "@core/ui>i18next-http-backend>cross-fetch": {
@@ -2895,7 +2895,7 @@
         "@avalabs/core-wallets-sdk>hdkey>safe-buffer": true
       }
     },
-    "@core/ui>@ledgerhq/hw-app-btc>ripemd160>hash-base": {
+    "@avalabs/core-wallets-sdk>create-hash>ripemd160>hash-base": {
       "packages": {
         "bestzip>glob>inherits": true,
         "bestzip>archiver>readable-stream": true,
@@ -3459,7 +3459,7 @@
         "@rsbuild/plugin-node-polyfill>process": true,
         "@core/ui>bip39>pbkdf2>ripemd160": true,
         "@avalabs/core-wallets-sdk>hdkey>safe-buffer": true,
-        "@core/ui>@ledgerhq/hw-app-btc>sha.js": true,
+        "@avalabs/core-wallets-sdk>create-hash>sha.js": true,
         "@core/ui>bip39>pbkdf2>to-buffer": true
       }
     },
@@ -3831,10 +3831,10 @@
         "react-markdown>mdast-util-to-hast": true
       }
     },
-    "@core/ui>@ledgerhq/hw-app-btc>ripemd160": {
+    "@avalabs/core-wallets-sdk>create-hash>ripemd160": {
       "packages": {
         "@core/service-worker>buffer": true,
-        "@core/ui>@ledgerhq/hw-app-btc>ripemd160>hash-base": true,
+        "@avalabs/core-wallets-sdk>create-hash>ripemd160>hash-base": true,
         "bestzip>glob>inherits": true
       }
     },
@@ -3947,7 +3947,7 @@
         "eslint-plugin-react>es-iterator-helpers>has-property-descriptors": true
       }
     },
-    "@core/ui>@ledgerhq/hw-app-btc>sha.js": {
+    "@avalabs/core-wallets-sdk>create-hash>sha.js": {
       "packages": {
         "bestzip>glob>inherits": true,
         "@avalabs/core-wallets-sdk>hdkey>safe-buffer": true,
