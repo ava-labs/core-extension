@@ -33,21 +33,48 @@ export function deserializeFromJSON<T>(value?: string): T | undefined {
   });
 }
 
+const VALID_TYPES = new Set<string>([
+  'Big',
+  'BigNumber',
+  'BN',
+  'BigInt',
+  'Buffer',
+  'Uint8Array',
+]);
+const MAX_NUMERIC_STRING_LENGTH = 1_000;
+const MAX_ARRAY_LENGTH = 100_000;
+
 function deserializeValue({
   type,
   value,
 }: DeserializableValue): SerializableValue {
+  const assertSafeNumericString: (v: unknown) => asserts v is string = (v) => {
+    if (typeof v !== 'string' || v.length > MAX_NUMERIC_STRING_LENGTH) {
+      throw new Error('value too large');
+    }
+  };
+  const assertBoundedArray: (v: unknown) => asserts v is number[] = (v) => {
+    if (!Array.isArray(v) || v.length > MAX_ARRAY_LENGTH) {
+      throw new Error('value too large');
+    }
+  };
+
   switch (type) {
     case 'Big':
+      assertSafeNumericString(value);
       return new Big(value);
     case 'BN':
+      assertSafeNumericString(value);
       return new BN(value);
     case 'BigNumber':
     case 'BigInt':
+      assertSafeNumericString(value);
       return BigInt(value);
     case 'Buffer':
+      assertBoundedArray(value);
       return Buffer.from(value);
     case 'Uint8Array':
+      assertBoundedArray(value);
       return Uint8Array.from(value);
     default:
       throw new Error('unhandled serialization');
@@ -60,6 +87,7 @@ function isDeserializable(obj: unknown): obj is DeserializableValue {
     obj != null &&
     'type' in obj &&
     'value' in obj &&
-    Object.keys(obj).length === 2
+    Object.keys(obj).length === 2 &&
+    VALID_TYPES.has((obj as { type: string }).type)
   );
 }

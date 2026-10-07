@@ -55,22 +55,39 @@ export const buildRequestContext = (
     ...(recurringSwaps ? { recurringSwaps } : {}),
   };
 
-  // Calculate minAmountOut
-  const slippagePercent = quote.slippageBps / BASIS_POINTS_DIVISOR;
-  const feePercent = (quote.partnerFeeBps ?? 0) / BASIS_POINTS_DIVISOR;
-  const minAmountOut = new Big(String(quote.amountOut))
-    .times(1 - slippagePercent - feePercent)
-    .toFixed(0);
+  // Check if auto-approve conditions are met
+  // Auto-approve is only applicable for single-chain swaps with valid slippage and fee values
+  const slippageBps = quote.slippageBps;
+  const partnerFeeBps = quote.partnerFeeBps ?? 0;
+  const areBpsInRange =
+    Number.isFinite(slippageBps) &&
+    slippageBps >= 0 &&
+    slippageBps <= BASIS_POINTS_DIVISOR &&
+    Number.isFinite(partnerFeeBps) &&
+    partnerFeeBps >= 0 &&
+    partnerFeeBps <= BASIS_POINTS_DIVISOR &&
+    // Combined slippage + fee must stay below 100%, otherwise the swap could be
+    // auto-approved while draining the entire output.
+    slippageBps + partnerFeeBps < BASIS_POINTS_DIVISOR;
 
-  const hasMinAmountOut = Boolean(minAmountOut && minAmountOut !== '0');
-  const autoApprove =
+  const meetsAutoApprovePreconditions =
+    areBpsInRange &&
     !isCrossChainSwap &&
-    hasMinAmountOut &&
     isQuickSwapsEnabled &&
     isAutoSignSupported &&
     quote.serviceType === ServiceType.MARKR;
 
-  if (!autoApprove) {
+  if (!meetsAutoApprovePreconditions) {
+    return baseContext;
+  }
+
+  const slippagePercent = slippageBps / BASIS_POINTS_DIVISOR;
+  const feePercent = partnerFeeBps / BASIS_POINTS_DIVISOR;
+  const minAmountOut = new Big(String(quote.amountOut))
+    .times(1 - slippagePercent - feePercent)
+    .toFixed(0);
+
+  if (!minAmountOut || minAmountOut === '0') {
     return baseContext;
   }
 
@@ -88,7 +105,7 @@ export const buildRequestContext = (
   return {
     ...baseContext,
     swapAutoApprove: {
-      autoApprove,
+      autoApprove: true,
       validatorType,
       srcTokenAddress,
       isSrcTokenNative,

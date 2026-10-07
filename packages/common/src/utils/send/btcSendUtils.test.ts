@@ -42,6 +42,35 @@ describe('src/utils/send/btcSendUtils', () => {
       ).toEqual(SendErrorMessage.INVALID_NETWORK_FEE);
     });
 
+    it('fails with an out-of-range fee rate', () => {
+      expect(
+        validateBtcSend(
+          fromMainnet,
+          { address: toMainnet, amount: 10_000, feeRate: 10_001, token },
+          [],
+          true,
+        ),
+      ).toEqual(SendErrorMessage.INVALID_NETWORK_FEE);
+
+      expect(
+        validateBtcSend(
+          fromMainnet,
+          { address: toMainnet, amount: 10_000, feeRate: -1, token },
+          [],
+          true,
+        ),
+      ).toEqual(SendErrorMessage.INVALID_NETWORK_FEE);
+
+      expect(
+        validateBtcSend(
+          fromMainnet,
+          { address: toMainnet, amount: 10_000, feeRate: Infinity, token },
+          [],
+          true,
+        ),
+      ).toEqual(SendErrorMessage.INVALID_NETWORK_FEE);
+    });
+
     it('fails when target address does not match provided network', () => {
       expect(
         validateBtcSend(

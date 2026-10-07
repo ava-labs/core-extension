@@ -44,6 +44,7 @@ import {
   caipToChainId,
   chainIdToCaip,
   decorateWithCaipId,
+  isAllowedRpcUrl,
   getSyncDomain,
   getExponentialBackoffDelay,
   getProviderForNetwork,
@@ -56,6 +57,7 @@ import { GlacierService } from '../glacier/GlacierService';
 import { getAuthHeaders } from '../appcheck/utils/getAuthHeaders';
 import { getV2Networks } from '~/api-clients/token-aggregator';
 import { mapV2NetworksToChainList } from './utils/mapV2Networks';
+import { resolveCustomNetworkChainId } from './utils/resolveCustomNetworkChainId';
 import {
   BASE_NETWORK_CONFIG_BY_TYPE,
   getXPChainId,
@@ -696,8 +698,22 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   async saveCustomNetwork(customNetworkPayload: CustomNetworkPayload) {
-    const customNetwork = decorateWithCaipId(customNetworkPayload);
-    const chainId = parseInt(customNetwork.chainId.toString(16), 16);
+    const chainId = resolveCustomNetworkChainId(customNetworkPayload);
+
+    if (
+      !isAllowedRpcUrl(customNetworkPayload.rpcUrl, {
+        allowPrivate: !this.isMainnet(),
+      })
+    ) {
+      throw new Error(
+        'RPC URL must use HTTPS and must not target a private address',
+      );
+    }
+
+    const customNetwork = decorateWithCaipId({
+      ...customNetworkPayload,
+      chainId,
+    });
 
     const chainlist = await this._rawNetworks.promisify();
 
@@ -711,6 +727,15 @@ export class NetworkService implements OnLock, OnStorageReady {
     // customNetwork is a default chain -> dont save
     if (isChainListNetwork && !isCustomNetworkExist) {
       throw new Error('chain ID already exists');
+    }
+
+    const rpcMatchesChain = await this.isValidRPCUrl(
+      chainId,
+      customNetwork.rpcUrl,
+    );
+
+    if (!rpcMatchesChain) {
+      throw new Error('ChainID does not match the rpc url');
     }
 
     this._customNetworks = {

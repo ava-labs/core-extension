@@ -250,6 +250,7 @@
       "globals": {
         "AbortController": true,
         "Buffer": true,
+        "CSS.escape": true,
         "TextDecoder": true,
         "URL": true,
         "URLSearchParams": true,

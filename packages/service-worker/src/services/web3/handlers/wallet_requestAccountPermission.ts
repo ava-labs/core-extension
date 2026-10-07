@@ -143,6 +143,7 @@ export class RequestAccountPermissionHandler
           canSkipApproval: withoutApproval,
           addressVM: request.params?.addressVM || NetworkVMType.EVM, // Default to EVM
           isMalicious: scanResult === 'malicious',
+          isScanFailed: scanResult === 'error',
           // TODO: clean up domain* props for Legacy app
           domainName: request.site?.name,
           domainUrl: request.site?.domain,

@@ -1,6 +1,6 @@
 import { Fade, Stack, Typography } from '@avalabs/k2-alpine';
 
-import { stringToBigint } from '@core/common';
+import { safeStringToBigint } from '@core/common';
 import {
   NetworkWithCaipId,
   SvmCapableAccount,
@@ -33,7 +33,7 @@ export const SolanaSendBody = ({
   network,
 }: SolanaSendBodyProps) => {
   const to = getRecipientAddressByType(recipient, 'SVM');
-  const amountBigInt = stringToBigint(amount || '0', token.decimals);
+  const amountBigInt = safeStringToBigint(amount || '0', token.decimals);
   const { t } = useTranslation();
   const { isSending, isValid, error, send } = useSolanaSend({
     token,
