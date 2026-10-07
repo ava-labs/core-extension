@@ -1,10 +1,13 @@
 import { EthereumRpcError, ethErrors } from 'eth-rpc-errors';
 import { StatusCodes, TransportStatusError } from '@ledgerhq/hw-transport';
-import { CommonError } from '@core/types';
+import { CommonError, SwapErrorCode } from '@core/types';
 import {
   isWrappedError,
   wrapError,
   isUserRejectionError,
+  isMissingBtcWalletPolicyError,
+  isSwapTxBuildError,
+  isGasEstimationError,
 } from './errorHelpers';
 
 describe('src/utils/errors/errorHelpers', () => {
@@ -216,6 +219,78 @@ describe('src/utils/errors/errorHelpers', () => {
 
         expect(isUserRejectionError(error)).toBe(true);
       });
+    });
+  });
+
+  describe('#isMissingBtcWalletPolicyError', () => {
+    const POLICY_ERROR = 'Error while parsing wallet policy: missing data.';
+
+    it('returns false for empty inputs', () => {
+      expect(isMissingBtcWalletPolicyError(null)).toBe(false);
+      expect(isMissingBtcWalletPolicyError(undefined)).toBe(false);
+    });
+
+    it('recognizes the error by its message', () => {
+      expect(isMissingBtcWalletPolicyError(new Error(POLICY_ERROR))).toBe(true);
+    });
+
+    it('recognizes the error when wrapped as the original error', () => {
+      expect(
+        isMissingBtcWalletPolicyError(
+          ethErrors.rpc.internal({
+            data: { reason: CommonError.Unknown, originalError: POLICY_ERROR },
+          }),
+        ),
+      ).toBe(true);
+    });
+
+    it('returns false for unrelated errors', () => {
+      expect(isMissingBtcWalletPolicyError(new Error('Timeout'))).toBe(false);
+      expect(isMissingBtcWalletPolicyError('not an object')).toBe(false);
+    });
+  });
+
+  describe('#isSwapTxBuildError', () => {
+    it('recognizes wrapped swap build errors', () => {
+      expect(
+        isSwapTxBuildError(
+          ethErrors.rpc.internal({
+            data: { reason: SwapErrorCode.CannotBuildTx },
+          }),
+        ),
+      ).toBe(true);
+    });
+
+    it('returns false for other errors', () => {
+      expect(isSwapTxBuildError(null)).toBe(false);
+      expect(isSwapTxBuildError(new Error('Cannot build tx'))).toBe(false);
+      expect(
+        isSwapTxBuildError(
+          ethErrors.rpc.internal({ data: { reason: CommonError.Unknown } }),
+        ),
+      ).toBe(false);
+    });
+  });
+
+  describe('#isGasEstimationError', () => {
+    it('recognizes wrapped gas estimation errors', () => {
+      expect(
+        isGasEstimationError(
+          ethErrors.rpc.internal({
+            data: { reason: CommonError.UnableToEstimateGas },
+          }),
+        ),
+      ).toBe(true);
+    });
+
+    it('returns false for other errors', () => {
+      expect(isGasEstimationError(undefined)).toBe(false);
+      expect(isGasEstimationError(new Error('gas'))).toBe(false);
+      expect(
+        isGasEstimationError(
+          ethErrors.rpc.internal({ data: { reason: CommonError.Unknown } }),
+        ),
+      ).toBe(false);
     });
   });
 });
