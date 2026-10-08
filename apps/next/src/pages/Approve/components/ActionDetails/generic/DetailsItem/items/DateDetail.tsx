@@ -8,7 +8,7 @@ type DateItemProps = {
   item: DateItem;
 };
 
-const DATE_FORMAT = 'MMM dd, yyyy, HH:mm a';
+const DATE_FORMAT = 'MMM dd, yyyy, hh:mm a';
 
 export const DateDetail = ({ item }: DateItemProps) => (
   <TxDetailsRow label={item.label} direction="row" alignItems="center">

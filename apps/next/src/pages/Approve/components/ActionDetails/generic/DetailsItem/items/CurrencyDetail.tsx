@@ -24,6 +24,7 @@ export const CurrencyDetail = ({
   const token = new TokenUnit(value, maxDecimals, symbol);
   const price = useNativeTokenPrice(network);
   const isNativeToken =
+    item.isNativeToken ??
     symbol.toLowerCase() === network.networkToken.symbol.toLowerCase();
 
   return (

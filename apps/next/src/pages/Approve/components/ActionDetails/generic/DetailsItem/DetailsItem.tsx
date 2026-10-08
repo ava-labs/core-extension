@@ -12,13 +12,20 @@ import { NodeIdDetail } from './items/NodeIdDetail';
 import { DateDetail } from './items/DateDetail';
 import { NetworkWithCaipId } from '@core/types';
 import { AddressListDetail } from './items/AddressListDetail';
+import { TransferListDetail } from './items/TransferListDetail';
+import { CollapsibleGroupDetail } from './items/CollapsibleGroupDetail';
 
 type DetailsItemProps = {
   item: DetailItem;
   network: NetworkWithCaipId;
+  areGroupsOpenByDefault?: boolean;
 };
 
-export const DetailsItem = ({ item, network }: DetailsItemProps) => {
+export const DetailsItem = ({
+  item,
+  network,
+  areGroupsOpenByDefault = false,
+}: DetailsItemProps) => {
   if (typeof item === 'string') {
     return <PlainTextDetail item={item} />;
   }
@@ -53,5 +60,17 @@ export const DetailsItem = ({ item, network }: DetailsItemProps) => {
 
     case DetailItemType.DATE:
       return <DateDetail item={item} />;
+
+    case DetailItemType.TRANSFER_LIST:
+      return <TransferListDetail item={item} network={network} />;
+
+    case DetailItemType.COLLAPSIBLE_GROUP:
+      return (
+        <CollapsibleGroupDetail
+          item={item}
+          network={network}
+          isOpenByDefault={areGroupsOpenByDefault}
+        />
+      );
   }
 };
