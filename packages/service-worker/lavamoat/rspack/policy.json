@@ -3274,38 +3274,6 @@
         "bip32>bs58check>safe-buffer": true
       }
     },
-    "external:../../node_modules/@ledgerhq/errors/lib-es/helpers.js": {
-      "globals": {
-        "console.warn": true
-      }
-    },
-    "external:../../node_modules/@ledgerhq/errors/lib-es/index.js": {
-      "packages": {
-        "external:../../node_modules/@ledgerhq/errors/lib-es/helpers.js": true
-      }
-    },
-    "external:../../node_modules/@ledgerhq/hw-transport/lib-es/Transport.js": {
-      "globals": {
-        "Buffer.alloc": true,
-        "Buffer.concat": true,
-        "Buffer.from": true,
-        "clearTimeout": true,
-        "console.warn": true,
-        "setTimeout": true
-      },
-      "packages": {
-        "buffer": true,
-        "events": true,
-        "external:../../node_modules/@ledgerhq/errors/lib-es/index.js": true,
-        "external:../../node_modules/@ledgerhq/logs/lib-es/index.js": true
-      }
-    },
-    "external:../../node_modules/@ledgerhq/logs/lib-es/index.js": {
-      "globals": {
-        "__ledgerLogsListen": "write",
-        "console.error": true
-      }
-    },
     "external:../../node_modules/react-i18next/dist/es/context.js": {
       "packages": {
         "external:../../node_modules/react-i18next/dist/es/unescape.js": true,
@@ -3510,7 +3478,6 @@
     "external:../common/src/utils/errors/errorHelpers.ts": {
       "packages": {
         "eth-rpc-errors": true,
-        "external:../../node_modules/@ledgerhq/hw-transport/lib-es/Transport.js": true,
         "external:../types/src/index.ts": true
       }
     },

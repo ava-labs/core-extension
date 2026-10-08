@@ -308,7 +308,6 @@
         "@avalabs/vm-module-types": true,
         "@core/types": true,
         "@cubist-labs/cubesigner-sdk": true,
-        "@core/common>@ledgerhq/hw-transport": true,
         "ethers>@noble/hashes": true,
         "@core/ui>@sentry/browser": true,
         "@core/ui>@sentry/browser>@sentry/core": true,
@@ -681,33 +680,6 @@
         "@core/service-worker>@ledgerhq/context-module>purify-ts": true,
         "@core/ui>reflect-metadata": true,
         "@core/service-worker>@ledgerhq/device-management-kit>xstate": true
-      }
-    },
-    "@core/common>@ledgerhq/hw-transport>@ledgerhq/errors": {
-      "globals": {
-        "console.warn": true
-      }
-    },
-    "@core/common>@ledgerhq/hw-transport": {
-      "globals": {
-        "Buffer.alloc": true,
-        "Buffer.concat": true,
-        "Buffer.from": true,
-        "clearTimeout": true,
-        "console.warn": true,
-        "setTimeout": true
-      },
-      "packages": {
-        "@core/common>@ledgerhq/hw-transport>@ledgerhq/errors": true,
-        "@core/common>@ledgerhq/hw-transport>@ledgerhq/logs": true,
-        "@rsbuild/plugin-node-polyfill>buffer": true,
-        "@core/ui>events": true
-      }
-    },
-    "@core/common>@ledgerhq/hw-transport>@ledgerhq/logs": {
-      "globals": {
-        "__ledgerLogsListen": "write",
-        "console.error": true
       }
     },
     "@core/service-worker>@ledgerhq/device-signer-kit-solana>@ledgerhq/signer-utils": {
