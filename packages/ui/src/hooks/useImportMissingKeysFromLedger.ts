@@ -3,16 +3,19 @@ import { useCallback, useEffect, useRef } from 'react';
 import { MigrateMissingPublicKeysFromLedgerHandler } from '@core/service-worker';
 
 import {
-  useActiveLedgerAppInfo,
   LedgerAppType,
   useConnectionContext,
+  useLedgerContext,
   useWalletContext,
 } from '../contexts';
 import { useIsCorrectDeviceForActiveWallet } from './useIsCorrectDeviceForActiveWallet';
 
 export const useImportMissingKeysFromLedger = () => {
   const { request } = useConnectionContext();
-  const { appType } = useActiveLedgerAppInfo();
+  // Deliberately not using useActiveLedgerAppInfo() to avoid subscribing to polling,
+  // since this hook is mounted app-wide and would keep the device claimed while the
+  // side panel idles.
+  const { appType } = useLedgerContext();
   const { isLedgerWallet } = useWalletContext();
 
   const status = useIsCorrectDeviceForActiveWallet();

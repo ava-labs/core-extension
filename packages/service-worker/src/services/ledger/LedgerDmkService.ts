@@ -39,17 +39,22 @@ import {
   lastValueFrom,
   map,
   type Observable,
+  type Subscription,
   switchMap,
   timeout,
   timer,
 } from 'rxjs';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { singleton } from 'tsyringe';
-import { OnLock } from '../../runtime/lifecycleCallbacks';
+import { OnAllExtensionClosed, OnLock } from '../../runtime/lifecycleCallbacks';
 
 const DEVICE_DISCOVERY_TIMEOUT_MS = 30_000;
 const DEVICE_DISCOVERY_POLL_MS = 1_000;
 const APP_INFO_TIMEOUT_MS = 30_000;
+// Screens that need the device poll `getAppInfo` every 2s, so a session that
+// goes this long without a request isn't in use. Holding it would keep the
+// WebHID connection claimed (and the refresher pinging), breaking other dApps.
+const IDLE_RELEASE_MS = 5_000;
 
 /** BOLOS status word for "application not installed". */
 const APP_NOT_INSTALLED_STATUS = '5123';
@@ -116,11 +121,28 @@ const stripRootPrefix = (path: string) => path.replace(/^m\//, '');
  * `getDevices`-backed discovery and opens the session here.
  */
 @singleton()
-export class LedgerDmkService implements OnLock {
+export class LedgerDmkService implements OnLock, OnAllExtensionClosed {
   #dmk?: DeviceManagementKit;
   #sessionId?: DeviceSessionId;
   #pendingConnect?: Promise<DeviceSessionId>;
   #activeOperations = 0;
+  #idleRelease?: Subscription;
+  #releaseAfterOperations = false;
+
+  #cancelIdleRelease(): void {
+    this.#idleRelease?.unsubscribe();
+    this.#idleRelease = undefined;
+  }
+
+  #scheduleIdleRelease(): void {
+    this.#cancelIdleRelease();
+    this.#idleRelease = timer(IDLE_RELEASE_MS).subscribe(() => {
+      this.#idleRelease = undefined;
+      if (this.#activeOperations === 0) {
+        void this.disconnect();
+      }
+    });
+  }
 
   #getDmk(): DeviceManagementKit {
     if (!this.#dmk) {
@@ -132,6 +154,12 @@ export class LedgerDmkService implements OnLock {
   }
 
   async #ensureSession(): Promise<DmkSession> {
+    const session = await this.#openSession();
+    this.#scheduleIdleRelease();
+    return session;
+  }
+
+  async #openSession(): Promise<DmkSession> {
     const dmk = this.#getDmk();
 
     if (this.#sessionId) {
@@ -208,6 +236,14 @@ export class LedgerDmkService implements OnLock {
     } finally {
       this.#activeOperations -= 1;
       resumeRefresher();
+
+      if (this.#activeOperations === 0) {
+        if (this.#releaseAfterOperations) {
+          void this.disconnect();
+        } else {
+          this.#scheduleIdleRelease();
+        }
+      }
     }
   }
 
@@ -392,10 +428,21 @@ export class LedgerDmkService implements OnLock {
     const sessionId = this.#sessionId;
     this.#sessionId = undefined;
     this.#pendingConnect = undefined;
+    this.#releaseAfterOperations = false;
+    this.#cancelIdleRelease();
 
     if (dmk && sessionId) {
       await dmk.disconnect({ sessionId }).catch(() => undefined);
     }
+  }
+
+  onAllExtensionsClosed(): void {
+    // A signing review can outlive the approval window; let it finish first.
+    if (this.#activeOperations > 0) {
+      this.#releaseAfterOperations = true;
+      return;
+    }
+    void this.disconnect();
   }
 
   onLock(): void {

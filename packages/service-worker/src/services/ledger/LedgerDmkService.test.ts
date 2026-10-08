@@ -105,6 +105,100 @@ describe('src/background/services/ledger/LedgerDmkService.ts', () => {
     service = new LedgerDmkService();
   });
 
+  afterEach(async () => {
+    await service.disconnect();
+  });
+
+  describe('releasing the device', () => {
+    let dmk: ReturnType<typeof createDmk>;
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+      dmk = createDmk();
+      dmk.connect.mockResolvedValue('session-1');
+      mockBuild.mockReturnValue(dmk);
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    const getSession = async () => {
+      const pending = service.getSession();
+      await jest.advanceTimersByTimeAsync(0);
+      return pending;
+    };
+
+    it('disconnects after a period without requests', async () => {
+      await getSession();
+
+      await jest.advanceTimersByTimeAsync(4_999);
+      expect(dmk.disconnect).not.toHaveBeenCalled();
+
+      await jest.advanceTimersByTimeAsync(1);
+      expect(dmk.disconnect).toHaveBeenCalledWith({ sessionId: 'session-1' });
+    });
+
+    it('keeps the session while requests keep coming', async () => {
+      await getSession();
+      await jest.advanceTimersByTimeAsync(4_000);
+      await getSession();
+      await jest.advanceTimersByTimeAsync(4_000);
+
+      expect(dmk.disconnect).not.toHaveBeenCalled();
+    });
+
+    it('reconnects on the next request after releasing', async () => {
+      dmk.connect
+        .mockResolvedValueOnce('session-1')
+        .mockResolvedValueOnce('session-2');
+
+      await getSession();
+      await jest.advanceTimersByTimeAsync(5_000);
+
+      await expect(getSession()).resolves.toEqual({
+        dmk,
+        sessionId: 'session-2',
+      });
+    });
+
+    it('does not release the device during an operation', async () => {
+      const operation = deferred<void>();
+      const pending = service.runDeviceOperation(() => operation.promise);
+
+      await jest.advanceTimersByTimeAsync(60_000);
+      expect(dmk.disconnect).not.toHaveBeenCalled();
+
+      operation.resolve();
+      await pending;
+      await jest.advanceTimersByTimeAsync(5_000);
+      expect(dmk.disconnect).toHaveBeenCalledWith({ sessionId: 'session-1' });
+    });
+
+    it('releases the device as soon as all extension windows close', async () => {
+      await getSession();
+
+      service.onAllExtensionsClosed();
+      await jest.advanceTimersByTimeAsync(0);
+
+      expect(dmk.disconnect).toHaveBeenCalledWith({ sessionId: 'session-1' });
+    });
+
+    it('waits for a running operation before releasing on close', async () => {
+      const operation = deferred<void>();
+      const pending = service.runDeviceOperation(() => operation.promise);
+      await jest.advanceTimersByTimeAsync(0);
+
+      service.onAllExtensionsClosed();
+      await jest.advanceTimersByTimeAsync(0);
+      expect(dmk.disconnect).not.toHaveBeenCalled();
+
+      operation.resolve();
+      await pending;
+      expect(dmk.disconnect).toHaveBeenCalledWith({ sessionId: 'session-1' });
+    });
+  });
+
   describe('getAppInfo', () => {
     it('does not retry discovery when no device is available', async () => {
       const dmk = createDmk();

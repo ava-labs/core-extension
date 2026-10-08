@@ -2,7 +2,7 @@ import { ExtensionRequest } from '@core/types';
 import { renderHook, waitFor } from '@testing-library/react';
 import {
   LedgerAppType,
-  useActiveLedgerAppInfo,
+  useLedgerContext,
   useConnectionContext,
   useWalletContext,
 } from '../contexts';
@@ -12,7 +12,7 @@ import { useIsCorrectDeviceForActiveWallet } from './useIsCorrectDeviceForActive
 jest.mock('../contexts', () => ({
   LedgerAppType: jest.requireActual('../contexts/LedgerProvider/LedgerProvider')
     .LedgerAppType,
-  useActiveLedgerAppInfo: jest.fn(),
+  useLedgerContext: jest.fn(),
   useConnectionContext: jest.fn(),
   useWalletContext: jest.fn(),
 }));
@@ -26,7 +26,7 @@ describe('hooks/useImportMissingKeysFromLedger', () => {
     request.mockResolvedValue(undefined);
     jest.mocked(useConnectionContext).mockReturnValue({ request } as any);
     jest
-      .mocked(useActiveLedgerAppInfo)
+      .mocked(useLedgerContext)
       .mockReturnValue({ appType: LedgerAppType.AVALANCHE } as any);
     jest
       .mocked(useWalletContext)
@@ -49,11 +49,11 @@ describe('hooks/useImportMissingKeysFromLedger', () => {
     await waitFor(() => expect(request).toHaveBeenCalledTimes(1));
 
     jest
-      .mocked(useActiveLedgerAppInfo)
+      .mocked(useLedgerContext)
       .mockReturnValue({ appType: LedgerAppType.BITCOIN } as any);
     rerender();
     jest
-      .mocked(useActiveLedgerAppInfo)
+      .mocked(useLedgerContext)
       .mockReturnValue({ appType: LedgerAppType.AVALANCHE } as any);
     rerender();
 
@@ -67,11 +67,11 @@ describe('hooks/useImportMissingKeysFromLedger', () => {
     await waitFor(() => expect(request).toHaveBeenCalledTimes(1));
 
     jest
-      .mocked(useActiveLedgerAppInfo)
+      .mocked(useLedgerContext)
       .mockReturnValue({ appType: LedgerAppType.BITCOIN } as any);
     rerender();
     jest
-      .mocked(useActiveLedgerAppInfo)
+      .mocked(useLedgerContext)
       .mockReturnValue({ appType: LedgerAppType.AVALANCHE } as any);
     rerender();
 
@@ -92,7 +92,7 @@ describe('hooks/useImportMissingKeysFromLedger', () => {
     jest
       .mocked(useIsCorrectDeviceForActiveWallet)
       .mockReturnValue(status as any);
-    jest.mocked(useActiveLedgerAppInfo).mockReturnValue({
+    jest.mocked(useLedgerContext).mockReturnValue({
       appType: app === 'AVA' ? LedgerAppType.AVALANCHE : LedgerAppType.BITCOIN,
     } as any);
 
