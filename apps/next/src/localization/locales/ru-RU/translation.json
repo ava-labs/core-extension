@@ -514,6 +514,7 @@
   "Move assets to Avalanche.": "Переместите активы в Avalanche.",
   "Move funds from another wallet or exchange": "Перевести средства с другого кошелька или биржи",
   "Moved {{tokenList}}": "{{tokenList}} перемещён",
+  "Multiple Ledger devices are connected. Please connect only the one you intend to use.": "Подключено несколько устройств Ledger. Подключите только тот, который вы собираетесь использовать.",
   "Multiple chain IDs in batch": "Несколько идентификаторов сети в пакете",
   "My Accounts": "Мои аккаунты",
   "My avatar": "Мой аватар",
