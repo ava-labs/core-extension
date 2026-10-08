@@ -514,6 +514,7 @@
   "Move assets to Avalanche.": "Transférez vos actifs vers Avalanche.",
   "Move funds from another wallet or exchange": "Déplacer des fonds depuis un autre portefeuille ou une plateforme d’échange",
   "Moved {{tokenList}}": "{{tokenList}} déplacé(s)",
+  "Multiple Ledger devices are connected. Please connect only the one you intend to use.": "Plusieurs appareils Ledger sont connectés. Connectez uniquement celui que vous souhaitez utiliser.",
   "Multiple chain IDs in batch": "Plusieurs IDs de chaîne dans le lot",
   "My Accounts": "Mes comptes",
   "My avatar": "Mon avatar",
