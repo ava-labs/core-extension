@@ -26,7 +26,7 @@ export type SupportedProvider =
  * broadcasts, and blockhash validation all silently answer for a chain the user
  * did not ask for. Route on the chain id instead.
  */
-const getSolanaRpcUrl = (network: Network): string => {
+export const getSolanaRpcUrl = (network: Pick<Network, 'chainId'>): string => {
   switch (network.chainId) {
     case ChainId.SOLANA_DEVNET_ID:
       return 'https://api.devnet.solana.com'; // NowNodes does not support Solana Devnet

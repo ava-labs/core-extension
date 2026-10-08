@@ -3,18 +3,20 @@ import { useEffect, useState } from 'react';
 import {
   LedgerAppType,
   useAccountsContext,
-  useActiveLedgerAppInfo,
   useLedgerContext,
   useWalletContext,
 } from '../contexts';
 
 type Result = 'correct' | 'incorrect' | 'checking';
 
+/**
+ * Doesn't subscribe to active-app polling itself (it's also used app-wide);
+ * screens that need a live result call `useActiveLedgerAppInfo()` as well.
+ */
 export const useIsCorrectDeviceForActiveWallet = () => {
   const [isCorrectDevice, setIsCorrectDevice] = useState<Result>('checking');
   const { isWalletLocked, walletDetails, isLedgerWallet } = useWalletContext();
-  const { hasLedgerTransport, getPublicKey } = useLedgerContext();
-  const { appType } = useActiveLedgerAppInfo();
+  const { hasLedgerTransport, getPublicKey, appType } = useLedgerContext();
   const { accounts } = useAccountsContext();
 
   const [firstAccount] =

@@ -5,7 +5,7 @@ import {
   Avalanche,
   BitcoinProvider,
   getEvmAddressFromPubKey,
-  createPsbt,
+  createPSBT,
   deserializeTransactionMessage,
   serializeSolanaTx,
   compileSolanaTx,
@@ -1168,7 +1168,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         ...overrides,
       };
 
-      jest.mocked(createPsbt).mockImplementation((ins, outs) =>
+      jest.mocked(createPSBT).mockImplementation((ins, outs) =>
         Object.assign(psbt, {
           txInputs: ins,
           txOutputs: outs,

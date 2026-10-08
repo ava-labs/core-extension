@@ -252,22 +252,6 @@ describe('src/utils/network/getProviderForNetwork', () => {
     ).toHaveBeenCalledTimes(1);
   });
 
-  it('returns error when VM is not supported', async () => {
-    const mockEVMNetwork = mockNetwork(NetworkVMType.EVM);
-    await expect(
-      getProviderForNetwork({
-        ...mockEVMNetwork,
-        vmName: 'CRAPPYVM' as unknown as NetworkVMType,
-      }),
-    ).rejects.toThrow(new Error('unsupported network'));
-  });
-
-  /**
-   * Routing used to branch on a single `isTestnet` flag, which sent Solana
-   * Testnet to the Devnet endpoint. Solana messages carry no chain id, so the
-   * blockhash is the only cluster binding - validating or broadcasting against
-   * the wrong cluster answers for a chain the user never asked for.
-   */
   describe('Solana cluster routing', () => {
     // Built directly rather than through `mockNetwork`, whose `decorateWithCaipId`
     // does not know this test's synthetic chain ids.
@@ -312,5 +296,15 @@ describe('src/utils/network/getProviderForNetwork', () => {
         rpcUrl: expect.stringContaining('/proxy/nownodes/sol'),
       });
     });
+  });
+
+  it('returns error when VM is not supported', async () => {
+    const mockEVMNetwork = mockNetwork(NetworkVMType.EVM);
+    await expect(
+      getProviderForNetwork({
+        ...mockEVMNetwork,
+        vmName: 'CRAPPYVM' as unknown as NetworkVMType,
+      }),
+    ).rejects.toThrow(new Error('unsupported network'));
   });
 });

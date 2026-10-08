@@ -1,10 +1,12 @@
 import { EthereumRpcError, ethErrors } from 'eth-rpc-errors';
-import { StatusCodes, TransportStatusError } from '@ledgerhq/hw-transport';
-import { CommonError } from '@core/types';
+import { CommonError, SwapErrorCode } from '@core/types';
 import {
   isWrappedError,
   wrapError,
   isUserRejectionError,
+  isMissingBtcWalletPolicyError,
+  isSwapTxBuildError,
+  isGasEstimationError,
 } from './errorHelpers';
 
 describe('src/utils/errors/errorHelpers', () => {
@@ -117,31 +119,58 @@ describe('src/utils/errors/errorHelpers', () => {
       expect(isUserRejectionError(true)).toBe(false);
     });
 
-    describe('Ledger TransportStatusError cases', () => {
-      it('returns true for USER_REFUSED_ON_DEVICE status code', () => {
-        const error = new TransportStatusError(
-          StatusCodes.USER_REFUSED_ON_DEVICE,
+    describe('Ledger cases', () => {
+      const statusError = (statusCode: number) =>
+        Object.assign(
+          new Error(`Ledger device: status 0x${statusCode.toString(16)}`),
+          { name: 'TransportStatusError', statusCode },
         );
-        expect(isUserRejectionError(error)).toBe(true);
-      });
 
-      it('returns true for CONDITIONS_OF_USE_NOT_SATISFIED status code', () => {
-        const error = new TransportStatusError(
-          StatusCodes.CONDITIONS_OF_USE_NOT_SATISFIED,
-        );
-        expect(isUserRejectionError(error)).toBe(true);
-      });
-
-      it('returns true for Avalanche app rejection code 0x6986', () => {
-        const error = new TransportStatusError(0x6986);
-        expect(isUserRejectionError(error)).toBe(true);
+      it.each([
+        ['USER_REFUSED_ON_DEVICE', 0x5501],
+        ['CONDITIONS_OF_USE_NOT_SATISFIED', 0x6985],
+        ['the Avalanche app "Command not allowed"', 0x6986],
+      ])('returns true for %s status code', (_, statusCode) => {
+        expect(isUserRejectionError(statusError(statusCode))).toBe(true);
       });
 
       it('returns false for other Ledger status codes', () => {
-        const error = new TransportStatusError(
-          StatusCodes.ALGORITHM_NOT_SUPPORTED,
-        );
-        expect(isUserRejectionError(error)).toBe(false);
+        expect(isUserRejectionError(statusError(0x6a80))).toBe(false);
+      });
+
+      it('recognizes hw-app-avalanche DeviceActionError rejections', () => {
+        class DeviceActionError extends Error {
+          constructor(readonly statusCode: number) {
+            super('Device action failed');
+          }
+        }
+
+        expect(isUserRejectionError(new DeviceActionError(0x6985))).toBe(true);
+      });
+
+      it.each(['5501', '6985', '6986'])(
+        'returns true for DMK errors with code %s',
+        (errorCode) => {
+          expect(
+            isUserRejectionError({ _tag: 'EthAppCommandError', errorCode }),
+          ).toBe(true);
+        },
+      );
+
+      it.each(['RefusedByUserDAError', 'ActionRefusedError'])(
+        'returns true for the DMK %s tag',
+        (_tag) => {
+          expect(isUserRejectionError({ _tag })).toBe(true);
+        },
+      );
+
+      it('returns false for other DMK errors', () => {
+        expect(
+          isUserRejectionError({
+            _tag: 'DeviceLockedError',
+            errorCode: '5515',
+          }),
+        ).toBe(false);
       });
     });
 
@@ -216,6 +245,78 @@ describe('src/utils/errors/errorHelpers', () => {
 
         expect(isUserRejectionError(error)).toBe(true);
       });
+    });
+  });
+
+  describe('#isMissingBtcWalletPolicyError', () => {
+    const POLICY_ERROR = 'Error while parsing wallet policy: missing data.';
+
+    it('returns false for empty inputs', () => {
+      expect(isMissingBtcWalletPolicyError(null)).toBe(false);
+      expect(isMissingBtcWalletPolicyError(undefined)).toBe(false);
+    });
+
+    it('recognizes the error by its message', () => {
+      expect(isMissingBtcWalletPolicyError(new Error(POLICY_ERROR))).toBe(true);
+    });
+
+    it('recognizes the error when wrapped as the original error', () => {
+      expect(
+        isMissingBtcWalletPolicyError(
+          ethErrors.rpc.internal({
+            data: { reason: CommonError.Unknown, originalError: POLICY_ERROR },
+          }),
+        ),
+      ).toBe(true);
+    });
+
+    it('returns false for unrelated errors', () => {
+      expect(isMissingBtcWalletPolicyError(new Error('Timeout'))).toBe(false);
+      expect(isMissingBtcWalletPolicyError('not an object')).toBe(false);
+    });
+  });
+
+  describe('#isSwapTxBuildError', () => {
+    it('recognizes wrapped swap build errors', () => {
+      expect(
+        isSwapTxBuildError(
+          ethErrors.rpc.internal({
+            data: { reason: SwapErrorCode.CannotBuildTx },
+          }),
+        ),
+      ).toBe(true);
+    });
+
+    it('returns false for other errors', () => {
+      expect(isSwapTxBuildError(null)).toBe(false);
+      expect(isSwapTxBuildError(new Error('Cannot build tx'))).toBe(false);
+      expect(
+        isSwapTxBuildError(
+          ethErrors.rpc.internal({ data: { reason: CommonError.Unknown } }),
+        ),
+      ).toBe(false);
+    });
+  });
+
+  describe('#isGasEstimationError', () => {
+    it('recognizes wrapped gas estimation errors', () => {
+      expect(
+        isGasEstimationError(
+          ethErrors.rpc.internal({
+            data: { reason: CommonError.UnableToEstimateGas },
+          }),
+        ),
+      ).toBe(true);
+    });
+
+    it('returns false for other errors', () => {
+      expect(isGasEstimationError(undefined)).toBe(false);
+      expect(isGasEstimationError(new Error('gas'))).toBe(false);
+      expect(
+        isGasEstimationError(
+          ethErrors.rpc.internal({ data: { reason: CommonError.Unknown } }),
+        ),
+      ).toBe(false);
     });
   });
 });

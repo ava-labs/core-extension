@@ -1,59 +1,36 @@
-import AppAvalanche from '@avalabs/hw-app-avalanche';
-import { ExtensionRequest } from '@core/types';
 import {
-  ensureLedgerAppOpen,
+  ExtensionRequest,
+  LEDGER_DEVICE_LOCKED_ERROR,
+  LEDGER_MULTIPLE_DEVICES_ERROR,
+} from '@core/types';
+import {
+  getEvmExtendedKeyPath,
   isLockStateChangedEvent,
   resolve,
-  withTimeout,
 } from '@core/common';
-import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
-import {
-  AppClient as Btc,
-  DefaultWalletPolicy,
-  WalletPolicy,
-} from 'ledger-bitcoin';
 import {
   createContext,
   PropsWithChildren,
   useCallback,
   useContext,
   useEffect,
-  useRef,
   useState,
 } from 'react';
-import { filter, fromEventPattern, map, of, switchMap, tap } from 'rxjs';
-import AppSolana from '@ledgerhq/hw-app-solana';
+import { filter, map } from 'rxjs';
 
 import { VM } from '@avalabs/avalanchejs';
 import {
   DerivationPath,
   ETH_ACCOUNT_PATH,
-  getLedgerAppInfo,
-  getPubKeyFromTransport,
-  quitLedgerApp,
-  getSolanaPublicKeyFromLedger,
+  getAddressPublicKeyFromXPub,
 } from '@avalabs/core-wallets-sdk';
 import {
-  CloseLedgerTransportHandler,
   GetLedgerVersionWarningHandler,
-  InitLedgerTransportHandler,
-  LedgerResponseHandler,
+  LedgerDeviceRequestHandler,
+  LedgerDeviceRequestParams,
   LedgerVersionWarningClosedHandler,
-  RemoveLedgerTransportHandler,
 } from '@core/service-worker';
-import { LedgerEvent } from '@core/types';
-import Eth from '@ledgerhq/hw-app-eth';
-import Transport from '@ledgerhq/hw-transport';
-import {
-  isLedgerDeviceRequestEvent,
-  ledgerDiscoverTransportsEventListener,
-} from './listeners';
 import { useConnectionContext } from '../ConnectionProvider';
-import { getLedgerTransport } from '../utils/getLedgerTransport';
-import TransportWebHID from '@ledgerhq/hw-transport-webhid';
-import { shouldUseWebHID } from '../utils/shouldUseWebHID';
-import { wait } from '@avalabs/core-utils-sdk';
-import { getAvalancheLedgerExtendedPublicKey } from './getAvalancheLedgerExtendedPublicKey';
 
 export enum LedgerAppType {
   AVALANCHE = 'Avalanche',
@@ -69,14 +46,25 @@ export const REQUIRED_LEDGER_VERSION = '0.7.3';
 export const LEDGER_VERSION_WITH_EIP_712 = '0.8.0';
 export const MAX_BITCOIN_APP_VERSION = '2.4.2';
 
-/**
- * Run this here since each new window will have a different id
- * this is used to track the transport and close on window close
- */
-const LEDGER_INSTANCE_UUID = crypto.randomUUID();
+/** USB vendor id shared by all Ledger devices, used for the WebHID grant prompt. */
+const LEDGER_USB_VENDOR_ID = 0x2c97;
 
 type AppConfig = {
   isBlindSigningEnabled: boolean;
+};
+
+const toLedgerAppType = (applicationName: string): LedgerAppType => {
+  switch (applicationName) {
+    case LedgerAppType.AVALANCHE:
+    case LedgerAppType.BITCOIN:
+    case LedgerAppType.BITCOIN_RECOVERY:
+    case LedgerAppType.ETHEREUM:
+    case LedgerAppType.SOLANA:
+    case LedgerAppType.DASHBOARD:
+      return applicationName as LedgerAppType;
+    default:
+      return LedgerAppType.UNKNOWN;
+  }
 };
 
 const LedgerContext = createContext<{
@@ -88,6 +76,8 @@ const LedgerContext = createContext<{
   prepareTransportForOnboarding(appName: LedgerAppType): Promise<void>;
   initLedgerTransport(): Promise<void>;
   hasLedgerTransport: boolean;
+  hasMultipleDevices: boolean;
+  isDeviceLocked: boolean;
   appType: LedgerAppType;
   wasTransportAttempted: boolean;
   getPublicKey(
@@ -106,7 +96,7 @@ const LedgerContext = createContext<{
     masterFingerprint: string,
     derivationpath: string,
     name: string,
-  ): Promise<readonly [Buffer, Buffer]>;
+  ): Promise<Buffer>;
   updateLedgerVersionWarningClosed(): Promise<void>;
   ledgerVersionWarningClosed: boolean | undefined;
   closeCurrentApp: () => Promise<void>;
@@ -122,22 +112,14 @@ const LedgerContext = createContext<{
 }>({} as any);
 
 export function LedgerContextProvider({ children }: PropsWithChildren) {
-  const [initialized, setInitialized] = useState(false);
-  const [wasTransportAttempted, setWasTransportAttempted] = useState(false);
-  const [app, setApp] = useState<Btc | AppAvalanche | Eth | AppSolana>();
-  const [appType, setAppType] = useState<LedgerAppType>(LedgerAppType.UNKNOWN);
   const { request, events } = useConnectionContext();
-  const transportRef = useRef<Transport | null>(null);
-  const [
-    /**
-     * @deprecated Use `appVersion` instead
-     */
-    avaxAppVersion,
-    /**
-     * @deprecated Use `setAppVersion` instead
-     */
-    setAvaxAppVersion,
-  ] = useState<string | null>(null);
+  const [wasTransportAttempted, setWasTransportAttempted] = useState(false);
+  const [hasDevice, setHasDevice] = useState(false);
+  const [hasHidGrant, setHasHidGrant] = useState(false);
+  const [hasMultipleDevices, setHasMultipleDevices] = useState(false);
+  const [isDeviceLocked, setIsDeviceLocked] = useState(false);
+  const [appType, setAppType] = useState<LedgerAppType>(LedgerAppType.UNKNOWN);
+  const [avaxAppVersion, setAvaxAppVersion] = useState<string | null>(null);
   const [appVersion, setAppVersion] = useState<string | null>(null);
   const [masterFingerprint, setMasterFingerprint] = useState<
     string | undefined
@@ -147,229 +129,56 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
   const [appConfig, setAppConfig] = useState<AppConfig | null>(null);
 
   /**
-   * Listen for send events to a ledger instance
+   * All device I/O runs on the service worker (the sole owner of the WebHID
+   * connection). The frontend only issues these RPCs and performs the
+   * `requestDevice()` permission grant.
    */
-  useEffect(() => {
-    const subscription = events()
-      .pipe(
-        filter(isLedgerDeviceRequestEvent),
-        filter((evt) => evt.value.connectionUUID === LEDGER_INSTANCE_UUID),
-      )
-      .subscribe(async (res) => {
-        if (res.value.method === 'SEND') {
-          try {
-            // If data is being exchanged right now, wait for it to complete.
-            if (transportRef.current?.exchangeBusyPromise) {
-              await withTimeout(
-                transportRef.current.exchangeBusyPromise,
-                1_500, // Usually the conflicting exchange will be us querying for the device status, which is pretty fast.
-              );
-            }
-
-            const { cla, ins, p1, p2, data, statusList } = res.value.params;
-            const result = await transportRef.current?.send(
-              cla,
-              ins,
-              p1,
-              p2,
-              Buffer.from(data),
-              statusList,
-            );
-            request<LedgerResponseHandler>({
-              method: ExtensionRequest.LEDGER_RESPONSE,
-              params: [
-                {
-                  requestId: res.value.requestId,
-                  method: res.value.method,
-                  result,
-                },
-              ],
-            });
-          } catch (e) {
-            request<LedgerResponseHandler>({
-              method: ExtensionRequest.LEDGER_RESPONSE,
-              params: [
-                {
-                  requestId: res.value.requestId,
-                  method: res.value.method,
-                  error: e?.['statusCode']
-                    ? e['statusCode']
-                    : (e as Error).message,
-                },
-              ],
-            });
-          }
-        }
-      });
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [request, events, transportRef]);
-
-  /**
-   * Create instance for a given UUID
-   */
-  useEffect(() => {
-    const subscription = events()
-      .pipe(filter(ledgerDiscoverTransportsEventListener))
-      .subscribe(() => {
-        if (initialized) {
-          request<InitLedgerTransportHandler>({
-            method: ExtensionRequest.LEDGER_INIT_TRANSPORT,
-            params: [LEDGER_INSTANCE_UUID],
-          });
-        }
-      });
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [events, initialized, request]);
-
-  /**
-   * Remove an instance by UUID when a window is about to unload
-   */
-  useEffect(() => {
-    const handler = () => {
-      request<RemoveLedgerTransportHandler>({
-        method: ExtensionRequest.LEDGER_REMOVE_TRANSPORT,
-        params: [LEDGER_INSTANCE_UUID],
-      });
-    };
-    window.addEventListener('beforeunload', handler);
-    return () => {
-      window.removeEventListener('beforeunload', handler);
-    };
-  }, [request]);
-
-  const initLedgerApp = useCallback(
-    async (
-      transport?: Transport | null,
-    ): Promise<Btc | AppAvalanche | Eth | AppSolana | undefined> => {
-      if (!transport) {
-        throw new Error('Ledger not connected');
-      }
-
-      // first try to get the avalanche App instance
-      const avaxAppInstance = new AppAvalanche(transport);
-      if (avaxAppInstance) {
-        // double check it's really the avalanche app
-        // other apps also initialize with AppAvax
-        const [config, appVersionError] = await resolve(
-          avaxAppInstance.getAppInfo(),
-        );
-
-        if (!appVersionError) {
-          if (config.appName === LedgerAppType.AVALANCHE) {
-            setAvaxAppVersion(config.appVersion);
-            setAppVersion(config.appVersion);
-            setApp(avaxAppInstance);
-            setAppType(LedgerAppType.AVALANCHE);
-            setAppConfig(null);
-            return avaxAppInstance;
-          } else if (config.appName === LedgerAppType.ETHEREUM) {
-            const ethAppInstance = new Eth(transport);
-            setAppVersion(config.appVersion);
-            setApp(ethAppInstance);
-            setAppType(LedgerAppType.ETHEREUM);
-            const ethConfig = await ethAppInstance.getAppConfiguration();
-            setAppConfig({
-              isBlindSigningEnabled: !!ethConfig.arbitraryDataEnabled,
-            });
-            return ethAppInstance;
-          }
-        }
-      }
-
-      // Use the generic APDU to identify the active app.
-      const appInfo = await getLedgerAppInfo(transport);
-
-      // BOLOS is the Ledger OS — returned when no app is open (dashboard screen).
-      if (appInfo.applicationName === LedgerAppType.DASHBOARD) {
-        setAppType(LedgerAppType.DASHBOARD);
-        setApp(undefined);
-        setAppConfig(null);
-        return undefined;
-      }
-
-      if (LedgerAppType.BITCOIN === appInfo.applicationName) {
-        const btcAppInstance = new Btc(transport);
-        setAppVersion(appInfo.version);
-        setApp(btcAppInstance);
-        setAppType(LedgerAppType.BITCOIN);
-        setAppConfig(null);
-        return btcAppInstance;
-      }
-
-      if (LedgerAppType.BITCOIN_RECOVERY === appInfo.applicationName) {
-        const btcAppInstance = new Btc(transport);
-        setAppVersion(appInfo.version);
-        setApp(btcAppInstance);
-        setAppType(LedgerAppType.BITCOIN_RECOVERY);
-        setAppConfig(null);
-        return btcAppInstance;
-      }
-
-      if (LedgerAppType.SOLANA === appInfo.applicationName) {
-        const solanaAppInstance = new AppSolana(transport);
-        setAppVersion(appInfo.version);
-        setApp(solanaAppInstance);
-        setAppType(LedgerAppType.SOLANA);
-        setAppConfig(null);
-        return solanaAppInstance;
-      }
-
-      throw new Error('No compatible ledger app found');
-    },
-    [],
+  const deviceRequest = useCallback(
+    (params: LedgerDeviceRequestParams) =>
+      request<LedgerDeviceRequestHandler>({
+        method: ExtensionRequest.LEDGER_DEVICE_REQUEST,
+        params: [params],
+      }),
+    [request],
   );
 
-  useEffect(() => {
-    const subscription = of([initialized])
-      .pipe(
-        filter(([isInitialized]) => !!isInitialized),
-        switchMap(() =>
-          request<CloseLedgerTransportHandler>({
-            method: ExtensionRequest.LEDGER_CLOSE_TRANSPORT,
-            params: {
-              currentTransportUUID: LEDGER_INSTANCE_UUID,
-            },
-          }),
-        ),
-        switchMap(() => getLedgerTransport()),
-        tap(() => {
-          setWasTransportAttempted(true);
-        }),
-        switchMap((transport) => {
-          transportRef.current = transport;
-          if (transport) {
-            return initLedgerApp(transport);
-          }
+  const refreshActiveApp = useCallback(async () => {
+    setWasTransportAttempted(true);
 
-          return Promise.resolve(null);
-        }),
-        switchMap(() =>
-          fromEventPattern(
-            (handler) => {
-              transportRef.current?.on('disconnect', handler);
-            },
-            (handler) => {
-              transportRef.current?.off('disconnect', handler);
-            },
-          ).pipe(
-            tap(() => {
-              setApp(undefined);
-              setAppType(LedgerAppType.UNKNOWN);
-              setAppConfig(null);
-              throw new Error('Ledger device disconnected');
-            }),
-          ),
-        ),
-      )
-      .subscribe();
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [initialized, initLedgerApp, request]);
+    const [info, error] = await resolve(deviceRequest({ op: 'getAppInfo' }));
+
+    setHasMultipleDevices(
+      String(error).includes(LEDGER_MULTIPLE_DEVICES_ERROR),
+    );
+    setIsDeviceLocked(String(error).includes(LEDGER_DEVICE_LOCKED_ERROR));
+
+    if (error || !info || !('applicationName' in info)) {
+      setHasDevice(false);
+      setAppType(LedgerAppType.UNKNOWN);
+      setAppVersion(null);
+      setAvaxAppVersion(null);
+      setAppConfig(null);
+      return;
+    }
+
+    const { applicationName, version } = info;
+    const type = toLedgerAppType(applicationName);
+
+    setHasDevice(true);
+    setAppType(type);
+    setAppVersion(version);
+    setAvaxAppVersion(type === LedgerAppType.AVALANCHE ? version : null);
+
+    if (type === LedgerAppType.ETHEREUM) {
+      const [config] = await resolve(deviceRequest({ op: 'getEthAppConfig' }));
+
+      if (config && 'isBlindSigningEnabled' in config) {
+        setAppConfig(config);
+      }
+    } else {
+      setAppConfig(null);
+    }
+  }, [deviceRequest]);
 
   const [subscribers, setSubscribers] = useState(0);
   const registerSubscriber = useCallback(() => {
@@ -380,180 +189,124 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     setSubscribers((oldSubscribers) => Math.max(0, oldSubscribers - 1));
   }, []);
 
-  const refreshActiveApp = useCallback(async () => {
-    if (transportRef.current) {
-      await initLedgerApp(transportRef.current).catch((err) => {
-        // Most likely signing is in progress, we ignore this error.
-        if (err?.message?.includes('action was already pending')) {
-          return;
-        }
-
-        if (err?.message?.includes('disconnected')) {
-          transportRef.current = null;
-        }
-
-        // In case of error, reset the app state and rethrow the error for clients to handle.
-        setAppType(LedgerAppType.UNKNOWN);
-        setApp(undefined);
-        setAppConfig(null);
-      });
-    } else {
-      setInitialized(false);
-      await wait(200).finally(() => {
-        setInitialized(true);
-      });
-    }
-  }, [initLedgerApp]);
-
-  // Refresh active app every 2 seconds if there are components who need the transport.
+  // Poll the active app every 2 seconds while something needs the device.
   useEffect(() => {
-    let timeout: NodeJS.Timeout | null = null;
+    if (subscribers === 0) {
+      return;
+    }
 
-    const cleanup = () => {
+    let cancelled = false;
+    let timeout: NodeJS.Timeout | null = null;
+    const scheduleNextCheck = () => {
+      if (cancelled) {
+        return;
+      }
+      timeout = setTimeout(
+        () => refreshActiveApp().finally(scheduleNextCheck),
+        2_000,
+      );
+    };
+
+    refreshActiveApp().finally(scheduleNextCheck);
+
+    return () => {
+      cancelled = true;
       if (timeout) {
         clearTimeout(timeout);
       }
     };
-
-    if (subscribers === 0) {
-      return cleanup;
-    }
-
-    const refreshAndScheduleNextCheck = () =>
-      refreshActiveApp().finally(scheduleNextCheck);
-
-    const scheduleNextCheck = () => {
-      cleanup();
-      timeout = setTimeout(refreshAndScheduleNextCheck, 2_000);
-    };
-
-    refreshAndScheduleNextCheck();
-
-    return cleanup;
   }, [refreshActiveApp, subscribers]);
-  /**
-   * Extended public key via the Avalanche (Zondax) Ledger app — not the standalone Ethereum app.
-   * @param path Defaults to `m/44'/60'/0'` (EVM account root) when omitted.
-   */
-  const getExtendedPublicKey = useCallback(async (path?: string) => {
-    if (!transportRef.current) {
-      throw new Error('no device detected');
-    }
-    const transport = transportRef.current;
-    await ensureLedgerAppOpen(transport, LedgerAppType.AVALANCHE);
-    const derivationPath = path ?? ETH_ACCOUNT_PATH;
-    const [pubKey, pubKeyError] = await resolve(
-      getAvalancheLedgerExtendedPublicKey(transport, derivationPath, false),
-    );
-    if (pubKeyError) {
-      throw pubKeyError instanceof Error
-        ? pubKeyError
-        : new Error(String(pubKeyError));
-    }
-    return pubKey;
-  }, []);
+
+  const getExtendedPublicKey = useCallback(
+    async (path?: string) => {
+      const [result, error] = await resolve(
+        deviceRequest({
+          op: 'getExtendedPublicKey',
+          path: path ?? ETH_ACCOUNT_PATH,
+        }),
+      );
+
+      if (error) {
+        throw error instanceof Error ? error : new Error(String(error));
+      }
+
+      if (!result || !('xpub' in result)) {
+        throw new Error('Ledger returned no extended public key');
+      }
+
+      return result.xpub;
+    },
+    [deviceRequest],
+  );
 
   const prepareTransportForOnboarding = useCallback(
     async (appName: LedgerAppType) => {
-      if (!transportRef.current) {
-        throw new Error('no device detected');
-      }
-      const transport = transportRef.current;
-      await ensureLedgerAppOpen(transport, appName);
-      await initLedgerApp(transport);
+      await deviceRequest({ op: 'ensureAppOpen', appName });
+      await refreshActiveApp();
     },
-    [initLedgerApp],
+    [deviceRequest, refreshActiveApp],
   );
 
   const getPublicKey = useCallback(
     async (accountIndex: number, pathType: DerivationPath, vm: VM | 'SVM') => {
-      if (!transportRef.current) {
-        throw new Error('no device detected');
-      }
-
-      const transport = transportRef.current;
-
       if (vm === 'SVM') {
-        await ensureLedgerAppOpen(transport, LedgerAppType.SOLANA);
-        return getSolanaPublicKeyFromLedger(accountIndex, transport);
+        const result = await deviceRequest({
+          op: 'getSolanaPublicKey',
+          accountIndex,
+        });
+        if (!result || !('publicKeyHex' in result)) {
+          throw new Error('Ledger returned no Solana public key');
+        }
+        return Buffer.from(result.publicKeyHex, 'hex');
       }
 
-      return getPubKeyFromTransport(transport, accountIndex, pathType, vm);
+      // The C-Chain (EVM) address public key is derived from the account's
+      // extended public key — no per-address device call needed.
+      const isBip44 = pathType === DerivationPath.BIP44;
+      const xpub = await getExtendedPublicKey(
+        getEvmExtendedKeyPath(isBip44 ? 0 : accountIndex),
+      );
+      return getAddressPublicKeyFromXPub(xpub, isBip44 ? accountIndex : 0);
     },
-    [],
+    [deviceRequest, getExtendedPublicKey],
   );
 
   /**
-   * When the user plugs-in/connects their ledger for the first time a
-   * device selection needs to be performed before we can do anything with
-   * the device. So for those cases this function forces that popup to open.
-   *
-   * This cannot be opened on the popup (confirm) or popout (extension click)
-   * view. This can only be performed on a tab view so the user will need to be
-   * put into that state first.
-   *
-   * @returns The transport object
+   * Prompts the WebHID device-permission chooser. Requires a user gesture on a
+   * tab view (not the popup/confirm windows). This only grants access — the
+   * service worker opens the device via `navigator.hid.getDevices()`.
    */
   const popDeviceSelection = useCallback(async () => {
-    if (app) {
+    // A locked device still has a WebHID grant — don't re-prompt, just refresh.
+    if (hasDevice || hasHidGrant) {
+      await refreshActiveApp();
       return true;
     }
 
-    const useWebHID = await shouldUseWebHID();
-
-    const [deviceTransport] = await resolve<Transport>(
-      useWebHID ? TransportWebHID.request() : TransportWebUSB.request(),
+    const [devices] = await resolve(
+      navigator.hid.requestDevice({
+        filters: [{ vendorId: LEDGER_USB_VENDOR_ID }],
+      }),
     );
 
-    if (deviceTransport) {
+    if (devices && devices.length > 0) {
+      setHasHidGrant(true);
+      await refreshActiveApp();
       return true;
     }
 
-    throw Error('Ledger device selection failed');
-  }, [app]);
+    throw new Error('Ledger device selection failed');
+  }, [hasDevice, hasHidGrant, refreshActiveApp]);
 
   const initLedgerTransport = useCallback(async () => {
-    if (initialized) {
-      return;
-    }
-    await request<InitLedgerTransportHandler>({
-      method: ExtensionRequest.LEDGER_INIT_TRANSPORT,
-      params: [LEDGER_INSTANCE_UUID],
-    });
-    setInitialized(true);
-  }, [initialized, request]);
+    await refreshActiveApp();
+  }, [refreshActiveApp]);
 
   const closeCurrentApp = useCallback(async () => {
-    if (transportRef.current) {
-      // send get app version first as a workaround for BTC bug: https://github.com/LedgerHQ/app-bitcoin-new/issues/63
-      await getLedgerAppInfo(transportRef.current);
-      // quit the app: https://developers.ledger.com/docs/transport/open-close-info-on-apps/#quit-application
-      await quitLedgerApp(transportRef.current);
-      setAppType(LedgerAppType.UNKNOWN);
-      setApp(undefined);
-      setAppConfig(null);
-    }
-  }, [transportRef]);
-
-  useEffect(() => {
-    const subscription = events()
-      .pipe(
-        filter((evt) => evt.name === LedgerEvent.TRANSPORT_CLOSE_REQUEST),
-        filter((evt) => {
-          // Only the window that most recently requested a USB transport will remain open.
-          // This is to avoid the issue where a window is opened, the transport is claimed, and then another window is opened.
-          // The second window will then be unable to claim the transport because it is already claimed by the first window.
-          // This is a workaround to avoid the issue.
-          return evt.value.currentTransportUUID !== LEDGER_INSTANCE_UUID;
-        }),
-      )
-      .subscribe(() => {
-        window.close();
-      });
-    return () => {
-      subscription.unsubscribe();
-    };
-  });
+    await deviceRequest({ op: 'closeApp' });
+    setAppType(LedgerAppType.UNKNOWN);
+    setAppConfig(null);
+  }, [deviceRequest]);
 
   useEffect(() => {
     request<GetLedgerVersionWarningHandler>({
@@ -582,22 +335,25 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
   }, [events, request]);
 
   const getMasterFingerprint = useCallback(async () => {
-    if (!(app instanceof Btc)) {
-      throw new Error('wrong app');
+    const result = await deviceRequest({ op: 'getBtcMasterFingerprint' });
+    if (!result || !('fingerprint' in result)) {
+      throw new Error('Ledger returned no master fingerprint');
     }
-
-    return app.getMasterFingerprint();
-  }, [app]);
+    return result.fingerprint;
+  }, [deviceRequest]);
 
   const getBtcExtendedPublicKey = useCallback(
     async (path: string) => {
-      if (!(app instanceof Btc)) {
-        throw new Error('wrong app');
+      const result = await deviceRequest({
+        op: 'getBtcExtendedPublicKey',
+        path,
+      });
+      if (!result || !('xpub' in result)) {
+        throw new Error('Ledger returned no BTC extended public key');
       }
-
-      return app.getExtendedPubkey(path, true);
+      return result.xpub;
     },
-    [app],
+    [deviceRequest],
   );
 
   const registerBtcWalletPolicy = useCallback(
@@ -606,21 +362,20 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       fingerprint: string,
       derivationpath: string,
       name: string,
-    ) => {
-      if (!(app instanceof Btc)) {
-        throw new Error('wrong app');
+    ): Promise<Buffer> => {
+      const result = await deviceRequest({
+        op: 'registerBtcWalletPolicy',
+        xpub,
+        masterFingerprint: fingerprint,
+        derivationPath: derivationpath,
+        name,
+      });
+      if (!result || !('hmacHex' in result)) {
+        throw new Error('Ledger failed to register the BTC wallet policy');
       }
-
-      const template = new DefaultWalletPolicy(
-        `wpkh(@0/**)`,
-        `[${fingerprint}/${derivationpath}]${xpub}`,
-      );
-
-      const walletPolicy = new WalletPolicy(name, `wpkh(@0/**)`, template.keys);
-
-      return app.registerWallet(walletPolicy);
+      return Buffer.from(result.hmacHex, 'hex');
     },
-    [app],
+    [deviceRequest],
   );
 
   const updateLedgerVersionWarningClosed = useCallback(async () => {
@@ -637,7 +392,9 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         getExtendedPublicKey,
         prepareTransportForOnboarding,
         initLedgerTransport,
-        hasLedgerTransport: !!transportRef.current,
+        hasLedgerTransport: hasDevice,
+        hasMultipleDevices,
+        isDeviceLocked,
         wasTransportAttempted,
         appType,
         appConfig,

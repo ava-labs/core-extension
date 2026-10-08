@@ -1,28 +1,18 @@
-export interface LedgerDeviceResponseData {
-  requestId: string;
-  method: string;
-  error?: any;
-  result?: any;
-}
-
-export interface LedgerDeviceRequestData {
-  requestId: string;
-  method: string;
-  connectionUUID: string;
-  params: any;
-}
-
-export enum LedgerEvent {
-  TRANSPORT_REQUEST = 'LedgerEvent:transport_request',
-  DISCOVER_TRANSPORTS = 'LedgerEvent:discover_transports',
-  TRANSPORT_CLOSE_REQUEST = 'LedgerEvent:transport_close',
-}
-
 export type DerivationStatus =
   | 'waiting'
   | 'ready'
   | 'error'
   | 'needs-user-gesture';
+
+export const LEDGER_MULTIPLE_DEVICES_ERROR =
+  'Multiple Ledger devices are connected';
+
+export const LEDGER_DEVICE_LOCKED_ERROR = 'Ledger device is locked';
+
+export const LEDGER_APP_NOT_INSTALLED_ERROR = 'Ledger app is not installed';
+
+export const LEDGER_APP_SWITCH_FAILED_ERROR =
+  'Could not switch the Ledger app automatically';
 
 export const LEDGER_VERSION_WARNING_WAS_CLOSED =
   'LEDGER_VERSION_WARNING_WAS_CLOSED';

@@ -114,6 +114,7 @@ export const LedgerConnectionError = ({
         {errorType === 'app-not-installed' && (
           <AppNotInstalledMessage requiredApp={requiredApp} />
         )}
+        {errorType === 'multiple-devices' && <MultipleDevicesMessage />}
       </Stack>
       <Stack direction="row" justifyContent="center">
         <NavButton size="medium" color="primary" onClick={onRetry}>
@@ -202,6 +203,18 @@ const AppNotInstalledMessage = ({ requiredApp }: IncorrectAppMessageProps) => {
       {t(
         'The {{requiredApp}} app does not appear to be installed on your Ledger. Install it from Ledger Live, then try again.',
         { requiredApp },
+      )}
+    </Typography>
+  );
+};
+
+const MultipleDevicesMessage = () => {
+  const { t } = useTranslation();
+
+  return (
+    <Typography variant="body2">
+      {t(
+        'Multiple Ledger devices are connected. Please connect only the one you intend to use.',
       )}
     </Typography>
   );

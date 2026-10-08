@@ -11,7 +11,6 @@ import {
 import {
   LedgerAppType,
   MAX_BITCOIN_APP_VERSION,
-  useActiveLedgerAppInfo,
   useConnectionContext,
   useLedgerContext,
   useRegisterBtcWalletPolicy,
@@ -55,13 +54,16 @@ export const LedgerPolicyRegistrationStateProvider = ({
   children,
 }: PropsWithChildren) => {
   const { request } = useConnectionContext();
+  // Read without subscribing to polling: this provider wraps the whole app, and
+  // the approval screens that need policy registration poll on their own.
   const {
     getBtcExtendedPublicKey,
     getMasterFingerprint,
     registerBtcWalletPolicy,
     closeCurrentApp,
+    appType,
+    appVersion,
   } = useLedgerContext();
-  const { appType, appVersion } = useActiveLedgerAppInfo();
 
   const {
     shouldRegisterBtcWalletPolicy,
@@ -122,7 +124,7 @@ export const LedgerPolicyRegistrationStateProvider = ({
       inProgress.current = true;
       const masterFingerprint = await getMasterFingerprint();
 
-      const [, hmac] = await registerBtcWalletPolicy(
+      const hmac = await registerBtcWalletPolicy(
         xpub,
         masterFingerprint,
         walletPolicyDerivationpath,

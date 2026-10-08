@@ -1,7 +1,11 @@
 import { Card } from '@/components/Card';
 import { Page } from '@/components/Page';
 import { ListItem, StackProps } from '@avalabs/k2-alpine';
-import { useIsCorrectDeviceForActiveWallet, useLedgerContext } from '@core/ui';
+import {
+  useActiveLedgerAppInfo,
+  useIsCorrectDeviceForActiveWallet,
+  useLedgerContext,
+} from '@core/ui';
 import { ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -34,6 +38,8 @@ export const LedgerDeviceStatus = () => {
   const { t } = useTranslation();
   const { hasLedgerTransport, wasTransportAttempted } = useLedgerContext();
   const deviceCheck = useIsCorrectDeviceForActiveWallet();
+
+  useActiveLedgerAppInfo();
 
   const state: State = wasTransportAttempted
     ? hasLedgerTransport && deviceCheck === 'correct'

@@ -56,7 +56,7 @@
         "@avalabs/evm-module>@avalabs/crypto-sdk": true,
         "@avalabs/vm-module-types": true,
         "@metamask/rpc-errors": true,
-        "bitcoinjs-lib": true,
+        "@avalabs/bitcoin-module>bitcoinjs-lib": true,
         "buffer": true,
         "@rsbuild/plugin-node-polyfill>process": true,
         "@avalabs/bitcoin-module>zod": true
@@ -136,6 +136,7 @@
     "@avalabs/core-wallets-sdk": {
       "globals": {
         "Buffer.alloc": true,
+        "Buffer.concat": true,
         "Buffer.from": true,
         "Buffer.isBuffer": true,
         "console.log": true,
@@ -158,10 +159,10 @@
         "@avalabs/core-utils-sdk": true,
         "@avalabs/glacier-sdk": true,
         "@avalabs/hw-app-avalanche": true,
-        "@ledgerhq/hw-app-btc": true,
-        "@ledgerhq/hw-app-eth": true,
-        "@ledgerhq/hw-app-solana": true,
-        "ledger-bitcoin>@ledgerhq/hw-transport": true,
+        "@avalabs/fusion-sdk>@bitcoinerlab/secp256k1": true,
+        "@ledgerhq/device-management-kit": true,
+        "@ledgerhq/device-signer-kit-bitcoin": true,
+        "@ledgerhq/device-signer-kit-solana": true,
         "@avalabs/core-wallets-sdk>@metamask/eth-sig-util": true,
         "@noble/curves": true,
         "@avalabs/core-wallets-sdk>@noble/hashes": true,
@@ -178,16 +179,17 @@
         "@avalabs/svm-module>@solana/kit>@solana/transaction-messages": true,
         "@avalabs/svm-module>@solana/kit>@solana/transactions": true,
         "bip32": true,
-        "ledger-bitcoin>bip32-path": true,
+        "@avalabs/core-wallets-sdk>bip32-path": true,
         "@avalabs/core-wallets-sdk>bip39": true,
         "bitcoinjs-lib": true,
         "buffer": true,
         "@avalabs/fusion-sdk>coinselect": true,
         "bip32>create-hash": true,
+        "@avalabs/core-wallets-sdk>ecpair": true,
         "ethers": true,
         "@avalabs/core-wallets-sdk>hdkey": true,
-        "ledger-bitcoin": true,
         "micro-key-producer": true,
+        "rxjs": true,
         "@avalabs/core-wallets-sdk>xss": true
       }
     },
@@ -332,7 +334,8 @@
         "Buffer.from": true
       },
       "packages": {
-        "@ledgerhq/hw-app-eth": true,
+        "@ledgerhq/device-management-kit": true,
+        "@ledgerhq/device-signer-kit-ethereum": true,
         "@avalabs/hw-app-avalanche>bs58": true,
         "buffer": true
       }
@@ -514,7 +517,7 @@
         "setTimeout": true
       },
       "packages": {
-        "@avalabs/core-utils-sdk>@hpke/core": true,
+        "@cubist-labs/cubesigner-sdk>@hpke/core": true,
         "buffer": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify": true,
         "@cubist-labs/cubesigner-sdk>openapi-fetch": true
@@ -549,99 +552,11 @@
         "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>micro-ftch": true
       }
     },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi": {
-      "globals": {
-        "console.log": true
-      },
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/address": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/bignumber": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/bytes": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/constants": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/keccak256": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/logger": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/properties": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/strings": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/address": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/address>@ethersproject/bignumber": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/address>@ethersproject/bytes": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/address>@ethersproject/keccak256": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/address>@ethersproject/logger": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/rlp": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/bignumber": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/bytes": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/logger": true,
-        "bn.js": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/address>@ethersproject/bignumber": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/address>@ethersproject/bytes": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/address>@ethersproject/logger": true,
-        "bn.js": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/constants>@ethersproject/bignumber": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/constants>@ethersproject/bignumber>@ethersproject/bytes": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/constants>@ethersproject/bignumber>@ethersproject/logger": true,
-        "bn.js": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/bignumber": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/bytes": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/logger": true,
-        "bn.js": true
-      }
-    },
     "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>@ethersproject/bignumber": {
       "packages": {
         "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>@ethersproject/bytes": true,
         "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>@ethersproject/bytes>@ethersproject/logger": true,
         "bn.js": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/bytes": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/logger": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/address>@ethersproject/bytes": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/address>@ethersproject/logger": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/constants>@ethersproject/bignumber>@ethersproject/bytes": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/constants>@ethersproject/bignumber>@ethersproject/logger": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash>@ethersproject/bytes": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash>@ethersproject/logger": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/rlp>@ethersproject/bytes": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/rlp>@ethersproject/logger": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/signing-key>@ethersproject/bytes": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/signing-key>@ethersproject/logger": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/bytes": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/logger": true
       }
     },
     "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>@ethersproject/bytes": {
@@ -654,56 +569,6 @@
         "fireblocks-sdk>@notabene/pii-sdk>@ethersproject/bytes>@ethersproject/logger": true
       }
     },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/constants": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/constants>@ethersproject/bignumber": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash>@ethersproject/keccak256": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash>@ethersproject/strings": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/keccak256": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/bytes": true,
-        "web3>web3-utils>ethereum-bloom-filters>js-sha3": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/address>@ethersproject/keccak256": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/address>@ethersproject/bytes": true,
-        "web3>web3-utils>ethereum-bloom-filters>js-sha3": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash>@ethersproject/keccak256": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash>@ethersproject/bytes": true,
-        "web3>web3-utils>ethereum-bloom-filters>js-sha3": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/keccak256": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/bytes": true,
-        "web3>web3-utils>ethereum-bloom-filters>js-sha3": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/logger": {
-      "globals": {
-        "console": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/address>@ethersproject/logger": {
-      "globals": {
-        "console": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/constants>@ethersproject/bignumber>@ethersproject/logger": {
-      "globals": {
-        "console": true
-      }
-    },
     "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>@ethersproject/bytes>@ethersproject/logger": {
       "globals": {
         "console": true
@@ -712,76 +577,6 @@
     "fireblocks-sdk>@notabene/pii-sdk>@ethersproject/bytes>@ethersproject/logger": {
       "globals": {
         "console": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash>@ethersproject/logger": {
-      "globals": {
-        "console": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/properties>@ethersproject/logger": {
-      "globals": {
-        "console": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/rlp>@ethersproject/logger": {
-      "globals": {
-        "console": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/signing-key>@ethersproject/logger": {
-      "globals": {
-        "console": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/logger": {
-      "globals": {
-        "console": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/properties": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/properties>@ethersproject/logger": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/rlp": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/rlp>@ethersproject/bytes": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/rlp>@ethersproject/logger": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/signing-key": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/signing-key>@ethersproject/bytes": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/signing-key>@ethersproject/logger": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/properties": true,
-        "bn.js": true,
-        "bip32>tiny-secp256k1>elliptic>hash.js": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/strings": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/bytes": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/logger": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash>@ethersproject/strings": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash>@ethersproject/bytes": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash>@ethersproject/logger": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ethersproject/transactions": {
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/address": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/bignumber": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/bytes": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/constants": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/keccak256": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/logger": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/properties": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/rlp": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/transactions>@ethersproject/signing-key": true
       }
     },
     "firebase>@firebase/app-check": {
@@ -927,7 +722,7 @@
         "joi>@hapi/hoek": true
       }
     },
-    "@avalabs/core-utils-sdk>@hpke/core>@hpke/common": {
+    "@cubist-labs/cubesigner-sdk>@hpke/core>@hpke/common": {
       "globals": {
         "TextDecoder": true,
         "TextEncoder": true,
@@ -939,9 +734,27 @@
         "@rsbuild/plugin-node-polyfill>crypto-browserify": true
       }
     },
-    "@avalabs/core-utils-sdk>@hpke/core": {
+    "@cubist-labs/cubesigner-sdk>@hpke/core": {
+      "globals": {
+        "define": true
+      },
       "packages": {
-        "@avalabs/core-utils-sdk>@hpke/core>@hpke/common": true
+        "@cubist-labs/cubesigner-sdk>@hpke/core>@hpke/common": true
+      }
+    },
+    "@ledgerhq/context-module>inversify>@inversifyjs/container": {
+      "packages": {
+        "@ledgerhq/context-module>inversify>@inversifyjs/common": true,
+        "@ledgerhq/context-module>inversify>@inversifyjs/core": true,
+        "@ledgerhq/context-module>inversify>@inversifyjs/core>@inversifyjs/reflect-metadata-utils": true,
+        "reflect-metadata": true
+      }
+    },
+    "@ledgerhq/context-module>inversify>@inversifyjs/core": {
+      "packages": {
+        "@ledgerhq/context-module>inversify>@inversifyjs/common": true,
+        "@ledgerhq/context-module>inversify>@inversifyjs/core>@inversifyjs/prototype-utils": true,
+        "@ledgerhq/context-module>inversify>@inversifyjs/core>@inversifyjs/reflect-metadata-utils": true
       }
     },
     "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities": {
@@ -951,113 +764,145 @@
         "console.error": true
       },
       "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/abi": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/address": true,
+        "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>@ethersproject/abi": true,
+        "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>@ethersproject/address": true,
         "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>@ethersproject/bignumber": true,
         "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>@ethersproject/bytes": true,
         "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>@ethersproject/keccak256": true,
         "@avalabs/fusion-sdk>@layerzerolabs/lz-v2-utilities>@ethersproject/solidity": true,
-        "fireblocks-sdk>@notabene/pii-sdk>bs58": true,
+        "bitcoinjs-lib>bs58check>bs58": true,
         "buffer": true,
         "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities>tiny-invariant": true
       }
     },
-    "@ledgerhq/hw-app-eth>@ledgerhq/domain-service": {
+    "@ledgerhq/context-module": {
       "packages": {
-        "@ledgerhq/hw-app-btc>@ledgerhq/logs": true,
-        "@ledgerhq/hw-app-eth>axios": true
+        "@ledgerhq/device-management-kit": true,
+        "@ledgerhq/context-module>bs58": true,
+        "@ledgerhq/context-module>crypto-js": true,
+        "@ledgerhq/context-module>ethers": true,
+        "@ledgerhq/context-module>inversify": true,
+        "@ledgerhq/context-module>purify-ts": true,
+        "reflect-metadata": true
       }
     },
-    "@ledgerhq/hw-app-eth>@ledgerhq/errors": {
+    "@ledgerhq/device-signer-kit-ethereum>@ledgerhq/device-contacts-kit": {
       "globals": {
-        "console.warn": true
-      }
-    },
-    "@ledgerhq/hw-app-eth>@ledgerhq/evm-tools": {
-      "globals": {
-        "Intl.DateTimeFormat": true
+        "TextEncoder": true
       },
       "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/constants": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/abi>@ethersproject/hash": true,
-        "@ledgerhq/hw-app-eth>@ledgerhq/cryptoassets-evm-signatures": true,
-        "@ledgerhq/hw-app-eth>@ledgerhq/evm-tools>@ledgerhq/live-env": true,
-        "@ledgerhq/hw-app-eth>axios": true,
-        "@ledgerhq/hw-app-eth>@ledgerhq/evm-tools>crypto-js": true
+        "@ledgerhq/device-management-kit": true,
+        "@ledgerhq/device-signer-kit-solana>@ledgerhq/signer-utils": true,
+        "@ledgerhq/context-module>inversify": true,
+        "@ledgerhq/context-module>purify-ts": true,
+        "reflect-metadata": true,
+        "@ledgerhq/device-signer-kit-ethereum>@ledgerhq/device-contacts-kit>semver": true,
+        "@ledgerhq/device-management-kit>xstate": true
       }
     },
-    "@ledgerhq/hw-app-btc": {
+    "@ledgerhq/device-management-kit": {
       "globals": {
-        "Buffer.alloc": true
-      },
-      "packages": {
-        "ledger-bitcoin>bip32-path": true,
-        "bip32>bs58check": true,
-        "buffer": true
-      }
-    },
-    "@ledgerhq/hw-app-eth": {
-      "globals": {
-        "Buffer.alloc": true,
-        "Buffer.concat": true,
-        "Buffer.from": true,
-        "console.warn": true
-      },
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ethersproject/abi": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/rlp": true,
-        "@ledgerhq/hw-app-eth>@ethersproject/transactions": true,
-        "@ledgerhq/hw-app-eth>@ledgerhq/cryptoassets-evm-signatures": true,
-        "@ledgerhq/hw-app-eth>@ledgerhq/domain-service": true,
-        "@ledgerhq/hw-app-eth>@ledgerhq/errors": true,
-        "@ledgerhq/hw-app-eth>@ledgerhq/evm-tools": true,
-        "@ledgerhq/hw-app-btc>@ledgerhq/logs": true,
-        "@ledgerhq/hw-app-eth>axios": true,
-        "@ledgerhq/hw-app-eth>bignumber.js": true,
-        "buffer": true,
-        "semver": true
-      }
-    },
-    "@ledgerhq/hw-app-solana": {
-      "globals": {
-        "Buffer.alloc": true,
-        "Buffer.concat": true,
-        "Buffer.from": true
-      },
-      "packages": {
-        "@ledgerhq/hw-app-eth>@ledgerhq/errors": true,
-        "ledger-bitcoin>bip32-path": true,
-        "buffer": true
-      }
-    },
-    "ledger-bitcoin>@ledgerhq/hw-transport": {
-      "globals": {
-        "Buffer.alloc": true,
-        "Buffer.concat": true,
-        "Buffer.from": true,
+        "AbortController": true,
+        "Blob": true,
+        "Buffer": true,
+        "FormData": true,
+        "ReadableStream": true,
+        "TextEncoder": true,
+        "URL.createObjectURL": true,
+        "URLSearchParams": true,
+        "atob": true,
+        "btoa": true,
         "clearTimeout": true,
+        "console.debug": true,
+        "console.error": true,
+        "console.info": true,
+        "console.log": true,
         "console.warn": true,
+        "document.createElement": true,
+        "fetch.bind": true,
+        "setTimeout": true,
+        "vi.fn": true
+      },
+      "packages": {
+        "@ledgerhq/device-management-kit>@noble/hashes": true,
+        "@ledgerhq/context-module>inversify": true,
+        "@ledgerhq/device-management-kit>isomorphic-ws": true,
+        "@ledgerhq/context-module>purify-ts": true,
+        "reflect-metadata": true,
+        "rxjs": true,
+        "@ledgerhq/device-management-kit>semver": true,
+        "@ledgerhq/device-management-kit>uuid": true,
+        "@ledgerhq/device-management-kit>xstate": true
+      }
+    },
+    "@ledgerhq/device-signer-kit-bitcoin": {
+      "globals": {
+        "TextEncoder": true
+      },
+      "packages": {
+        "@ledgerhq/device-management-kit": true,
+        "@ledgerhq/device-signer-kit-solana>@ledgerhq/signer-utils": true,
+        "bitcoinjs-lib": true,
+        "@ledgerhq/context-module>crypto-js": true,
+        "@ledgerhq/context-module>inversify": true,
+        "@ledgerhq/context-module>purify-ts": true,
+        "reflect-metadata": true,
+        "@ledgerhq/device-management-kit>xstate": true
+      }
+    },
+    "@ledgerhq/device-signer-kit-ethereum": {
+      "globals": {
+        "TextEncoder": true
+      },
+      "packages": {
+        "@ledgerhq/context-module": true,
+        "@ledgerhq/device-signer-kit-ethereum>@ledgerhq/device-contacts-kit": true,
+        "@ledgerhq/device-management-kit": true,
+        "@ledgerhq/device-signer-kit-solana>@ledgerhq/signer-utils": true,
+        "@ledgerhq/device-signer-kit-ethereum>ethers": true,
+        "@ledgerhq/context-module>inversify": true,
+        "@ledgerhq/context-module>purify-ts": true,
+        "reflect-metadata": true,
+        "@ledgerhq/device-management-kit>xstate": true
+      }
+    },
+    "@ledgerhq/device-signer-kit-solana": {
+      "globals": {
+        "TextDecoder": true,
+        "TextEncoder": true
+      },
+      "packages": {
+        "@ledgerhq/context-module": true,
+        "@ledgerhq/device-management-kit": true,
+        "@ledgerhq/device-signer-kit-solana>@ledgerhq/signer-utils": true,
+        "@ledgerhq/device-signer-kit-solana>@solana/web3.js": true,
+        "@ledgerhq/device-signer-kit-solana>bs58": true,
+        "@ledgerhq/context-module>inversify": true,
+        "@ledgerhq/context-module>purify-ts": true,
+        "reflect-metadata": true,
+        "@ledgerhq/device-management-kit>xstate": true
+      }
+    },
+    "@ledgerhq/device-transport-kit-web-hid": {
+      "globals": {
+        "AbortController": true,
+        "DOMException": true,
+        "clearTimeout": true,
+        "event": true,
+        "navigator.hid": true,
         "setTimeout": true
       },
       "packages": {
-        "@ledgerhq/hw-app-eth>@ledgerhq/errors": true,
-        "@ledgerhq/hw-app-btc>@ledgerhq/logs": true,
-        "buffer": true,
-        "events": true
+        "@ledgerhq/device-management-kit": true,
+        "@ledgerhq/device-management-kit>@sentry/minimal": true,
+        "@ledgerhq/context-module>purify-ts": true,
+        "rxjs": true,
+        "@ledgerhq/device-transport-kit-web-hid>uuid": true
       }
     },
-    "@ledgerhq/hw-app-eth>@ledgerhq/evm-tools>@ledgerhq/live-env": {
-      "globals": {
-        "console.warn": true
-      },
+    "@ledgerhq/device-signer-kit-solana>@ledgerhq/signer-utils": {
       "packages": {
-        "@ledgerhq/hw-app-eth>@ledgerhq/evm-tools>@ledgerhq/live-env>rxjs": true
-      }
-    },
-    "@ledgerhq/hw-app-btc>@ledgerhq/logs": {
-      "globals": {
-        "__ledgerLogsListen": "write",
-        "console.error": true
+        "@ledgerhq/device-management-kit": true
       }
     },
     "@avalabs/bridge-unified>@lombard.finance/sdk": {
@@ -1087,8 +932,8 @@
       "packages": {
         "@avalabs/fusion-sdk>@bitcoinerlab/secp256k1": true,
         "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities": true,
-        "@ledgerhq/hw-app-eth>axios": true,
-        "@ledgerhq/hw-app-eth>bignumber.js": true,
+        "@paraswap/sdk>axios": true,
+        "web3>web3-core>bignumber.js": true,
         "@avalabs/bridge-unified>bitcoinjs-lib": true,
         "buffer": true,
         "@rsbuild/plugin-node-polyfill>process": true
@@ -1297,6 +1142,11 @@
         "@noble/hashes": true
       }
     },
+    "@ledgerhq/device-signer-kit-solana>@solana/web3.js>@noble/curves": {
+      "packages": {
+        "@ledgerhq/device-signer-kit-solana>@solana/web3.js>@noble/hashes": true
+      }
+    },
     "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>ethereum-cryptography>@noble/curves": {
       "globals": {
         "TextEncoder": true
@@ -1306,6 +1156,14 @@
       }
     },
     "ethers>@noble/curves": {
+      "globals": {
+        "TextEncoder": true
+      },
+      "packages": {
+        "@noble/hashes": true
+      }
+    },
+    "@ledgerhq/device-signer-kit-ethereum>ethers>@noble/curves": {
       "globals": {
         "TextEncoder": true
       },
@@ -1378,6 +1236,12 @@
         "TextEncoder": true
       }
     },
+    "@ledgerhq/device-management-kit>@noble/hashes": {
+      "globals": {
+        "TextDecoder": true,
+        "TextEncoder": true
+      }
+    },
     "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/abi-utils>@metamask/utils>@noble/hashes": {
       "globals": {
         "TextEncoder": true,
@@ -1411,6 +1275,13 @@
     },
     "hypersdk-client>@noble/curves>@noble/hashes": {
       "globals": {
+        "TextEncoder": true,
+        "crypto": true
+      }
+    },
+    "@ledgerhq/device-signer-kit-solana>@solana/web3.js>@noble/hashes": {
+      "globals": {
+        "TextDecoder": true,
         "TextEncoder": true,
         "crypto": true
       }
@@ -1482,7 +1353,7 @@
         "fireblocks-sdk>@notabene/pii-sdk>axios-token-interceptor": true,
         "fireblocks-sdk>@notabene/pii-sdk>axios": true,
         "fireblocks-sdk>@notabene/pii-sdk>base64url": true,
-        "fireblocks-sdk>@notabene/pii-sdk>bs58": true,
+        "bitcoinjs-lib>bs58check>bs58": true,
         "buffer": true,
         "fireblocks-sdk>@notabene/pii-sdk>did-jwt": true,
         "fireblocks-sdk>@notabene/pii-sdk>lodash": true,
@@ -1569,6 +1440,21 @@
         "@sentry/browser>@sentry/utils": true
       }
     },
+    "@ledgerhq/device-management-kit>@sentry/minimal>@sentry/hub": {
+      "globals": {
+        "__SENTRY_DEBUG__": true
+      },
+      "packages": {
+        "@ledgerhq/device-management-kit>@sentry/minimal>@sentry/hub>@sentry/utils": true,
+        "@ledgerhq/device-management-kit>@sentry/minimal>@sentry/hub>tslib": true
+      }
+    },
+    "@ledgerhq/device-management-kit>@sentry/minimal": {
+      "packages": {
+        "@ledgerhq/device-management-kit>@sentry/minimal>@sentry/hub": true,
+        "@ledgerhq/device-management-kit>@sentry/minimal>tslib": true
+      }
+    },
     "@sentry/browser>@sentry/utils": {
       "globals": {
         "CustomEvent": true,
@@ -1593,6 +1479,21 @@
       },
       "packages": {
         "@rsbuild/plugin-node-polyfill>process": true
+      }
+    },
+    "@ledgerhq/device-management-kit>@sentry/minimal>@sentry/hub>@sentry/utils": {
+      "globals": {
+        "CustomEvent": true,
+        "Element": true,
+        "Event": true,
+        "__SENTRY_BROWSER_BUNDLE__": true,
+        "__SENTRY_DEBUG__": true,
+        "module": true,
+        "process": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>process": true,
+        "@ledgerhq/device-management-kit>@sentry/minimal>@sentry/hub>tslib": true
       }
     },
     "joi>@sideway/address": {
@@ -1710,6 +1611,16 @@
         "@avalabs/svm-module>@solana/kit>@solana/errors": true
       }
     },
+    "@ledgerhq/device-signer-kit-solana>@solana/web3.js>@solana/buffer-layout": {
+      "packages": {
+        "buffer": true
+      }
+    },
+    "@ledgerhq/device-signer-kit-solana>@solana/web3.js>@solana/codecs-numbers>@solana/codecs-core": {
+      "packages": {
+        "@ledgerhq/device-signer-kit-solana>@solana/web3.js>@solana/codecs-numbers>@solana/errors": true
+      }
+    },
     "@solana/kit>@solana/keys>@solana/codecs-core": {
       "packages": {
         "@solana/kit>@solana/errors": true
@@ -1746,6 +1657,12 @@
         "@avalabs/svm-module>@solana/kit>@solana/errors": true
       }
     },
+    "@ledgerhq/device-signer-kit-solana>@solana/web3.js>@solana/codecs-numbers": {
+      "packages": {
+        "@ledgerhq/device-signer-kit-solana>@solana/web3.js>@solana/codecs-numbers>@solana/codecs-core": true,
+        "@ledgerhq/device-signer-kit-solana>@solana/web3.js>@solana/codecs-numbers>@solana/errors": true
+      }
+    },
     "@solana/kit>@solana/keys>@solana/codecs-strings": {
       "globals": {
         "TextDecoder": true,
@@ -1768,6 +1685,12 @@
       "packages": {
         "@avalabs/svm-module>@solana/kit>@solana/keys>@solana/codecs-core": true,
         "@avalabs/svm-module>@solana/kit>@solana/errors": true
+      }
+    },
+    "@ledgerhq/device-signer-kit-solana>@solana/web3.js>@solana/codecs-numbers>@solana/errors": {
+      "globals": {
+        "btoa": true,
+        "process.env.NODE_ENV": true
       }
     },
     "@solana/kit>@solana/errors": {
@@ -2032,6 +1955,31 @@
         "@avalabs/svm-module>@solana/kit>@solana/keys": true,
         "@avalabs/svm-module>@solana/kit>@solana/rpc-types": true,
         "@avalabs/svm-module>@solana/kit>@solana/transaction-messages": true
+      }
+    },
+    "@ledgerhq/device-signer-kit-solana>@solana/web3.js": {
+      "globals": {
+        "clearInterval": true,
+        "clearTimeout": true,
+        "console.error": true,
+        "console.log": true,
+        "console.warn": true,
+        "fetch": true,
+        "setInterval": true,
+        "setTimeout": true
+      },
+      "packages": {
+        "@ledgerhq/device-signer-kit-solana>@solana/web3.js>@noble/curves": true,
+        "@ledgerhq/device-signer-kit-solana>@solana/web3.js>@noble/hashes": true,
+        "@ledgerhq/device-signer-kit-solana>@solana/web3.js>@solana/buffer-layout": true,
+        "@ledgerhq/device-signer-kit-solana>@solana/web3.js>@solana/codecs-numbers": true,
+        "bn.js": true,
+        "@ledgerhq/device-signer-kit-solana>@solana/web3.js>borsh": true,
+        "@ledgerhq/device-signer-kit-solana>@solana/web3.js>bs58": true,
+        "buffer": true,
+        "@ledgerhq/device-signer-kit-solana>@solana/web3.js>jayson": true,
+        "@ledgerhq/device-signer-kit-solana>@solana/web3.js>rpc-websockets": true,
+        "@ledgerhq/device-signer-kit-solana>@solana/web3.js>superstruct": true
       }
     },
     "@walletconnect/utils>@stablelib/random>@stablelib/binary": {
@@ -2426,38 +2374,6 @@
         "fireblocks-sdk>@notabene/pii-sdk>axios-token-interceptor>lock": true
       }
     },
-    "@ledgerhq/hw-app-eth>axios": {
-      "globals": {
-        "AbortController": true,
-        "Blob": true,
-        "Buffer.from": true,
-        "FormData": true,
-        "ReadableStream": true,
-        "Request": true,
-        "Response": true,
-        "TextEncoder": true,
-        "URL": true,
-        "URLSearchParams": true,
-        "WorkerGlobalScope": true,
-        "XMLHttpRequest": true,
-        "btoa": true,
-        "clearTimeout": true,
-        "console.warn": true,
-        "document": true,
-        "fetch": true,
-        "importScripts": true,
-        "location.href": true,
-        "navigator": true,
-        "process": true,
-        "queueMicrotask": true,
-        "setImmediate": true,
-        "setTimeout": true
-      },
-      "packages": {
-        "buffer": true,
-        "@rsbuild/plugin-node-polyfill>process": true
-      }
-    },
     "fireblocks-sdk>@notabene/pii-sdk>axios": {
       "globals": {
         "Blob": true,
@@ -2527,7 +2443,7 @@
         "buffer": true
       }
     },
-    "@ledgerhq/hw-app-btc>bs58>base-x": {
+    "bip32>bs58check>bs58>base-x": {
       "packages": {
         "bip32>bs58check>safe-buffer": true
       }
@@ -2552,12 +2468,12 @@
         "crypto": true
       }
     },
-    "@ledgerhq/hw-app-eth>bignumber.js": {
+    "web3>web3-core>bignumber.js": {
       "globals": {
         "crypto": true
       }
     },
-    "@avalabs/core-wallets-sdk>bip174": {
+    "bitcoinjs-lib>bip174": {
       "globals": {
         "Buffer.allocUnsafe": true,
         "Buffer.concat": true,
@@ -2569,7 +2485,7 @@
         "buffer": true
       }
     },
-    "bitcoinjs-lib>bip174": {
+    "@avalabs/bitcoin-module>bitcoinjs-lib>bip174": {
       "globals": {
         "Buffer.allocUnsafe": true,
         "Buffer.concat": true,
@@ -2619,7 +2535,7 @@
         "buffer": true
       }
     },
-    "bitcoinjs-lib>bip66": {
+    "@avalabs/bitcoin-module>bitcoinjs-lib>bip66": {
       "packages": {
         "bip32>bs58check>safe-buffer": true
       }
@@ -2630,16 +2546,31 @@
         "console.warn": true
       },
       "packages": {
+        "@noble/hashes": true,
         "bitcoinjs-lib>bech32": true,
         "bitcoinjs-lib>bip174": true,
+        "bitcoinjs-lib>bs58check": true,
+        "buffer": true,
+        "bip32>typeforce": true,
+        "bitcoinjs-lib>varuint-bitcoin": true
+      }
+    },
+    "@avalabs/bitcoin-module>bitcoinjs-lib": {
+      "globals": {
+        "Buffer": true,
+        "console.warn": true
+      },
+      "packages": {
+        "@avalabs/bitcoin-module>bitcoinjs-lib>bech32": true,
+        "@avalabs/bitcoin-module>bitcoinjs-lib>bip174": true,
         "bip32": true,
-        "bitcoinjs-lib>bip66": true,
-        "bitcoinjs-lib>bitcoin-ops": true,
+        "@avalabs/bitcoin-module>bitcoinjs-lib>bip66": true,
+        "@avalabs/bitcoin-module>bitcoinjs-lib>bitcoin-ops": true,
         "bip32>bs58check": true,
         "buffer": true,
         "bip32>create-hash": true,
-        "bitcoinjs-lib>merkle-lib": true,
-        "bitcoinjs-lib>pushdata-bitcoin": true,
+        "@avalabs/bitcoin-module>bitcoinjs-lib>merkle-lib": true,
+        "@avalabs/bitcoin-module>bitcoinjs-lib>pushdata-bitcoin": true,
         "bip39>randombytes": true,
         "bip32>tiny-secp256k1": true,
         "bip32>typeforce": true,
@@ -2654,8 +2585,8 @@
       },
       "packages": {
         "@avalabs/bridge-unified>bitcoinjs-lib>@noble/hashes": true,
-        "ledger-bitcoin>bitcoinjs-lib>bech32": true,
-        "@avalabs/core-wallets-sdk>bip174": true,
+        "bitcoinjs-lib>bech32": true,
+        "bitcoinjs-lib>bip174": true,
         "@avalabs/bridge-unified>bitcoinjs-lib>bs58check": true,
         "buffer": true,
         "bip32>typeforce": true,
@@ -2669,24 +2600,9 @@
       },
       "packages": {
         "@noble/hashes": true,
-        "ledger-bitcoin>bitcoinjs-lib>bech32": true,
-        "@avalabs/core-wallets-sdk>bip174": true,
+        "bitcoinjs-lib>bech32": true,
+        "bitcoinjs-lib>bip174": true,
         "@avalabs/fusion-sdk>bitcoinjs-lib>bs58check": true,
-        "buffer": true,
-        "bip32>typeforce": true,
-        "bitcoinjs-lib>varuint-bitcoin": true
-      }
-    },
-    "ledger-bitcoin>bitcoinjs-lib": {
-      "globals": {
-        "Buffer": true,
-        "console.warn": true
-      },
-      "packages": {
-        "@noble/hashes": true,
-        "ledger-bitcoin>bitcoinjs-lib>bech32": true,
-        "@avalabs/core-wallets-sdk>bip174": true,
-        "ledger-bitcoin>bitcoinjs-lib>bs58check": true,
         "buffer": true,
         "bip32>typeforce": true,
         "bitcoinjs-lib>varuint-bitcoin": true
@@ -2695,6 +2611,20 @@
     "bn.js": {
       "globals": {
         "Buffer": true
+      }
+    },
+    "@ledgerhq/device-signer-kit-solana>@solana/web3.js>borsh": {
+      "globals": {
+        "Buffer.alloc": true,
+        "Buffer.concat": true,
+        "Buffer.from": true,
+        "TextDecoder": true
+      },
+      "packages": {
+        "bn.js": true,
+        "@ledgerhq/device-signer-kit-solana>@solana/web3.js>borsh>bs58": true,
+        "buffer": true,
+        "@ledgerhq/device-signer-kit-solana>@solana/web3.js>borsh>text-encoding-utf-8": true
       }
     },
     "bip32>tiny-secp256k1>elliptic>brorand": {
@@ -2773,14 +2703,34 @@
         "@avalabs/hw-app-avalanche>bs58>base-x": true
       }
     },
-    "fireblocks-sdk>@notabene/pii-sdk>bs58": {
+    "@ledgerhq/context-module>bs58": {
       "packages": {
-        "fireblocks-sdk>@notabene/pii-sdk>bs58>base-x": true
+        "@ledgerhq/context-module>bs58>base-x": true
+      }
+    },
+    "@ledgerhq/device-signer-kit-solana>bs58": {
+      "packages": {
+        "@ledgerhq/device-signer-kit-solana>bs58>base-x": true
+      }
+    },
+    "@ledgerhq/device-signer-kit-solana>@solana/web3.js>bs58": {
+      "packages": {
+        "bip32>bs58check>bs58>base-x": true
+      }
+    },
+    "@ledgerhq/device-signer-kit-solana>@solana/web3.js>borsh>bs58": {
+      "packages": {
+        "bip32>bs58check>bs58>base-x": true
       }
     },
     "bip32>bs58check>bs58": {
       "packages": {
-        "@ledgerhq/hw-app-btc>bs58>base-x": true
+        "bip32>bs58check>bs58>base-x": true
+      }
+    },
+    "bitcoinjs-lib>bs58check>bs58": {
+      "packages": {
+        "bitcoinjs-lib>bs58check>bs58>base-x": true
       }
     },
     "bip32>bs58check": {
@@ -2790,22 +2740,22 @@
         "bip32>bs58check>safe-buffer": true
       }
     },
+    "bitcoinjs-lib>bs58check": {
+      "packages": {
+        "@noble/hashes": true,
+        "bitcoinjs-lib>bs58check>bs58": true
+      }
+    },
     "@avalabs/bridge-unified>bitcoinjs-lib>bs58check": {
       "packages": {
         "@avalabs/bridge-unified>bitcoinjs-lib>bs58check>@noble/hashes": true,
-        "fireblocks-sdk>@notabene/pii-sdk>bs58": true
+        "bitcoinjs-lib>bs58check>bs58": true
       }
     },
     "@avalabs/fusion-sdk>bitcoinjs-lib>bs58check": {
       "packages": {
         "@noble/hashes": true,
-        "fireblocks-sdk>@notabene/pii-sdk>bs58": true
-      }
-    },
-    "ledger-bitcoin>bitcoinjs-lib>bs58check": {
-      "packages": {
-        "@noble/hashes": true,
-        "fireblocks-sdk>@notabene/pii-sdk>bs58": true
+        "bitcoinjs-lib>bs58check>bs58": true
       }
     },
     "buffer": {
@@ -2933,8 +2883,8 @@
         "bip32>create-hash>cipher-base": true,
         "bip32>create-hash>inherits": true,
         "bip32>create-hash>md5.js": true,
-        "@ledgerhq/hw-app-btc>ripemd160": true,
-        "@ledgerhq/hw-app-btc>sha.js": true
+        "bip32>create-hash>ripemd160": true,
+        "bip32>create-hash>sha.js": true
       }
     },
     "bip39>pbkdf2>create-hash": {
@@ -2950,9 +2900,9 @@
         "bip32>create-hash>cipher-base": true,
         "bip32>create-hash": true,
         "bip32>create-hash>inherits": true,
-        "@ledgerhq/hw-app-btc>ripemd160": true,
+        "bip32>create-hash>ripemd160": true,
         "bip32>bs58check>safe-buffer": true,
-        "@ledgerhq/hw-app-btc>sha.js": true
+        "bip32>create-hash>sha.js": true
       }
     },
     "i18next-http-backend>cross-fetch": {
@@ -2978,7 +2928,7 @@
         "@rsbuild/plugin-node-polyfill>crypto-browserify>randomfill": true
       }
     },
-    "@ledgerhq/hw-app-eth>@ledgerhq/evm-tools>crypto-js": {
+    "@ledgerhq/context-module>crypto-js": {
       "globals": {
         "crypto": true,
         "define": true,
@@ -3045,7 +2995,7 @@
         "@walletconnect/utils>@stablelib/sha256": true,
         "@walletconnect/utils>@stablelib/x25519": true,
         "fireblocks-sdk>@notabene/pii-sdk>did-jwt>@stablelib/xchacha20poly1305": true,
-        "ledger-bitcoin>bitcoinjs-lib>bech32": true,
+        "bitcoinjs-lib>bech32": true,
         "fireblocks-sdk>@notabene/pii-sdk>did-jwt>canonicalize": true,
         "bip32>tiny-secp256k1>elliptic": true,
         "web3>web3-utils>ethereum-bloom-filters>js-sha3": true,
@@ -3073,6 +3023,19 @@
     "fireblocks-sdk>jsonwebtoken>jws>jwa>ecdsa-sig-formatter": {
       "packages": {
         "bip32>bs58check>safe-buffer": true
+      }
+    },
+    "@avalabs/core-wallets-sdk>ecpair": {
+      "globals": {
+        "Buffer.alloc": true,
+        "Buffer.concat": true,
+        "Buffer.from": true
+      },
+      "packages": {
+        "buffer": true,
+        "bip39>randombytes": true,
+        "bip32>typeforce": true,
+        "bip32>wif": true
       }
     },
     "bip32>tiny-secp256k1>elliptic": {
@@ -3274,6 +3237,20 @@
         "@noble/hashes": true,
         "ethers>aes-js": true,
         "ethers>tslib": true
+      }
+    },
+    "@ledgerhq/context-module>ethers": {
+      "globals": {
+        "console.log": true
+      },
+      "packages": {
+        "@noble/hashes": true
+      }
+    },
+    "@ledgerhq/device-signer-kit-ethereum>ethers": {
+      "packages": {
+        "@ledgerhq/device-signer-kit-ethereum>ethers>@noble/curves": true,
+        "@noble/hashes": true
       }
     },
     "@metamask/eth-sig-util>ethjs-util": {
@@ -3500,7 +3477,6 @@
     },
     "external:../common/src/utils/errors/errorHelpers.ts": {
       "packages": {
-        "ledger-bitcoin>@ledgerhq/hw-transport": true,
         "eth-rpc-errors": true,
         "external:../types/src/index.ts": true
       }
@@ -3600,16 +3576,6 @@
         "eth-json-rpc-middleware": true,
         "external:../common/src/utils/network/addGlacierAPIKeyIfNeeded.ts": true,
         "json-rpc-engine": true
-      }
-    },
-    "external:../common/src/utils/ledger/ensureLedgerAppOpen.ts": {
-      "globals": {
-        "Buffer.from": true
-      },
-      "packages": {
-        "@avalabs/core-utils-sdk": true,
-        "ledger-bitcoin>@ledgerhq/hw-transport": true,
-        "buffer": true
       }
     },
     "external:../common/src/utils/logging.ts": {
@@ -4157,7 +4123,7 @@
         "bip32>bs58check>safe-buffer": true
       }
     },
-    "@ledgerhq/hw-app-btc>ripemd160>hash-base": {
+    "bip32>create-hash>ripemd160>hash-base": {
       "packages": {
         "bip32>create-hash>inherits": true,
         "bestzip>archiver>readable-stream": true,
@@ -4269,6 +4235,14 @@
         "indexedDB.open": true
       }
     },
+    "@ledgerhq/context-module>inversify": {
+      "packages": {
+        "@ledgerhq/context-module>inversify>@inversifyjs/common": true,
+        "@ledgerhq/context-module>inversify>@inversifyjs/container": true,
+        "@ledgerhq/context-module>inversify>@inversifyjs/core": true,
+        "reflect-metadata": true
+      }
+    },
     "@rsbuild/plugin-node-polyfill>util>is-arguments": {
       "packages": {
         "@rsbuild/plugin-node-polyfill>util>is-arguments>call-bind": true,
@@ -4330,6 +4304,17 @@
         "URLSearchParams": true,
         "location": true,
         "navigator": true
+      }
+    },
+    "@ledgerhq/device-management-kit>isomorphic-ws": {
+      "globals": {
+        "MozWebSocket": true,
+        "WebSocket": true
+      }
+    },
+    "@ledgerhq/device-signer-kit-solana>@solana/web3.js>jayson": {
+      "packages": {
+        "fireblocks-sdk>uuid": true
       }
     },
     "joi": {
@@ -4433,20 +4418,6 @@
         "bestzip>archiver>readable-stream": true
       }
     },
-    "ledger-bitcoin": {
-      "globals": {
-        "Buffer.alloc": true,
-        "Buffer.concat": true,
-        "Buffer.from": true,
-        "Buffer.isBuffer": true
-      },
-      "packages": {
-        "ledger-bitcoin>bip32-path": true,
-        "ledger-bitcoin>bitcoinjs-lib": true,
-        "ledger-bitcoin>bitcoinjs-lib>bs58check": true,
-        "buffer": true
-      }
-    },
     "fireblocks-sdk>@notabene/pii-sdk>axios-token-interceptor>lock": {
       "globals": {
         "setImmediate": true,
@@ -4508,7 +4479,7 @@
         "bip32>bs58check>safe-buffer": true
       }
     },
-    "bitcoinjs-lib>merkle-lib": {
+    "@avalabs/bitcoin-module>bitcoinjs-lib>merkle-lib": {
       "globals": {
         "Buffer.concat": true
       },
@@ -4670,7 +4641,7 @@
         "@rsbuild/plugin-node-polyfill>process": true,
         "bip39>pbkdf2>ripemd160": true,
         "bip32>bs58check>safe-buffer": true,
-        "@ledgerhq/hw-app-btc>sha.js": true,
+        "bip32>create-hash>sha.js": true,
         "bip39>pbkdf2>to-buffer": true
       }
     },
@@ -4713,9 +4684,9 @@
         "define": true
       }
     },
-    "bitcoinjs-lib>pushdata-bitcoin": {
+    "@avalabs/bitcoin-module>bitcoinjs-lib>pushdata-bitcoin": {
       "packages": {
-        "bitcoinjs-lib>bitcoin-ops": true
+        "@avalabs/bitcoin-module>bitcoinjs-lib>bitcoin-ops": true
       }
     },
     "fireblocks-sdk>@notabene/pii-sdk>axios-oauth-client>qs": {
@@ -4822,10 +4793,10 @@
         "@rsbuild/plugin-node-polyfill>process": true
       }
     },
-    "@ledgerhq/hw-app-btc>ripemd160": {
+    "bip32>create-hash>ripemd160": {
       "packages": {
         "buffer": true,
-        "@ledgerhq/hw-app-btc>ripemd160>hash-base": true,
+        "bip32>create-hash>ripemd160>hash-base": true,
         "bip32>create-hash>inherits": true
       }
     },
@@ -4850,18 +4821,22 @@
         "buffer": true
       }
     },
-    "rxjs": {
+    "@ledgerhq/device-signer-kit-solana>@solana/web3.js>rpc-websockets": {
       "globals": {
+        "WebSocket": true,
         "clearTimeout": true,
-        "setTimeout.apply": true
+        "setTimeout": true
       },
       "packages": {
-        "rxjs>tslib": true
+        "buffer": true,
+        "@ledgerhq/device-signer-kit-solana>@solana/web3.js>rpc-websockets>eventemitter3": true
       }
     },
-    "@ledgerhq/hw-app-eth>@ledgerhq/evm-tools>@ledgerhq/live-env>rxjs": {
+    "rxjs": {
       "globals": {
+        "clearInterval": true,
         "clearTimeout": true,
+        "setInterval.apply": true,
         "setTimeout.apply": true
       },
       "packages": {
@@ -4907,6 +4882,24 @@
         "@rsbuild/plugin-node-polyfill>process": true
       }
     },
+    "@ledgerhq/device-signer-kit-ethereum>@ledgerhq/device-contacts-kit>semver": {
+      "globals": {
+        "console.error": true,
+        "process": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>process": true
+      }
+    },
+    "@ledgerhq/device-management-kit>semver": {
+      "globals": {
+        "console.error": true,
+        "process": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>process": true
+      }
+    },
     "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bind>set-function-length": {
       "packages": {
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bind>set-function-length>define-data-property": true,
@@ -4916,7 +4909,7 @@
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bind>set-function-length>has-property-descriptors": true
       }
     },
-    "@ledgerhq/hw-app-btc>sha.js": {
+    "bip32>create-hash>sha.js": {
       "packages": {
         "bip32>create-hash>inherits": true,
         "bip32>bs58check>safe-buffer": true,
@@ -5012,6 +5005,11 @@
       }
     },
     "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/utils>superstruct": {
+      "globals": {
+        "console.warn": true
+      }
+    },
+    "@ledgerhq/device-signer-kit-solana>@solana/web3.js>superstruct": {
       "globals": {
         "console.warn": true
       }
@@ -5124,6 +5122,16 @@
         "@rsbuild/plugin-node-polyfill>util>is-typed-array": true,
         "@rsbuild/plugin-node-polyfill>process": true,
         "@rsbuild/plugin-node-polyfill>util>which-typed-array": true
+      }
+    },
+    "@ledgerhq/device-management-kit>uuid": {
+      "globals": {
+        "crypto": true
+      }
+    },
+    "@ledgerhq/device-transport-kit-web-hid>uuid": {
+      "globals": {
+        "crypto": true
       }
     },
     "fireblocks-sdk>uuid": {
@@ -5240,6 +5248,14 @@
       },
       "packages": {
         "xss>cssfilter": true
+      }
+    },
+    "@ledgerhq/device-management-kit>xstate": {
+      "globals": {
+        "AbortController": true,
+        "clearTimeout": true,
+        "console": true,
+        "setTimeout": true
       }
     },
     "zod": {

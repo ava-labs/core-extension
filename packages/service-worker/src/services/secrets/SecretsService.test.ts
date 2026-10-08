@@ -1,11 +1,10 @@
-import {
-  Avalanche,
-  DerivationPath,
-  getLedgerExtendedPublicKey,
-  getPubKeyFromTransport,
-} from '@avalabs/core-wallets-sdk';
+import { Avalanche, DerivationPath } from '@avalabs/core-wallets-sdk';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { getEvmExtendedKeyPath, mapVMAddresses } from '@core/common';
+import {
+  getAvalancheExtendedKeyPath,
+  getEvmExtendedKeyPath,
+  mapVMAddresses,
+} from '@core/common';
 import {
   Account,
   AccountType,
@@ -20,8 +19,7 @@ import {
 } from '@core/types';
 import { expectToThrowErrorCode } from '@shared/tests/test-utils';
 import { CallbackManager } from '~/runtime/CallbackManager';
-import { LedgerService } from '../ledger/LedgerService';
-import { LedgerTransport } from '../ledger/LedgerTransport';
+import { LedgerDmkService } from '../ledger/LedgerDmkService';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { StorageService } from '../storage/StorageService';
@@ -33,6 +31,7 @@ import * as utils from './utils';
 
 jest.mock('../storage/StorageService');
 jest.mock('../walletConnect/WalletConnectService');
+jest.mock('../ledger/LedgerDmkService');
 jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('../seedless/SeedlessWallet');
 jest.mock('./utils/getAddressForHvm', () => {
@@ -1208,13 +1207,14 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
   });
 
   describe('addAddress', () => {
-    let ledgerService: LedgerService;
+    let ledgerDmkService: jest.Mocked<LedgerDmkService>;
 
     const addressResolver = {
       getDerivationPathsByVM: jest.fn(),
     } as any;
     beforeEach(() => {
-      ledgerService = new LedgerService();
+      ledgerDmkService =
+        new LedgerDmkService() as jest.Mocked<LedgerDmkService>;
       addressResolver.getDerivationPathsByVM.mockImplementation(
         (accountIndex) => ({
           [NetworkVMType.EVM]: `m/44'/60'/0'/0/${accountIndex}`,
@@ -1225,73 +1225,43 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     });
 
     describe('ledger', () => {
-      it('throws if transport is not available', async () => {
-        mockLedgerLiveWallet({
-          publicKeys: [],
-        });
-        jest
-          .spyOn(ledgerService, 'recentTransport', 'get')
-          .mockReturnValue(undefined);
-
-        await expectToThrowErrorCode(
-          secretsService.addAddress({
-            index: 1,
-            walletId: ACTIVE_WALLET_ID,
-            ledgerService,
-            addressResolver,
-          }),
-          LedgerError.TransportNotFound,
-        );
-      });
-
       it('throws when it fails to get EVM pubkey from ledger', async () => {
-        const transportMock = {} as LedgerTransport;
         mockLedgerLiveWallet({
           publicKeys: [],
         });
 
-        jest
-          .spyOn(ledgerService, 'recentTransport', 'get')
-          .mockReturnValue(transportMock);
-
-        jest
-          .mocked(getPubKeyFromTransport)
-          .mockReturnValueOnce(Promise.resolve(Buffer.from('')));
+        ledgerDmkService.getExtendedPublicKey.mockResolvedValueOnce('');
 
         await expectToThrowErrorCode(
           secretsService.addAddress({
             index: 1,
             walletId: ACTIVE_WALLET_ID,
-            ledgerService,
+            ledgerDmkService,
             addressResolver,
           }),
           LedgerError.NoExtendedPublicKeyReturned,
         );
-        expect(getLedgerExtendedPublicKey).toHaveBeenCalledWith(
-          transportMock,
-          false,
+        expect(ledgerDmkService.getExtendedPublicKey).toHaveBeenCalledWith(
           getEvmExtendedKeyPath(1),
+          false,
         );
       });
 
       it('throws when it fails to get X/P pubkey from ledger', async () => {
-        const transportMock = {} as LedgerTransport;
         mockLedgerLiveWallet({
           publicKeys: [],
           extendedPublicKeys: [
             {
               type: 'extended-pubkey',
               key: 'evm',
-              derivationPath: EVM_BASE_DERIVATION_PATH,
+              derivationPath: getEvmExtendedKeyPath(1),
               curve: 'secp256k1',
             },
           ],
         });
-        jest
-          .spyOn(ledgerService, 'recentTransport', 'get')
-          .mockReturnValue(transportMock);
 
-        jest.mocked(getLedgerExtendedPublicKey).mockResolvedValueOnce('');
+        // EVM xpub already known, so only the X/P key is fetched from the device.
+        ledgerDmkService.getExtendedPublicKey.mockResolvedValueOnce('');
 
         jest
           .spyOn(AddressPublicKey, 'fromExtendedPublicKeys')
@@ -1301,23 +1271,19 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           secretsService.addAddress({
             index: 1,
             walletId: ACTIVE_WALLET_ID,
-            ledgerService,
+            ledgerDmkService,
             addressResolver,
           }),
           LedgerError.NoExtendedPublicKeyReturned,
         );
-        expect(getLedgerExtendedPublicKey).toHaveBeenCalledWith(
-          transportMock,
+        expect(ledgerDmkService.getExtendedPublicKey).toHaveBeenCalledWith(
+          getAvalancheExtendedKeyPath(1),
           false,
-          getEvmExtendedKeyPath(1),
         );
       });
 
       it('uses pubkey if index is already known', async () => {
         jest.spyOn(utils, 'hasPublicKeyFor').mockReturnValue(true);
-        jest
-          .spyOn(ledgerService, 'recentTransport', 'get')
-          .mockReturnValue({} as LedgerTransport);
 
         const addressBuffEvm = Buffer.from('0x1');
         const addressBuffXP = Buffer.from('0x2');
@@ -1341,11 +1307,11 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         await secretsService.addAddress({
           index: 0,
           walletId: ACTIVE_WALLET_ID,
-          ledgerService,
+          ledgerDmkService,
           addressResolver,
         });
         secretsService.updateSecrets = jest.fn();
-        expect(getPubKeyFromTransport).not.toHaveBeenCalled();
+        expect(ledgerDmkService.getExtendedPublicKey).not.toHaveBeenCalled();
         expect(secretsService.updateSecrets).not.toHaveBeenCalled();
       });
     });
@@ -1400,7 +1366,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           await secretsService.addAddress({
             index: 1,
             walletId: ACTIVE_WALLET_ID,
-            ledgerService,
+            ledgerDmkService,
             addressResolver,
           });
 
@@ -1433,7 +1399,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           await secretsService.addAddress({
             index: 1,
             walletId: ACTIVE_WALLET_ID,
-            ledgerService,
+            ledgerDmkService,
             addressResolver,
           });
 
@@ -1455,7 +1421,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
             secretsService.addAddress({
               index: 1,
               walletId: ACTIVE_WALLET_ID,
-              ledgerService,
+              ledgerDmkService,
               addressResolver,
             }),
           ).rejects.toThrow('This wallet type is no longer supported');

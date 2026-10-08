@@ -3,7 +3,7 @@ import { BaseWallet, HDNodeWallet, SigningKey, Wallet } from 'ethers';
 import { WalletService } from './WalletService';
 import { AddressPublicKeyJson, MessageType } from '@core/types';
 import { NetworkService } from '../network/NetworkService';
-import { LedgerService } from '../ledger/LedgerService';
+import { LedgerDmkService } from '../ledger/LedgerDmkService';
 import {
   personalSign,
   signTypedData,
@@ -23,7 +23,6 @@ import { AVALANCHE_XP_TEST_NETWORK } from '@avalabs/core-chains-sdk';
 import {
   BitcoinLedgerWallet,
   BitcoinWallet,
-  BitcoinProvider,
   DerivationPath,
   getPublicKeyFromPrivateKey,
   getAddressDerivationPath,
@@ -32,12 +31,10 @@ import {
   LedgerSigner,
   getWalletFromMnemonic,
 } from '@avalabs/core-wallets-sdk';
-import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
-import { LedgerTransport } from '../ledger/LedgerTransport';
 import getDerivationPath from './utils/getDerivationPath';
 import ensureMessageFormatIsValid from './utils/ensureMessageFormatIsValid';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
-import { WalletPolicy } from 'ledger-bitcoin';
+import type { WalletPolicy } from '@ledgerhq/device-signer-kit-bitcoin';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { WalletConnectStorage } from '../walletConnect/WalletConnectStorage';
 import { WalletConnectSigner } from '../walletConnect/WalletConnectSigner';
@@ -65,8 +62,7 @@ import { NetworkVMType } from '@avalabs/vm-module-types';
 jest.mock('../network/NetworkService');
 jest.mock('../secrets/SecretsService');
 jest.mock('../secrets/AddressResolver');
-jest.mock('../ledger/LedgerService');
-jest.mock('./utils/prepareBtcTxForLedger');
+jest.mock('../ledger/LedgerDmkService');
 jest.mock('./utils/ensureMessageFormatIsValid');
 jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('@noble/curves/ed25519', () => {
@@ -91,59 +87,13 @@ jest.mock('@metamask/eth-sig-util', () => {
   };
 });
 
-/** Built at load time — some tests replace global `Buffer` in beforeEach. */
-const LEDGER_GET_APP_AND_VERSION_AVALANCHE_OK = Buffer.concat([
-  Buffer.from([0x01]),
-  Buffer.from([9]),
-  Buffer.from('Avalanche', 'ascii'),
-  Buffer.from([5]),
-  Buffer.from('1.0.0', 'ascii'),
-  Buffer.from([0x90, 0x00]),
-]);
-
-const LEDGER_GET_APP_AND_VERSION_ETHEREUM_OK = Buffer.concat([
-  Buffer.from([0x01]),
-  Buffer.from([8]),
-  Buffer.from('Ethereum', 'ascii'),
-  Buffer.from([5]),
-  Buffer.from('1.0.0', 'ascii'),
-  Buffer.from([0x90, 0x00]),
-]);
-
-const LEDGER_GET_APP_AND_VERSION_BITCOIN_OK = Buffer.concat([
-  Buffer.from([0x01]),
-  Buffer.from([16]),
-  Buffer.from('Bitcoin Recovery', 'ascii'),
-  Buffer.from([5]),
-  Buffer.from('2.0.0', 'ascii'),
-  Buffer.from([0x90, 0x00]),
-]);
-
-/** Transport `send` shape so `ensureLedgerAppOpen` is a no-op (already on Avalanche). */
-function createLedgerTransportMockWithAvalancheAppOpen(): LedgerTransport {
-  return {
-    send: jest.fn().mockResolvedValue(LEDGER_GET_APP_AND_VERSION_AVALANCHE_OK),
-  } as unknown as LedgerTransport;
-}
-
-/** Transport `send` shape so `ensureLedgerAppOpen` is a no-op (already on Ethereum). */
-function createLedgerTransportMockWithEthereumAppOpen(): LedgerTransport {
-  return {
-    send: jest.fn().mockResolvedValue(LEDGER_GET_APP_AND_VERSION_ETHEREUM_OK),
-  } as unknown as LedgerTransport;
-}
-
-/** Transport `send` shape so `ensureLedgerAppOpen` is a no-op (already on Bitcoin Recovery). */
-function createLedgerTransportMockWithBitcoinAppOpen(): LedgerTransport {
-  return {
-    send: jest.fn().mockResolvedValue(LEDGER_GET_APP_AND_VERSION_BITCOIN_OK),
-  } as unknown as LedgerTransport;
-}
+const dmkMock = { id: 'dmk' } as any;
+const sessionIdMock = 'session-id' as any;
 
 describe('background/services/wallet/WalletService.ts', () => {
   let walletService: WalletService;
   let networkService: NetworkService;
-  let ledgerService: LedgerService;
+  let ledgerDmkService: jest.Mocked<LedgerDmkService>;
   let walletConnectService: WalletConnectService;
   let fireblocksService: FireblocksService;
   let addressResolver: AddressResolver;
@@ -402,7 +352,15 @@ describe('background/services/wallet/WalletService.ts', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     networkService = new NetworkService({} as any, {} as any, {} as any);
-    ledgerService = new LedgerService();
+    ledgerDmkService = new LedgerDmkService() as jest.Mocked<LedgerDmkService>;
+    ledgerDmkService.getSession.mockResolvedValue({
+      dmk: dmkMock,
+      sessionId: sessionIdMock,
+    });
+    ledgerDmkService.runDeviceOperation.mockImplementation((fn) =>
+      fn({ dmk: dmkMock, sessionId: sessionIdMock }),
+    );
+    ledgerDmkService.ensureAppOpen.mockResolvedValue(undefined);
 
     walletConnectService = new WalletConnectService(
       new WalletConnectStorage({} as any),
@@ -438,7 +396,7 @@ describe('background/services/wallet/WalletService.ts', () => {
 
     walletService = new WalletService(
       networkService,
-      ledgerService,
+      ledgerDmkService,
       walletConnectService,
       fireblocksService,
       secretsService,
@@ -709,33 +667,26 @@ describe('background/services/wallet/WalletService.ts', () => {
     });
 
     it('signs btc tx correctly using BitcoinLedgerWallet', async () => {
-      (ledgerService as any).recentTransport =
-        createLedgerTransportMockWithBitcoinAppOpen();
-      const bitcoinProviderMock = new BitcoinProvider(false);
       const buffer = Buffer.from('0x1');
       const tx = new Transaction();
       tx.toHex = jest.fn().mockReturnValue(buffer.toString('hex'));
       btcLedgerWalletMock.signTx = jest.fn().mockResolvedValueOnce(tx);
       spyOnGetWallet().mockResolvedValueOnce(btcLedgerWalletMock);
-      (networkService.getBitcoinProvider as jest.Mock).mockResolvedValueOnce(
-        bitcoinProviderMock,
-      );
-      (prepareBtcTxForLedger as jest.Mock).mockReturnValueOnce(btcTxMock);
 
       const { signedTx } = await walletService.sign(
         btcTxMock,
         networkMock,
         tabId,
       );
-      expect(prepareBtcTxForLedger).toHaveBeenCalledWith(
-        btcTxMock,
-        bitcoinProviderMock,
-      );
       expect(btcLedgerWalletMock.signTx).toHaveBeenCalledWith(
         btcTxMock.inputs,
         btcTxMock.outputs,
       );
       expect(signedTx).toBe(buffer.toString('hex'));
+      expect(ledgerDmkService.runDeviceOperation).toHaveBeenCalledTimes(1);
+      expect(ledgerDmkService.ensureAppOpen).toHaveBeenCalledWith(
+        'Bitcoin Recovery',
+      );
     });
 
     it('signs evm tx correctly using Wallet', async () => {
@@ -1042,8 +993,6 @@ describe('background/services/wallet/WalletService.ts', () => {
       });
 
       it('signs transaction correctly using LedgerSimpleSigner', async () => {
-        const transportMock = createLedgerTransportMockWithAvalancheAppOpen();
-        (ledgerService as any).recentTransport = transportMock;
         ledgerSimpleSignerMock.signTx = jest
           .fn()
           .mockReturnValueOnce(unsignedTxMock);
@@ -1059,15 +1008,14 @@ describe('background/services/wallet/WalletService.ts', () => {
         expect(ledgerSimpleSignerMock.signTx).toHaveBeenCalledWith(
           {
             tx: unsignedTxMock,
-            transport: transportMock,
+            dmk: dmkMock,
+            sessionId: sessionIdMock,
           },
           undefined,
         );
       });
 
       it('signs transaction correctly using LedgerSigner', async () => {
-        const transportMock = createLedgerTransportMockWithAvalancheAppOpen();
-        (ledgerService as any).recentTransport = transportMock;
         ledgerSignerMock.signTx = jest.fn().mockReturnValueOnce(unsignedTxMock);
         spyOnGetWallet().mockResolvedValueOnce(ledgerSignerMock);
 
@@ -1081,15 +1029,14 @@ describe('background/services/wallet/WalletService.ts', () => {
         expect(ledgerSignerMock.signTx).toHaveBeenCalledWith(
           {
             tx: unsignedTxMock,
-            transport: transportMock,
+            dmk: dmkMock,
+            sessionId: sessionIdMock,
           },
           undefined,
         );
       });
 
       it('signs transaction correctly using LedgerLiveSigner', async () => {
-        const transportMock = createLedgerTransportMockWithAvalancheAppOpen();
-        (ledgerService as any).recentTransport = transportMock;
         ledgerLiveSignerMock.signTx = jest
           .fn()
           .mockReturnValueOnce(unsignedTxMock);
@@ -1110,7 +1057,8 @@ describe('background/services/wallet/WalletService.ts', () => {
         expect(ledgerLiveSignerMock.signTx).toHaveBeenCalledWith(
           {
             tx: unsignedTxMock,
-            transport: transportMock,
+            dmk: dmkMock,
+            sessionId: sessionIdMock,
             externalIndices: multiAccTxMock.externalIndices,
           },
           undefined,
@@ -1383,8 +1331,6 @@ describe('background/services/wallet/WalletService.ts', () => {
     });
 
     it('signs messages with Ledger', async () => {
-      (ledgerService as any).recentTransport =
-        createLedgerTransportMockWithEthereumAppOpen();
       evmLedgerSignerMock.signMessage = jest
         .fn()
         .mockResolvedValueOnce('0x00001')
@@ -1408,6 +1354,8 @@ describe('background/services/wallet/WalletService.ts', () => {
       ).resolves.toBe('0x00002');
       expect(evmLedgerSignerMock.signMessage).toHaveBeenCalledTimes(2);
       expect(evmLedgerSignerMock.signMessage).toHaveBeenNthCalledWith(2, {});
+      expect(ledgerDmkService.runDeviceOperation).toHaveBeenCalledTimes(2);
+      expect(ledgerDmkService.ensureAppOpen).toHaveBeenCalledTimes(2);
     });
 
     it('blocks Ledger message signing on HyperEVM', async () => {
@@ -1423,8 +1371,6 @@ describe('background/services/wallet/WalletService.ts', () => {
     });
 
     it('signs typed data with Ledger', async () => {
-      (ledgerService as any).recentTransport =
-        createLedgerTransportMockWithEthereumAppOpen();
       evmLedgerSignerMock.signTypedData = jest
         .fn()
         .mockResolvedValue('0x00001');

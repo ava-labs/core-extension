@@ -19,6 +19,8 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   const {
     popDeviceSelection,
     hasLedgerTransport,
+    hasMultipleDevices,
+    isDeviceLocked,
     wasTransportAttempted,
     initLedgerTransport,
     getPublicKey,
@@ -88,6 +90,26 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
 
   // Attempt to automatically connect as soon as we establish the transport.
   useEffect(() => {
+    if (hasMultipleDevices) {
+      setStatus('error');
+      setError('multiple-devices');
+      return;
+    }
+
+    if (isDeviceLocked) {
+      setStatus('error');
+      setError('device-locked');
+      return;
+    }
+
+    // Polling keeps probing the device, so these clear by themselves once the
+    // extra Ledgers are unplugged or the device is unlocked.
+    if (error === 'multiple-devices' || error === 'device-locked') {
+      setStatus('waiting');
+      setError(undefined);
+      return;
+    }
+
     // Same guard as the Avalanche fetcher: never re-flip status back to
     // 'ready' from the SOLANA branch below when a retrieval has failed.
     if (
@@ -130,7 +152,7 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
           return;
         }
         setStatus('error');
-        setError(classifyLedgerOnboardingError(err, LedgerAppType.SOLANA));
+        setError(classifyLedgerOnboardingError(err));
       });
 
       return () => {
@@ -150,6 +172,8 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     appType,
     error,
     hasLedgerTransport,
+    hasMultipleDevices,
+    isDeviceLocked,
     initLedgerTransport,
     prepareTransportForOnboarding,
     status,
@@ -160,8 +184,6 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     try {
       await popDeviceSelection();
       await initLedgerTransport();
-      setError(undefined);
-      setStatus('waiting');
     } catch {
       setStatus('error');
       setError('unable-to-connect');
