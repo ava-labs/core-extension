@@ -18,9 +18,14 @@ import { CollapsibleGroupDetail } from './items/CollapsibleGroupDetail';
 type DetailsItemProps = {
   item: DetailItem;
   network: NetworkWithCaipId;
+  areGroupsOpenByDefault?: boolean;
 };
 
-export const DetailsItem = ({ item, network }: DetailsItemProps) => {
+export const DetailsItem = ({
+  item,
+  network,
+  areGroupsOpenByDefault = false,
+}: DetailsItemProps) => {
   if (typeof item === 'string') {
     return <PlainTextDetail item={item} />;
   }
@@ -60,6 +65,12 @@ export const DetailsItem = ({ item, network }: DetailsItemProps) => {
       return <TransferListDetail item={item} network={network} />;
 
     case DetailItemType.COLLAPSIBLE_GROUP:
-      return <CollapsibleGroupDetail item={item} network={network} />;
+      return (
+        <CollapsibleGroupDetail
+          item={item}
+          network={network}
+          isOpenByDefault={areGroupsOpenByDefault}
+        />
+      );
   }
 };

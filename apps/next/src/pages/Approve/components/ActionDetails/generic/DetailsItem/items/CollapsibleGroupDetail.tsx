@@ -14,13 +14,15 @@ import { DetailsItem } from '../DetailsItem';
 type CollapsibleGroupDetailProps = {
   item: CollapsibleGroupItem;
   network: NetworkWithCaipId;
+  isOpenByDefault?: boolean;
 };
 
 export const CollapsibleGroupDetail = ({
   item,
   network,
+  isOpenByDefault = false,
 }: CollapsibleGroupDetailProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(isOpenByDefault);
 
   return (
     <Stack width="100%">
