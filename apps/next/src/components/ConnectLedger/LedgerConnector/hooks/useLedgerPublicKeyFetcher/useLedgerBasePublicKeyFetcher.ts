@@ -431,7 +431,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
           return;
         }
         setStatus('error');
-        setError(classifyLedgerOnboardingError(err, LedgerAppType.AVALANCHE));
+        setError(classifyLedgerOnboardingError(err));
       })
       .finally(() => {
         appSwitchInFlight.current = false;

@@ -152,7 +152,7 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
           return;
         }
         setStatus('error');
-        setError(classifyLedgerOnboardingError(err, LedgerAppType.SOLANA));
+        setError(classifyLedgerOnboardingError(err));
       });
 
       return () => {

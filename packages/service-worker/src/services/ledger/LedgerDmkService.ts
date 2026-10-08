@@ -23,12 +23,10 @@ import {
   getLedgerExtendedPublicKey,
   quitLedgerApp,
 } from '@avalabs/core-wallets-sdk';
+import { getSolanaRpcUrl } from '@core/common';
 import {
-  getLedgerAppNotInstalledMessage,
-  getLedgerAutoOpenAppFailedMessage,
-  getSolanaRpcUrl,
-} from '@core/common';
-import {
+  LEDGER_APP_NOT_INSTALLED_ERROR,
+  LEDGER_APP_SWITCH_FAILED_ERROR,
   LEDGER_DEVICE_LOCKED_ERROR,
   LEDGER_MULTIPLE_DEVICES_ERROR,
 } from '@core/types';
@@ -90,7 +88,7 @@ const completeDeviceAction = async <Output>(
   return result.output;
 };
 
-const toOpenAppError = (appName: string, error: unknown): Error => {
+const toOpenAppError = (error: unknown): Error => {
   const tag =
     error && typeof error === 'object' && '_tag' in error
       ? error._tag
@@ -106,9 +104,9 @@ const toOpenAppError = (appName: string, error: unknown): Error => {
   // 0x6807 ("unknown application name") is also returned when BOLOS rejects
   // the switch, so only 0x5123 is treated as a definitive "not installed".
   if (errorCode === APP_NOT_INSTALLED_STATUS) {
-    return new Error(getLedgerAppNotInstalledMessage(appName));
+    return new Error(LEDGER_APP_NOT_INSTALLED_ERROR);
   }
-  return new Error(getLedgerAutoOpenAppFailedMessage(appName));
+  return new Error(LEDGER_APP_SWITCH_FAILED_ERROR);
 };
 
 // The DMK BTC signer splits paths without accepting the `m/` root.
@@ -330,7 +328,6 @@ export class LedgerDmkService implements OnLock, OnAllExtensionClosed {
 
       if (result.status !== DeviceActionStatus.Completed) {
         throw toOpenAppError(
-          appName,
           result.status === DeviceActionStatus.Error ? result.error : undefined,
         );
       }

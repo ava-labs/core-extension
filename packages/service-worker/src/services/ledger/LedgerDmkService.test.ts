@@ -6,6 +6,8 @@ import {
 import { OpenAppDeviceAction } from '@ledgerhq/device-management-kit';
 import { GetAppConfiguration } from '@ledgerhq/device-signer-kit-ethereum/internal/app-binder/command/GetAppConfigurationCommand.js';
 import {
+  LEDGER_APP_NOT_INSTALLED_ERROR,
+  LEDGER_APP_SWITCH_FAILED_ERROR,
   LEDGER_DEVICE_LOCKED_ERROR,
   LEDGER_MULTIPLE_DEVICES_ERROR,
 } from '@core/types';
@@ -60,10 +62,6 @@ jest.mock('@avalabs/core-wallets-sdk', () => ({
   quitLedgerApp: jest.fn(),
 }));
 jest.mock('@core/common', () => ({
-  getLedgerAppNotInstalledMessage: (appName: string) =>
-    `${appName} not installed`,
-  getLedgerAutoOpenAppFailedMessage: (appName: string) =>
-    `Could not open ${appName}`,
   getSolanaRpcUrl: () => 'https://solana.example',
 }));
 const device = { id: 'device-id' };
@@ -386,14 +384,14 @@ describe('src/background/services/ledger/LedgerDmkService.ts', () => {
       [
         'a missing app',
         { _tag: 'GlobalCommandError', errorCode: '5123' },
-        'Solana not installed',
+        LEDGER_APP_NOT_INSTALLED_ERROR,
       ],
       [
         'a rejected switch',
         { _tag: 'OpenAppCommandError', errorCode: '6807' },
-        'Could not open Solana',
+        LEDGER_APP_SWITCH_FAILED_ERROR,
       ],
-    ])('maps %s to a user-facing error', async (_, error, message) => {
+    ])('maps %s to a known Ledger error', async (_, error, message) => {
       dmk.executeDeviceAction.mockReturnValue({
         observable: of({ status: 'error', error }),
       });
