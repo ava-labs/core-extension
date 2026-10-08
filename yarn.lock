@@ -2797,7 +2797,6 @@ __metadata:
     "@eslint/js": "npm:9.16.0"
     "@lavamoat/allow-scripts": "npm:2.0.0"
     "@lavamoat/preinstall-always-fail": "npm:1.0.0"
-    "@ledgerhq/hw-transport": "npm:6.31.10"
     "@rsbuild/core": "npm:1.3.3"
     "@rsbuild/plugin-node-polyfill": "npm:1.3.0"
     "@rsbuild/plugin-react": "npm:1.1.1"
@@ -5628,44 +5627,6 @@ __metadata:
     "@ledgerhq/device-management-kit": ^1.7.0
     rxjs: 7.8.2
   checksum: 10c0/e0794789300b6cf7ef039105a33b60ea0dbb46aed2f31e1f0a21a1266e91f5b6be09c4b733e08c475ecc322b6d45ffe5fd69614a0f8231e4fa5b142487d414dc
-  languageName: node
-  linkType: hard
-
-"@ledgerhq/devices@npm:8.5.1":
-  version: 8.5.1
-  resolution: "@ledgerhq/devices@npm:8.5.1"
-  dependencies:
-    "@ledgerhq/errors": "npm:^6.25.0"
-    "@ledgerhq/logs": "npm:^6.13.0"
-    rxjs: "npm:^7.8.1"
-    semver: "npm:^7.3.5"
-  checksum: 10c0/d0d5761dfd230ef6284288fea41cd5370219b9e5c90dc3264258575ea419f1f76ea03deb5d0c6fa9a5439533c937e352ae9523ab592ee9786932023bd7533ba7
-  languageName: node
-  linkType: hard
-
-"@ledgerhq/errors@npm:^6.25.0":
-  version: 6.25.0
-  resolution: "@ledgerhq/errors@npm:6.25.0"
-  checksum: 10c0/f322c78cae6021d83dd7af6b67486bc08a95d644d7f0e613cc3b91c0ff7ad2788aafee0d7af2562728e9a8342d70f6e0d97d95f5a6638800adb7718e6f2b630d
-  languageName: node
-  linkType: hard
-
-"@ledgerhq/hw-transport@npm:6.31.10":
-  version: 6.31.10
-  resolution: "@ledgerhq/hw-transport@npm:6.31.10"
-  dependencies:
-    "@ledgerhq/devices": "npm:8.5.1"
-    "@ledgerhq/errors": "npm:^6.25.0"
-    "@ledgerhq/logs": "npm:^6.13.0"
-    events: "npm:^3.3.0"
-  checksum: 10c0/d7c0adf6bd7e4aa5e25aa9b745bf34faab7232dbb00eb6651d26f04f8495b491620f38fa7d751fa9a9097c4016e627918ebfd989bd383dcc5ec7e94a81bae7c4
-  languageName: node
-  linkType: hard
-
-"@ledgerhq/logs@npm:^6.13.0":
-  version: 6.13.0
-  resolution: "@ledgerhq/logs@npm:6.13.0"
-  checksum: 10c0/8b40a7af64a9526b441394e84f05afc42552b4d3d1e45c33dd262d669c77e2351e06bd354929ffdf6cfe0e0404b0042b8b5da610016232a0eb516f1daa73f39f
   languageName: node
   linkType: hard
 
@@ -24949,15 +24910,6 @@ __metadata:
   dependencies:
     tslib: "npm:^2.1.0"
   checksum: 10c0/c48833638ae5d339332f8b792e716c3c662950ba95ba04e9e97a8cfd4628d8f009129672793c6c067c872a4dab5757231d41d7256a2114a5fabbf30d8a5b9d67
-  languageName: node
-  linkType: hard
-
-"rxjs@npm:^7.8.1":
-  version: 7.8.1
-  resolution: "rxjs@npm:7.8.1"
-  dependencies:
-    tslib: "npm:^2.1.0"
-  checksum: 10c0/3c49c1ecd66170b175c9cacf5cef67f8914dcbc7cd0162855538d365c83fea631167cacb644b3ce533b2ea0e9a4d0b12175186985f89d75abe73dbd8f7f06f68
   languageName: node
   linkType: hard
 

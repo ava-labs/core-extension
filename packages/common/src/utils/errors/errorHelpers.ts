@@ -1,5 +1,4 @@
 import { EthereumRpcError, ethErrors } from 'eth-rpc-errors';
-import { StatusCodes, TransportStatusError } from '@ledgerhq/hw-transport';
 import { CommonError, ErrorCode, SwapErrorCode } from '@core/types';
 
 export type ErrorData = {
@@ -47,25 +46,50 @@ export function wrapError(
 }
 
 const LEDGER_USER_REJECTION_STATUS_CODES = [
-  StatusCodes.USER_REFUSED_ON_DEVICE,
-  StatusCodes.CONDITIONS_OF_USE_NOT_SATISFIED,
+  0x5501, // USER_REFUSED_ON_DEVICE
+  0x6985, // CONDITIONS_OF_USE_NOT_SATISFIED
   0x6986, // "Command not allowed", used by Avalanche app. Reference: https://docs.zondax.ch/ledger-apps/polkadot/APDUSPEC#return-codes
 ];
+
+/**
+ * Ledger rejections arrive in several shapes, none sharing a class: plain
+ * errors named `TransportStatusError` with a numeric `statusCode` (wallets
+ * SDK), `DeviceActionError` with a numeric `statusCode` (hw-app-avalanche), and
+ * DMK error objects with a hex-string `errorCode` or a refusal `_tag`.
+ */
+const isLedgerUserRejection = (err: object): boolean => {
+  if (
+    'statusCode' in err &&
+    typeof err.statusCode === 'number' &&
+    LEDGER_USER_REJECTION_STATUS_CODES.includes(err.statusCode)
+  ) {
+    return true;
+  }
+
+  if (
+    'errorCode' in err &&
+    typeof err.errorCode === 'string' &&
+    LEDGER_USER_REJECTION_STATUS_CODES.includes(parseInt(err.errorCode, 16))
+  ) {
+    return true;
+  }
+
+  return (
+    '_tag' in err &&
+    (err._tag === 'RefusedByUserDAError' || err._tag === 'ActionRefusedError')
+  );
+};
 
 export const isUserRejectionError = (err: any) => {
   if (!err || typeof err !== 'object') {
     return false;
   }
 
-  if (err instanceof TransportStatusError) {
-    return LEDGER_USER_REJECTION_STATUS_CODES.includes(err.statusCode);
+  if (isLedgerUserRejection(err)) {
+    return true;
   }
 
-  if (typeof err === 'object') {
-    return err.message?.startsWith('User rejected') || err.code === 4001;
-  }
-
-  return false;
+  return err.message?.startsWith('User rejected') || err.code === 4001;
 };
 
 export const isMissingBtcWalletPolicyError = (err: any) => {
