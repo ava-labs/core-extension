@@ -514,6 +514,7 @@
   "Move assets to Avalanche.": "将资产转移到 Avalanche。",
   "Move funds from another wallet or exchange": "从其他钱包或交易所转入资金",
   "Moved {{tokenList}}": "{{tokenList}} 已移动",
+  "Multiple Ledger devices are connected. Please connect only the one you intend to use.": "连接了多个 Ledger 设备。请仅连接您打算使用的那个。",
   "Multiple chain IDs in batch": "批量中有多个链 ID",
   "My Accounts": "我的账户",
   "My avatar": "我的头像",
