@@ -514,6 +514,7 @@
   "Move assets to Avalanche.": "アバランチに資産を移動。",
   "Move funds from another wallet or exchange": "別のウォレットまたは取引所から資金を移動",
   "Moved {{tokenList}}": "{{tokenList}} を移動しました",
+  "Multiple Ledger devices are connected. Please connect only the one you intend to use.": "複数のLedgerデバイスが接続されています。使用したいものだけを接続してください。",
   "Multiple chain IDs in batch": "バッチ内に複数のチェーン ID があります",
   "My Accounts": "マイアカウント",
   "My avatar": "私のアバター",
