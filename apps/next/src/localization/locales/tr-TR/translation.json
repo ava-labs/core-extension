@@ -514,6 +514,7 @@
   "Move assets to Avalanche.": "Varlıkları Avalanche'a taşıyın.",
   "Move funds from another wallet or exchange": "Başka bir cüzdandan veya borsadan fon taşı",
   "Moved {{tokenList}}": "{{tokenList}} taşındı",
+  "Multiple Ledger devices are connected. Please connect only the one you intend to use.": "Birden fazla Ledger cihazı bağlanır. Lütfen yalnızca kullanmayı düşündüğünüz birini bağlayın.",
   "Multiple chain IDs in batch": "Toplu işlemde birden fazla zincir kimliği var",
   "My Accounts": "Hesaplarım",
   "My avatar": "Avatarım",
