@@ -514,6 +514,7 @@
   "Move assets to Avalanche.": "Avalanche पर संपत्तियां स्थानांतरित करें।",
   "Move funds from another wallet or exchange": "किसी अन्य वॉलेट या एक्सचेंज से फंड स्थानांतरित करें",
   "Moved {{tokenList}}": "{{tokenList}} स्थानांतरित किया गया",
+  "Multiple Ledger devices are connected. Please connect only the one you intend to use.": "कई लेजर डिवाइस जुड़े हुए हैं। कृपया केवल उसी को कनेक्ट करें जिसे आप उपयोग करना चाहते हैं।",
   "Multiple chain IDs in batch": "बैच में एकाधिक चेन ID",
   "My Accounts": "मेरा खाता",
   "My avatar": "मेरा अवतार",
