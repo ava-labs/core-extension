@@ -514,6 +514,7 @@
   "Move assets to Avalanche.": "Avalanche로 자산을 이동하세요.",
   "Move funds from another wallet or exchange": "다른 지갑이나 거래소에서 자금을 이동하세요",
   "Moved {{tokenList}}": "{{tokenList}} 이동됨",
+  "Multiple Ledger devices are connected. Please connect only the one you intend to use.": "여러 레저 장치가 연결되어 있습니다.사용하려는 제품만 연결하세요.",
   "Multiple chain IDs in batch": "배치에 여러 체인 ID가 있습니다",
   "My Accounts": "내 계정",
   "My avatar": "내 아바타",
