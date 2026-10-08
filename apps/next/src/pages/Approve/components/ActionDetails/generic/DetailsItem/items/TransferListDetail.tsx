@@ -10,20 +10,51 @@ import { AddressDetail } from './AddressDetail';
 import { CurrencyDetail } from './CurrencyDetail';
 import { DateDetail } from './DateDetail';
 import { TxDetailsRow } from './DetailRow';
+import { TextDetail } from './TextDetail';
 
 type TransferListDetailProps = {
   item: TransferListItem;
   network: NetworkWithCaipId;
 };
 
-const _isLocked = (seconds?: number): seconds is number =>
-  seconds !== undefined && seconds * 1000 > Date.now();
+type LockedUntil = Transfer['lockedUntil'];
+
+const _isLocked = (
+  lockedUntil: LockedUntil,
+): lockedUntil is NonNullable<LockedUntil> =>
+  lockedUntil === 'indefinitely' ||
+  (lockedUntil !== undefined && lockedUntil * 1000 > Date.now());
 
 const _shouldDisplayThreshold = (
   addresses: string[],
   threshold?: number,
 ): threshold is number =>
   threshold !== undefined && (threshold > 1 || addresses.length > 1);
+
+const LockedUntilRow = ({
+  label,
+  lockedUntil,
+}: {
+  label: string;
+  lockedUntil: NonNullable<LockedUntil>;
+}) => {
+  const { t } = useTranslation();
+
+  return lockedUntil === 'indefinitely' ? (
+    <TextDetail
+      item={{
+        label,
+        type: DetailItemType.TEXT,
+        value: t('Indefinitely'),
+        alignment: 'horizontal',
+      }}
+    />
+  ) : (
+    <DateDetail
+      item={{ label, type: DetailItemType.DATE, value: String(lockedUntil) }}
+    />
+  );
+};
 
 const TransferRows = ({
   transfer,
@@ -117,13 +148,7 @@ const TransferRows = ({
             </Typography>
           </TxDetailsRow>
         ) : (
-          <DateDetail
-            item={{
-              label: t('Staked until'),
-              type: DetailItemType.DATE,
-              value: String(stakedUntil),
-            }}
-          />
+          <LockedUntilRow label={t('Staked until')} lockedUntil={stakedUntil} />
         ))}
       {_shouldDisplayThreshold(addresses, threshold) && (
         <TxDetailsRow label={t('Signatures required')}>
@@ -135,21 +160,12 @@ const TransferRows = ({
         </TxDetailsRow>
       )}
       {_isLocked(lockedUntil) && (
-        <DateDetail
-          item={{
-            label: t('Locked until'),
-            type: DetailItemType.DATE,
-            value: String(lockedUntil),
-          }}
-        />
+        <LockedUntilRow label={t('Locked until')} lockedUntil={lockedUntil} />
       )}
       {_isLocked(stakeableLockedUntil) && (
-        <DateDetail
-          item={{
-            label: t('Staking only until'),
-            type: DetailItemType.DATE,
-            value: String(stakeableLockedUntil),
-          }}
+        <LockedUntilRow
+          label={t('Staking only until')}
+          lockedUntil={stakeableLockedUntil}
         />
       )}
     </>

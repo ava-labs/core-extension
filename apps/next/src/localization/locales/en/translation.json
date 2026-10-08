@@ -417,6 +417,7 @@
   "Improves loading performance by removing UTXOs with a value less than 0.002 AVAX from the wallet. Total balances may be inaccurate.": "Improves loading performance by removing UTXOs with a value less than 0.002 AVAX from the wallet. Total balances may be inaccurate.",
   "Incorrect device connected": "Incorrect device connected",
   "Incorrect token address": "Incorrect token address",
+  "Indefinitely": "Indefinitely",
   "Install or open your authenticator app to scan the QR code. If you prefer, you can manually copy the code by clicking the link below.": "Install or open your authenticator app to scan the QR code. If you prefer, you can manually copy the code by clicking the link below.",
   "Insufficient allowance. Remaining swaps have been cancelled": "Insufficient allowance. Remaining swaps have been cancelled",
   "Insufficient balance": "Insufficient balance",
