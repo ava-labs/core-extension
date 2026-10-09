@@ -68,6 +68,16 @@ const getHasMore = (
   return true;
 };
 
+export const mergeTokenDetails = (
+  token: FungibleTokenBalance,
+  userToken: FungibleTokenBalance,
+): FungibleTokenBalance => ({
+  ...token,
+  ...userToken,
+  logoUri: token.logoUri,
+  isVerified: token.isVerified,
+});
+
 export const mapBridgeableAsset = (
   asset: BridgeableUiAsset,
   network: NetworkWithCaipId,
@@ -420,17 +430,7 @@ export const useBridgeableTargetTokenList = (
         }
 
         const userToken = userBalanceMap.get(lookupKey);
-        all.push(
-          userToken
-            ? {
-                ...token,
-                balance: userToken.balance,
-                balanceDisplayValue: userToken.balanceDisplayValue,
-                balanceInCurrency: userToken.balanceInCurrency,
-                priceInCurrency: userToken.priceInCurrency,
-              }
-            : token,
-        );
+        all.push(userToken ? mergeTokenDetails(token, userToken) : token);
       }
     }
 
