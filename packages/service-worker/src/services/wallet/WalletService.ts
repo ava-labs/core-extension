@@ -98,6 +98,7 @@ import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { WalletConnectSigner } from '../walletConnect/WalletConnectSigner';
 import { HVMWallet } from './HVMWallet';
 import ensureMessageIsValid from './utils/ensureMessageFormatIsValid';
+import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import { isTypedData } from '@avalabs/evm-module';
 import { isPersonalSign } from './utils/isPersonalSignRequest';
 import { rpcMethodToMessageType } from './utils/rpcMethodToMessageType';
@@ -717,12 +718,22 @@ export class WalletService implements OnUnlock {
         throw new Error('Signing error, wrong network');
       }
 
-      const result =
-        wallet instanceof BitcoinLedgerWallet
-          ? await this.#withLedgerApp('Bitcoin Recovery', () =>
-              wallet.signTx(tx.inputs, tx.outputs),
-            )
-          : await wallet.signTx(tx.inputs, tx.outputs);
+      if (wallet instanceof BitcoinLedgerWallet) {
+        // The Ledger PSBT needs each input's full previous transaction
+        // (`nonWitnessUtxo`); fetch it before claiming the device.
+        const txToSign = await prepareBtcTxForLedger(
+          tx,
+          await this.networkService.getBitcoinProvider(),
+        );
+
+        return this.#normalizeSigningResult(
+          await this.#withLedgerApp('Bitcoin Recovery', () =>
+            wallet.signTx(txToSign.inputs, txToSign.outputs),
+          ),
+        );
+      }
+
+      const result = await wallet.signTx(tx.inputs, tx.outputs);
 
       return this.#normalizeSigningResult(result);
     }

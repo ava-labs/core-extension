@@ -33,6 +33,7 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import getDerivationPath from './utils/getDerivationPath';
 import ensureMessageFormatIsValid from './utils/ensureMessageFormatIsValid';
+import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import type { WalletPolicy } from '@ledgerhq/device-signer-kit-bitcoin';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
@@ -64,6 +65,7 @@ jest.mock('../secrets/SecretsService');
 jest.mock('../secrets/AddressResolver');
 jest.mock('../ledger/LedgerDmkService');
 jest.mock('./utils/ensureMessageFormatIsValid');
+jest.mock('./utils/prepareBtcTxForLedger');
 jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('@noble/curves/ed25519', () => {
   return {
@@ -667,20 +669,43 @@ describe('background/services/wallet/WalletService.ts', () => {
     });
 
     it('signs btc tx correctly using BitcoinLedgerWallet', async () => {
+      const bitcoinProviderMock = { getTxHex: jest.fn() };
+      const preparedTx = {
+        inputs: [
+          {
+            txHash: 'abcd',
+            index: 0,
+            value: 1000,
+            script: '0014',
+            blockHeight: 1,
+            confirmations: 1,
+            txHex: 'deadbeef',
+          },
+        ],
+        outputs: [],
+      };
       const buffer = Buffer.from('0x1');
       const tx = new Transaction();
       tx.toHex = jest.fn().mockReturnValue(buffer.toString('hex'));
       btcLedgerWalletMock.signTx = jest.fn().mockResolvedValueOnce(tx);
       spyOnGetWallet().mockResolvedValueOnce(btcLedgerWalletMock);
+      (networkService.getBitcoinProvider as jest.Mock).mockResolvedValueOnce(
+        bitcoinProviderMock,
+      );
+      jest.mocked(prepareBtcTxForLedger).mockResolvedValueOnce(preparedTx);
 
       const { signedTx } = await walletService.sign(
         btcTxMock,
         networkMock,
         tabId,
       );
+      expect(prepareBtcTxForLedger).toHaveBeenCalledWith(
+        btcTxMock,
+        bitcoinProviderMock,
+      );
       expect(btcLedgerWalletMock.signTx).toHaveBeenCalledWith(
-        btcTxMock.inputs,
-        btcTxMock.outputs,
+        preparedTx.inputs,
+        preparedTx.outputs,
       );
       expect(signedTx).toBe(buffer.toString('hex'));
       expect(ledgerDmkService.runDeviceOperation).toHaveBeenCalledTimes(1);
