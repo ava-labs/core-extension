@@ -723,7 +723,7 @@ export class WalletService implements OnUnlock {
         // (`nonWitnessUtxo`); fetch it before claiming the device.
         const txToSign = await prepareBtcTxForLedger(
           tx,
-          await this.networkService.getBitcoinProvider(),
+          (await getProviderForNetwork(network)) as BitcoinProviderAbstract,
         );
 
         return this.#normalizeSigningResult(

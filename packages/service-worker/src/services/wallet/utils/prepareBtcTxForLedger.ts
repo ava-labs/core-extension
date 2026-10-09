@@ -5,15 +5,13 @@ export async function prepareBtcTxForLedger(
   tx: BtcTransactionRequest,
   provider: BitcoinProviderAbstract,
 ): Promise<BtcTransactionRequest> {
-  //get unique hashes
-  const txHashSet = new Set<string>(tx.inputs.map((i) => i.txHash));
-
-  // Get the tx hex for each input tx
-  const txHexDict: Record<string, string> = {};
-  for (const hash of txHashSet) {
-    const hex = await provider.getTxHex(hash);
-    txHexDict[hash] = hex;
-  }
+  const uniqueHashes = [...new Set(tx.inputs.map((i) => i.txHash))];
+  const hexes = await Promise.all(
+    uniqueHashes.map((hash) => provider.getTxHex(hash)),
+  );
+  const txHexDict = Object.fromEntries(
+    uniqueHashes.map((hash, i) => [hash, hexes[i]]),
+  );
 
   return {
     ...tx,

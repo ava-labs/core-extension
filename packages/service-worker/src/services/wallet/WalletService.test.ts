@@ -46,7 +46,11 @@ import { SecretsService } from '../secrets/SecretsService';
 import { Transaction } from 'bitcoinjs-lib';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
 import { Network } from '@core/types';
-import { decorateWithCaipId, getLegacyXPDerivationPath } from '@core/common';
+import {
+  decorateWithCaipId,
+  getLegacyXPDerivationPath,
+  getProviderForNetwork,
+} from '@core/common';
 import { AccountsService } from '../accounts/AccountsService';
 import { ed25519 } from '@noble/curves/ed25519';
 import { HVMWallet } from './HVMWallet';
@@ -75,6 +79,10 @@ jest.mock('@noble/curves/ed25519', () => {
   };
 });
 jest.mock('./utils/getDerivationPath');
+jest.mock('@core/common', () => ({
+  ...jest.requireActual('@core/common'),
+  getProviderForNetwork: jest.fn(),
+}));
 jest.mock('../seedless/SeedlessWallet');
 jest.mock('../seedless/SeedlessSessionManager');
 
@@ -689,9 +697,9 @@ describe('background/services/wallet/WalletService.ts', () => {
       tx.toHex = jest.fn().mockReturnValue(buffer.toString('hex'));
       btcLedgerWalletMock.signTx = jest.fn().mockResolvedValueOnce(tx);
       spyOnGetWallet().mockResolvedValueOnce(btcLedgerWalletMock);
-      (networkService.getBitcoinProvider as jest.Mock).mockResolvedValueOnce(
-        bitcoinProviderMock,
-      );
+      jest
+        .mocked(getProviderForNetwork)
+        .mockResolvedValueOnce(bitcoinProviderMock as any);
       jest.mocked(prepareBtcTxForLedger).mockResolvedValueOnce(preparedTx);
 
       const { signedTx } = await walletService.sign(
@@ -699,6 +707,7 @@ describe('background/services/wallet/WalletService.ts', () => {
         networkMock,
         tabId,
       );
+      expect(getProviderForNetwork).toHaveBeenCalledWith(networkMock);
       expect(prepareBtcTxForLedger).toHaveBeenCalledWith(
         btcTxMock,
         bitcoinProviderMock,
