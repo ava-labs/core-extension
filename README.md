@@ -29,7 +29,7 @@ Architecture and integration docs live in [`docs/`](docs/README.md) — start th
 
 ### Prerequisites
 
-- Install [Node.js] and [Yarn] <br/>The project uses [Volta] to manage Node.js and Yarn versions, however, it's not mandatory to use Volta, you can always just install the correct version or use another tool like `nvm`.
+- Install [Node.js] and [Yarn]. <br/>The project uses [Volta] to manage Node.js and Yarn versions, however, it's not mandatory to use Volta, you can always just install the correct version or use another tool like `nvm`.
 
 - Get added to `@avalabs` on [npmjs.com].<br/>
   The project uses multiple private SDKs and utility packages from NPM.<br/>
