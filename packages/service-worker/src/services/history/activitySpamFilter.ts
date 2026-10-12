@@ -1,3 +1,4 @@
+import { normalizeTokenAddress } from '@core/common';
 import { NetworkWithCaipId, TokensPriceShortData } from '@core/types';
 import {
   TokenType,
@@ -161,14 +162,15 @@ export function buildTokenPriceMapForTransactions(
         const lowered = token.address.toLowerCase();
 
         if (!prices.has(lowered)) {
-          const tokenId = `${network.caipId}-${lowered}`;
+          const address = normalizeTokenAddress(token.address, network);
+          const tokenId = `${network.caipId}-${address}`;
           const byId = priceData[tokenId];
 
           if (byId) {
             prices.set(lowered, byId.currentPrice ?? null);
           } else {
             const byPlatform = Object.values(priceData).find(
-              (t) => t.platforms?.[network.caipId] === lowered,
+              (t) => t.platforms?.[network.caipId] === address,
             );
             prices.set(lowered, byPlatform?.currentPrice ?? null);
           }
