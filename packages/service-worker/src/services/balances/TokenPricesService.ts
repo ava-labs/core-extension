@@ -10,7 +10,7 @@ import {
 } from '@core/types';
 import { SettingsService } from '../settings/SettingsService';
 import { StorageService } from '../storage/StorageService';
-import { resolve, watchlistTokens } from '@core/common';
+import { normalizeTokenAddress, resolve, watchlistTokens } from '@core/common';
 
 @singleton()
 export class TokenPricesService {
@@ -127,8 +127,8 @@ export class TokenPricesService {
     address: string,
     network: NetworkWithCaipId,
   ): Promise<Record<string, number | null>> {
-    const lowercasedAddress = address.toLowerCase();
-    const tokenId = `${network.caipId}-${lowercasedAddress}`;
+    const normalizedAddress = normalizeTokenAddress(address, network);
+    const tokenId = `${network.caipId}-${normalizedAddress}`;
 
     const tokens = await this.getPriceChangesData();
 
@@ -148,7 +148,7 @@ export class TokenPricesService {
     }
 
     const priceData = Object.values(tokens).find(
-      (token) => token.platforms?.[network.caipId] === lowercasedAddress,
+      (token) => token.platforms?.[network.caipId] === normalizedAddress,
     );
 
     return {

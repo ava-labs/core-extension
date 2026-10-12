@@ -1,4 +1,5 @@
 import { TokenPricesService } from './TokenPricesService';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import {
   PriceChangesData,
   priceChangeRefreshRate,
@@ -435,6 +436,35 @@ describe('TokenPricesService', () => {
 
       expect(result).toEqual({
         '0xABCDEF1234567890': 2.5,
+      });
+    });
+
+    it('should match Solana mint addresses case-sensitively', async () => {
+      const solanaCaipId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp';
+      const usdcMint = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+      const cachedData: TokensPriceChangeData = {
+        currency: 'USD',
+        version: TOKENS_PRICE_DATA_VERSION,
+        lastUpdatedAt: Date.now() - 1000,
+        priceChanges: {
+          'NATIVE-usdc': {
+            internalId: 'NATIVE-usdc',
+            symbol: 'usdc',
+            platforms: { [solanaCaipId]: usdcMint },
+            currentPrice: 1,
+          },
+        },
+      };
+
+      storageService.loadUnencrypted.mockResolvedValue(cachedData);
+
+      const result = await service.getTokenPriceByAddress(usdcMint, {
+        caipId: solanaCaipId,
+        vmName: NetworkVMType.SVM,
+      } as any);
+
+      expect(result).toStrictEqual({
+        [usdcMint]: 1,
       });
     });
 

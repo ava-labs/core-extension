@@ -3681,6 +3681,11 @@
         "external:../common/src/utils/bigintToBig.ts": true
       }
     },
+    "external:../common/src/utils/normalizeTokenAddress.ts": {
+      "packages": {
+        "@avalabs/core-chains-sdk": true
+      }
+    },
     "external:../common/src/utils/secrets.ts": {
       "packages": {
         "@avalabs/vm-module-types": true

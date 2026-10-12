@@ -1,11 +1,14 @@
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import {
   TokenType,
   TransactionType,
   type Transaction,
 } from '@avalabs/vm-module-types';
+import type { NetworkWithCaipId, TokensPriceShortData } from '@core/types';
 
 import {
   buildHistoryTokenUsdPricesRecord,
+  buildTokenPriceMapForTransactions,
   isSpamTransaction,
   filterSpamTransactions,
   ACTIVITY_MIN_USD_VALUE,
@@ -295,6 +298,59 @@ describe('activitySpamFilter', () => {
       const result = filterSpamTransactions([tx1, tx2], prices);
 
       expect(result).toHaveLength(2);
+    });
+  });
+
+  describe('buildTokenPriceMapForTransactions', () => {
+    const SOLANA_CAIP_ID = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp';
+    const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+
+    it('matches Solana mints case-sensitively against the price feed', () => {
+      const network = {
+        caipId: SOLANA_CAIP_ID,
+        vmName: NetworkVMType.SVM,
+      } as NetworkWithCaipId;
+      const priceData = {
+        'NATIVE-usdc': {
+          symbol: 'usdc',
+          platforms: { [SOLANA_CAIP_ID]: USDC_MINT },
+          currentPrice: 1,
+        },
+      } as unknown as TokensPriceShortData;
+      const tx = makeTx(
+        { chainId: SOLANA_CAIP_ID },
+        { type: TokenType.SPL, address: USDC_MINT },
+      );
+
+      expect(
+        buildTokenPriceMapForTransactions([tx], network, priceData),
+      ).toStrictEqual(new Map([[USDC_MINT.toLowerCase(), 1]]));
+    });
+
+    it('matches EVM addresses case-insensitively against the price feed', () => {
+      const network = {
+        caipId: 'eip155:1',
+        vmName: NetworkVMType.EVM,
+      } as NetworkWithCaipId;
+      const priceData = {
+        'NATIVE-usdc': {
+          symbol: 'usdc',
+          platforms: {
+            'eip155:1': '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+          },
+          currentPrice: 1,
+        },
+      } as unknown as TokensPriceShortData;
+      const tx = makeTx(
+        { chainId: 'eip155:1' },
+        { address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' },
+      );
+
+      expect(
+        buildTokenPriceMapForTransactions([tx], network, priceData),
+      ).toStrictEqual(
+        new Map([['0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', 1]]),
+      );
     });
   });
 

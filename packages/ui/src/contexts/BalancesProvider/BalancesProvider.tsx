@@ -478,7 +478,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
               caipId: tokenNetwork.caipId,
             },
           });
-          return prices[address.toLowerCase()] ?? null;
+          return prices[address] ?? null;
         } catch {
           return null;
         }

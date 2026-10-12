@@ -86,6 +86,7 @@ export * from './nfts/metadataParser';
 export * from './nfts/nftTypesUtils';
 export * from './noop';
 export * from './normalizeBalance';
+export * from './normalizeTokenAddress';
 export * from './number';
 export * from './object';
 export * from './onPageActivated';
