@@ -63,6 +63,7 @@ export enum FeatureVars {
   FUSION_TRANSFER_GAS_MARGIN_BPS = 'fusion-transfer-gas-margin-bps',
   FUSION_ADDITIVE_FEES_BUFFER_BPS = 'fusion-additive-fees-buffer-bps',
   SAE_OVERRIDE = 'sae-override',
+  LEDGER_AVALANCHE_APP_RECOMMENDED_VERSION = 'ledger-avalanche-app-recommended-version',
 }
 
 export enum FeatureFlagEvents {

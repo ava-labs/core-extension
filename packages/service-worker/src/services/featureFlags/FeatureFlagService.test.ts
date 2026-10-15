@@ -1,7 +1,12 @@
 import { noop } from '@avalabs/core-utils-sdk';
 import browser from 'webextension-polyfill';
 
-import { AnalyticsEvents, FeatureFlagEvents, FeatureGates } from '@core/types';
+import {
+  AnalyticsEvents,
+  FeatureFlagEvents,
+  FeatureGates,
+  FeatureVars,
+} from '@core/types';
 import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
 
@@ -406,6 +411,39 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
           });
         },
       );
+    });
+
+    describe('and the flag is a payload-backed var', () => {
+      it('keeps its value instead of evaluating the payload as a Core version range', async () => {
+        jest
+          .spyOn(browser.runtime, 'getManifest')
+          .mockReturnValue({ version: '1.40.8' } as any);
+
+        jest.mocked(getFeatureFlags).mockResolvedValue({
+          flags: {
+            [FeatureGates.DEFI]: true,
+            [FeatureVars.LEDGER_AVALANCHE_APP_RECOMMENDED_VERSION]: '0.9.0',
+          } as any,
+          flagPayloads: {
+            [FeatureGates.DEFI]: JSON.stringify('1.33.x'),
+            [FeatureVars.LEDGER_AVALANCHE_APP_RECOMMENDED_VERSION]:
+              JSON.stringify({ recommendedVersion: '0.9.0' }),
+          },
+        });
+
+        const featureFlagsService = new FeatureFlagService(
+          analyticsServiceMock,
+          lockServiceMock,
+          storageServiceMock,
+        );
+
+        await new Promise(process.nextTick);
+
+        expect(featureFlagsService.featureFlags).toEqual({
+          [FeatureGates.DEFI]: false,
+          [FeatureVars.LEDGER_AVALANCHE_APP_RECOMMENDED_VERSION]: '0.9.0',
+        });
+      });
     });
   });
 

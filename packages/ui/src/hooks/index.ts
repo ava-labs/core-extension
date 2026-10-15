@@ -32,6 +32,7 @@ export * from './useLiveBalance';
 export * from './useLocalStorage';
 export * from './useNfts';
 export * from './useOnline';
+export * from './useOutdatedLedgerAvalancheAppVersions';
 export * from './usePageHistory';
 export * from './usePersistedTabs';
 export * from './usePreferredColorScheme';

@@ -87,6 +87,27 @@ describe('featureFlagsSchema', () => {
       }
     });
 
+    it.each([true, false, '1.2.3'])(
+      'should accept payload-backed FeatureVars as booleans or strings (%p)',
+      (value) => {
+        const result = featureFlagsSchema.safeParse({
+          [FeatureGates.EVERYTHING]: true,
+          [FeatureVars.LEDGER_AVALANCHE_APP_RECOMMENDED_VERSION]: value,
+        });
+
+        expect(result.success).toBe(true);
+      },
+    );
+
+    it('should still reject booleans for regular FeatureVars', () => {
+      const result = featureFlagsSchema.safeParse({
+        [FeatureGates.EVERYTHING]: true,
+        [FeatureVars.MARKR_SWAP_GAS_BUFFER]: true,
+      });
+
+      expect(result.success).toBe(false);
+    });
+
     it('should accept mix of enabled and disabled flags', () => {
       const result = featureFlagsSchema.safeParse({
         [FeatureGates.EVERYTHING]: true,

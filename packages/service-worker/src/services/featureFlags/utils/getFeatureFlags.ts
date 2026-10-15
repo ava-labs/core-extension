@@ -1,5 +1,6 @@
 import { DISABLED_FLAG_VALUES, fetchAndVerify } from '@core/common';
 import { posthogResponseSchema } from '../types';
+import { resolvePayloadFeatureVars } from '../payloadFeatureVars';
 export async function getFeatureFlags(
   token?: string,
   userId?: string,
@@ -62,11 +63,11 @@ export async function getFeatureFlags(
   const response = await fetchWithPosthogFallback();
   // Posthog API does not return disabled flags on their `/decide` api endpoint
   // Define disabled state values for the flags
-  return {
-    flags: {
+  return resolvePayloadFeatureVars(
+    {
       ...DISABLED_FLAG_VALUES,
       ...response.featureFlags,
     },
-    flagPayloads: response.featureFlagPayloads ?? {},
-  };
+    response.featureFlagPayloads ?? {},
+  );
 }

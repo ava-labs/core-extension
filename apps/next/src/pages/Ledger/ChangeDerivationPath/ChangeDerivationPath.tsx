@@ -9,6 +9,7 @@ import {
   FullscreenModalDescription,
   FullscreenModalTitle,
 } from '@/components/FullscreenModal';
+import { LedgerAppOutdatedHint } from '@/components/LedgerAppOutdatedHint';
 import { LoadingScreen } from '@/components/LoadingScreen';
 import { useOpenApp } from '@/hooks/useOpenApp';
 import { useAnalyticsContext, useWalletContext } from '@core/ui';
@@ -90,6 +91,9 @@ export const ChangeDerivationPath: FC = () => {
           )}
         </FullscreenModalContent>
         <FullscreenModalActions>
+          {(submissionState === 'idle' || submissionState === 'submitting') && (
+            <LedgerAppOutdatedHint flexGrow={1} />
+          )}
           <SecondaryAction
             submissionState={submissionState}
             onClose={onClose}
