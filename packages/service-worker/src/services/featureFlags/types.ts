@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { FeatureGates, FeatureVars } from '@core/types';
+import { isPayloadFeatureVar } from './payloadFeatureVars';
 
 /**
  * Zod schema for FeatureFlags
@@ -13,8 +14,15 @@ export const featureFlagsSchema = z
       {} as Record<string, z.ZodOptional<z.ZodBoolean>>,
     ),
     ...Object.values(FeatureVars).reduce(
-      (acc, value) => ({ ...acc, [value]: z.string().optional() }),
-      {} as Record<string, z.ZodOptional<z.ZodString>>,
+      (acc, value) => ({
+        ...acc,
+        // Payload-backed vars arrive as boolean flags. Accept strings too so a
+        // misconfigured flag cannot invalidate the whole response.
+        [value]: isPayloadFeatureVar(value)
+          ? z.union([z.boolean(), z.string()]).optional()
+          : z.string().optional(),
+      }),
+      {} as Record<string, z.ZodOptional<z.ZodType<string | boolean>>>,
     ),
   })
   .refine((data) => Object.keys(data).length > 0, {

@@ -64,6 +64,7 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.EERC_TRANSACTION_DISPLAY]: false,
   [FeatureGates.HYPERCORE_AS_TARGET_ON_SWAP]: false,
   [FeatureVars.SAE_OVERRIDE]: 'auto', // auto, enabled, disabled
+  [FeatureVars.LEDGER_AVALANCHE_APP_RECOMMENDED_VERSION]: '',
 };
 
 // Default flags are used when posthog is not available
@@ -129,6 +130,7 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.EERC_TRANSACTION_DISPLAY]: false,
   [FeatureGates.HYPERCORE_AS_TARGET_ON_SWAP]: false,
   [FeatureVars.SAE_OVERRIDE]: 'auto', // auto, enabled, disabled
+  [FeatureVars.LEDGER_AVALANCHE_APP_RECOMMENDED_VERSION]: '',
 };
 
 export const FEATURE_FLAGS_OVERRIDES_KEY = '__feature-flag-overrides__';

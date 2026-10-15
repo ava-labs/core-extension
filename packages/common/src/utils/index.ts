@@ -48,6 +48,7 @@ export * from './isContactValid';
 export * from './isEmptyAccount';
 export * from './isFailedToFetchError';
 export * from './isLedgerVersionCompatible';
+export * from './isLedgerAppVersionOutdated';
 export * from './isLockStateChangedEvent';
 export * from './isPrimarySubnet';
 export * from './isSafeRemoteUrl';

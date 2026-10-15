@@ -1,4 +1,4 @@
-import { FeatureGates } from '@core/types';
+import { FeatureGates, FeatureVars } from '@core/types';
 import { getFeatureFlags } from './getFeatureFlags';
 import { DISABLED_FLAG_VALUES } from '@core/common';
 describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
@@ -65,6 +65,37 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
       );
     });
   };
+
+  it('resolves payload-backed vars and keeps version-range payloads for other flags', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        featureFlags: {
+          [FeatureGates.EVERYTHING]: true,
+          [FeatureVars.LEDGER_AVALANCHE_APP_RECOMMENDED_VERSION]: true,
+        },
+        featureFlagPayloads: {
+          [FeatureGates.DEFI]: '>=1.60.0',
+          [FeatureVars.LEDGER_AVALANCHE_APP_RECOMMENDED_VERSION]:
+            JSON.stringify({ recommendedVersion: '1.2.3' }),
+        },
+      }),
+    });
+
+    const { flags, flagPayloads } = await getFeatureFlags(
+      'token',
+      'userID',
+      'https://example.com',
+    );
+
+    expect(flags).toEqual({
+      ...DISABLED_FLAG_VALUES,
+      [FeatureGates.EVERYTHING]: true,
+      [FeatureVars.LEDGER_AVALANCHE_APP_RECOMMENDED_VERSION]: '1.2.3',
+    });
+    expect(flagPayloads).toEqual({ [FeatureGates.DEFI]: '>=1.60.0' });
+  });
 
   it('throws if no token is provided', async () => {
     await expect(getFeatureFlags()).rejects.toThrow(new Error('Invalid token'));

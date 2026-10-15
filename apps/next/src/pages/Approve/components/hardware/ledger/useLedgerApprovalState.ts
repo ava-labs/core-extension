@@ -116,10 +116,7 @@ export const useLedgerApprovalState: UseLedgerApprovalState = (
     };
   }
 
-  return {
-    state: 'pending',
-    requiredApp,
-  };
+  return { state: 'pending' };
 };
 
 const isCompatibleApp = (
