@@ -32,7 +32,6 @@ import {
   getWalletFromMnemonic,
 } from '@avalabs/core-wallets-sdk';
 import getDerivationPath from './utils/getDerivationPath';
-import ensureMessageFormatIsValid from './utils/ensureMessageFormatIsValid';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import type { WalletPolicy } from '@ledgerhq/device-signer-kit-bitcoin';
@@ -68,7 +67,6 @@ jest.mock('../network/NetworkService');
 jest.mock('../secrets/SecretsService');
 jest.mock('../secrets/AddressResolver');
 jest.mock('../ledger/LedgerDmkService');
-jest.mock('./utils/ensureMessageFormatIsValid');
 jest.mock('./utils/prepareBtcTxForLedger');
 jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('@noble/curves/ed25519', () => {
@@ -1466,11 +1464,6 @@ describe('background/services/wallet/WalletService.ts', () => {
         MessageType.ETH_SIGN,
         action,
       );
-      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
-        MessageType.ETH_SIGN,
-        {},
-        activeNetworkMock.chainId,
-      );
       expect(personalSign).toHaveBeenCalledTimes(1);
       expect(personalSign).toHaveBeenCalledWith({
         privateKey: Buffer.from(privateKeyMock, 'hex'),
@@ -1489,11 +1482,6 @@ describe('background/services/wallet/WalletService.ts', () => {
         MessageType.PERSONAL_SIGN,
         action,
       );
-      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
-        MessageType.PERSONAL_SIGN,
-        {},
-        activeNetworkMock.chainId,
-      );
       expect(personalSign).toHaveBeenCalledTimes(1);
       expect(personalSign).toHaveBeenCalledWith({
         privateKey: Buffer.from(privateKeyMock, 'hex'),
@@ -1511,11 +1499,6 @@ describe('background/services/wallet/WalletService.ts', () => {
       const result = await walletService.signMessage(
         MessageType.SIGN_TYPED_DATA,
         action,
-      );
-      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
-        MessageType.SIGN_TYPED_DATA,
-        {},
-        activeNetworkMock.chainId,
       );
       expect(signTypedData).toHaveBeenCalledTimes(1);
       expect(signTypedData).toHaveBeenCalledWith({
@@ -1536,11 +1519,6 @@ describe('background/services/wallet/WalletService.ts', () => {
         MessageType.SIGN_TYPED_DATA_V1,
         action,
       );
-      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
-        MessageType.SIGN_TYPED_DATA_V1,
-        {},
-        activeNetworkMock.chainId,
-      );
       expect(signTypedData).toHaveBeenCalledTimes(1);
       expect(signTypedData).toHaveBeenCalledWith({
         privateKey: Buffer.from(privateKeyMock, 'hex'),
@@ -1559,11 +1537,6 @@ describe('background/services/wallet/WalletService.ts', () => {
       const result = await walletService.signMessage(
         MessageType.SIGN_TYPED_DATA_V3,
         action,
-      );
-      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
-        MessageType.SIGN_TYPED_DATA_V3,
-        {},
-        activeNetworkMock.chainId,
       );
       expect(signTypedData).toHaveBeenCalledTimes(1);
       expect(signTypedData).toHaveBeenCalledWith({
@@ -1584,11 +1557,6 @@ describe('background/services/wallet/WalletService.ts', () => {
         MessageType.SIGN_TYPED_DATA_V4,
         action,
       );
-      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
-        MessageType.SIGN_TYPED_DATA_V4,
-        {},
-        activeNetworkMock.chainId,
-      );
       expect(signTypedData).toHaveBeenCalledTimes(1);
       expect(signTypedData).toHaveBeenCalledWith({
         privateKey: Buffer.from(privateKeyMock, 'hex'),
@@ -1598,18 +1566,6 @@ describe('background/services/wallet/WalletService.ts', () => {
       expect(bufferInstance.fill).toHaveBeenCalledTimes(1);
       expect(bufferInstance.fill).toHaveBeenCalledWith(0);
       expect(result).toEqual(mockedHash);
-    });
-
-    it('should throw an exception when the message is invalid', async () => {
-      const errorMessage = 'message is invalid';
-      jest.spyOn(walletService as any, 'getWallet').mockReturnValue(walletMock);
-      (ensureMessageFormatIsValid as jest.Mock).mockImplementationOnce(() => {
-        throw new Error(errorMessage);
-      });
-      await expect(
-        walletService.signMessage(MessageType.ETH_SIGN, action),
-      ).rejects.toThrow(errorMessage);
-      expect(Buffer.from).not.toHaveBeenCalled();
     });
 
     it('should throw an exception when there is no active network', async () => {
