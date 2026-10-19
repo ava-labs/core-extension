@@ -448,15 +448,19 @@ const ACTIVITY_NETWORKS = [
 // Glacier-indexed (not the moralis-evm proxy that rate-limits real EVM chains),
 // so an empty result is genuine rather than a throttled false-empty.
 const EMPTY_ACTIVITY_NETWORK = 'Blockticity';
-// Expected explorer URL prefix per network, as the opened tab resolves it
+// Expected explorer URL per network, as the opened tab resolves it
 // (Bitcoin's short link redirects to blockchain.com's canonical /explorer path;
-// Ethereum keeps the app's double slash). Verified empirically.
-const EXPLORER_PREFIX: Record<string, string> = {
-  'Avalanche (C-Chain)': 'https://subnets.avax.network/c-chain/tx/',
-  'Avalanche (X-Chain)': 'https://subnets.avax.network/x-chain/tx/',
-  'Avalanche (P-Chain)': 'https://subnets.avax.network/p-chain/tx/',
-  Ethereum: 'https://etherscan.io//tx/',
-  Bitcoin: 'https://www.blockchain.com/explorer/transactions/btc/',
+// subnets.avax.network 301-redirects to explorer.avax.network; Ethereum keeps
+// the app's double slash). Verified empirically.
+const EXPLORER_URL: Record<string, RegExp> = {
+  'Avalanche (C-Chain)':
+    /^https:\/\/(subnets|explorer)\.avax\.network\/c-chain\/tx\//,
+  'Avalanche (X-Chain)':
+    /^https:\/\/(subnets|explorer)\.avax\.network\/x-chain\/tx\//,
+  'Avalanche (P-Chain)':
+    /^https:\/\/(subnets|explorer)\.avax\.network\/p-chain\/tx\//,
+  Ethereum: /^https:\/\/etherscan\.io\/\/tx\//,
+  Bitcoin: /^https:\/\/www\.blockchain\.com\/explorer\/transactions\/btc\//,
 };
 
 test.describe('Portfolio - Activity', () => {
@@ -561,11 +565,11 @@ test.describe('Portfolio - Activity', () => {
         expect(txHash.length).toBeGreaterThan(0);
 
         const { tab } = await activity.openExplorerForRow(0, context);
-        const expectedPrefix = EXPLORER_PREFIX[network];
+        const expectedUrl = EXPLORER_URL[network];
         // Wait for any explorer-side redirect (e.g. Bitcoin) to settle.
         await expect
-          .poll(() => tab.url().startsWith(expectedPrefix), { timeout: 15_000 })
-          .toBe(true);
+          .poll(() => tab.url(), { timeout: 15_000 })
+          .toMatch(expectedUrl);
         expect(tab.url(), `${network} explorer URL`).toContain(txHash);
         await tab.close();
       }
