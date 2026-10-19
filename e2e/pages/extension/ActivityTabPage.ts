@@ -59,8 +59,23 @@ export class ActivityTabPage extends BasePage {
    */
   async open(timeout = 60_000): Promise<void> {
     await this.activityNavTab.first().waitFor({ state: 'visible', timeout });
-    await this.activityNavTab.first().click();
-    await this.tab.waitFor({ state: 'visible', timeout: 15_000 });
+    // The tab bar can remount while balances finish loading, dropping an early
+    // click — re-click the nav tab until the panel actually mounts.
+    await expect
+      .poll(
+        async () => {
+          if (await this.tab.isVisible()) {
+            return true;
+          }
+          await this.activityNavTab
+            .first()
+            .click()
+            .catch(() => {});
+          return this.tab.isVisible();
+        },
+        { timeout, intervals: [500, 1000, 2000] },
+      )
+      .toBe(true);
     await this.waitForLoaded();
   }
 
