@@ -50,6 +50,7 @@ import {
   decorateWithCaipId,
   getLegacyXPDerivationPath,
   getProviderForNetwork,
+  Monitoring,
 } from '@core/common';
 import { AccountsService } from '../accounts/AccountsService';
 import { ed25519 } from '@noble/curves/ed25519';
@@ -82,6 +83,10 @@ jest.mock('./utils/getDerivationPath');
 jest.mock('@core/common', () => ({
   ...jest.requireActual('@core/common'),
   getProviderForNetwork: jest.fn(),
+  Monitoring: {
+    ...jest.requireActual('@core/common').Monitoring,
+    sentryCaptureException: jest.fn(),
+  },
 }));
 jest.mock('../seedless/SeedlessWallet');
 jest.mock('../seedless/SeedlessSessionManager');
@@ -721,6 +726,59 @@ describe('background/services/wallet/WalletService.ts', () => {
       expect(ledgerDmkService.ensureAppOpen).toHaveBeenCalledWith(
         'Bitcoin Recovery',
       );
+    });
+
+    describe('when Ledger signing fails', () => {
+      const signWithLedgerFailure = (error: unknown) => {
+        btcLedgerWalletMock.signTx = jest.fn().mockRejectedValueOnce(error);
+        spyOnGetWallet().mockResolvedValueOnce(btcLedgerWalletMock);
+        jest
+          .mocked(getProviderForNetwork)
+          .mockResolvedValueOnce({ getTxHex: jest.fn() } as any);
+        jest
+          .mocked(prepareBtcTxForLedger)
+          .mockResolvedValueOnce({ inputs: [], outputs: [] } as any);
+        ledgerDmkService.getDeviceInfo.mockResolvedValueOnce({
+          deviceModel: 'flex',
+          appName: 'Bitcoin Recovery',
+          appVersion: '2.4.2',
+        });
+
+        return walletService.sign(btcTxMock, networkMock, tabId);
+      };
+
+      it('reports the error to Sentry with the device details', async () => {
+        const error = new Error('Device Management Kit signer failed');
+
+        await expect(signWithLedgerFailure(error)).rejects.toBe(error);
+        expect(Monitoring.sentryCaptureException).toHaveBeenCalledWith(
+          error,
+          Monitoring.SentryExceptionTypes.LEDGER,
+          {
+            'ledger.model': 'flex',
+            'ledger.app': 'Bitcoin Recovery',
+            'ledger.appVersion': '2.4.2',
+          },
+        );
+      });
+
+      it('wraps non-Error DMK rejections before reporting them', async () => {
+        const error = { _tag: 'UnknownDAError', errorCode: '6a80' };
+
+        await expect(signWithLedgerFailure(error)).rejects.toBe(error);
+        expect(Monitoring.sentryCaptureException).toHaveBeenCalledWith(
+          new Error(JSON.stringify(error)),
+          Monitoring.SentryExceptionTypes.LEDGER,
+          expect.any(Object),
+        );
+      });
+
+      it('does not report the user rejecting on the device', async () => {
+        const error = { _tag: 'RefusedByUserDAError' };
+
+        await expect(signWithLedgerFailure(error)).rejects.toBe(error);
+        expect(Monitoring.sentryCaptureException).not.toHaveBeenCalled();
+      });
     });
 
     it('signs evm tx correctly using Wallet', async () => {

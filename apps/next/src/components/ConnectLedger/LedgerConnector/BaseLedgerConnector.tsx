@@ -22,7 +22,7 @@ import {
   UseLedgerPublicKeyFetcher,
   WalletExistsError,
 } from './types';
-import { LedgerAppType } from '@core/ui';
+import { LedgerAppType, useLedgerContext } from '@core/ui';
 import { DerivationStatus } from '@core/types';
 import { Monitoring } from '@core/common';
 
@@ -87,6 +87,7 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
     requiredApp,
   } = props;
   const { t } = useTranslation();
+  const { getDeviceInfo } = useLedgerContext();
   const [activePublicKeys, setActivePublicKeys] = useState<PublicKey[]>([]);
   const withDerivationPathSpec = isWithDerivationPathSpec(props);
   const { status, error, onRetry, duplicatedWalletName, retrieveKeys } =
@@ -125,9 +126,12 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
         const normalizedError =
           err instanceof Error ? err : new Error(String(err));
         if (!(normalizedError instanceof WalletExistsError)) {
-          Monitoring.sentryCaptureException(
-            normalizedError,
-            Monitoring.SentryExceptionTypes.LEDGER,
+          getDeviceInfo().then((deviceInfo) =>
+            Monitoring.sentryCaptureException(
+              normalizedError,
+              Monitoring.SentryExceptionTypes.LEDGER,
+              Monitoring.getLedgerSentryTags(deviceInfo),
+            ),
           );
         }
         console.error('Failed to derive keys', normalizedError);
@@ -137,7 +141,7 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
         if (!isCurrent()) return;
         setIsRetrieving(false);
       });
-  }, [minNumberOfKeys, retrieveKeys, onSuccess, callbacks]);
+  }, [minNumberOfKeys, retrieveKeys, onSuccess, callbacks, getDeviceInfo]);
 
   const handleManualRetry = useCallback(() => {
     resetFetchState();

@@ -275,6 +275,67 @@ describe('src/background/services/ledger/LedgerDmkService.ts', () => {
     });
   });
 
+  describe('getDeviceInfo', () => {
+    it('returns null without opening a session', async () => {
+      const dmk = createDmk();
+      mockBuild.mockReturnValue(dmk);
+
+      await expect(service.getDeviceInfo()).resolves.toBeNull();
+      expect(dmk.listenToAvailableDevices).not.toHaveBeenCalled();
+      expect(dmk.connect).not.toHaveBeenCalled();
+    });
+
+    it('returns the model, running app and firmware from the session state', async () => {
+      const dmk = createDmk();
+      dmk.connect.mockResolvedValue('session-1');
+      dmk.getDeviceSessionState.mockReturnValue(
+        of({
+          deviceModelId: 'flex',
+          currentApp: { name: 'Avalanche', version: '1.4.22' },
+          firmwareVersion: { mcu: '', bootloader: '', os: '1.6.1' },
+        }),
+      );
+      mockBuild.mockReturnValue(dmk);
+      await service.getSession();
+
+      await expect(service.getDeviceInfo()).resolves.toEqual({
+        deviceModel: 'flex',
+        appName: 'Avalanche',
+        appVersion: '1.4.22',
+        firmwareVersion: '1.6.1',
+      });
+    });
+
+    it('returns only the model before the running app is known', async () => {
+      const dmk = createDmk();
+      dmk.connect.mockResolvedValue('session-1');
+      dmk.getDeviceSessionState.mockReturnValue(
+        of({ deviceModelId: 'nanoSP' }),
+      );
+      mockBuild.mockReturnValue(dmk);
+      await service.getSession();
+
+      await expect(service.getDeviceInfo()).resolves.toEqual({
+        deviceModel: 'nanoSP',
+        appName: undefined,
+        appVersion: undefined,
+        firmwareVersion: undefined,
+      });
+    });
+
+    it('returns null when the session state is unavailable', async () => {
+      const dmk = createDmk();
+      dmk.connect.mockResolvedValue('session-1');
+      dmk.getDeviceSessionState.mockImplementation(() => {
+        throw new Error('DeviceSessionNotFound');
+      });
+      mockBuild.mockReturnValue(dmk);
+      await service.getSession();
+
+      await expect(service.getDeviceInfo()).resolves.toBeNull();
+    });
+  });
+
   describe('device discovery', () => {
     it('refuses to pick a device when several Ledgers are available', async () => {
       const dmk = createDmk();

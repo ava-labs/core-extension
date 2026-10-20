@@ -13,6 +13,7 @@ jest.mock('../LedgerDmkService', () => ({
 describe('src/background/services/ledger/handlers/ledgerDeviceRequest.ts', () => {
   const ledgerDmkService = {
     getAppInfo: jest.fn(),
+    getDeviceInfo: jest.fn(),
     getEthAppConfig: jest.fn(),
     ensureAppOpen: jest.fn(),
     closeApp: jest.fn(),
@@ -43,6 +44,17 @@ describe('src/background/services/ledger/handlers/ledgerDeviceRequest.ts', () =>
     ledgerDmkService.getAppInfo.mockResolvedValue(appInfo);
 
     expect((await handle({ op: 'getAppInfo' })).result).toEqual(appInfo);
+  });
+
+  it('returns the device info', async () => {
+    const deviceInfo = {
+      deviceModel: 'flex',
+      appName: 'Avalanche',
+      appVersion: '1.4.22',
+    };
+    ledgerDmkService.getDeviceInfo.mockResolvedValue(deviceInfo);
+
+    expect((await handle({ op: 'getDeviceInfo' })).result).toEqual(deviceInfo);
   });
 
   it('returns the Ethereum app config', async () => {

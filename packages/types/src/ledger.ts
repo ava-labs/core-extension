@@ -4,6 +4,13 @@ export type DerivationStatus =
   | 'error'
   | 'needs-user-gesture';
 
+export type LedgerDeviceInfo = {
+  deviceModel: string;
+  appName?: string;
+  appVersion?: string;
+  firmwareVersion?: string;
+};
+
 export const LEDGER_MULTIPLE_DEVICES_ERROR =
   'Multiple Ledger devices are connected';
 

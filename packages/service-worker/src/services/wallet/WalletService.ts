@@ -29,6 +29,7 @@ import {
   isPchainNetwork,
   isPrimaryAccount,
   isSolanaNetwork,
+  isUserRejectionError,
   isXchainNetwork,
   UNSUPPORTED_WALLET_TYPE_ERROR,
   Monitoring,
@@ -83,6 +84,7 @@ import { AccountsService } from '../accounts/AccountsService';
 import { FireblocksBTCSigner } from '../fireblocks/FireblocksBTCSigner';
 import { FireblocksService } from '../fireblocks/FireblocksService';
 import { LedgerDmkService } from '../ledger/LedgerDmkService';
+import { serializeLedgerError } from '../ledger/utils/serializeLedgerError';
 import { NetworkService } from '../network/NetworkService';
 import { AddressResolver } from '../secrets/AddressResolver';
 import { SecretsService } from '../secrets/SecretsService';
@@ -613,7 +615,20 @@ export class WalletService implements OnUnlock {
   #withLedgerApp<T>(appName: string, fn: () => Promise<T>): Promise<T> {
     return this.ledgerDmkService.runDeviceOperation(async () => {
       await this.ledgerDmkService.ensureAppOpen(appName);
-      return fn();
+      try {
+        return await fn();
+      } catch (err) {
+        if (!isUserRejectionError(err)) {
+          Monitoring.sentryCaptureException(
+            err instanceof Error ? err : new Error(serializeLedgerError(err)),
+            Monitoring.SentryExceptionTypes.LEDGER,
+            Monitoring.getLedgerSentryTags(
+              await this.ledgerDmkService.getDeviceInfo(),
+            ),
+          );
+        }
+        throw err;
+      }
     });
   }
 

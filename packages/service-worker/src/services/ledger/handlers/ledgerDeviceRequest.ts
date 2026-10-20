@@ -1,6 +1,11 @@
-import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
+import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  LedgerDeviceInfo,
+} from '@core/types';
 import { injectable } from 'tsyringe';
 import { LedgerDmkService } from '../LedgerDmkService';
+import { serializeLedgerError } from '../utils/serializeLedgerError';
 
 /**
  * Device operations the frontend delegates to the service-worker-owned DMK
@@ -9,6 +14,7 @@ import { LedgerDmkService } from '../LedgerDmkService';
  */
 export type LedgerDeviceRequestParams =
   | { op: 'getAppInfo' }
+  | { op: 'getDeviceInfo' }
   | { op: 'getEthAppConfig' }
   | { op: 'ensureAppOpen'; appName: string }
   | { op: 'closeApp' }
@@ -28,6 +34,7 @@ export type LedgerDeviceRequestParams =
 // messaging boundary; the frontend re-wraps them where a Buffer is expected.
 export type LedgerDeviceRequestResult =
   | { applicationName: string; version: string }
+  | LedgerDeviceInfo
   | { isBlindSigningEnabled: boolean }
   | { publicKeyHex: string }
   | { xpub: string }
@@ -40,30 +47,6 @@ type HandlerType = ExtensionRequestHandler<
   LedgerDeviceRequestResult,
   [params: LedgerDeviceRequestParams]
 >;
-
-function serializeLedgerError(e: unknown): string {
-  if (e instanceof Error) {
-    return e.message;
-  }
-  if (e && typeof e === 'object') {
-    // DMK errors carry their info on enumerable/own fields (e.g. `_tag`,
-    // `errorCode`, `originalError`) rather than a `message`.
-    try {
-      const own = Object.fromEntries(
-        Object.getOwnPropertyNames(e).map((key) => [key, Reflect.get(e, key)]),
-      );
-      const json = JSON.stringify(own);
-      if (json && json !== '{}') {
-        return json;
-      }
-      const tag = '_tag' in e ? e._tag : undefined;
-      return String(tag ?? e.constructor?.name ?? e);
-    } catch {
-      return String(e);
-    }
-  }
-  return String(e);
-}
 
 @injectable()
 export class LedgerDeviceRequestHandler implements HandlerType {
@@ -90,6 +73,8 @@ export class LedgerDeviceRequestHandler implements HandlerType {
     switch (params.op) {
       case 'getAppInfo':
         return this.ledgerDmkService.getAppInfo();
+      case 'getDeviceInfo':
+        return this.ledgerDmkService.getDeviceInfo();
       case 'getEthAppConfig':
         return this.ledgerDmkService.getEthAppConfig();
       case 'ensureAppOpen':

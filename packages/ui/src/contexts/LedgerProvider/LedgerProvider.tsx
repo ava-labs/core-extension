@@ -2,6 +2,7 @@ import {
   ExtensionRequest,
   LEDGER_DEVICE_LOCKED_ERROR,
   LEDGER_MULTIPLE_DEVICES_ERROR,
+  LedgerDeviceInfo,
 } from '@core/types';
 import {
   getEvmExtendedKeyPath,
@@ -100,6 +101,7 @@ const LedgerContext = createContext<{
   updateLedgerVersionWarningClosed(): Promise<void>;
   ledgerVersionWarningClosed: boolean | undefined;
   closeCurrentApp: () => Promise<void>;
+  getDeviceInfo(): Promise<LedgerDeviceInfo | null>;
   /**
    * Do not use it directly unless necessary. Use `useActiveLedgerAppInfo()` hook instead.
    */
@@ -308,6 +310,11 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     setAppConfig(null);
   }, [deviceRequest]);
 
+  const getDeviceInfo = useCallback(async () => {
+    const [result] = await resolve(deviceRequest({ op: 'getDeviceInfo' }));
+    return result && 'deviceModel' in result ? result : null;
+  }, [deviceRequest]);
+
   useEffect(() => {
     request<GetLedgerVersionWarningHandler>({
       method: ExtensionRequest.SHOW_LEDGER_VERSION_WARNING,
@@ -409,6 +416,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         updateLedgerVersionWarningClosed,
         ledgerVersionWarningClosed,
         closeCurrentApp,
+        getDeviceInfo,
         registerSubscriber,
         unregisterSubscriber,
       }}
