@@ -422,24 +422,19 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     setStatus('waiting');
     setError(undefined);
 
-    let cancelled = false;
     appSwitchInFlight.current = true;
 
+    // Not cancelled on cleanup: the `setStatus` above re-runs this effect, and
+    // `appSwitchInFlight` keeps the re-run from starting another switch, so
+    // dropping this result would leave the status at 'waiting'.
     prepareTransportForOnboarding(LedgerAppType.AVALANCHE)
       .catch((err: unknown) => {
-        if (cancelled) {
-          return;
-        }
         setStatus('error');
         setError(classifyLedgerOnboardingError(err));
       })
       .finally(() => {
         appSwitchInFlight.current = false;
       });
-
-    return () => {
-      cancelled = true;
-    };
   }, [
     appType,
     appVersion,
@@ -456,6 +451,11 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   ]);
 
   const onRetry = useCallback(async () => {
+    // The auto-connect effect never leaves an error state on its own, e.g. a
+    // rejected app switch with the device still on the dashboard.
+    setStatus((current) => (current === 'error' ? 'waiting' : current));
+    setError(undefined);
+
     try {
       await popDeviceSelection();
       await initLedgerTransport();
