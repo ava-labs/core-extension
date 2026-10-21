@@ -32,7 +32,6 @@ import {
   getWalletFromMnemonic,
 } from '@avalabs/core-wallets-sdk';
 import getDerivationPath from './utils/getDerivationPath';
-import ensureMessageFormatIsValid from './utils/ensureMessageFormatIsValid';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import type { WalletPolicy } from '@ledgerhq/device-signer-kit-bitcoin';
@@ -62,13 +61,12 @@ import {
 import { expectToThrowErrorCode } from '@shared/tests/test-utils';
 import { AddressResolver } from '../secrets/AddressResolver';
 import { hex } from '@scure/base';
-import { NetworkVMType } from '@avalabs/vm-module-types';
+import { NetworkVMType, RpcMethod } from '@avalabs/vm-module-types';
 
 jest.mock('../network/NetworkService');
 jest.mock('../secrets/SecretsService');
 jest.mock('../secrets/AddressResolver');
 jest.mock('../ledger/LedgerDmkService');
-jest.mock('./utils/ensureMessageFormatIsValid');
 jest.mock('./utils/prepareBtcTxForLedger');
 jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('@noble/curves/ed25519', () => {
@@ -122,6 +120,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       addressPVM: ACTIVE_XP_ADDRESS.replace(/^X-/, 'P-'),
       addressCoreEth: ACTIVE_XP_ADDRESS,
     }),
+    getAccountFromActiveWalletByAddress: jest.fn(),
   } as any;
 
   const privateKeyMock =
@@ -1466,11 +1465,6 @@ describe('background/services/wallet/WalletService.ts', () => {
         MessageType.ETH_SIGN,
         action,
       );
-      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
-        MessageType.ETH_SIGN,
-        {},
-        activeNetworkMock.chainId,
-      );
       expect(personalSign).toHaveBeenCalledTimes(1);
       expect(personalSign).toHaveBeenCalledWith({
         privateKey: Buffer.from(privateKeyMock, 'hex'),
@@ -1489,11 +1483,6 @@ describe('background/services/wallet/WalletService.ts', () => {
         MessageType.PERSONAL_SIGN,
         action,
       );
-      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
-        MessageType.PERSONAL_SIGN,
-        {},
-        activeNetworkMock.chainId,
-      );
       expect(personalSign).toHaveBeenCalledTimes(1);
       expect(personalSign).toHaveBeenCalledWith({
         privateKey: Buffer.from(privateKeyMock, 'hex'),
@@ -1511,11 +1500,6 @@ describe('background/services/wallet/WalletService.ts', () => {
       const result = await walletService.signMessage(
         MessageType.SIGN_TYPED_DATA,
         action,
-      );
-      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
-        MessageType.SIGN_TYPED_DATA,
-        {},
-        activeNetworkMock.chainId,
       );
       expect(signTypedData).toHaveBeenCalledTimes(1);
       expect(signTypedData).toHaveBeenCalledWith({
@@ -1536,11 +1520,6 @@ describe('background/services/wallet/WalletService.ts', () => {
         MessageType.SIGN_TYPED_DATA_V1,
         action,
       );
-      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
-        MessageType.SIGN_TYPED_DATA_V1,
-        {},
-        activeNetworkMock.chainId,
-      );
       expect(signTypedData).toHaveBeenCalledTimes(1);
       expect(signTypedData).toHaveBeenCalledWith({
         privateKey: Buffer.from(privateKeyMock, 'hex'),
@@ -1559,11 +1538,6 @@ describe('background/services/wallet/WalletService.ts', () => {
       const result = await walletService.signMessage(
         MessageType.SIGN_TYPED_DATA_V3,
         action,
-      );
-      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
-        MessageType.SIGN_TYPED_DATA_V3,
-        {},
-        activeNetworkMock.chainId,
       );
       expect(signTypedData).toHaveBeenCalledTimes(1);
       expect(signTypedData).toHaveBeenCalledWith({
@@ -1584,11 +1558,6 @@ describe('background/services/wallet/WalletService.ts', () => {
         MessageType.SIGN_TYPED_DATA_V4,
         action,
       );
-      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
-        MessageType.SIGN_TYPED_DATA_V4,
-        {},
-        activeNetworkMock.chainId,
-      );
       expect(signTypedData).toHaveBeenCalledTimes(1);
       expect(signTypedData).toHaveBeenCalledWith({
         privateKey: Buffer.from(privateKeyMock, 'hex'),
@@ -1598,18 +1567,6 @@ describe('background/services/wallet/WalletService.ts', () => {
       expect(bufferInstance.fill).toHaveBeenCalledTimes(1);
       expect(bufferInstance.fill).toHaveBeenCalledWith(0);
       expect(result).toEqual(mockedHash);
-    });
-
-    it('should throw an exception when the message is invalid', async () => {
-      const errorMessage = 'message is invalid';
-      jest.spyOn(walletService as any, 'getWallet').mockReturnValue(walletMock);
-      (ensureMessageFormatIsValid as jest.Mock).mockImplementationOnce(() => {
-        throw new Error(errorMessage);
-      });
-      await expect(
-        walletService.signMessage(MessageType.ETH_SIGN, action),
-      ).rejects.toThrow(errorMessage);
-      expect(Buffer.from).not.toHaveBeenCalled();
     });
 
     it('should throw an exception when there is no active network', async () => {
@@ -1730,6 +1687,65 @@ describe('background/services/wallet/WalletService.ts', () => {
       });
       expect(result).toEqual(mockedHash);
     });
+  });
+
+  describe('signGenericMessage', () => {
+    const cChainMock = { chainId: 43114, caipId: 'eip155:43114' } as any;
+    const activeAccount = {
+      type: AccountType.PRIMARY,
+      index: 0,
+      addressC: walletMock.address,
+    } as any;
+
+    const tosAcceptance = {
+      domain: { name: 'BENQI Terms of Service', version: '1' },
+      primaryType: 'ToSAcceptance',
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+        ],
+        ToSAcceptance: [
+          { name: 'statement', type: 'string' },
+          { name: 'wallet', type: 'address' },
+        ],
+      },
+      message: {
+        statement: 'I agree to the BENQI Terms of Service',
+        wallet: walletMock.address.toLowerCase(),
+      },
+    };
+
+    beforeEach(() => {
+      jest
+        .spyOn(accountsService, 'getActiveAccount')
+        .mockResolvedValue(activeAccount);
+      accountsService.getAccountFromActiveWalletByAddress.mockResolvedValue(
+        activeAccount,
+      );
+      jest
+        .spyOn(walletService as any, 'getWallet')
+        .mockResolvedValue(walletMock);
+      jest.mocked(signTypedData).mockReturnValue('0xsigned');
+    });
+
+    it.each([
+      RpcMethod.SIGN_TYPED_DATA_V3,
+      RpcMethod.SIGN_TYPED_DATA_V4,
+    ] as const)(
+      'signs %s typed data whose domain has no chainId',
+      async (type) => {
+        const result = await walletService.signGenericMessage(
+          { type, account: walletMock.address, data: tosAcceptance },
+          cChainMock,
+        );
+
+        expect(signTypedData).toHaveBeenCalledWith(
+          expect.objectContaining({ data: tosAcceptance }),
+        );
+        expect(result).toBe('0xsigned');
+      },
+    );
   });
 
   describe('getActiveAccountPublicKey', () => {

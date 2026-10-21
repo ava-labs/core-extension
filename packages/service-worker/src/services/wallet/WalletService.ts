@@ -97,7 +97,6 @@ import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { WalletConnectSigner } from '../walletConnect/WalletConnectSigner';
 import { HVMWallet } from './HVMWallet';
-import ensureMessageIsValid from './utils/ensureMessageFormatIsValid';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import { isTypedData } from '@avalabs/evm-module';
 import { isPersonalSign } from './utils/isPersonalSignRequest';
@@ -1146,8 +1145,6 @@ export class WalletService implements OnUnlock {
       return utils.base58check.encode(new Uint8Array(signed));
     }
 
-    ensureMessageIsValid(data.type, data.data, network.chainId);
-
     // `getAccountFromActiveWalletByAddress` below matches any account in the
     // wallet, so bind to the active one in case the user switched mid-approval.
     await this.#assertSignerIsActiveAccount(data.account);
@@ -1306,8 +1303,6 @@ export class WalletService implements OnUnlock {
     });
 
     const data = action.displayData?.messageParams?.data;
-
-    ensureMessageIsValid(messageType, data, network.chainId);
 
     if (wallet instanceof WalletConnectSigner) {
       return await wallet.signMessage(messageType, action.params);
