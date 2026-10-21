@@ -16,6 +16,7 @@ import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
 import { DEFAULT_FLAGS, FEATURE_FLAGS_OVERRIDES_KEY } from '@core/common';
 import { getFeatureFlags } from './utils/getFeatureFlags';
+import { isPayloadFeatureVar } from './payloadFeatureVars';
 
 @singleton()
 export class FeatureFlagService {
@@ -63,7 +64,10 @@ export class FeatureFlagService {
 
     const evaluatedFlags = Object.fromEntries(
       Object.entries(payloads)
-        .filter(([flagName]) => rawFlags[flagName]) // Only evaluate flags that are enabled
+        // Only evaluate flags that are enabled and whose payload is a version range
+        .filter(
+          ([flagName]) => !isPayloadFeatureVar(flagName) && rawFlags[flagName],
+        )
         .map(([flagName, payload]) => {
           let range = '';
 

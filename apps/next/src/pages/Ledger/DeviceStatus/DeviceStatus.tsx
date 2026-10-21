@@ -1,4 +1,5 @@
 import { Card } from '@/components/Card';
+import { LedgerAppOutdatedHint } from '@/components/LedgerAppOutdatedHint';
 import { Page } from '@/components/Page';
 import { ListItem, StackProps } from '@avalabs/k2-alpine';
 import {
@@ -60,6 +61,7 @@ export const LedgerDeviceStatus = () => {
         </ListItem>
         <BottomListItem />
       </Card>
+      {state === 'connected' && <LedgerAppOutdatedHint px={2} />}
       {state === 'disconnected' && <AvalancheAppNote />}
     </Page>
   );

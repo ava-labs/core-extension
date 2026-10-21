@@ -9,6 +9,7 @@ import {
   FullscreenModalDescription,
   FullscreenModalTitle,
 } from '@/components/FullscreenModal';
+import { LedgerAppOutdatedHint } from '@/components/LedgerAppOutdatedHint';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 
 import {
@@ -97,16 +98,19 @@ export const ConnectAvalanche: FC<ConnectionStepProps> = ({
             </Styled.LedgerLiveButton>
           </Stack>
         ) : (
-          <NavButton
-            disabled={!isValid}
-            color="primary"
-            loading={
-              status === 'ready' && derivedKeys.addressPublicKeys.length === 0
-            }
-            onClick={() => onNext(derivedKeys, derivationPathSpec)}
-          >
-            {t('Next')}
-          </NavButton>
+          <>
+            {status === 'ready' && <LedgerAppOutdatedHint flexGrow={1} />}
+            <NavButton
+              disabled={!isValid}
+              color="primary"
+              loading={
+                status === 'ready' && derivedKeys.addressPublicKeys.length === 0
+              }
+              onClick={() => onNext(derivedKeys, derivationPathSpec)}
+            >
+              {t('Next')}
+            </NavButton>
+          </>
         )}
       </FullscreenModalActions>
     </Stack>

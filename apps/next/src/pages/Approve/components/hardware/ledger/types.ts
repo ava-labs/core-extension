@@ -30,7 +30,6 @@ export type LedgerApprovalState =
     }
   | {
       state: 'pending';
-      requiredApp: LedgerAppType;
     }
   | {
       state: 'blind-signing-required';
