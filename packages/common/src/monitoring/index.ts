@@ -2,5 +2,11 @@ import sentryCaptureException, {
   SentryExceptionTypes,
 } from './sentryCaptureException';
 import sharedSentryConfig from './sharedSentryConfig';
+import { getLedgerSentryTags } from './getLedgerSentryTags';
 
-export { sentryCaptureException, sharedSentryConfig, SentryExceptionTypes };
+export {
+  getLedgerSentryTags,
+  sentryCaptureException,
+  sharedSentryConfig,
+  SentryExceptionTypes,
+};

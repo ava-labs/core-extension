@@ -92,6 +92,7 @@ const TestComponent = ({ methodParams }) => {
     closeCurrentApp,
     getBtcExtendedPublicKey,
     registerBtcWalletPolicy,
+    getDeviceInfo,
     updateLedgerVersionWarningClosed,
     prepareTransportForOnboarding,
     registerSubscriber,
@@ -109,6 +110,7 @@ const TestComponent = ({ methodParams }) => {
     closeCurrentApp,
     getBtcExtendedPublicKey,
     registerBtcWalletPolicy,
+    getDeviceInfo,
     updateLedgerVersionWarningClosed,
     prepareTransportForOnboarding,
     registerSubscriber,
@@ -137,6 +139,7 @@ const TestComponent = ({ methodParams }) => {
 
       <span data-testid="error">{`${error}`}</span>
       <span data-testid="result">{`${result}`}</span>
+      <span data-testid="resultJson">{JSON.stringify(result)}</span>
       <span data-testid="wasTransportAttempted">{`${wasTransportAttempted}`}</span>
       <span data-testid="hasLedgerTransport">{`${hasLedgerTransport}`}</span>
       <span data-testid="hasMultipleDevices">{`${hasMultipleDevices}`}</span>
@@ -797,6 +800,45 @@ describe('src/contexts/LedgerProvider.tsx', () => {
         );
       });
     });
+  });
+
+  describe('getDeviceInfo', () => {
+    it('returns cached device details', async () => {
+      const deviceInfo = {
+        deviceModel: 'Nano X',
+        appName: 'Avalanche',
+        appVersion: '1.2.3',
+        firmwareVersion: '2.4.0',
+      };
+      deviceResponders.getDeviceInfo = () => deviceInfo;
+
+      const connectionMocks = useConnectionContext();
+      renderTestComponent();
+      fireEvent.click(screen.getByTestId('getDeviceInfo'));
+
+      await waitFor(() => {
+        expect(connectionMocks.request).toHaveBeenCalledWith(
+          deviceRequestCall('getDeviceInfo'),
+        );
+        expect(screen.getByTestId('resultJson').textContent).toBe(
+          JSON.stringify(deviceInfo),
+        );
+      });
+    });
+
+    it.each([null, {}])(
+      'returns null for unavailable device details: %p',
+      async (deviceInfo) => {
+        deviceResponders.getDeviceInfo = () => deviceInfo;
+
+        renderTestComponent();
+        fireEvent.click(screen.getByTestId('getDeviceInfo'));
+
+        await waitFor(() => {
+          expect(screen.getByTestId('result').textContent).toBe('null');
+        });
+      },
+    );
   });
 
   describe('prepareTransportForOnboarding', () => {

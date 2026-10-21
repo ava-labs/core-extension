@@ -139,7 +139,8 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
       setStatus('waiting');
       setError(undefined);
 
-      let cancelled = false;
+      // Not cancelled on cleanup: re-runs skip starting another switch while
+      // this one is in flight, so dropping its result would hang on 'waiting'.
       const switchPromise = prepareTransportForOnboarding(
         LedgerAppType.SOLANA,
       ).finally(() => {
@@ -148,16 +149,9 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
       solanaSwitchInFlightRef.current = switchPromise;
 
       switchPromise.catch((err: unknown) => {
-        if (cancelled) {
-          return;
-        }
         setStatus('error');
         setError(classifyLedgerOnboardingError(err));
       });
-
-      return () => {
-        cancelled = true;
-      };
     } else if (!hasLedgerTransport && !wasTransportAttempted) {
       initLedgerTransport();
     } else if (!hasLedgerTransport) {
@@ -181,6 +175,11 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   ]);
 
   const onRetry = useCallback(async () => {
+    // The auto-connect effect never leaves an error state on its own, e.g. a
+    // rejected app switch with the device still on the dashboard.
+    setStatus((current) => (current === 'error' ? 'waiting' : current));
+    setError(undefined);
+
     try {
       await popDeviceSelection();
       await initLedgerTransport();

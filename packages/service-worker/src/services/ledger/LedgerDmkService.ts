@@ -29,6 +29,7 @@ import {
   LEDGER_APP_SWITCH_FAILED_ERROR,
   LEDGER_DEVICE_LOCKED_ERROR,
   LEDGER_MULTIPLE_DEVICES_ERROR,
+  LedgerDeviceInfo,
 } from '@core/types';
 import { base58 } from '@scure/base';
 import {
@@ -295,6 +296,34 @@ export class LedgerDmkService implements OnLock, OnAllExtensionClosed {
       ),
     );
     return { applicationName: state.name, version: state.version };
+  }
+
+  /**
+   * Last known details of the connected device, read without device I/O or
+   * opening a session. The DMK only learns the firmware version when it reads
+   * it on the dashboard, so it's missing if an app was already open.
+   */
+  async getDeviceInfo(): Promise<LedgerDeviceInfo | null> {
+    const dmk = this.#dmk;
+    const sessionId = this.#sessionId;
+    if (!dmk || !sessionId) {
+      return null;
+    }
+
+    try {
+      const state = await firstValueFrom(
+        dmk.getDeviceSessionState({ sessionId }),
+      );
+      const isReady = 'currentApp' in state;
+      return {
+        deviceModel: state.deviceModelId,
+        appName: isReady ? state.currentApp.name : undefined,
+        appVersion: isReady ? state.currentApp.version : undefined,
+        firmwareVersion: isReady ? state.firmwareVersion?.os : undefined,
+      };
+    } catch {
+      return null;
+    }
   }
 
   async getEthAppConfig(): Promise<{ isBlindSigningEnabled: boolean }> {
