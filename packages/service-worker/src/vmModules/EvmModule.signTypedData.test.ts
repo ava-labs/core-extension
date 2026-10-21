@@ -9,6 +9,12 @@ import {
   RpcRequest,
 } from '@avalabs/vm-module-types';
 
+// evm-module treats a failed Blockaid scan as a warning and still prompts for approval.
+const mockBlockaidScan = jest.fn().mockRejectedValue(new Error('offline'));
+jest.mock('@blockaid/client', () =>
+  jest.fn(() => ({ evm: { jsonRpc: { scan: mockBlockaidScan } } })),
+);
+
 const ACCOUNT = '0x05BcD07A055a950183D0B0cd88caa579fE58D2Ea';
 
 const cChain: Network = {
@@ -97,17 +103,7 @@ describe('EvmModule typed data signing', () => {
       approvalController,
       appInfo: { name: AppName.CORE_EXTENSION, version: '0.0.0' },
       runtime: {
-        // A non-retryable (400) Blockaid failure keeps the test offline; the module still proceeds to approval.
-        // jsdom has no `Response`, so this is the minimal shape the Blockaid client reads.
-        fetch: jest.fn(
-          async () =>
-            ({
-              ok: false,
-              status: 400,
-              headers: new Map(),
-              text: async () => '{}',
-            }) as unknown as Response,
-        ),
+        fetch: jest.fn(),
         getAuthHeaders: async () => ({}),
       },
     });

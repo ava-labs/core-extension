@@ -61,7 +61,7 @@ import {
 import { expectToThrowErrorCode } from '@shared/tests/test-utils';
 import { AddressResolver } from '../secrets/AddressResolver';
 import { hex } from '@scure/base';
-import { NetworkVMType } from '@avalabs/vm-module-types';
+import { NetworkVMType, RpcMethod } from '@avalabs/vm-module-types';
 
 jest.mock('../network/NetworkService');
 jest.mock('../secrets/SecretsService');
@@ -120,6 +120,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       addressPVM: ACTIVE_XP_ADDRESS.replace(/^X-/, 'P-'),
       addressCoreEth: ACTIVE_XP_ADDRESS,
     }),
+    getAccountFromActiveWalletByAddress: jest.fn(),
   } as any;
 
   const privateKeyMock =
@@ -1686,6 +1687,65 @@ describe('background/services/wallet/WalletService.ts', () => {
       });
       expect(result).toEqual(mockedHash);
     });
+  });
+
+  describe('signGenericMessage', () => {
+    const cChainMock = { chainId: 43114, caipId: 'eip155:43114' } as any;
+    const activeAccount = {
+      type: AccountType.PRIMARY,
+      index: 0,
+      addressC: walletMock.address,
+    } as any;
+
+    const tosAcceptance = {
+      domain: { name: 'BENQI Terms of Service', version: '1' },
+      primaryType: 'ToSAcceptance',
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+        ],
+        ToSAcceptance: [
+          { name: 'statement', type: 'string' },
+          { name: 'wallet', type: 'address' },
+        ],
+      },
+      message: {
+        statement: 'I agree to the BENQI Terms of Service',
+        wallet: walletMock.address.toLowerCase(),
+      },
+    };
+
+    beforeEach(() => {
+      jest
+        .spyOn(accountsService, 'getActiveAccount')
+        .mockResolvedValue(activeAccount);
+      accountsService.getAccountFromActiveWalletByAddress.mockResolvedValue(
+        activeAccount,
+      );
+      jest
+        .spyOn(walletService as any, 'getWallet')
+        .mockResolvedValue(walletMock);
+      jest.mocked(signTypedData).mockReturnValue('0xsigned');
+    });
+
+    it.each([
+      RpcMethod.SIGN_TYPED_DATA_V3,
+      RpcMethod.SIGN_TYPED_DATA_V4,
+    ] as const)(
+      'signs %s typed data whose domain has no chainId',
+      async (type) => {
+        const result = await walletService.signGenericMessage(
+          { type, account: walletMock.address, data: tosAcceptance },
+          cChainMock,
+        );
+
+        expect(signTypedData).toHaveBeenCalledWith(
+          expect.objectContaining({ data: tosAcceptance }),
+        );
+        expect(result).toBe('0xsigned');
+      },
+    );
   });
 
   describe('getActiveAccountPublicKey', () => {
