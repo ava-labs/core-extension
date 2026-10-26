@@ -107,6 +107,7 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
   const resetFetchState = useCallback(() => {
     attemptIdRef.current += 1;
     setKeys(EMPTY_KEYS);
+    setIsRetrieving(false);
   }, []);
 
   const fetchKeys = useCallback(async () => {
