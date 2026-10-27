@@ -356,20 +356,16 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
           return {
             addressPublicKeys: [...evmPublicKeys, ...avmPublicKeys],
             extendedPublicKeys: [
-              ...evmExtendedPublicKeys
-                .entries()
-                .map(([index, value]) =>
-                  buildExtendedPublicKey(value, getEvmExtendedKeyPath(index)),
-                ),
+              ...Array.from(evmExtendedPublicKeys, ([index, value]) =>
+                buildExtendedPublicKey(value, getEvmExtendedKeyPath(index)),
+              ),
               ...xpExtendedKeys.map(({ key, index }) =>
                 buildExtendedPublicKey(key, getAvalancheExtendedKeyPath(index)),
               ),
             ],
           } satisfies DerivedKeys;
         } catch (err) {
-          if (err instanceof KeyRetrievalAbortedError) {
-            throw err;
-          }
+          throwIfAborted(controller.signal);
           console.error(err);
           popDeviceSelection();
           // WalletExistsError sets its own status/error in assertUniqueWallet.
