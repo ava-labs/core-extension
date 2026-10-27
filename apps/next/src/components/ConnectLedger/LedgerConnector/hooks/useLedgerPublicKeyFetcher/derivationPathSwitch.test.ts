@@ -46,6 +46,7 @@ const evmPath = (index: number, pathSpec: DerivationPath) =>
 
 describe('Avalanche public key fetcher when the derivation path changes mid-retrieval', () => {
   let resolveFirstXpub: (xpub: string) => void;
+  let rejectFirstXpub: (error: Error) => void;
   let getExtendedPublicKey: jest.Mock;
   let popDeviceSelection: jest.Mock;
 
@@ -53,8 +54,9 @@ describe('Avalanche public key fetcher when the derivation path changes mid-retr
     getExtendedPublicKey = jest
       .fn()
       .mockReturnValueOnce(
-        new Promise<string>((resolve) => {
+        new Promise<string>((resolve, reject) => {
           resolveFirstXpub = resolve;
+          rejectFirstXpub = reject;
         }),
       )
       .mockResolvedValue('xpub');
@@ -109,6 +111,31 @@ describe('Avalanche public key fetcher when the derivation path changes mid-retr
       ([keys]) => keys.map(({ key }) => key.derivationPath),
     );
     expect(reportedPaths).not.toContain(evmPath(1, DerivationPath.BIP44));
+    expect(result.current.status).toBe('ready');
+    expect(result.current.error).toBeUndefined();
+    expect(popDeviceSelection).not.toHaveBeenCalled();
+  });
+
+  it('ignores a device failure of the superseded retrieval', async () => {
+    const { result, rerender } = renderHook(
+      ({ pathSpec }) => useLedgerBasePublicKeyFetcher(pathSpec, undefined),
+      { initialProps: { pathSpec: DerivationPath.BIP44 } },
+    );
+    await waitFor(() => expect(result.current.status).toBe('ready'));
+
+    const bip44Retrieval = result.current.retrieveKeys(2);
+    bip44Retrieval.catch(() => {});
+    await waitFor(() => expect(getExtendedPublicKey).toHaveBeenCalledTimes(1));
+
+    rerender({ pathSpec: DerivationPath.LedgerLive });
+    const ledgerLiveRetrieval = result.current.retrieveKeys(2);
+
+    await act(async () => rejectFirstXpub(new Error('Device locked')));
+
+    await expect(bip44Retrieval).rejects.toBeInstanceOf(
+      KeyRetrievalAbortedError,
+    );
+    await expect(ledgerLiveRetrieval).resolves.toBeDefined();
     expect(result.current.status).toBe('ready');
     expect(result.current.error).toBeUndefined();
     expect(popDeviceSelection).not.toHaveBeenCalled();
