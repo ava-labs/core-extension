@@ -33,12 +33,19 @@ import {
   DerivedKeys,
   ErrorType,
   ExtendedPublicKeyMap,
+  KeyRetrievalAbortedError,
   PublicKey,
   UseLedgerPublicKeyFetcher,
   WalletExistsError,
 } from '../../types';
 import { buildAddressPublicKey, buildExtendedPublicKey } from '../../util';
 import { classifyLedgerOnboardingError } from './classifyLedgerOnboardingError';
+
+const throwIfAborted = (signal: AbortSignal) => {
+  if (signal.aborted) {
+    throw new KeyRetrievalAbortedError();
+  }
+};
 
 export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   derivationPathSpec,
@@ -74,12 +81,17 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   const [wasManualConnectionAttempted, setWasManualConnectionAttempted] =
     useState(false);
   const appSwitchInFlight = useRef(false);
+  const activeRetrieval = useRef<{
+    controller: AbortController;
+    settled: Promise<void>;
+  }>(undefined);
 
   const getEvmExtendedPublicKeys = useCallback(
-    async (indexes: number[]) => {
+    async (indexes: number[], signal: AbortSignal) => {
       const evmExtendedPublicKeys: ExtendedPublicKeyMap = new Map();
 
       for (const index of indexes) {
+        throwIfAborted(signal);
         evmExtendedPublicKeys.set(
           index,
           await getExtendedPublicKey(getEvmExtendedKeyPath(index)),
@@ -92,7 +104,8 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   );
 
   const deriveXpKeyForIndex = useCallback(
-    async (index: number) => {
+    async (index: number, signal: AbortSignal) => {
+      throwIfAborted(signal);
       const xpubXP = await getExtendedPublicKey(
         getAvalancheExtendedKeyPath(index),
       );
@@ -128,7 +141,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   );
 
   const assertUniqueWallet = useCallback(
-    async (firstXpub: string) => {
+    async (firstXpub: string, signal: AbortSignal) => {
       let checkResult: IsKnownSecretResult = { isKnown: false };
 
       setDuplicatedWalletName(undefined);
@@ -141,6 +154,8 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
       } else {
         checkResult = await checkIfWalletExists(SecretType.Ledger, firstXpub);
       }
+
+      throwIfAborted(signal);
 
       if (checkResult.isKnown) {
         setStatus('error');
@@ -206,10 +221,11 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   }, []);
 
   const retrieveAllKeys = useCallback(
-    async (startingIndexes: number[]) => {
+    async (startingIndexes: number[], signal: AbortSignal) => {
       const minNumberOfKeys = startingIndexes.length;
       const evmExtendedPublicKeys = await getEvmExtendedPublicKeys(
         derivationPathSpec === DerivationPath.BIP44 ? [0] : startingIndexes,
+        signal,
       );
       const evmPublicKeys = await getEvmPublicKeysFromXpubs(
         evmExtendedPublicKeys,
@@ -220,7 +236,10 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
       const xpExtendedKeys: { index: number; key: string }[] = [];
 
       for (const index of startingIndexes) {
-        const { avmKey, extendedKey } = await deriveXpKeyForIndex(index);
+        const { avmKey, extendedKey } = await deriveXpKeyForIndex(
+          index,
+          signal,
+        );
         avmPublicKeys.push(avmKey);
         xpExtendedKeys.push(extendedKey);
 
@@ -230,9 +249,10 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
         }
       }
 
+      throwIfAborted(signal);
       onActivePublicKeysDiscovered?.([...evmPublicKeys, ...avmPublicKeys]);
 
-      await assertUniqueWallet(evmExtendedPublicKeys.get(0)!);
+      await assertUniqueWallet(evmExtendedPublicKeys.get(0)!, signal);
 
       let currentIndex = startingIndexes.at(-1)!;
 
@@ -240,6 +260,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
         currentIndex += 1;
 
         if (derivationPathSpec === DerivationPath.LedgerLive) {
+          throwIfAborted(signal);
           evmExtendedPublicKeys.set(
             currentIndex,
             await getExtendedPublicKey(getEvmExtendedKeyPath(currentIndex)),
@@ -251,7 +272,10 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
           [currentIndex],
         );
 
-        const { avmKey, extendedKey } = await deriveXpKeyForIndex(currentIndex);
+        const { avmKey, extendedKey } = await deriveXpKeyForIndex(
+          currentIndex,
+          signal,
+        );
         avmPublicKeys.push(avmKey);
         xpExtendedKeys.push(extendedKey);
 
@@ -262,10 +286,13 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
 
         evmPublicKeys.push(...newEvmKeys);
 
+        throwIfAborted(signal);
         if (newEvmKeys.some(({ hasActivity }) => hasActivity)) {
           onActivePublicKeysDiscovered?.([...evmPublicKeys, ...avmPublicKeys]);
         }
       }
+
+      throwIfAborted(signal);
 
       // Remove trailing public keys if they do not have activity
       while (
@@ -306,44 +333,64 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
         (_, i) => i,
       );
 
+      // The Ledger rejects overlapping requests while busy, so a superseded
+      // retrieval (e.g. the user switched derivation paths mid-way) must wind
+      // down before this one talks to the device.
+      const previous = activeRetrieval.current;
+      previous?.controller.abort();
+      const controller = new AbortController();
+
       onActivePublicKeysDiscovered?.([]); // Clear the active public keys
 
-      try {
-        const {
-          evmExtendedPublicKeys,
-          evmPublicKeys,
-          avmPublicKeys,
-          xpExtendedKeys,
-        } = await retrieveAllKeys(startingIndexes);
+      const retrieval = (async () => {
+        await previous?.settled;
 
-        return {
-          addressPublicKeys: [...evmPublicKeys, ...avmPublicKeys],
-          extendedPublicKeys: [
-            ...evmExtendedPublicKeys
-              .entries()
-              .map(([index, value]) =>
+        try {
+          const {
+            evmExtendedPublicKeys,
+            evmPublicKeys,
+            avmPublicKeys,
+            xpExtendedKeys,
+          } = await retrieveAllKeys(startingIndexes, controller.signal);
+
+          return {
+            addressPublicKeys: [...evmPublicKeys, ...avmPublicKeys],
+            extendedPublicKeys: [
+              ...Array.from(evmExtendedPublicKeys, ([index, value]) =>
                 buildExtendedPublicKey(value, getEvmExtendedKeyPath(index)),
               ),
-            ...xpExtendedKeys.map(({ key, index }) =>
-              buildExtendedPublicKey(key, getAvalancheExtendedKeyPath(index)),
-            ),
-          ],
-        } satisfies DerivedKeys;
-      } catch (err) {
-        console.error(err);
-        popDeviceSelection();
-        // WalletExistsError sets its own status/error in assertUniqueWallet.
-        // For other failures, surface 'retrieval-failed' on the hook so the
-        // connector stops seeing status='ready' and the auto-fetch effect
-        // doesn't loop. The dedicated error type lets the hook's
-        // auto-connect effect distinguish a retrieval failure (must not
-        // auto-recover) from a transport/app-switch error (which can).
-        if (!(err instanceof WalletExistsError)) {
-          setStatus('error');
-          setError('retrieval-failed');
+              ...xpExtendedKeys.map(({ key, index }) =>
+                buildExtendedPublicKey(key, getAvalancheExtendedKeyPath(index)),
+              ),
+            ],
+          } satisfies DerivedKeys;
+        } catch (err) {
+          throwIfAborted(controller.signal);
+          console.error(err);
+          popDeviceSelection();
+          // WalletExistsError sets its own status/error in assertUniqueWallet.
+          // For other failures, surface 'retrieval-failed' on the hook so the
+          // connector stops seeing status='ready' and the auto-fetch effect
+          // doesn't loop. The dedicated error type lets the hook's
+          // auto-connect effect distinguish a retrieval failure (must not
+          // auto-recover) from a transport/app-switch error (which can).
+          if (!(err instanceof WalletExistsError)) {
+            setStatus('error');
+            setError('retrieval-failed');
+          }
+          throw err;
         }
-        throw err;
-      }
+      })();
+
+      activeRetrieval.current = {
+        controller,
+        settled: retrieval.then(
+          () => undefined,
+          () => undefined,
+        ),
+      };
+
+      return retrieval;
     },
     [popDeviceSelection, retrieveAllKeys, onActivePublicKeysDiscovered],
   );

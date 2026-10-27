@@ -57,3 +57,10 @@ export class WalletExistsError extends Error {
     this.name = 'WalletExistsError';
   }
 }
+
+export class KeyRetrievalAbortedError extends Error {
+  constructor() {
+    super('Key retrieval was superseded by a newer one');
+    this.name = 'KeyRetrievalAbortedError';
+  }
+}

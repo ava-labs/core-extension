@@ -21,15 +21,17 @@ export function useNativeBalanceFetcher(
 
   const fetchBalance = useCallback(
     async (address: string) => {
-      if (memoryCache.has(address)) {
-        return memoryCache.get(address)!;
+      const cacheKey = `${chainCaipId}:${address}`;
+
+      if (memoryCache.has(cacheKey)) {
+        return memoryCache.get(cacheKey)!;
       }
 
       const { balance } = await request<GetNativeBalanceHandler>({
         method: ExtensionRequest.BALANCE_NATIVE_GET,
         params: [address, chainCaipId],
       });
-      memoryCache.set(address, balance);
+      memoryCache.set(cacheKey, balance);
       return balance;
     },
     [request, chainCaipId],
