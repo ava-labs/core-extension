@@ -49,8 +49,6 @@ export async function setupSwapApiMocks(
   context: BrowserContext,
   fixture: SwapFixture,
 ): Promise<void> {
-  const chain = fixture.pair.chain;
-
   if (!RECORD_MODE) {
     await installMarkrUrlGuard(context);
   }
@@ -64,24 +62,24 @@ export async function setupSwapApiMocks(
     });
   });
 
-  // Page-level EVM JSON-RPC → mock RPC server (needed for EVM chains)
-  if (chain !== 'solana') {
-    const rpcPatterns: Array<[string, string]> = [
-      ['**/ext/bc/C/rpc**', ''],
-      ['**/ext/bc/eth/rpc**', '/ethereum'],
-      ['**proxy-api.avax.network/proxy/chain/C/rpc**', ''],
-      ['**proxy-api.avax.network/proxy/chain/8453/rpc**', '/base'],
-      ['**glacier-api.avax.network**/rpc**', ''],
-      ['**mainnet.base.org**', '/base'],
-      ['**base-rpc.publicnode.com**', '/base'],
-      [`${MOCK_RPC_URL}**`, ''],
-      [`${MOCK_RPC_URL}/ethereum**`, '/ethereum'],
-      [`${MOCK_RPC_URL}/base**`, '/base'],
-    ];
+  // Solana pairs need this too: the swap SDK's Lombard init reads C-Chain
+  // contracts on page load, and the public RPC rate-limits CI runners (429),
+  // which leaves the swap form stuck loading.
+  const rpcPatterns: Array<[string, string]> = [
+    ['**/ext/bc/C/rpc**', ''],
+    ['**/ext/bc/eth/rpc**', '/ethereum'],
+    ['**proxy-api.avax.network/proxy/chain/C/rpc**', ''],
+    ['**proxy-api.avax.network/proxy/chain/8453/rpc**', '/base'],
+    ['**glacier-api.avax.network**/rpc**', ''],
+    ['**mainnet.base.org**', '/base'],
+    ['**base-rpc.publicnode.com**', '/base'],
+    [`${MOCK_RPC_URL}**`, ''],
+    [`${MOCK_RPC_URL}/ethereum**`, '/ethereum'],
+    [`${MOCK_RPC_URL}/base**`, '/base'],
+  ];
 
-    for (const [pattern, suffix] of rpcPatterns) {
-      await context.route(pattern, (route) => proxyToMockRpc(route, suffix));
-    }
+  for (const [pattern, suffix] of rpcPatterns) {
+    await context.route(pattern, (route) => proxyToMockRpc(route, suffix));
   }
 }
 

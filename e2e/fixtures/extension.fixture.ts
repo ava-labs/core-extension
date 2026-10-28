@@ -96,6 +96,10 @@ export const test = base.extend<ExtensionFixtures>({
       TEST_CONFIG.extension.userDataDir,
     );
     const userDataDir = `${baseUserDataDir}-worker-${testInfo.workerIndex}`;
+    // Snapshot loading only overwrites its own chrome.storage keys; UI state in
+    // the extension's localStorage (collectibles filters, sort modes, etc.) and
+    // leftover storage from earlier tests would otherwise leak between tests.
+    fs.rmSync(userDataDir, { recursive: true, force: true, maxRetries: 3 });
 
     // Check if extension exists
     if (!fs.existsSync(extensionPath)) {

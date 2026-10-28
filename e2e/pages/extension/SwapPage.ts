@@ -1,9 +1,20 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 import { BasePage } from './BasePage';
-import { SWAP_TIMEOUTS } from '../../types/swap';
+import {
+  SWAP_TIMEOUTS,
+  type SwapChain,
+  type SwapToken,
+} from '../../types/swap';
 
 export type CrossChainSide = 'source' | 'destination';
+
+const CHAIN_CHIP_LABEL: Record<SwapChain, string> = {
+  avalanche: 'C-Chain',
+  ethereum: 'Ethereum',
+  solana: 'Solana',
+  base: 'Base',
+};
 
 /**
  * Thrown by `waitForCrossChainComplete` when either side's status text
@@ -107,29 +118,40 @@ export class SwapPage extends BasePage {
   }
 
   async navigateToSwap(opts: {
-    from: { symbol: string; id: string };
-    to: { symbol: string; id: string };
+    from: SwapToken;
+    to: SwapToken;
   }): Promise<void> {
     await this.navigateToSwapPage();
     await this.fromSection.waitFor({ state: 'visible', timeout: 30_000 });
-    await this.selectFromToken(opts.from.symbol, opts.from.id);
-    await this.selectToToken(opts.to.symbol, opts.to.id);
+    await this.selectFromToken(opts.from);
+    await this.selectToToken(opts.to);
   }
 
   // ── Token selection via dropdown ────────────────────────────────────
 
-  async selectFromToken(symbol: string, tokenId: string): Promise<void> {
-    await this.selectToken(this.fromSection, symbol, tokenId);
+  async selectFromToken(token: SwapToken): Promise<void> {
+    await this.selectToken(this.fromSection, token);
   }
 
-  async selectToToken(symbol: string, tokenId: string): Promise<void> {
-    await this.selectToken(this.toSection, symbol, tokenId);
+  async selectToToken(token: SwapToken): Promise<void> {
+    await this.selectToken(this.toSection, token);
+  }
+
+  private async selectChainChip(chain: SwapChain): Promise<void> {
+    const label = CHAIN_CHIP_LABEL[chain];
+    const chip = this.page
+      .locator('[role="presentation"]')
+      .getByRole('button', { name: new RegExp(`^(${label} )?${label}$`) });
+    const isChipVisible = await chip
+      .waitFor({ state: 'visible', timeout: 5_000 })
+      .then(() => true)
+      .catch(() => false);
+    if (isChipVisible) await chip.click();
   }
 
   private async selectToken(
     section: Locator,
-    symbol: string,
-    tokenId: string,
+    { symbol, id: tokenId, chain }: SwapToken,
   ): Promise<void> {
     const trigger = section.getByTestId('token-select-trigger');
     await trigger.waitFor({ state: 'visible', timeout: 10_000 });
@@ -147,6 +169,10 @@ export class SwapPage extends BasePage {
         { timeout: 15_000, intervals: [1000] },
       )
       .toBe(true);
+
+    // The destination list is pre-filtered to C-Chain, hiding tokens on
+    // other networks regardless of the search query.
+    await this.selectChainChip(chain);
 
     const option = this.page.locator(`[data-option-id="${tokenId}"]`);
 
