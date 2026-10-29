@@ -288,13 +288,19 @@ jobs:
         if: always() && env.TEST_RUN_ID != ''
         run: echo https://avalabs.testrail.io/index.php?/runs/view/${{ env.TEST_RUN_ID }}
 
-      - name: Upload test results
+      - name: Redact secrets from test results
+        id: redact
         if: always()
+        run: python3 e2e/scripts/redact_test_results.py e2e/test-results
+
+      - name: Upload test results
+        if: always() && steps.redact.outcome == 'success'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: test-results-${{ matrix.shardIndex }}
           path: |
             e2e/test-results
+            !e2e/test-results/user-data*
           retention-days: 30
 
   slack-notification:

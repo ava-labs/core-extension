@@ -1,5 +1,7 @@
 import type { SendTransactionData } from './types/send';
 
+export const SENSITIVE_ANNOTATION = 'sensitive';
+
 /**
  * Test configuration constants
  */
