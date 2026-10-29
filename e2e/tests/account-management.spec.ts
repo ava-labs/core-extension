@@ -80,13 +80,11 @@ test.describe('Account Management Tests', () => {
       await accountManagement.openAddWalletMenu();
 
       await expect(accountManagement.privateKeyOption).toBeVisible();
-      await accountManagement.importPrivateKey(wallet.privateKey);
-
-      await expect(
-        unlockedExtensionPage.getByText('Private Key Imported', {
-          exact: false,
-        }),
-      ).toBeVisible({ timeout: 30000 });
+      await accountManagement.openImportPrivateKey();
+      await accountManagement.submitPrivateKey(wallet.privateKey);
+      expect(false, 'Intentional failure after entering a private key').toBe(
+        true,
+      );
     },
   );
 
