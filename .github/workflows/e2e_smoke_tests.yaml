@@ -45,7 +45,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: 20.18.3
+          node-version: 24.22.1
           check-latest: true
 
       - name: Enable corepack
@@ -195,7 +195,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: 20.18.3
+          node-version: 24.22.1
 
       - name: Enable corepack
         run: corepack enable
