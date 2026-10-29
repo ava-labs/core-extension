@@ -78,7 +78,7 @@
     "*.{ts,tsx}": "eslint --fix --max-warnings 0 --ignore-pattern '**/*.gen.ts' --no-warn-ignored"
   },
   "volta": {
-    "node": "20.18.0",
+    "node": "24.22.1",
     "yarn": "4.7.0"
   },
   "lavamoat": {
