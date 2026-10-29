@@ -172,7 +172,7 @@ def redact_text(name, text, redactor):
     text = ELEMENT_PREVIEW_VALUE_RE.sub(replace_preview_value, text)
     if name.endswith('.trace'):
         text = redact_trace(text, redactor, found)
-    elif name.endswith('.md'):
+    elif name.endswith('.md') or ARIA_TEXTBOX_RE.search(text):
         text = redact_aria_snapshot(text, redactor, found)
     else:
         text = redactor.literals_in(text, found)
@@ -215,8 +215,16 @@ def redact_trace_zip(path, redactor):
     found = set()
     redacted_entries = []
     for info, data in entries:
+        text = None
         if is_text(info.filename):
-            text, found_in_entry = redact_text(info.filename, decode(data), redactor)
+            text = decode(data)
+        elif not is_media(info.filename):
+            try:
+                text = data.decode('utf-8')
+            except UnicodeDecodeError:
+                pass
+        if text is not None:
+            text, found_in_entry = redact_text(info.filename, text, redactor)
             found |= found_in_entry
             data = encode(text)
         redacted_entries.append((info, data))
