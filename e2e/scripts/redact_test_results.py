@@ -47,6 +47,11 @@ USER_DATA_PREFIX = 'user-data'
 ATTACHMENT_DIR_RE = re.compile(r'\[\[ATTACHMENT\|([^/\]]+)/')
 TYPING_TITLE_RE = re.compile(r'^((?:Fill|Type|Press sequentially) ")(.*?)(")', re.DOTALL)
 TYPING_LOG_RE = re.compile(r'^(\s*(?:fill|type|pressSequentially)\(")(.*)("\)\s*)$', re.DOTALL)
+INLINE_TYPING_RE = re.compile(
+    r'((?:(?:Fill|Type|Press sequentially)\s+|'
+    r'(?:fill|type|pressSequentially)\()(?:\\+)?")'
+    r'([^"\\]*?)((?:\\+)?")'
+)
 ARIA_TEXTBOX_RE = re.compile(
     r'^(\s*- (?:textbox|searchbox)\b.*?: )("?)([^"\n]*)\2$', re.MULTILINE
 )
@@ -63,22 +68,25 @@ class Redactor:
         self.words = {}
         for name in SECRET_ENV_VARS:
             value = env.get(name, '').strip()
-            if not value:
-                continue
-            variants = {value}
-            if value.startswith('0x'):
-                variants.add(value[2:])
-            for variant in list(variants):
-                # Values also appear JSON-escaped, and double-escaped inside
-                # step titles such as `Fill "<value>"`.
-                escaped = json.dumps(variant)[1:-1]
-                variants.update({escaped, json.dumps(escaped)[1:-1]})
-            for variant in variants:
-                self.literals.setdefault(variant, (name, f'[{name}]'))
-            words = value.split()
-            if len(words) > 1:
-                for index, word in enumerate(words, start=1):
-                    self.words.setdefault(word, (name, f'[{name}#{index}]'))
+            self.add_secret(name, value)
+
+    def add_secret(self, name, value):
+        if not value:
+            return
+        variants = {value}
+        if value.startswith('0x'):
+            variants.add(value[2:])
+        for variant in list(variants):
+            # Values also appear JSON-escaped, and double-escaped inside
+            # step titles such as `Fill "<value>"`.
+            escaped = json.dumps(variant)[1:-1]
+            variants.update({escaped, json.dumps(escaped)[1:-1]})
+        for variant in variants:
+            self.literals.setdefault(variant, (name, f'[{name}]'))
+        words = value.split()
+        if len(words) > 1:
+            for index, word in enumerate(words, start=1):
+                self.words.setdefault(word, (name, f'[{name}#{index}]'))
 
     def literals_in(self, text, found):
         for literal in sorted(self.literals, key=len, reverse=True):
@@ -101,7 +109,12 @@ class Redactor:
 
 def redact_snapshot_inputs(node, redactor, found):
     if isinstance(node, list):
-        if len(node) > 1 and node[0] in INPUT_TAGS and isinstance(node[1], dict):
+        if (
+            len(node) > 1
+            and isinstance(node[0], str)
+            and node[0] in INPUT_TAGS
+            and isinstance(node[1], dict)
+        ):
             for attr in INPUT_VALUE_ATTRS:
                 if isinstance(node[1].get(attr), str):
                     node[1][attr] = redactor.typed_value(node[1][attr], found)
@@ -165,11 +178,12 @@ def redact_aria_snapshot(text, redactor, found):
 def redact_text(name, text, redactor):
     found = set()
 
-    def replace_preview_value(match):
+    def replace_typed_value(match):
         typed = redactor.typed_value(match.group(2), found)
         return match.group(1) + typed + match.group(3)
 
-    text = ELEMENT_PREVIEW_VALUE_RE.sub(replace_preview_value, text)
+    text = INLINE_TYPING_RE.sub(replace_typed_value, text)
+    text = ELEMENT_PREVIEW_VALUE_RE.sub(replace_typed_value, text)
     if name.endswith('.trace'):
         text = redact_trace(text, redactor, found)
     elif name.endswith('.md') or ARIA_TEXTBOX_RE.search(text):

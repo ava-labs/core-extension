@@ -244,11 +244,14 @@ test.describe('Onboarding Tests', () => {
       await onboardingPage.navigateToRecoveryPhraseScreen();
       await onboardingPage.selectWordCount(12);
 
-      await onboardingPage.fillRecoveryPhrase(RECOVERY_PHRASE_12_WORDS);
-      expect(
+      await onboardingPage.completeRecoveryPhraseOnboarding(
+        RECOVERY_PHRASE_12_WORDS,
+        TEST_WALLET_NAMES.RECOVERY_12,
+        WALLET_PASSWORD,
         false,
-        'Intentional failure after entering a recovery phrase',
-      ).toBe(true);
+      );
+
+      await onboardingPage.waitForEnjoyWalletAndComplete(60000);
     },
   );
 
