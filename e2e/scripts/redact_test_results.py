@@ -40,6 +40,7 @@ TEXT_SUFFIXES = (
 )
 MEDIA_SUFFIXES = ('.png', '.jpeg', '.jpg', '.webm')
 EVALUATE_METHODS = {'evaluateExpression', 'evaluateExpressionHandle'}
+EVALUATE_API_NAMES = {'page.evaluate', 'page.evaluateHandle'}
 REDACTED_VALUE = {'value': {'s': '[REDACTED]'}, 'handles': []}
 INPUT_TAGS = {'INPUT', 'TEXTAREA'}
 INPUT_VALUE_ATTRS = ('value', '__playwright_value_')
@@ -128,7 +129,15 @@ def redact_snapshot_inputs(node, redactor, found):
 def redact_trace_event(event, redactor, evaluate_call_ids, found):
     params = event.get('params')
     if isinstance(params, dict):
-        if event.get('method') in EVALUATE_METHODS:
+        is_evaluate = (
+            event.get('method') in EVALUATE_METHODS
+            or event.get('apiName') in EVALUATE_API_NAMES
+            or (
+                event.get('method') == 'pw:api'
+                and event.get('title') == 'Evaluate'
+            )
+        )
+        if is_evaluate:
             # Tests seed storage through `evaluate`, so its arguments carry
             # whole wallet snapshots, storage encryption key included.
             evaluate_call_ids.add(event.get('callId'))
@@ -262,7 +271,7 @@ def redact_text_file(path, redactor):
     with open(path, 'rb') as file:
         text = decode(file.read())
     redacted, found = redact_text(os.path.basename(path), text, redactor)
-    if found:
+    if redacted != text:
         with open(path, 'wb') as file:
             file.write(encode(redacted))
     return found
