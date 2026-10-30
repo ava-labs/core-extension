@@ -1,6 +1,6 @@
 import type { SendTransactionData } from './types/send';
 
-export const SENSITIVE_ANNOTATION = 'sensitive';
+export const ALLOW_FAILURE_SCREENSHOT_ANNOTATION = 'allow-failure-screenshot';
 
 /**
  * Test configuration constants

@@ -174,6 +174,15 @@ The frontend supports multiple contexts determined by `isSpecificContextContaine
 - Jest testing framework across all packages
 - Test both when changing shared code
 
+#### E2E Failure Screenshots
+
+Failure screenshots are deny-by-default. Every new or modified E2E test must explicitly evaluate whether sensitive data can be visible in any failure state.
+
+- Safe tests must import `ALLOW_FAILURE_SCREENSHOT_ANNOTATION` from `e2e/constants.ts` and add `{ type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION }` to their test annotations.
+- Tests that may show a recovery phrase, private key, API token, keystore secret, or other sensitive value must not add the annotation.
+- If safety is uncertain, omit the annotation.
+- Never enable screenshots at file, describe, project, or global scope.
+
 ### Release Process
 
 - Uses semantic versioning with conventional commits

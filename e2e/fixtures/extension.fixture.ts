@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { test as base, chromium, BrowserContext, Page } from '@playwright/test';
-import { SENSITIVE_ANNOTATION, TEST_CONFIG } from '../constants';
+import { ALLOW_FAILURE_SCREENSHOT_ANNOTATION, TEST_CONFIG } from '../constants';
 import {
   getExtensionId,
   openExtensionPopup,
@@ -149,17 +149,16 @@ export const test = base.extend<ExtensionFixtures>({
 
     await use(context);
 
-    // Take screenshots on failure before closing
-    const isSensitiveTest = testInfo.annotations.some(
-      ({ type }) => type === SENSITIVE_ANNOTATION,
+    const allowFailureScreenshot = testInfo.annotations.some(
+      ({ type }) => type === ALLOW_FAILURE_SCREENSHOT_ANNOTATION,
     );
     const hasFailed = testInfo.status !== testInfo.expectedStatus;
-    if (hasFailed && isSensitiveTest) {
+    if (hasFailed && !allowFailureScreenshot) {
       console.log(
-        'Skipping failure screenshots because this sensitive test may display a recovery phrase or private key.',
+        'Skipping failure screenshots because this test is not annotated with allow-failure-screenshot.',
       );
     }
-    if (hasFailed && !isSensitiveTest) {
+    if (hasFailed && allowFailureScreenshot) {
       const pages = context.pages();
       for (let i = 0; i < pages.length; i++) {
         const page = pages[i];
