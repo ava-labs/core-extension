@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { test as base, chromium, BrowserContext, Page } from '@playwright/test';
-import { TEST_CONFIG } from '../constants';
+import { ALLOW_FAILURE_SCREENSHOT_ANNOTATION, TEST_CONFIG } from '../constants';
 import {
   getExtensionId,
   openExtensionPopup,
@@ -149,8 +149,16 @@ export const test = base.extend<ExtensionFixtures>({
 
     await use(context);
 
-    // Take screenshots on failure before closing
-    if (testInfo.status !== testInfo.expectedStatus) {
+    const allowFailureScreenshot = testInfo.annotations.some(
+      ({ type }) => type === ALLOW_FAILURE_SCREENSHOT_ANNOTATION,
+    );
+    const hasFailed = testInfo.status !== testInfo.expectedStatus;
+    if (hasFailed && !allowFailureScreenshot) {
+      console.log(
+        'Skipping failure screenshots because this test is not annotated with allow-failure-screenshot.',
+      );
+    }
+    if (hasFailed && allowFailureScreenshot) {
       const pages = context.pages();
       for (let i = 0; i < pages.length; i++) {
         const page = pages[i];

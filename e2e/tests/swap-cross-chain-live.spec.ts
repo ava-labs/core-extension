@@ -26,6 +26,7 @@
  */
 
 import { test, expect } from '../fixtures/extension.fixture';
+import { ALLOW_FAILURE_SCREENSHOT_ANNOTATION } from '../constants';
 import {
   CrossChainSwapFailedError,
   SwapPage,
@@ -98,6 +99,7 @@ test.describe('Swap Cross-Chain — Live', () => {
       `${pair.from.symbol} (${pair.from.chain}) → ${pair.to.symbol} (${pair.to.chain}) (live cross-chain)`,
       {
         annotation: [
+          { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
           { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
           {
             type: 'testrail_case_field',
