@@ -1,6 +1,9 @@
 import { test, expect } from '../fixtures/extension.fixture';
 import { ContactsPage } from '../pages/extension/ContactsPage';
-import { TEST_CONTACTS } from '../constants';
+import {
+  ALLOW_FAILURE_SCREENSHOT_ANNOTATION,
+  TEST_CONTACTS,
+} from '../constants';
 
 const createContact = async (
   contactsPage: ContactsPage,
@@ -16,6 +19,7 @@ test.describe('Contacts Tests', () => {
     {
       tag: ['@smoke', '@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'mainnetPrimaryExtWallet',
@@ -45,6 +49,7 @@ test.describe('Contacts Tests', () => {
     {
       tag: ['@smoke', '@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'mainnetPrimaryExtWallet',
@@ -76,6 +81,7 @@ test.describe('Contacts Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'mainnetPrimaryExtWallet',
@@ -114,6 +120,7 @@ test.describe('Contacts Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'mainnetPrimaryExtWallet',
@@ -156,6 +163,7 @@ test.describe('Contacts Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'mainnetPrimaryExtWallet',
@@ -201,6 +209,7 @@ test.describe('Contacts Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'mainnetPrimaryExtWallet',
@@ -231,6 +240,7 @@ test.describe('Contacts Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'mainnetPrimaryExtWallet',
@@ -277,6 +287,7 @@ test.describe('Contacts Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'mainnetPrimaryExtWallet',

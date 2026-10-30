@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/extension.fixture';
+import { ALLOW_FAILURE_SCREENSHOT_ANNOTATION } from '../constants';
 import { PortfolioPage } from '../pages/extension/PortfolioPage';
 import { SettingsPage } from '../pages/extension/SettingsPage';
 import { TrendingTokensPage } from '../pages/extension/TrendingTokensPage';
@@ -34,6 +35,7 @@ test.describe('Portfolio - Empty Wallet', () => {
     {
       tag: ['@smoke', '@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: EMPTY_WALLET_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -62,6 +64,7 @@ test.describe('Portfolio - Empty Wallet', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: EMPTY_WALLET_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -87,6 +90,7 @@ test.describe('Portfolio - Empty Wallet', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: EMPTY_WALLET_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -114,6 +118,7 @@ test.describe('Portfolio - Empty Wallet', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: EMPTY_WALLET_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -138,6 +143,7 @@ test.describe('Portfolio - Highlights & Trending', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -175,6 +181,7 @@ test.describe('Portfolio - Highlights & Trending', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -210,6 +217,7 @@ test.describe('Portfolio - Highlights & Trending', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -237,6 +245,7 @@ test.describe('Portfolio - Highlights & Trending', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -276,6 +285,7 @@ test.describe('Portfolio - Highlights & Trending', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -317,6 +327,7 @@ test.describe('Portfolio - Token List Sorting', () => {
     {
       tag: ['@smoke', '@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -343,6 +354,7 @@ test.describe('Portfolio - Token List Sorting', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -369,6 +381,7 @@ test.describe('Portfolio - Token List Sorting', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -395,6 +408,7 @@ test.describe('Portfolio - Token List Sorting', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -469,6 +483,7 @@ test.describe('Portfolio - Activity', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: EMPTY_WALLET_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -498,6 +513,7 @@ test.describe('Portfolio - Activity', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -525,6 +541,7 @@ test.describe('Portfolio - Activity', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -581,6 +598,7 @@ test.describe('Portfolio - Activity', () => {
     {
       tag: ['@smoke', '@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -605,6 +623,7 @@ test.describe('Portfolio - Activity', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -638,6 +657,7 @@ test.describe('Portfolio - Activity', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -695,6 +715,7 @@ test.describe('Portfolio - Collectibles', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -736,6 +757,7 @@ test.describe('Portfolio - Collectibles', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -763,6 +785,7 @@ test.describe('Portfolio - Collectibles', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -793,6 +816,7 @@ test.describe('Portfolio - Collectibles', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -823,6 +847,7 @@ test.describe('Portfolio - Collectibles', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -848,6 +873,7 @@ test.describe('Portfolio - Collectibles', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -870,6 +896,7 @@ test.describe('Portfolio - Collectibles', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -892,6 +919,7 @@ test.describe('Portfolio - Collectibles', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -939,6 +967,7 @@ test.describe('Portfolio - Collectibles', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -982,6 +1011,7 @@ test.describe('Portfolio - Collectibles', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -1014,6 +1044,7 @@ test.describe('Portfolio - Collectibles', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -1047,6 +1078,7 @@ test.describe('Portfolio - Collectibles', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -1113,6 +1145,7 @@ test.describe('Portfolio - DeFi', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: EMPTY_WALLET_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -1137,6 +1170,7 @@ test.describe('Portfolio - DeFi', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -1167,6 +1201,7 @@ test.describe('Portfolio - DeFi', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -1197,6 +1232,7 @@ test.describe('Portfolio - DeFi', () => {
     {
       tag: ['@smoke', '@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -1221,6 +1257,7 @@ test.describe('Portfolio - DeFi', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -1249,6 +1286,7 @@ test.describe('Portfolio - DeFi', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -1277,6 +1315,7 @@ test.describe('Portfolio - DeFi', () => {
       {
         tag: ['@regression'],
         annotation: [
+          { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
           { type: 'snapshot', description: FUNDED_SNAPSHOT },
           {
             type: 'testrail_case_field',
@@ -1308,6 +1347,7 @@ test.describe('Portfolio - DeFi', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -1332,6 +1372,7 @@ test.describe('Portfolio - DeFi', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -1365,6 +1406,7 @@ test.describe('Portfolio - DeFi', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -1394,6 +1436,7 @@ test.describe('Portfolio - Action Buttons', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: FUNDED_SNAPSHOT },
         {
           type: 'testrail_case_field',
