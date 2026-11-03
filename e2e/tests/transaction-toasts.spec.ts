@@ -1,6 +1,6 @@
+import type { Page } from '@playwright/test';
 import { test, expect } from '../fixtures/extension.fixture';
 import { SendPage } from '../pages/extension/SendPage';
-import { TEST_SEND } from '../constants';
 import {
   setFeatureFlagOverrides,
   waitForFeatureFlagValue,
@@ -9,16 +9,45 @@ import {
 const SEND_TEST_TIMEOUT_MS = 180_000;
 
 // FeatureVars.SAE_OVERRIDE; 'enabled' turns SAE on, which disables optimistic
-// confirmations so a pending toast is always shown before confirmation.
+// confirmations (including on Avalanche C-Chain) so a pending toast is always
+// shown before confirmation.
 const SAE_OVERRIDE_FLAG = 'sae-override';
 
-async function submitToApproval(sendPage: SendPage): Promise<void> {
+const CCHAIN_AVAX_SEND = {
+  amount: '0.0001',
+  recipientAccount: 'Account 2',
+};
+
+async function openCChainAvaxApproval(
+  page: Page,
+  sendPage: SendPage,
+): Promise<void> {
+  // Developer (testnet) mode is on ⇒ Avalanche C-Chain is Fuji (43113), never
+  // mainnet (43114). Assert it before entering an amount or approving.
+  await expect(page.getByText('Testnet mode is on')).toBeVisible({
+    timeout: 30_000,
+  });
+
+  await sendPage.openSendFromPortfolioHome();
+  await sendPage.selectFujiCChainAvax();
+  await sendPage.enterAmount(CCHAIN_AVAX_SEND.amount);
+  await sendPage.selectRecipientAccount(CCHAIN_AVAX_SEND.recipientAccount);
+
   await expect
     .poll(() => sendPage.isSendButtonEnabled(), { timeout: 15_000 })
     .toBe(true);
 
   await sendPage.clickSend();
   await sendPage.waitForApprovalScreen();
+
+  await expect(sendPage.getApprovalDetailRow('Network')).toContainText(
+    'Avalanche',
+  );
+
+  if (await sendPage.isGaslessToggleVisible()) {
+    await sendPage.toggleGaslessOff();
+    await expect(sendPage.getGaslessCheckbox()).not.toBeChecked();
+  }
 }
 
 test.describe('Transaction Toast Tests', () => {
@@ -40,7 +69,6 @@ test.describe('Transaction Toast Tests', () => {
     async ({ unlockedExtensionPage }, testInfo) => {
       testInfo.setTimeout(SEND_TEST_TIMEOUT_MS);
       const sendPage = new SendPage(unlockedExtensionPage);
-      const sendData = TEST_SEND.ETH;
 
       await setFeatureFlagOverrides(unlockedExtensionPage, {
         [SAE_OVERRIDE_FLAG]: 'enabled',
@@ -51,18 +79,7 @@ test.describe('Transaction Toast Tests', () => {
         'enabled',
       );
 
-      await sendPage.openSendFromPortfolioHome();
-      await sendPage.selectTokenBySymbolAndChainBadge(
-        sendData.tokenSearchTerm,
-        sendData.chainBadgeAltText,
-        sendData.chainFilterChip,
-      );
-      await sendPage.enterAmount(sendData.amount);
-      await sendPage.selectRecipientAccount(sendData.recipientAccount);
-      await submitToApproval(sendPage);
-
-      const networkRow = sendPage.getApprovalDetailRow('Network');
-      await expect(networkRow).toContainText(sendData.networkLabel);
+      await openCChainAvaxApproval(unlockedExtensionPage, sendPage);
 
       // The pending toast is dismissed on confirmation, so start watching for
       // it before approving.
@@ -95,24 +112,7 @@ test.describe('Transaction Toast Tests', () => {
       testInfo.setTimeout(SEND_TEST_TIMEOUT_MS);
       const sendPage = new SendPage(unlockedExtensionPage);
 
-      await sendPage.openSendFromPortfolioHome();
-      await sendPage.selectTokenBySymbolAndChainBadge(
-        TEST_SEND.CCHAIN_AVAX.tokenSymbol,
-        /\(C-Chain\)/i,
-      );
-      await sendPage.enterAmount(TEST_SEND.CCHAIN_AVAX.amount);
-      await sendPage.selectRecipientAccount(
-        TEST_SEND.CCHAIN_AVAX.recipientAccount,
-      );
-      await submitToApproval(sendPage);
-
-      const networkRow = sendPage.getApprovalDetailRow('Network');
-      await expect(networkRow).toContainText('Avalanche');
-
-      if (await sendPage.isGaslessToggleVisible()) {
-        await sendPage.toggleGaslessOff();
-        await expect(sendPage.getGaslessCheckbox()).not.toBeChecked();
-      }
+      await openCChainAvaxApproval(unlockedExtensionPage, sendPage);
 
       const successToastPromise =
         sendPage.waitForSuccessToast(SEND_TEST_TIMEOUT_MS);

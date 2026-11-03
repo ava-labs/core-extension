@@ -369,6 +369,31 @@ export class SendPage extends BasePage {
     }
   }
 
+  /**
+   * Selects the Avalanche C-Chain AVAX token, guarding that the wallet is on
+   * Fuji testnet. The C-Chain badge alt is "Avalanche (C-Chain)" on both Fuji
+   * and mainnet, so the Fuji-labelled P/X sibling rows are what prove testnet;
+   * requiring one to be present aborts (before any amount/approval) on a
+   * mainnet build.
+   */
+  async selectFujiCChainAvax(): Promise<void> {
+    await this.openTokenSelectPopover();
+
+    const search = this.tokenSelectSearchField();
+    await search.fill('AVAX');
+
+    await expect(
+      this.page.getByAltText(/Avalanche Fuji Testnet \([PX]-Chain\)/i).first(),
+    ).toBeVisible({ timeout: 15_000 });
+
+    const option = this.page
+      .locator('[data-option-id]')
+      .filter({ has: this.page.getByAltText('Avalanche (C-Chain)') })
+      .first();
+    await option.waitFor({ state: 'visible', timeout: 10_000 });
+    await option.click();
+  }
+
   async selectTokenBySymbolAndChainBadge(
     tokenSymbol: string,
     chainBadgeAltText: string | RegExp,
