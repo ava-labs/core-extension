@@ -89,6 +89,9 @@ test.describe('Settings Tests', () => {
     'As a CORE ext user, I can switch languages',
     snapshot('SET-005'),
     async ({ unlockedExtensionPage }) => {
+      // The LANGUAGES override only applies after a live PostHog flag fetch,
+      // so allow well beyond the default 60s timeout.
+      test.setTimeout(120_000);
       const settings = new SettingsPage(unlockedExtensionPage);
 
       await settings.open();
@@ -99,7 +102,7 @@ test.describe('Settings Tests', () => {
       ).toBe(true);
 
       await expect(settings.pageTitle).toHaveText('Settings');
-      await settings.selectLanguage('Deutsch');
+      await settings.selectLanguage('de-DE');
       await expect(settings.pageTitle).toHaveText('Einstellungen', {
         timeout: 15_000,
       });
@@ -114,19 +117,15 @@ test.describe('Settings Tests', () => {
 
       await settings.open();
       const current = await settings.getSelectedCurrency();
-      const target =
-        current === 'EUR'
-          ? { label: 'Pound Sterling', symbol: 'GBP' }
-          : { label: 'Euro', symbol: 'EUR' };
+      const targetSymbol = current === 'EUR' ? 'GBP' : 'EUR';
 
-      await settings.selectCurrency(target.label);
-      await expect(settings.currencySelector).toHaveText(target.symbol);
+      await settings.selectCurrency(targetSymbol);
+      await expect(settings.currencySelector).toHaveText(targetSymbol);
 
       await settings.goBackToPortfolio();
-      await expect(settings.portfolioBalanceCurrency).toHaveText(
-        target.symbol,
-        { timeout: 15_000 },
-      );
+      await expect(settings.portfolioBalanceCurrency).toHaveText(targetSymbol, {
+        timeout: 15_000,
+      });
     },
   );
 
@@ -220,7 +219,7 @@ test.describe('Settings Tests', () => {
       await settings.setSwitch(settings.analyticsToggle, false);
       await settings.setSwitch(settings.analyticsToggle, true);
 
-      await settings.goBackToPortfolio();
+      await settings.reloadExtension();
       await settings.open();
       expect(await settings.isSwitchOn(settings.analyticsToggle)).toBe(true);
     },
@@ -236,7 +235,7 @@ test.describe('Settings Tests', () => {
       await settings.setSwitch(settings.analyticsToggle, true);
       await settings.setSwitch(settings.analyticsToggle, false);
 
-      await settings.goBackToPortfolio();
+      await settings.reloadExtension();
       await settings.open();
       expect(await settings.isSwitchOn(settings.analyticsToggle)).toBe(false);
     },
@@ -250,18 +249,31 @@ test.describe('Settings Tests', () => {
 
       await settings.open();
 
+      await expect(settings.footerTermsLink).toHaveAttribute(
+        'href',
+        'https://core.app/terms/core',
+      );
+      await expect(settings.footerPrivacyLink).toHaveAttribute(
+        'href',
+        'https://www.avalabs.org/legal/privacy-policy',
+      );
+
       const termsTab = await settings.clickLinkExpectNewTab(
         settings.footerTermsLink,
         context,
       );
-      expect(termsTab.url()).toContain('core.app/terms/core');
+      await expect
+        .poll(() => termsTab.url(), { timeout: 15_000 })
+        .toContain('core.app/terms/core');
       await termsTab.close();
 
       const privacyTab = await settings.clickLinkExpectNewTab(
         settings.footerPrivacyLink,
         context,
       );
-      expect(privacyTab.url()).toContain('avalabs.org/legal/privacy-policy');
+      await expect
+        .poll(() => privacyTab.url(), { timeout: 15_000 })
+        .toContain('avalabs.org/legal/privacy-policy');
       await privacyTab.close();
     },
   );

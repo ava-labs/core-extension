@@ -1,19 +1,9 @@
-/**
- * Settings Page - app settings home and the observable effects its controls
- * have on the Portfolio (testnet indicator, masked balances, currency code,
- * header avatar). Settings itself has no app header, so avatar/balance reads
- * happen after navigating back to the Portfolio.
- */
 import { Page, Locator, BrowserContext, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
+import { waitForPortfolioShellReady } from '../../helpers/extensionHelpers';
+import { unlockWallet } from '../../helpers/walletHelpers';
 
 type ColorTheme = 'LIGHT' | 'DARK' | 'SYSTEM';
-
-const THEME_LABELS: Record<ColorTheme, string> = {
-  LIGHT: 'Light',
-  DARK: 'Dark',
-  SYSTEM: 'System',
-};
 
 export class SettingsPage extends BasePage {
   readonly settingsButton: Locator;
@@ -91,6 +81,24 @@ export class SettingsPage extends BasePage {
     await this.page.waitForURL(/#\/(\?|$)/, { timeout: 10_000 });
   }
 
+  async reloadExtension(): Promise<void> {
+    await this.page.reload({ waitUntil: 'domcontentloaded' });
+    const passwordInput = this.page.getByPlaceholder(/password/i);
+    if (await passwordInput.isVisible({ timeout: 5_000 }).catch(() => false)) {
+      await unlockWallet(this.page);
+    }
+    // The app restores the last visited route, usually #/settings, whose route
+    // has no header; step back to Portfolio home where the shell lives.
+    await Promise.race([
+      this.settingsPage.waitFor({ state: 'visible', timeout: 30_000 }),
+      this.settingsButton.waitFor({ state: 'visible', timeout: 30_000 }),
+    ]).catch(() => {});
+    if (await this.settingsPage.isVisible().catch(() => false)) {
+      await this.goBackToPortfolio();
+    }
+    await waitForPortfolioShellReady(this.page);
+  }
+
   async isHighlightsEnabled(): Promise<boolean> {
     return this.isSwitchOn(this.showHighlightsToggle);
   }
@@ -98,8 +106,6 @@ export class SettingsPage extends BasePage {
   async setHighlights(enabled: boolean): Promise<void> {
     await this.setSwitch(this.showHighlightsToggle, enabled);
   }
-
-  // ── Switches ─────────────────────────────────────────────────────────
 
   private switchInput(switchLocator: Locator): Locator {
     return switchLocator.locator('input[type="checkbox"]');
@@ -118,32 +124,33 @@ export class SettingsPage extends BasePage {
     }
   }
 
-  // ── Currency ─────────────────────────────────────────────────────────
+  private async selectOption(
+    trigger: Locator,
+    optionTestId: string,
+  ): Promise<void> {
+    await trigger.click();
+    const option = this.page.getByTestId(optionTestId);
+    await option.waitFor({ state: 'visible', timeout: 10_000 });
+    await option.click();
+    await option.waitFor({ state: 'hidden', timeout: 10_000 }).catch(() => {});
+  }
 
   async getSelectedCurrency(): Promise<string> {
     return (await this.currencySelector.innerText()).trim();
   }
 
-  async selectCurrency(label: string): Promise<void> {
-    await this.currencySelector.click();
-    const option = this.page
-      .locator('.MuiPopover-root li')
-      .filter({ hasText: label });
-    await option.waitFor({ state: 'visible', timeout: 10_000 });
-    await option.getByRole('button').click();
-    await option.waitFor({ state: 'hidden', timeout: 10_000 }).catch(() => {});
+  async selectCurrency(symbol: string): Promise<void> {
+    await this.selectOption(
+      this.currencySelector,
+      `currency-selector-menu-item-${symbol}`,
+    );
   }
 
-  // ── Theme ────────────────────────────────────────────────────────────
-
   async selectTheme(theme: ColorTheme): Promise<void> {
-    await this.themeSelector.click();
-    const option = this.page
-      .locator('.MuiPopover-root li')
-      .filter({ hasText: THEME_LABELS[theme] });
-    await option.waitFor({ state: 'visible', timeout: 10_000 });
-    await option.getByRole('button').click();
-    await option.waitFor({ state: 'hidden', timeout: 10_000 }).catch(() => {});
+    await this.selectOption(
+      this.themeSelector,
+      `theme-selector-menu-item-${theme}`,
+    );
   }
 
   /** Relative luminance (0..1) of the Settings page background. */
@@ -160,14 +167,12 @@ export class SettingsPage extends BasePage {
     });
   }
 
-  // ── Language (gated behind the LANGUAGES feature flag) ────────────────
-
   /**
    * Forces the LANGUAGES flag via the unencrypted storage override the service
-   * worker merges on top of fetched flags. Requires POSTHOG_KEY so the flag
-   * fetch cycle runs; returns whether the selector showed up.
+   * worker merges on top of fetched flags (requires POSTHOG_KEY so the flag
+   * fetch cycle runs).
    */
-  async enableLanguagesFlag(timeoutMs = 45_000): Promise<boolean> {
+  async enableLanguagesFlag(timeoutMs = 60_000): Promise<boolean> {
     try {
       await this.page.evaluate(() => {
         return new Promise<void>((resolve) => {
@@ -187,22 +192,16 @@ export class SettingsPage extends BasePage {
       .catch(() => false);
   }
 
-  /** Selects a language by its locale-independent originalName (e.g. "Deutsch"). */
-  async selectLanguage(originalName: string): Promise<void> {
-    await this.languageSelector.click();
-    const option = this.page
-      .locator('.MuiPopover-root li')
-      .filter({ hasText: `(${originalName})` });
-    await option.waitFor({ state: 'visible', timeout: 10_000 });
-    await option.getByRole('button').click();
-    await option.waitFor({ state: 'hidden', timeout: 10_000 }).catch(() => {});
+  async selectLanguage(code: string): Promise<void> {
+    await this.selectOption(
+      this.languageSelector,
+      `language-selector-menu-item-${code}`,
+    );
   }
 
   async pageTitleText(): Promise<string> {
     return (await this.pageTitle.innerText()).trim();
   }
-
-  // ── Avatar ───────────────────────────────────────────────────────────
 
   /**
    * The header renders the avatar in two sibling blocks toggled via CSS
@@ -235,8 +234,6 @@ export class SettingsPage extends BasePage {
     await this.page.waitForURL(/#\/settings(\?|$)/, { timeout: 10_000 });
   }
 
-  // ── Footer legal links ───────────────────────────────────────────────
-
   async clickLinkExpectNewTab(
     link: Locator,
     context: BrowserContext,
@@ -246,8 +243,6 @@ export class SettingsPage extends BasePage {
     await link.click();
     return pagePromise;
   }
-
-  // ── Portfolio-side observable readers ────────────────────────────────
 
   async isBalanceMasked(): Promise<boolean> {
     const text = await this.portfolioTotalBalance.innerText();
