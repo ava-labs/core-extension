@@ -51,9 +51,14 @@ export const TokenListItem: FC<Props> = ({ token }) => {
   return (
     <ListItem
       key={token.name}
+      data-testid="manage-tokens-item"
+      data-token-symbol={token.symbol}
+      data-token-name={token.name}
+      data-token-malicious={String(isTokenMalicious(token))}
       secondaryAction={
         canToggle ? (
           <Switch
+            data-testid="manage-tokens-item-switch"
             checked={getTokenVisibility(token, caipId)}
             onChange={() => toggleTokenVisibility(token, caipId)}
             size="small"
@@ -95,6 +100,7 @@ const MaliciousOverlay: FC<{
   if (isTokenMalicious(token)) {
     return (
       <Box
+        data-testid="manage-tokens-scam-indicator"
         sx={(theme) => ({
           position: 'relative',
           isolation: 'isolate',

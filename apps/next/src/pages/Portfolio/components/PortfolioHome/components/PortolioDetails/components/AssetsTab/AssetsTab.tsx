@@ -92,6 +92,7 @@ export const AssetsTab: FC = () => {
         <SortMenu id="sort-menu" sort={sort} onSortChange={setSort} />
         <Box ml="auto">
           <Button
+            data-testid="portfolio-manage-tokens-button"
             variant="contained"
             color="secondary"
             size="xsmall"
