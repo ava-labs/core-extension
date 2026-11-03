@@ -57,11 +57,20 @@ test.describe('Account Management Tests', () => {
       await accountManagement.openMyWallets();
       await accountManagement.openAccountDetails(0);
 
-      await expect(accountManagement.accountAddressC).toBeVisible();
-      await expect(accountManagement.accountAddressAvm).toBeVisible();
-      await expect(accountManagement.accountAddressBtc).toBeVisible();
-      await expect(accountManagement.accountAddressEth).toBeVisible();
-      await expect(accountManagement.accountAddressSvm).toBeVisible();
+      // Poll visibility as a boolean; these elements carry the address in
+      // `data-address`, which a failed toBeVisible would print in its DOM preview.
+      const addressLocators = [
+        accountManagement.accountAddressC,
+        accountManagement.accountAddressAvm,
+        accountManagement.accountAddressBtc,
+        accountManagement.accountAddressEth,
+        accountManagement.accountAddressSvm,
+      ];
+      for (const locator of addressLocators) {
+        await expect
+          .poll(() => locator.isVisible(), { timeout: 15000 })
+          .toBe(true);
+      }
     },
   );
 
@@ -93,6 +102,12 @@ test.describe('Account Management Tests', () => {
       const address =
         await accountManagement.accountAddressC.getAttribute('data-address');
       expect(address).toBeTruthy();
+
+      // The system clipboard survives context recreation, so a prior run could
+      // leave the expected value in place; clear it so the poll proves a fresh copy.
+      await unlockedExtensionPage.evaluate(() =>
+        navigator.clipboard.writeText(''),
+      );
 
       await accountManagement.accountAddressCCopy.click();
 
@@ -142,10 +157,14 @@ test.describe('Account Management Tests', () => {
         'context-menu-address-eth',
         'context-menu-address-svm',
       ];
+      // These rows render the address text; poll visibility as a boolean so a
+      // failure never prints the element preview.
       for (const testId of contextMenuAddressIds) {
-        await expect(unlockedExtensionPage.getByTestId(testId)).toBeVisible({
-          timeout: 15000,
-        });
+        await expect
+          .poll(() => unlockedExtensionPage.getByTestId(testId).isVisible(), {
+            timeout: 15000,
+          })
+          .toBe(true);
       }
     },
   );
@@ -173,9 +192,11 @@ test.describe('Account Management Tests', () => {
       await accountManagement.openShowPrivateKey();
       await accountManagement.submitRevealPassword(wallet.password);
 
-      await expect(accountManagement.revealedPrivateKey).toBeVisible({
-        timeout: 15000,
-      });
+      await expect
+        .poll(() => accountManagement.revealedPrivateKey.isVisible(), {
+          timeout: 15000,
+        })
+        .toBe(true);
       const key = await accountManagement.revealedPrivateKey.inputValue();
       expect(PRIVATE_KEY_FORMAT.test(key)).toBe(true);
 
@@ -207,9 +228,11 @@ test.describe('Account Management Tests', () => {
       await accountManagement.selectPrivateKeyChain('Avalanche X/P-Chain');
       await accountManagement.submitRevealPassword(wallet.password);
 
-      await expect(accountManagement.revealedPrivateKey).toBeVisible({
-        timeout: 15000,
-      });
+      await expect
+        .poll(() => accountManagement.revealedPrivateKey.isVisible(), {
+          timeout: 15000,
+        })
+        .toBe(true);
       const key = await accountManagement.revealedPrivateKey.inputValue();
       expect(PRIVATE_KEY_FORMAT.test(key)).toBe(true);
 
@@ -243,7 +266,9 @@ test.describe('Account Management Tests', () => {
       await expect(
         unlockedExtensionPage.getByText('Invalid Password', { exact: false }),
       ).toBeVisible({ timeout: 15000 });
-      await expect(accountManagement.revealedPrivateKey).toBeHidden();
+      await expect
+        .poll(() => accountManagement.revealedPrivateKey.isVisible())
+        .toBe(false);
     },
   );
 
@@ -274,12 +299,20 @@ test.describe('Account Management Tests', () => {
       await accountManagement.openShowPrivateKey();
       await accountManagement.submitRevealPassword(wallet.password);
 
-      await expect(accountManagement.revealedPrivateKey).toBeVisible({
-        timeout: 15000,
-      });
+      await expect
+        .poll(() => accountManagement.revealedPrivateKey.isVisible(), {
+          timeout: 15000,
+        })
+        .toBe(true);
       const revealedKey =
         await accountManagement.revealedPrivateKey.inputValue();
       expect(PRIVATE_KEY_FORMAT.test(revealedKey)).toBe(true);
+
+      // The system clipboard survives context recreation, so a prior run could
+      // leave the expected value in place; clear it so the poll proves a fresh copy.
+      await unlockedExtensionPage.evaluate(() =>
+        navigator.clipboard.writeText(''),
+      );
 
       await accountManagement.copyPrivateKeyButton.click();
 

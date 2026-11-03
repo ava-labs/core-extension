@@ -126,10 +126,17 @@ test.describe('Account Management Tests', () => {
       await accountManagement.openMyWallets();
       await accountManagement.openImportedAccountDetails();
 
-      await expect(accountManagement.accountAddressAvm).toHaveAttribute(
-        'data-address',
-        wallet.privateKeyXpExpectedAvmAddress,
-      );
+      // Compare the X/P-Chain address as a boolean so neither the expected nor the
+      // actual address is printed on failure.
+      await expect
+        .poll(
+          async () =>
+            (await accountManagement.accountAddressAvm.getAttribute(
+              'data-address',
+            )) === wallet.privateKeyXpExpectedAvmAddress,
+          { timeout: 15000 },
+        )
+        .toBe(true);
     },
   );
 
@@ -812,9 +819,11 @@ test.describe('Account Management Tests', () => {
       const accountManagement = new AccountManagementPage(
         unlockedExtensionPage,
       );
-      // Swap (Fusion) and Buy are feature-flag gated; force them on for determinism.
+      // Swap (Fusion) and Buy are feature-flag gated; force them on for
+      // determinism. Keys are FeatureGates.FUSION_FEATURE (`fusion`) and
+      // FeatureGates.BUY (`buy`) from @core/types.
       await accountManagement.setFeatureFlagOverrides({
-        'fusion-feature': true,
+        fusion: true,
         buy: true,
       });
 
@@ -914,8 +923,11 @@ test.describe('Account Management Tests', () => {
       await walletView.openFromPortfolio();
 
       // The freshly created account is active, so the first account is inactive.
+      // Clicking an account awaits selectAccount then pushes to /portfolio itself;
+      // wait for that navigation rather than forcing another, which would race the
+      // pending push and interrupt the reopened wallet view.
       await walletView.accountItems.first().click();
-      await walletView.goToPortfolio();
+      await walletView.waitForPortfolio();
       await walletView.openFromPortfolio();
 
       await expect(

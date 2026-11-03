@@ -34,12 +34,16 @@ export class WalletViewPage extends BasePage {
     this.buyButton = page.getByTestId('buy-nav-button');
   }
 
+  async waitForPortfolio(): Promise<void> {
+    await waitForPortfolioShellReady(this.page);
+    await this.walletSummaryInfo.waitFor({ state: 'visible', timeout: 15000 });
+  }
+
   async goToPortfolio(): Promise<void> {
     await this.page.evaluate(() => {
       window.location.hash = '#/portfolio';
     });
-    await waitForPortfolioShellReady(this.page);
-    await this.walletSummaryInfo.waitFor({ state: 'visible', timeout: 15000 });
+    await this.waitForPortfolio();
   }
 
   async openFromPortfolio(): Promise<void> {

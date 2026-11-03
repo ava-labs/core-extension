@@ -1,6 +1,10 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
 import { waitForExtensionLoad } from '../../helpers/extensionHelpers';
+import {
+  setFeatureFlagOverrides as applyFeatureFlagOverrides,
+  waitForFeatureFlagValue,
+} from '../../helpers/featureFlagHelpers';
 
 /**
  * The feature flags that gate the add-wallet import options. They default to
@@ -120,6 +124,17 @@ export class AccountManagementPage extends BasePage {
     return this.accountListItems.nth(index);
   }
 
+  private async pollVisible(
+    locator: Locator,
+    visible: boolean,
+    timeout = 15000,
+  ): Promise<void> {
+    // For secret-bearing elements (addresses expose `data-address`, the key its
+    // input value), poll visibility as a boolean so a timeout never logs the
+    // element's DOM preview.
+    await expect.poll(() => locator.isVisible(), { timeout }).toBe(visible);
+  }
+
   private extensionHostFromUrl(url: string): string | null {
     try {
       return new URL(url).host;
@@ -174,18 +189,7 @@ export class AccountManagementPage extends BasePage {
   }
 
   async enableAddWalletFlags(): Promise<void> {
-    try {
-      await this.page.evaluate((overrides) => {
-        return new Promise<void>((resolve) => {
-          chrome.storage.local.set(
-            { '__feature-flag-overrides__': { data: overrides } },
-            () => resolve(),
-          );
-        });
-      }, ADD_WALLET_FLAG_OVERRIDES);
-    } catch {
-      // chrome.storage unavailable — DEFAULT_FLAGS already enable these options.
-    }
+    await this.setFeatureFlagOverrides(ADD_WALLET_FLAG_OVERRIDES);
   }
 
   async openAddWalletMenu(): Promise<void> {
@@ -254,7 +258,7 @@ export class AccountManagementPage extends BasePage {
       .getByRole('button', { name: 'Options', exact: true })
       .click();
 
-    await this.accountAddressAvm.waitFor({ state: 'visible', timeout: 15000 });
+    await this.pollVisible(this.accountAddressAvm, true);
   }
 
   async uploadInvalidKeystoreFile(filePath: string): Promise<void> {
@@ -307,17 +311,12 @@ export class AccountManagementPage extends BasePage {
   async setFeatureFlagOverrides(
     overrides: Record<string, boolean>,
   ): Promise<void> {
-    try {
-      await this.page.evaluate((flags) => {
-        return new Promise<void>((resolve) => {
-          chrome.storage.local.set(
-            { '__feature-flag-overrides__': { data: flags } },
-            () => resolve(),
-          );
-        });
-      }, overrides);
-    } catch {
-      // chrome.storage unavailable — DEFAULT_FLAGS already enable these flags.
+    // Writing the override only queues it; FeatureFlagService merges overrides
+    // after its next successful fetch, so wait until each value is in effect
+    // before relying on the gated UI.
+    await applyFeatureFlagOverrides(this.page, overrides);
+    for (const [flag, value] of Object.entries(overrides)) {
+      await waitForFeatureFlagValue(this.page, flag, value);
     }
   }
 
@@ -330,7 +329,7 @@ export class AccountManagementPage extends BasePage {
     await row.waitFor({ state: 'visible', timeout: 15000 });
     await row.hover();
     await row.getByRole('button', { name: 'Options', exact: true }).click();
-    await this.accountAddressC.waitFor({ state: 'visible', timeout: 15000 });
+    await this.pollVisible(this.accountAddressC, true);
   }
 
   async openAccountContextMenu(index = 0): Promise<void> {
@@ -403,6 +402,6 @@ export class AccountManagementPage extends BasePage {
 
   async dismissRevealedKey(): Promise<void> {
     await this.page.getByRole('button', { name: 'Done', exact: true }).click();
-    await this.revealedPrivateKey.waitFor({ state: 'hidden', timeout: 15000 });
+    await this.pollVisible(this.revealedPrivateKey, false);
   }
 }
