@@ -31,39 +31,61 @@ export async function setFeatureFlagOverrides(
   );
 }
 
-/**
- * Reads the service worker's effective feature flags over a short-lived
- * connection, mirroring how the frontend FeatureFlagsProvider requests them.
- * Only resolves plain JSON values, which is all feature flags carry.
- */
 async function getEffectiveFeatureFlags(
   page: Page,
 ): Promise<Record<string, boolean | string>> {
   return page.evaluate(
     ({ portName, method }) =>
       new Promise<Record<string, boolean | string>>((resolve, reject) => {
-        try {
-          const port = chrome.runtime.connect({ name: portName });
-          const id = `${method}-${Math.floor(Math.random() * 1e7)}`;
-          const timer = setTimeout(() => {
-            port.disconnect();
-            reject(new Error('feature_flags_get timed out'));
-          }, 10_000);
+        const id = `${method}-${Math.floor(Math.random() * 1e7)}`;
+        let port: chrome.runtime.Port | undefined;
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        let settled = false;
 
-          port.onMessage.addListener((raw: unknown) => {
-            const message = typeof raw === 'string' ? JSON.parse(raw) : raw;
-            if (message?.id !== id) {
-              return;
-            }
+        const handleMessage = (raw: unknown) => {
+          const message = (typeof raw === 'string' ? JSON.parse(raw) : raw) as {
+            id?: string;
+            error?: unknown;
+            result?: Record<string, boolean | string>;
+          };
+          if (message?.id !== id) {
+            return;
+          }
+          settle(
+            message.error ? new Error(String(message.error)) : undefined,
+            message.result,
+          );
+        };
+
+        function settle(
+          error?: Error,
+          value?: Record<string, boolean | string>,
+        ) {
+          if (settled) {
+            return;
+          }
+          settled = true;
+          if (timer) {
             clearTimeout(timer);
+          }
+          if (port) {
+            port.onMessage.removeListener(handleMessage);
             port.disconnect();
-            if (message.error) {
-              reject(new Error(String(message.error)));
-            } else {
-              resolve(message.result ?? {});
-            }
-          });
+          }
+          if (error) {
+            reject(error);
+          } else {
+            resolve(value ?? {});
+          }
+        }
 
+        try {
+          port = chrome.runtime.connect({ name: portName });
+          timer = setTimeout(
+            () => settle(new Error('feature_flags_get timed out')),
+            10_000,
+          );
+          port.onMessage.addListener(handleMessage);
           port.postMessage(
             JSON.stringify({
               id,
@@ -78,7 +100,7 @@ async function getEffectiveFeatureFlags(
             }),
           );
         } catch (error) {
-          reject(error as Error);
+          settle(error as Error);
         }
       }),
     { portName: EXTENSION_SCRIPT, method: FEATURE_FLAGS_GET },

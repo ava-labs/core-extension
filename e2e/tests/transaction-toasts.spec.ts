@@ -42,9 +42,6 @@ test.describe('Transaction Toast Tests', () => {
       const sendPage = new SendPage(unlockedExtensionPage);
       const sendData = TEST_SEND.ETH;
 
-      // A remote `sae-override: 'disabled'` would re-enable optimistic
-      // confirmations even on Ethereum and skip the pending toast, so force it
-      // on and wait until the override is the service worker's effective flag.
       await setFeatureFlagOverrides(unlockedExtensionPage, {
         [SAE_OVERRIDE_FLAG]: 'enabled',
       });
