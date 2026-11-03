@@ -569,9 +569,15 @@ test.describe('Account Management Tests', () => {
       const total = await accountManagement.createNewAccount();
 
       await accountManagement.enterManageMode();
+      // The feature-flag override reaches the UI asynchronously; wait until the
+      // last account becomes selectable before acting.
+      await expect(accountManagement.accountCheckbox(total - 1)).toBeEnabled({
+        timeout: 15000,
+      });
 
       // Selection must proceed from the last account upwards (consecutive-only rule).
       await accountManagement.toggleAccountSelection(total - 1);
+      await expect(accountManagement.accountCheckbox(total - 2)).toBeEnabled();
       await accountManagement.toggleAccountSelection(total - 2);
 
       await expect(accountManagement.deleteSelectedButton).toBeEnabled({
@@ -603,18 +609,28 @@ test.describe('Account Management Tests', () => {
       ],
     },
     async ({ unlockedExtensionPage }) => {
+      test.setTimeout(120000);
       const accountManagement = new AccountManagementPage(
         unlockedExtensionPage,
       );
 
       await accountManagement.enableAccountRemovalFlag();
       await accountManagement.openMyWallets();
+      const count = await accountManagement.getAccountCount();
 
-      // The base account (index 0) is the permanent last account and can never
-      // be removed — its details page "Remove account" button stays disabled.
-      await accountManagement.openAccountDetails(0);
+      await accountManagement.enterManageMode();
+      await expect(accountManagement.accountCheckbox(count - 1)).toBeEnabled({
+        timeout: 15000,
+      });
 
-      await expect(accountManagement.accountDetailsRemoveButton).toBeDisabled();
+      // Select every account from the last down to index 1; the guard then keeps
+      // index 0 (the single remaining account) unselectable.
+      for (let i = count - 1; i >= 1; i--) {
+        await expect(accountManagement.accountCheckbox(i)).toBeEnabled();
+        await accountManagement.toggleAccountSelection(i);
+      }
+
+      await expect(accountManagement.accountCheckbox(0)).toBeDisabled();
     },
   );
 
@@ -742,10 +758,17 @@ test.describe('Account Management Tests', () => {
         unlockedExtensionPage.getByText('Address copied!', { exact: false }),
       ).toBeVisible({ timeout: 15000 });
 
-      const clipboard = await unlockedExtensionPage.evaluate(() =>
-        navigator.clipboard.readText(),
-      );
-      expect(clipboard).toBe(address);
+      // Poll because clipboard writeText is fire-and-forget; compare as a boolean
+      // so the address is never printed in assertion output.
+      await expect
+        .poll(
+          async () =>
+            (await unlockedExtensionPage.evaluate(() =>
+              navigator.clipboard.readText(),
+            )) === address,
+          { timeout: 15000 },
+        )
+        .toBe(true);
     },
   );
 
@@ -769,16 +792,18 @@ test.describe('Account Management Tests', () => {
       await accountManagement.openMyWallets();
       await accountManagement.openAccountContextMenu(0);
 
-      const cChainAddress = unlockedExtensionPage.getByTestId(
+      const contextMenuAddressIds = [
         'context-menu-address-c',
-      );
-      const xpChainAddress = unlockedExtensionPage.getByTestId(
         'context-menu-address-avm',
-      );
-
-      await expect(cChainAddress).toBeVisible({ timeout: 15000 });
-      await expect(xpChainAddress).toBeVisible();
-      await expect(cChainAddress).toHaveAttribute('data-address', /.+/);
+        'context-menu-address-btc',
+        'context-menu-address-eth',
+        'context-menu-address-svm',
+      ];
+      for (const testId of contextMenuAddressIds) {
+        await expect(unlockedExtensionPage.getByTestId(testId)).toBeVisible({
+          timeout: 15000,
+        });
+      }
     },
   );
 
@@ -901,6 +926,10 @@ test.describe('Account Management Tests', () => {
       await expect(accountManagement.revealedPrivateKey).toBeVisible({
         timeout: 15000,
       });
+      const revealedKey =
+        await accountManagement.revealedPrivateKey.inputValue();
+      expect(PRIVATE_KEY_FORMAT.test(revealedKey)).toBe(true);
+
       await accountManagement.copyPrivateKeyButton.click();
 
       await expect(
@@ -909,10 +938,17 @@ test.describe('Account Management Tests', () => {
         }),
       ).toBeVisible({ timeout: 15000 });
 
-      const clipboard = await unlockedExtensionPage.evaluate(() =>
-        navigator.clipboard.readText(),
-      );
-      expect(PRIVATE_KEY_FORMAT.test(clipboard)).toBe(true);
+      // Poll until the clipboard matches the revealed key; compare as a boolean
+      // so the private key never appears in assertion output.
+      await expect
+        .poll(
+          async () =>
+            (await unlockedExtensionPage.evaluate(() =>
+              navigator.clipboard.readText(),
+            )) === revealedKey,
+          { timeout: 15000 },
+        )
+        .toBe(true);
     },
   );
 
@@ -955,6 +991,7 @@ test.describe('Account Management Tests', () => {
       ],
     },
     async ({ unlockedExtensionPage }) => {
+      test.setTimeout(120000);
       const walletView = new WalletViewPage(unlockedExtensionPage);
 
       await walletView.walletSummaryInfo.waitFor({
@@ -962,10 +999,25 @@ test.describe('Account Management Tests', () => {
         timeout: 15000,
       });
       await walletView.openFromPortfolio();
-
       await expect(walletView.walletAccountsSummary).toBeVisible();
-      await expect(walletView.walletAccountsSummary).toContainText(/account/i);
-      await expect(walletView.walletAccountsSummary).toContainText(/network/i);
+
+      const networkCount = () =>
+        walletView.walletAccountsSummary.textContent().then((text) => {
+          const over = (text ?? '').match(/over\s+(\d+)\s+/i);
+          return over ? Number(over[1]) : 0;
+        });
+
+      // The network count starts at 0 and settles once balances load.
+      await expect.poll(networkCount, { timeout: 60000 }).toBeGreaterThan(0);
+
+      const summary =
+        (await walletView.walletAccountsSummary.textContent()) ?? '';
+      const match = summary.match(/has\s+(\d+)\s+accounts?\s+over\s+(\d+)\s+/i);
+      expect(match).toBeTruthy();
+
+      const renderedAccountCount = await walletView.accountItems.count();
+      expect(Number(match![1])).toBe(renderedAccountCount);
+      expect(Number(match![2])).toBeGreaterThan(0);
     },
   );
 
@@ -982,6 +1034,7 @@ test.describe('Account Management Tests', () => {
       ],
     },
     async ({ unlockedExtensionPage }) => {
+      test.setTimeout(120000);
       const walletView = new WalletViewPage(unlockedExtensionPage);
 
       await walletView.walletSummaryInfo.waitFor({
@@ -991,7 +1044,15 @@ test.describe('Account Management Tests', () => {
       await walletView.openFromPortfolio();
 
       await expect(walletView.walletViewBalance).toBeVisible();
-      await expect(walletView.walletViewBalance).not.toBeEmpty();
+      // The loading placeholder has no digits; wait for a formatted value.
+      // Compared as a boolean so the balance is not printed on failure.
+      await expect
+        .poll(
+          async () =>
+            /\d/.test((await walletView.walletViewBalance.textContent()) ?? ''),
+          { timeout: 60000 },
+        )
+        .toBe(true);
     },
   );
 
@@ -1069,6 +1130,7 @@ test.describe('Account Management Tests', () => {
       ],
     },
     async ({ unlockedExtensionPage }) => {
+      test.setTimeout(120000);
       const walletView = new WalletViewPage(unlockedExtensionPage);
 
       await walletView.walletSummaryInfo.waitFor({
@@ -1077,12 +1139,11 @@ test.describe('Account Management Tests', () => {
       });
       await walletView.openFromPortfolio();
 
-      // Each account row renders its own networks region. The network avatars
-      // inside it only appear for networks the account holds a balance on, which
-      // is snapshot/funding dependent, so we assert the per-account region exists.
+      // A network avatar renders per network the account holds a balance on; the
+      // funded snapshot account shows at least one once balances load.
       await expect(walletView.accountItems.first()).toBeVisible();
-      await expect(walletView.accountNetworks.first()).toBeAttached({
-        timeout: 20000,
+      await expect(walletView.networkAvatars.first()).toBeVisible({
+        timeout: 60000,
       });
     },
   );

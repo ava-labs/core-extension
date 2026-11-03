@@ -64,7 +64,11 @@ export const NetworksWithBalances: FC<Props> = ({ networksWithBalance }) => {
         const shouldClip = hasNextIcon(index);
 
         return (
-          <NetworksWithBalancesContainer key={network.chainId} index={index}>
+          <NetworksWithBalancesContainer
+            key={network.chainId}
+            index={index}
+            data-testid="account-network-avatar"
+          >
             <NetworksWithBalancesItemContainer shouldClip={shouldClip}>
               {isXPChain ? (
                 <Avatar

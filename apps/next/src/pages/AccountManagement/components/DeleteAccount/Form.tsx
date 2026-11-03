@@ -43,13 +43,13 @@ export const DeleteAccountForm: FC<Props> = ({
           onClick: onDelete,
           color: 'secondary',
           panic: true,
-          'data-testid': 'delete-account-confirm-button',
+          testId: 'delete-account-confirm-button',
         }}
         bottom={{
           label: t('Cancel'),
           onClick: onCancel,
           color: 'secondary',
-          'data-testid': 'delete-account-cancel-button',
+          testId: 'delete-account-cancel-button',
         }}
       />
     </Stack>

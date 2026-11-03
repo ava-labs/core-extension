@@ -47,13 +47,13 @@ export const RenameForm: FC<Props> = ({
           disabled: !validation.success,
           onClick: validation.success ? () => onSave(name) : undefined,
           color: 'primary',
-          'data-testid': 'rename-save-button',
+          testId: 'rename-save-button',
         }}
         bottom={{
           label: t('Cancel'),
           color: 'secondary',
           onClick: onCancel,
-          'data-testid': 'rename-cancel-button',
+          testId: 'rename-cancel-button',
         }}
       />
     </Stack>

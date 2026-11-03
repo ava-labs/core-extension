@@ -18,7 +18,6 @@ const ADD_WALLET_FLAG_OVERRIDES = {
   'add-wallet-with-keystore-file': true,
 };
 
-/** Gates account removal from primary (mnemonic) wallets; see AccountManagerProvider. */
 const ACCOUNT_REMOVAL_FLAG_OVERRIDES = {
   'primary-account-removal': true,
 };
@@ -56,19 +55,14 @@ export class AccountManagementPage extends BasePage {
   readonly accountAddressSvm: Locator;
   readonly accountDetailsRenameButton: Locator;
   readonly accountDetailsRemoveButton: Locator;
-  // Rename form
   readonly renameNameInput: Locator;
   readonly renameSaveButton: Locator;
   readonly renameCancelButton: Locator;
-  readonly walletRenameButton: Locator;
-  // Delete form
   readonly deleteConfirmButton: Locator;
   readonly deleteCancelButton: Locator;
-  // Manage mode / bulk delete
   readonly manageWalletsButton: Locator;
   readonly deleteSelectedButton: Locator;
   readonly bulkDeleteCancelButton: Locator;
-  // Show private key
   readonly showPrivateKeyButton: Locator;
   readonly privateKeyChainSelect: Locator;
   readonly privateKeyPasswordInput: Locator;
@@ -114,7 +108,6 @@ export class AccountManagementPage extends BasePage {
     this.renameNameInput = page.getByTestId('rename-name-input');
     this.renameSaveButton = page.getByTestId('rename-save-button');
     this.renameCancelButton = page.getByTestId('rename-cancel-button');
-    this.walletRenameButton = page.getByTestId('wallet-rename-button');
     this.deleteConfirmButton = page.getByTestId(
       'delete-account-confirm-button',
     );
@@ -132,7 +125,6 @@ export class AccountManagementPage extends BasePage {
     this.copyPrivateKeyButton = page.getByTestId('copy-private-key-button');
   }
 
-  /** Account rows in document order (primary accounts first, then imported). */
   accountRow(index: number): Locator {
     return this.accountListItems.nth(index);
   }
@@ -366,7 +358,6 @@ export class AccountManagementPage extends BasePage {
     return importPage;
   }
 
-  /** Pushes a feature-flag override into unencrypted storage (merged by FeatureFlagService). */
   async setFeatureFlagOverrides(
     overrides: Record<string, boolean>,
   ): Promise<void> {
@@ -384,12 +375,10 @@ export class AccountManagementPage extends BasePage {
     }
   }
 
-  /** Forces the primary-account-removal flag so delete/manage flows are available. */
   async enableAccountRemovalFlag(): Promise<void> {
     await this.setFeatureFlagOverrides(ACCOUNT_REMOVAL_FLAG_OVERRIDES);
   }
 
-  /** Opens the details of the account at the given list position via its hover "Options" button. */
   async openAccountDetails(index = 0): Promise<void> {
     const row = this.accountRow(index);
     await row.waitFor({ state: 'visible', timeout: 15000 });
@@ -398,14 +387,12 @@ export class AccountManagementPage extends BasePage {
     await this.accountAddressC.waitFor({ state: 'visible', timeout: 15000 });
   }
 
-  /** Right-clicks an account row to open its address context menu. */
   async openAccountContextMenu(index = 0): Promise<void> {
     const row = this.accountRow(index);
     await row.waitFor({ state: 'visible', timeout: 15000 });
     await row.click({ button: 'right' });
   }
 
-  /** From the account details page, renames the account to `newName`. */
   async renameAccountFromDetails(newName: string): Promise<void> {
     await this.accountDetailsRenameButton.click();
     await this.renameNameInput.waitFor({ state: 'visible', timeout: 15000 });
@@ -414,18 +401,16 @@ export class AccountManagementPage extends BasePage {
     await this.renameSaveButton.click();
   }
 
-  /** Hovers the first (renamable) wallet card and opens its rename form. */
   async openRenameWallet(): Promise<void> {
     const walletCard = this.page
       .locator('[data-testid^="wallet-card-"]')
       .first();
     await walletCard.waitFor({ state: 'visible', timeout: 15000 });
     await walletCard.hover();
-    await this.walletRenameButton.click();
+    await walletCard.getByTestId('wallet-rename-button').click();
     await this.renameNameInput.waitFor({ state: 'visible', timeout: 15000 });
   }
 
-  /** Enters Manage mode and waits for the bulk action buttons to appear. */
   async enterManageMode(): Promise<void> {
     await this.manageWalletsButton.click();
     await this.deleteSelectedButton.waitFor({
@@ -434,7 +419,6 @@ export class AccountManagementPage extends BasePage {
     });
   }
 
-  /** Toggles selection of an account row (Manage mode must be active). */
   async toggleAccountSelection(index: number): Promise<void> {
     await this.accountRow(index).click();
   }
@@ -445,12 +429,10 @@ export class AccountManagementPage extends BasePage {
       .locator('input');
   }
 
-  /** Confirms the delete screen and waits for the success toast. */
   async confirmDelete(): Promise<void> {
     await this.deleteConfirmButton.click();
   }
 
-  /** Opens the Show Private Key screen from the account details page. */
   async openShowPrivateKey(): Promise<void> {
     await this.showPrivateKeyButton.scrollIntoViewIfNeeded();
     await this.showPrivateKeyButton.click();
@@ -460,7 +442,6 @@ export class AccountManagementPage extends BasePage {
     });
   }
 
-  /** Selects the private-key chain (C-Chain is the default). */
   async selectPrivateKeyChain(
     label: 'Avalanche C-Chain' | 'Avalanche X/P-Chain',
   ) {
@@ -468,7 +449,6 @@ export class AccountManagementPage extends BasePage {
     await this.page.getByRole('option', { name: label, exact: true }).click();
   }
 
-  /** Enters the password and clicks Reveal on the Show Private Key screen. */
   async submitRevealPassword(password: string): Promise<void> {
     await this.privateKeyPasswordInput.fill(password);
     await expect(this.revealPrivateKeyButton).toBeEnabled({ timeout: 15000 });

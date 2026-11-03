@@ -9,7 +9,7 @@ type Props = {
 type ActionButtonProps = Omit<ButtonProps, 'children'> & {
   label: string;
   panic?: boolean;
-  'data-testid'?: string;
+  testId?: string;
 };
 
 export const ActionButtons: FC<Props> = ({ top, bottom }) => {
@@ -25,11 +25,18 @@ const ActionButton: FC<ActionButtonProps> = ({
   label,
   color = 'secondary',
   panic,
+  testId,
   ...props
 }) => {
   const isPanicLabel = !props.disabled && panic;
   return (
-    <Button variant="contained" size="extension" color={color} {...props}>
+    <Button
+      variant="contained"
+      size="extension"
+      color={color}
+      data-testid={testId}
+      {...props}
+    >
       {isPanicLabel ? <PanicButtonText>{label}</PanicButtonText> : label}
     </Button>
   );

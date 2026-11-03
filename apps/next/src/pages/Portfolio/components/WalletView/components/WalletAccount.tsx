@@ -62,19 +62,15 @@ export const WalletAccount: FC<Props> = ({
     >
       <Stack direction="row" alignItems="center" gap={1} minWidth={0} flex={1}>
         {isActiveAccount(account.id) && (
-          <span
+          <MdCircle
             data-testid="wallet-account-active-indicator"
-            style={{ display: 'contents' }}
-          >
-            <MdCircle
-              size={6}
-              color={theme.palette.success.main}
-              style={{
-                position: 'absolute',
-                left: '-8px',
-              }}
-            />
-          </span>
+            size={6}
+            color={theme.palette.success.main}
+            style={{
+              position: 'absolute',
+              left: '-8px',
+            }}
+          />
         )}
         <PersonalAvatar
           name={avatarName}
