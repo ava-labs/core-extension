@@ -448,17 +448,24 @@ const ACTIVITY_NETWORKS = [
 // Glacier-indexed (not the moralis-evm proxy that rate-limits real EVM chains),
 // so an empty result is genuine rather than a throttled false-empty.
 const EMPTY_ACTIVITY_NETWORK = 'Blockticity';
-// Expected explorer URL per network, as the opened tab resolves it
-// (Bitcoin's short link redirects to blockchain.com's canonical /explorer path;
-// subnets.avax.network 301-redirects to explorer.avax.network; Ethereum keeps
-// the app's double slash). Verified empirically.
+// Expected explorer URL per network, as the opened tab resolves it. The
+// Avalanche explorerUrl comes from live network config (Glacier), which now
+// points at build.avax.network/explorer/mainnet; older subnets/explorer hosts
+// are kept as accepted alternatives. Bitcoin's short link redirects to
+// blockchain.com's canonical /explorer path; Ethereum keeps the app's double
+// slash. Verified empirically.
+const AVAX_EXPLORER_HOST =
+  '(subnets|explorer)\\.avax\\.network|build\\.avax\\.network\\/explorer\\/mainnet';
 const EXPLORER_URL: Record<string, RegExp> = {
-  'Avalanche (C-Chain)':
-    /^https:\/\/(subnets|explorer)\.avax\.network\/c-chain\/tx\//,
-  'Avalanche (X-Chain)':
-    /^https:\/\/(subnets|explorer)\.avax\.network\/x-chain\/tx\//,
-  'Avalanche (P-Chain)':
-    /^https:\/\/(subnets|explorer)\.avax\.network\/p-chain\/tx\//,
+  'Avalanche (C-Chain)': new RegExp(
+    `^https:\\/\\/(${AVAX_EXPLORER_HOST})\\/c-chain\\/tx\\/`,
+  ),
+  'Avalanche (X-Chain)': new RegExp(
+    `^https:\\/\\/(${AVAX_EXPLORER_HOST})\\/x-chain\\/tx\\/`,
+  ),
+  'Avalanche (P-Chain)': new RegExp(
+    `^https:\\/\\/(${AVAX_EXPLORER_HOST})\\/p-chain\\/tx\\/`,
+  ),
   Ethereum: /^https:\/\/etherscan\.io\/\/tx\//,
   Bitcoin: /^https:\/\/www\.blockchain\.com\/explorer\/transactions\/btc\//,
 };
