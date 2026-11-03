@@ -3,11 +3,6 @@ import { BasePage } from './BasePage';
 
 export type TokenRef = { id: string; address: string };
 
-export type AddCustomTokenOutcome = {
-  status: 'added' | 'duplicate' | 'timeout';
-  toastTitle?: string;
-};
-
 export class ManageTokensPage extends BasePage {
   readonly portfolioManageButton: Locator;
 
@@ -156,12 +151,6 @@ export class ManageTokensPage extends BasePage {
       .locator('[data-testid="manage-tokens-item-switch"]');
   }
 
-  /**
-   * Picks the first Portfolio-visible token (ids in Portfolio order) that is
-   * toggleable (ERC-20/SPL) and resolvable in the Manage Tokens list. The
-   * address is derived from the unique id (`type:address:chainId`) and used to
-   * search the virtualized list so the row is rendered regardless of position.
-   */
   async findToggleableTokenFromPortfolio(
     portfolioIds: string[],
   ): Promise<TokenRef> {
@@ -298,42 +287,30 @@ export class ManageTokensPage extends BasePage {
     await this.addressInput.waitFor({ state: 'visible', timeout: 15_000 });
   }
 
-  /**
-   * Fills the address and waits for on-chain metadata validation to settle:
-   * the Add button enables for a resolvable token. The on-chain read can
-   * transiently fail under RPC load, leaving the button disabled with an
-   * inline error, so re-fill to retry until the given deadline.
-   */
   private async fillAndValidate(
     address: string,
-    deadline = Date.now() + 60_000,
+    timeout = 20_000,
   ): Promise<boolean> {
-    while (Date.now() < deadline) {
-      await this.addressInput.fill('');
-      await this.addressInput.fill(address);
-      const remaining = deadline - Date.now();
-      await this.page
-        .waitForFunction(
-          () => {
-            const button = document.querySelector(
-              '[data-testid="add-custom-token-submit-button"]',
-            ) as HTMLButtonElement | null;
-            const error = document.querySelector(
-              '[data-testid="add-custom-token-error"]',
-            );
-            return (
-              (!!button && !button.disabled) ||
-              (!!error && (error.textContent ?? '').trim().length > 0)
-            );
-          },
-          undefined,
-          { timeout: Math.max(1_000, Math.min(remaining, 20_000)) },
-        )
-        .catch(() => {});
-      if (await this.addSubmitButton.isEnabled()) {
-        return true;
-      }
-    }
+    await this.addressInput.fill('');
+    await this.addressInput.fill(address);
+    await this.page
+      .waitForFunction(
+        () => {
+          const button = document.querySelector(
+            '[data-testid="add-custom-token-submit-button"]',
+          ) as HTMLButtonElement | null;
+          const error = document.querySelector(
+            '[data-testid="add-custom-token-error"]',
+          );
+          return (
+            (!!button && !button.disabled) ||
+            (!!error && (error.textContent ?? '').trim().length > 0)
+          );
+        },
+        undefined,
+        { timeout },
+      )
+      .catch(() => {});
     return this.addSubmitButton.isEnabled();
   }
 
@@ -358,95 +335,48 @@ export class ManageTokensPage extends BasePage {
   }
 
   /**
-   * Attempts to add one custom token (assumes the Add Custom Token page is
-   * open) before `deadline`. Success is scoped to this attempt: the app only
-   * leaves the /add-custom route by navigating back after a successful add, so
-   * that navigation — not a stray global toast — is the success signal. The
-   * "already exists" inline warning means the catalog lists it; anything else
-   * is a retryable timeout rather than a false duplicate.
+   * Adds the first candidate the catalog accepts. A successful add navigates
+   * back to the list (pageRoot reappears); a catalog duplicate keeps the
+   * add-custom page open with the inline warning. Only the deterministic
+   * duplicate advances to the next candidate — any other outcome (validation
+   * stalled, no settled signal in time) throws so the transient RPC failure
+   * fails loudly and is left to the CI retry on a fresh context.
    */
-  async attemptAddCustomToken(
-    address: string,
-    deadline: number,
-  ): Promise<AddCustomTokenOutcome> {
-    if (!(await this.fillAndValidate(address, deadline))) {
-      return { status: 'timeout' };
-    }
-    if (Date.now() >= deadline) {
-      return { status: 'timeout' };
-    }
-
-    await this.addSubmitButton.click();
-    const signal = await this.page
-      .waitForFunction(
-        () => {
-          if (!window.location.hash.includes('/manage-tokens/add-custom')) {
-            return 'added';
-          }
-          const error = document.querySelector(
-            '[data-testid="add-custom-token-error"]',
-          );
-          const text = (error?.textContent ?? '').trim();
-          return text.length > 0 ? `error:${text}` : false;
-        },
-        undefined,
-        { timeout: Math.max(2_000, deadline - Date.now()) },
-      )
-      .then((handle) => handle.jsonValue() as Promise<string>)
-      .catch(() => null);
-
-    if (signal === 'added') {
-      const toast = this.successToast();
-      const title =
-        (await toast
-          .locator('[data-title]')
-          .first()
-          .textContent({ timeout: 5_000 })
-          .catch(() => null)) ?? (await toast.textContent().catch(() => null));
-      return { status: 'added', toastTitle: (title ?? '').trim() };
-    }
-    if (typeof signal === 'string' && signal.includes('already exists')) {
-      return { status: 'duplicate' };
-    }
-    return { status: 'timeout' };
-  }
-
-  /**
-   * Returns to the list and lets any success toast from a prior (slow) attempt
-   * clear before opening a fresh Add Custom Token page, so a late toast cannot
-   * be miscredited to the next attempt.
-   */
-  private async ensureFreshAddCustom(): Promise<void> {
-    await this.ensureOnList();
-    await this.successToast()
-      .first()
-      .waitFor({ state: 'hidden', timeout: 8_000 })
-      .catch(() => {});
-    await this.openAddCustom();
-  }
-
   async addFirstAddableCandidate(
     addresses: string[],
-    budgetMs = 180_000,
+    addTimeout = 25_000,
   ): Promise<{ address: string; toastTitle: string } | null> {
-    const overallDeadline = Date.now() + budgetMs;
     for (const address of addresses) {
-      for (let attempt = 0; attempt < 2; attempt++) {
-        if (Date.now() >= overallDeadline) {
-          return null;
-        }
-        await this.ensureFreshAddCustom();
-        const attemptDeadline = Math.min(overallDeadline, Date.now() + 50_000);
-        const outcome = await this.attemptAddCustomToken(
-          address,
-          attemptDeadline,
+      await this.ensureOnList();
+      await this.openAddCustom();
+
+      if (!(await this.fillAndValidate(address))) {
+        throw new Error(
+          `Add Token stayed disabled for ${address}; on-chain metadata validation did not succeed (possible RPC throttling).`,
         );
-        if (outcome.status === 'added') {
-          return { address, toastTitle: outcome.toastTitle ?? '' };
-        }
-        if (outcome.status === 'duplicate') {
-          break;
-        }
+      }
+      await this.addSubmitButton.click();
+
+      try {
+        await expect(this.pageRoot.or(this.addError).first()).toBeVisible({
+          timeout: addTimeout,
+        });
+      } catch {
+        throw new Error(
+          `Adding ${address} produced neither a success navigation nor the duplicate warning within ${addTimeout}ms (likely transient RPC failure).`,
+        );
+      }
+
+      if (await this.pageRoot.isVisible()) {
+        const toast = this.successToast();
+        const title =
+          (await toast
+            .locator('[data-title]')
+            .first()
+            .textContent({ timeout: 5_000 })
+            .catch(() => null)) ??
+          (await toast.textContent().catch(() => null));
+        return { address, toastTitle: (title ?? '').trim() };
       }
     }
     return null;
