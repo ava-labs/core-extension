@@ -448,12 +448,10 @@ const ACTIVITY_NETWORKS = [
 // Glacier-indexed (not the moralis-evm proxy that rate-limits real EVM chains),
 // so an empty result is genuine rather than a throttled false-empty.
 const EMPTY_ACTIVITY_NETWORK = 'Blockticity';
-// Expected explorer URL per network, as the opened tab resolves it. The
-// Avalanche explorerUrl comes from network configuration, which now
-// points at build.avax.network/explorer/mainnet; older subnets/explorer hosts
-// are kept as accepted alternatives. Bitcoin's short link redirects to
-// blockchain.com's canonical /explorer path; Ethereum keeps the app's double
-// slash. Verified empirically.
+// Avalanche links now resolve to build.avax.network/explorer/mainnet/<chain>;
+// older subnets/explorer.avax.network hosts are still accepted. Bitcoin's short
+// link redirects to blockchain.com's canonical /explorer path; Ethereum keeps
+// the app's double slash.
 const AVAX_EXPLORER_HOST =
   '(subnets|explorer)\\.avax\\.network|build\\.avax\\.network\\/explorer\\/mainnet';
 const EXPLORER_URL: Record<string, RegExp> = {

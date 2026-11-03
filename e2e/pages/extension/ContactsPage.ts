@@ -272,11 +272,20 @@ export class ContactsPage extends BasePage {
     contact: ContactData,
   ): Promise<{ count: number; hasContact: boolean }> {
     await this.contactsList.waitFor({ state: 'visible', timeout: 5000 });
-    const count = await this.contactItems.count();
-    const matching = await this.contactItems
-      .filter({ hasText: contact.name })
-      .count();
-    return { count, hasContact: matching > 0 };
+    const needle = contact.name.replace(/\s+/g, ' ').trim().toLowerCase();
+    return this.contactItems.evaluateAll(
+      (items, name) => ({
+        count: items.length,
+        hasContact: items.some((item) =>
+          (item.textContent ?? '')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .toLowerCase()
+            .includes(name),
+        ),
+      }),
+      needle,
+    );
   }
 
   async goBackToContactsList(): Promise<void> {
