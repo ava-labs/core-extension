@@ -9,19 +9,27 @@ const PRIVATE_KEY_FORMAT = /^0x[0-9a-fA-F]{64}$/;
 const { wallet } = TEST_CONFIG;
 const MAINNET_SNAPSHOT = TEST_CONFIG.snapshots.mainnet;
 
-// These tests render private keys / addresses on screen. On failure Playwright
-// 1.55.1 writes an `error-context.md` containing an aria snapshot of
-// `context.pages()[0]` (playwright/lib/index.js `ArtifactsRecorder`), which would
-// leak the secret into test-results even with trace/video/screenshot off.
-// `PLAYWRIGHT_NO_COPY_PROMPT` short-circuits that capture at the source.
-process.env.PLAYWRIGHT_NO_COPY_PROMPT = '1';
-
 test.use({ trace: 'off', video: 'off', screenshot: 'off' });
 
 test.describe('Account Management Tests', () => {
-  // Second guard: the error-context/failure capture reads the open pages during
-  // fixture teardown, which happens after afterEach. Blanking every page here
-  // means that even if a capture ran, no secret is on screen.
+  // On failure Playwright 1.55.1 writes an `error-context.md` aria snapshot of the
+  // page; PLAYWRIGHT_NO_COPY_PROMPT disables that capture (read per-test teardown,
+  // so scoping to beforeAll/afterAll keeps non-sensitive specs' error-context).
+  let previousNoCopyPrompt: string | undefined;
+  test.beforeAll(() => {
+    previousNoCopyPrompt = process.env.PLAYWRIGHT_NO_COPY_PROMPT;
+    process.env.PLAYWRIGHT_NO_COPY_PROMPT = '1';
+  });
+  test.afterAll(() => {
+    if (previousNoCopyPrompt === undefined) {
+      delete process.env.PLAYWRIGHT_NO_COPY_PROMPT;
+    } else {
+      process.env.PLAYWRIGHT_NO_COPY_PROMPT = previousNoCopyPrompt;
+    }
+  });
+
+  // Second guard: blank every page before fixture teardown runs the failure
+  // capture, so no secret is on screen even if a capture happens.
   test.afterEach(async ({ context }) => {
     await Promise.all(
       context.pages().map((page) => page.goto('about:blank').catch(() => {})),
