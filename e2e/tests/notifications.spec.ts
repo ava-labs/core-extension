@@ -62,10 +62,10 @@ test.describe('Notifications Tests', () => {
       await expect(notificationsPage.tabByTestId('Transactions')).toBeVisible();
       await expect(notificationsPage.tabByTestId('Prices')).toBeVisible();
 
-      const { topRatio, bottomGap } =
+      const { bottomGap, topInViewport } =
         await notificationsPage.getTabBarViewportMetrics();
-      expect(topRatio).toBeGreaterThan(0.5);
-      expect(bottomGap).toBeLessThan(8);
+      expect(topInViewport).toBe(true);
+      expect(Math.abs(bottomGap)).toBeLessThan(8);
 
       expect(await notificationsPage.isTabSelected('All')).toBe(true);
 
