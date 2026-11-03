@@ -1,5 +1,9 @@
 import { test, expect } from '../fixtures/extension.fixture';
 import { SettingsPage } from '../pages/extension/SettingsPage';
+import {
+  setFeatureFlagOverrides,
+  waitForFeatureFlagValue,
+} from '../helpers/featureFlagHelpers';
 
 const snapshot = (automationId: string) => ({
   tag: ['@regression'],
@@ -48,6 +52,9 @@ test.describe('Settings Tests', () => {
       await settings.setSwitch(settings.testnetSwitch, false);
 
       await settings.goBackToPortfolio();
+      await expect(settings.portfolioTotalBalance).toBeVisible({
+        timeout: 30_000,
+      });
       await expect(settings.portfolioTestnetIndicator).toBeHidden({
         timeout: 30_000,
       });
@@ -95,12 +102,19 @@ test.describe('Settings Tests', () => {
       const settings = new SettingsPage(unlockedExtensionPage);
 
       await settings.open();
-      const flagApplied = await settings.enableLanguagesFlag();
-      expect(
-        flagApplied,
-        'LANGUAGES feature flag selector did not appear (requires POSTHOG_KEY + flag fetch)',
-      ).toBe(true);
+      await setFeatureFlagOverrides(unlockedExtensionPage, { languages: true });
+      let languagesEffective = true;
+      try {
+        await waitForFeatureFlagValue(unlockedExtensionPage, 'languages', true);
+      } catch {
+        languagesEffective = false;
+      }
+      test.skip(
+        !languagesEffective,
+        'LANGUAGES feature flag unavailable (POSTHOG_KEY missing / flag fetch failed)',
+      );
 
+      await expect(settings.languageSelector).toBeVisible({ timeout: 15_000 });
       await expect(settings.pageTitle).toHaveText('Settings');
       await settings.selectLanguage('de-DE');
       await expect(settings.pageTitle).toHaveText('Einstellungen', {
@@ -113,9 +127,30 @@ test.describe('Settings Tests', () => {
     'As a CORE ext user, I can switch currency',
     snapshot('SET-006'),
     async ({ unlockedExtensionPage }) => {
+      test.setTimeout(120_000);
       const settings = new SettingsPage(unlockedExtensionPage);
 
       await settings.open();
+      // SettingsService.getSettings() forces USD unless this flag is on, so a
+      // non-USD selection would otherwise flip back on the next settings read.
+      await setFeatureFlagOverrides(unlockedExtensionPage, {
+        'balance-service-integration': true,
+      });
+      let balanceServiceEffective = true;
+      try {
+        await waitForFeatureFlagValue(
+          unlockedExtensionPage,
+          'balance-service-integration',
+          true,
+        );
+      } catch {
+        balanceServiceEffective = false;
+      }
+      test.skip(
+        !balanceServiceEffective,
+        'BALANCE_SERVICE_INTEGRATION unavailable (POSTHOG_KEY missing / flag fetch failed)',
+      );
+
       const current = await settings.getSelectedCurrency();
       const targetSymbol = current === 'EUR' ? 'GBP' : 'EUR';
 
@@ -126,6 +161,10 @@ test.describe('Settings Tests', () => {
       await expect(settings.portfolioBalanceCurrency).toHaveText(targetSymbol, {
         timeout: 15_000,
       });
+
+      await settings.reloadExtension();
+      await settings.open();
+      await expect(settings.currencySelector).toHaveText(targetSymbol);
     },
   );
 
@@ -189,6 +228,14 @@ test.describe('Settings Tests', () => {
       const settings = new SettingsPage(unlockedExtensionPage);
 
       await settings.open();
+
+      // SYSTEM is the default, so first prove an explicit theme applies before
+      // switching to SYSTEM and checking it follows the OS color scheme.
+      await settings.selectTheme('DARK');
+      await expect
+        .poll(() => settings.settingsBackgroundLuminance(), { timeout: 10_000 })
+        .toBeLessThan(0.3);
+
       await settings.selectTheme('SYSTEM');
 
       await unlockedExtensionPage.emulateMedia({ colorScheme: 'light' });

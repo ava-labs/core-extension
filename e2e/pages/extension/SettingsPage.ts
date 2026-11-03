@@ -74,6 +74,14 @@ export class SettingsPage extends BasePage {
 
   async waitForLoaded(): Promise<void> {
     await this.settingsPage.waitFor({ state: 'visible', timeout: 15_000 });
+    // Controls render with empty/default values until the settings response
+    // arrives; the theme label is populated by that same response, so its text
+    // confirms analyticsConsent/currency/etc. are also loaded.
+    await expect
+      .poll(async () => (await this.themeSelector.innerText()).trim(), {
+        timeout: 15_000,
+      })
+      .not.toBe('');
   }
 
   async goBackToPortfolio(): Promise<void> {
@@ -88,7 +96,9 @@ export class SettingsPage extends BasePage {
       passwordInput.or(this.settingsPage).or(this.settingsButton).first(),
     ).toBeVisible({ timeout: 45_000 });
     if (await passwordInput.isVisible().catch(() => false)) {
-      await unlockWallet(this.page);
+      // Restored route is usually #/settings, which lacks the Portfolio shell
+      // unlockWallet waits for by default; wait only for the lock screen to go.
+      await unlockWallet(this.page, undefined, { waitForPortfolio: false });
     }
     // The app restores the last visited route, usually #/settings, whose route
     // has no header; step back to Portfolio home where the shell lives.
@@ -168,31 +178,6 @@ export class SettingsPage extends BasePage {
       const [r, g, b] = channels;
       return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
     });
-  }
-
-  /**
-   * Forces the LANGUAGES flag via the unencrypted storage override the service
-   * worker merges on top of fetched flags (requires POSTHOG_KEY so the flag
-   * fetch cycle runs).
-   */
-  async enableLanguagesFlag(timeoutMs = 60_000): Promise<boolean> {
-    try {
-      await this.page.evaluate(() => {
-        return new Promise<void>((resolve) => {
-          chrome.storage.local.set(
-            { '__feature-flag-overrides__': { data: { languages: true } } },
-            () => resolve(),
-          );
-        });
-      });
-    } catch {
-      return false;
-    }
-
-    return this.languageSelector
-      .waitFor({ state: 'visible', timeout: timeoutMs })
-      .then(() => true)
-      .catch(() => false);
   }
 
   async selectLanguage(code: string): Promise<void> {
