@@ -268,6 +268,17 @@ export class ContactsPage extends BasePage {
     return count > 0;
   }
 
+  async getContactListState(
+    contact: ContactData,
+  ): Promise<{ count: number; hasContact: boolean }> {
+    await this.contactsList.waitFor({ state: 'visible', timeout: 5000 });
+    const count = await this.contactItems.count();
+    const matching = await this.contactItems
+      .filter({ hasText: contact.name })
+      .count();
+    return { count, hasContact: matching > 0 };
+  }
+
   async goBackToContactsList(): Promise<void> {
     await this.backButton.click();
     await this.contactsList.waitFor({ state: 'visible', timeout: 5000 });

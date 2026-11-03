@@ -449,7 +449,7 @@ const ACTIVITY_NETWORKS = [
 // so an empty result is genuine rather than a throttled false-empty.
 const EMPTY_ACTIVITY_NETWORK = 'Blockticity';
 // Expected explorer URL per network, as the opened tab resolves it. The
-// Avalanche explorerUrl comes from live network config (Glacier), which now
+// Avalanche explorerUrl comes from network configuration, which now
 // points at build.avax.network/explorer/mainnet; older subnets/explorer hosts
 // are kept as accepted alternatives. Bitcoin's short link redirects to
 // blockchain.com's canonical /explorer path; Ethereum keeps the app's double

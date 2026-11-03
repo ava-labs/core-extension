@@ -66,13 +66,10 @@ test.describe('Contacts Tests', () => {
 
       await contactsPage.goBackToContactsList();
       await expect
-        .poll(() => contactsPage.doesContactExist(TEST_CONTACTS.FULL), {
+        .poll(() => contactsPage.getContactListState(TEST_CONTACTS.FULL), {
           timeout: 10000,
         })
-        .toBe(true);
-      await expect
-        .poll(() => contactsPage.getContactCount(), { timeout: 10000 })
-        .toBe(initialCount + 1);
+        .toEqual({ count: initialCount + 1, hasContact: true });
     },
   );
 
