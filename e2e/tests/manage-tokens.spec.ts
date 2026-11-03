@@ -3,12 +3,6 @@ import { PortfolioPage } from '../pages/extension/PortfolioPage';
 import { ManageTokensPage } from '../pages/extension/ManageTokensPage';
 
 /**
- * Manage Tokens scenarios (TestRail C32169–C32175), funded mainnet wallet
- * (`mainnetPrimaryExtWallet`).
- *
- * Token metadata lookups, the catalog duplicate check and balances are all
- * fetched live, so these tests need network access and use generous timeouts.
- *
  * Copy note: two TestRail titles quote text that differs from the real UI.
  * Titles are kept verbatim; assertions check the actual UI copy:
  *   - C32174 title says "Token added!" → the success toast reads "Token Added".
@@ -17,12 +11,22 @@ import { ManageTokensPage } from '../pages/extension/ManageTokensPage';
  */
 const FUNDED_SNAPSHOT = 'mainnetPrimaryExtWallet';
 
-// BENQI qiAVAX: the long-lived AVAX supply-market receipt token from BENQI's
-// core lending market. It is a real ERC-20 (metadata resolves on-chain) but,
-// being a lending receipt rather than a market-traded asset, it is not part of
-// Core's bundled token catalog, so it is addable as a custom token rather than
-// rejected as a duplicate.
-const CUSTOM_TOKEN_ADDRESS = '0xaf2c034C764d53005cC6cbc092518112cBD652bb';
+// Custom-token candidates, in priority order. Whether a token is addable
+// depends on an external, mutable factor: Core's token-aggregator catalog
+// rejects any token it already lists as a duplicate. These are real,
+// long-lived Avalanche C-Chain ERC-20s (metadata resolves on-chain) that are
+// receipt/LP/staking tokens rather than market-listed assets, so they are
+// currently catalog misses. The test adds the first one that is actually
+// addable and fails with a clear message if the catalog has since absorbed
+// them all.
+const CUSTOM_TOKEN_CANDIDATES = [
+  '0xaf2c034C764d53005cC6cbc092518112cBD652bb', // BENQI qiAVAX (lending receipt)
+  '0x7c05d54fc5CB6e4Ad87c6f5db3b807C94bB89c52', // Pangolin AVAX-ETH PGL (LP)
+  '0xA389f9430876455C36478DeEa9769B7Ca4E3DDB1', // Trader Joe WAVAX-USDC.e JLP (LP)
+  '0x2b2C81e08f1Af8835a78Bb2A90AE924ACE0eA4bE', // BENQI Staked AVAX (sAVAX)
+];
+const NO_CANDIDATE_MESSAGE =
+  "No candidate custom token was addable; Core's token catalog may now list all of them.";
 
 // C-Chain USDC: present in Core's token catalog, so re-adding it is rejected
 // as an existing token.
@@ -79,24 +83,28 @@ test.describe('Manage Tokens', () => {
       await manageTokens.openFromPortfolio();
       await manageTokens.waitForListLoaded();
 
-      const [firstSymbol] = await manageTokens.visibleRowSymbols();
-      expect(firstSymbol.length).toBeGreaterThan(0);
+      const initialIds = await manageTokens.visibleRowIds();
+      expect(new Set(initialIds).size).toBeGreaterThanOrEqual(2);
 
-      await manageTokens.search(firstSymbol);
-      await expect
-        .poll(async () => {
-          const symbols = await manageTokens.visibleRowSymbols();
-          const names = await manageTokens.visibleRowNames();
-          return (
-            symbols.length > 0 &&
-            symbols.every(
-              (sym, i) =>
-                sym.toLowerCase().includes(firstSymbol.toLowerCase()) ||
-                names[i].toLowerCase().includes(firstSymbol.toLowerCase()),
-            )
-          );
-        })
-        .toBe(true);
+      // Two distinct addressable tokens let us search a value that matches one
+      // and provably excludes the other.
+      const addressable = (await manageTokens.toggleableTokens()).filter(
+        (t) => t.address.length > 0,
+      );
+      const target = addressable[0];
+      const nonMatch = addressable.find(
+        (t) => t.id !== target.id && t.address !== target.address,
+      );
+      expect(target, 'expected an addressable target token').toBeTruthy();
+      expect(nonMatch, 'expected a second addressable token').toBeTruthy();
+
+      await manageTokens.search(target.address);
+      await expect(manageTokens.rowById(target.id)).toBeVisible();
+      await expect(manageTokens.rowById(nonMatch!.id)).toHaveCount(0);
+
+      await manageTokens.clearSearch();
+      await expect(manageTokens.rowById(target.id)).toBeVisible();
+      await expect(manageTokens.rowById(nonMatch!.id)).toBeVisible();
 
       await manageTokens.search('zzzznonexistenttoken');
       await expect(manageTokens.noResults).toBeVisible();
@@ -125,14 +133,16 @@ test.describe('Manage Tokens', () => {
       await manageTokens.openFromPortfolio();
       await manageTokens.waitForListLoaded();
 
-      // Flagged tokens are hidden by default; reveal them to show the scam "!"
-      // indicator overlay on malicious rows.
+      // Flagged tokens are hidden by default; revealing them shows the scam "!"
+      // overlay on malicious rows.
       await manageTokens.setHideSpam(false);
 
-      await expect
-        .poll(() => manageTokens.scamIndicatorCount(), { timeout: 60_000 })
-        .toBeGreaterThan(0);
-      await expect(manageTokens.scamIndicators.first()).toBeVisible();
+      expect(
+        await manageTokens.hasScamIndicator(),
+        'Expected at least one scam-flagged token in the mainnetPrimaryExtWallet ' +
+          'snapshot. Flagged balances are live/snapshot-dependent, so this fails ' +
+          'if the wallet no longer holds a token Core flags as malicious.',
+      ).toBe(true);
     },
   );
 
@@ -154,24 +164,28 @@ test.describe('Manage Tokens', () => {
       const manageTokens = new ManageTokensPage(unlockedExtensionPage);
 
       await portfolio.waitForAssetsLoaded();
+      const portfolioIds = await portfolio.getAssetTokenIds();
+
       await manageTokens.openFromPortfolio();
       await manageTokens.waitForListLoaded();
 
-      const { symbol, name } = await manageTokens.firstToggleableToken();
-      expect(symbol.length).toBeGreaterThan(0);
+      const token = await manageTokens.firstToggleableToken();
+      expect(token.address.length).toBeGreaterThan(0);
+      expect(portfolioIds).toContain(token.id);
+      expect(await manageTokens.isTokenEnabled(token.id)).toBe(true);
 
-      // Disable → the token disappears from the Portfolio token list.
-      await manageTokens.setTokenEnabled(symbol, false);
+      await manageTokens.setTokenEnabled(token, false);
       await portfolio.gotoHome();
       await portfolio.waitForAssetsLoaded();
-      await expect.poll(() => portfolio.getAssetNames()).not.toContain(name);
+      await expect
+        .poll(() => portfolio.getAssetTokenIds())
+        .not.toContain(token.id);
 
-      // Enable → the token returns to the Portfolio token list.
       await manageTokens.openFromPortfolio();
-      await manageTokens.setTokenEnabled(symbol, true);
+      await manageTokens.setTokenEnabled(token, true);
       await portfolio.gotoHome();
       await portfolio.waitForAssetsLoaded();
-      await expect.poll(() => portfolio.getAssetNames()).toContain(name);
+      await expect.poll(() => portfolio.getAssetTokenIds()).toContain(token.id);
     },
   );
 
@@ -188,24 +202,21 @@ test.describe('Manage Tokens', () => {
       ],
     },
     async ({ unlockedExtensionPage }) => {
-      test.setTimeout(180_000);
+      test.setTimeout(240_000);
       const portfolio = new PortfolioPage(unlockedExtensionPage);
       const manageTokens = new ManageTokensPage(unlockedExtensionPage);
 
       await portfolio.waitForAssetsLoaded();
       await manageTokens.openFromPortfolio();
-      await manageTokens.openAddCustom();
 
-      await manageTokens.enterCustomTokenAddress(CUSTOM_TOKEN_ADDRESS);
-      await manageTokens.submitCustomToken();
+      const added = await manageTokens.addFirstAddableCandidate(
+        CUSTOM_TOKEN_CANDIDATES,
+      );
+      expect(added, NO_CANDIDATE_MESSAGE).not.toBeNull();
 
-      await expect(manageTokens.successToast()).toBeVisible({
-        timeout: 30_000,
-      });
-
-      // Submitting returns to the Manage Tokens list.
-      await manageTokens.waitForLoaded();
-      await expect(manageTokens.pageRoot).toBeVisible();
+      await manageTokens.ensureOnList();
+      await manageTokens.search(added!.address);
+      await expect(manageTokens.rowByAddress(added!.address)).toHaveCount(1);
     },
   );
 
@@ -222,22 +233,20 @@ test.describe('Manage Tokens', () => {
       ],
     },
     async ({ unlockedExtensionPage }) => {
-      test.setTimeout(180_000);
+      test.setTimeout(240_000);
       const portfolio = new PortfolioPage(unlockedExtensionPage);
       const manageTokens = new ManageTokensPage(unlockedExtensionPage);
 
       await portfolio.waitForAssetsLoaded();
       await manageTokens.openFromPortfolio();
-      await manageTokens.openAddCustom();
 
-      await manageTokens.enterCustomTokenAddress(CUSTOM_TOKEN_ADDRESS);
-      await manageTokens.submitCustomToken();
-
+      const added = await manageTokens.addFirstAddableCandidate(
+        CUSTOM_TOKEN_CANDIDATES,
+      );
+      expect(added, NO_CANDIDATE_MESSAGE).not.toBeNull();
       // TestRail wording is "Token added!"; the real success toast reads
       // "Token Added".
-      const toast = manageTokens.successToast();
-      await expect(toast).toBeVisible({ timeout: 30_000 });
-      await expect(toast).toContainText('Token Added');
+      expect(added!.toastTitle).toBe('Token Added');
     },
   );
 
@@ -254,15 +263,26 @@ test.describe('Manage Tokens', () => {
       ],
     },
     async ({ unlockedExtensionPage }) => {
-      test.setTimeout(180_000);
+      test.setTimeout(240_000);
       const portfolio = new PortfolioPage(unlockedExtensionPage);
       const manageTokens = new ManageTokensPage(unlockedExtensionPage);
 
       await portfolio.waitForAssetsLoaded();
       await manageTokens.openFromPortfolio();
-      await manageTokens.openAddCustom();
+      await manageTokens.waitForListLoaded();
 
-      await manageTokens.enterCustomTokenAddress(DUPLICATE_TOKEN_ADDRESS);
+      // Baseline row count for this address (0 unless the wallet happens to
+      // hold it). The rejected add must not change it.
+      await manageTokens.search(DUPLICATE_TOKEN_ADDRESS);
+      await manageTokens.waitForSearchSettled();
+      const before = await manageTokens
+        .rowByAddress(DUPLICATE_TOKEN_ADDRESS)
+        .count();
+      expect(before).toBeLessThanOrEqual(1);
+      await manageTokens.clearSearch();
+
+      await manageTokens.openAddCustom();
+      await manageTokens.enterValidatedAddress(DUPLICATE_TOKEN_ADDRESS);
       await manageTokens.submitCustomToken();
 
       // TestRail wording is "This token is already added."; the real inline
@@ -271,6 +291,19 @@ test.describe('Manage Tokens', () => {
         timeout: 30_000,
       });
       await expect(manageTokens.successToast()).toHaveCount(0);
+      // The add-custom page stays open on a duplicate.
+      expect(unlockedExtensionPage.url()).toContain(
+        '/manage-tokens/add-custom',
+      );
+      await expect(manageTokens.addressInput).toBeVisible();
+
+      // The rejected add created no new/duplicate row for the token.
+      await manageTokens.ensureOnList();
+      await manageTokens.search(DUPLICATE_TOKEN_ADDRESS);
+      await manageTokens.waitForSearchSettled();
+      await expect(
+        manageTokens.rowByAddress(DUPLICATE_TOKEN_ADDRESS),
+      ).toHaveCount(before);
     },
   );
 });

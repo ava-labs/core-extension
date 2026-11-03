@@ -1,15 +1,16 @@
-/**
- * Manage Tokens page - the token management list reached from the Portfolio
- * Assets tab ("Manage"), plus the Add Custom Token sub-page.
- */
 import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
 
+export type TokenRef = { id: string; address: string };
+
+export type AddCustomTokenOutcome = {
+  status: 'added' | 'duplicate' | 'timeout';
+  toastTitle?: string;
+};
+
 export class ManageTokensPage extends BasePage {
-  // Portfolio entry point
   readonly portfolioManageButton: Locator;
 
-  // Manage Tokens list
   readonly pageRoot: Locator;
   readonly searchInput: Locator;
   readonly hideSpamSwitch: Locator;
@@ -20,7 +21,6 @@ export class ManageTokensPage extends BasePage {
   readonly scamIndicators: Locator;
   readonly noResults: Locator;
 
-  // Add Custom Token sub-page
   readonly addressInput: Locator;
   readonly addSubmitButton: Locator;
   readonly addError: Locator;
@@ -77,6 +77,15 @@ export class ManageTokensPage extends BasePage {
     await this.page.waitForURL(/#\/manage-tokens(\?|$)/, { timeout: 10_000 });
   }
 
+  async ensureOnList(): Promise<void> {
+    if (!/#\/manage-tokens(\?|$)/.test(this.page.url())) {
+      await this.page.evaluate(() => {
+        window.location.hash = '#/manage-tokens';
+      });
+      await this.waitForLoaded();
+    }
+  }
+
   async waitForListLoaded(timeout = 60_000): Promise<void> {
     await this.tokenRows.first().waitFor({ state: 'visible', timeout });
   }
@@ -85,15 +94,15 @@ export class ManageTokensPage extends BasePage {
     return this.tokenRows.count();
   }
 
-  rowBySymbol(symbol: string): Locator {
+  rowById(id: string): Locator {
     return this.page.locator(
-      `[data-testid="manage-tokens-item"][data-token-symbol="${symbol}"]`,
+      `[data-testid="manage-tokens-item"][data-token-id="${id}"]`,
     );
   }
 
-  rowByName(name: string): Locator {
+  rowByAddress(address: string): Locator {
     return this.page.locator(
-      `[data-testid="manage-tokens-item"][data-token-name="${name}"]`,
+      `[data-testid="manage-tokens-item"][data-token-address="${address.toLowerCase()}"]`,
     );
   }
 
@@ -107,12 +116,30 @@ export class ManageTokensPage extends BasePage {
     );
   }
 
-  async visibleRowSymbols(): Promise<string[]> {
-    return this.readRowAttributes('data-token-symbol');
+  async visibleRowIds(): Promise<string[]> {
+    return this.readRowAttributes('data-token-id');
   }
 
-  async visibleRowNames(): Promise<string[]> {
-    return this.readRowAttributes('data-token-name');
+  async toggleableTokens(): Promise<TokenRef[]> {
+    const count = await this.toggleableRows.count();
+    const refs: TokenRef[] = [];
+    for (let i = 0; i < count; i++) {
+      const row = this.toggleableRows.nth(i);
+      refs.push({
+        id: (await row.getAttribute('data-token-id')) ?? '',
+        address: (await row.getAttribute('data-token-address')) ?? '',
+      });
+    }
+    return refs;
+  }
+
+  async firstToggleableToken(): Promise<TokenRef> {
+    const row = this.toggleableRows.first();
+    await row.waitFor({ state: 'visible', timeout: 30_000 });
+    return {
+      id: (await row.getAttribute('data-token-id')) ?? '',
+      address: (await row.getAttribute('data-token-address')) ?? '',
+    };
   }
 
   async search(query: string): Promise<void> {
@@ -124,44 +151,37 @@ export class ManageTokensPage extends BasePage {
     await this.searchInput.fill('');
   }
 
-  /**
-   * Returns the symbol and name of the first list row that owns an enable/
-   * disable switch (ERC-20/SPL). Native tokens have no switch, so this skips
-   * them and yields a token that is both held and present in the Portfolio.
-   */
-  async firstToggleableToken(): Promise<{ symbol: string; name: string }> {
-    const row = this.toggleableRows.first();
-    await row.waitFor({ state: 'visible', timeout: 30_000 });
-    const symbol = (await row.getAttribute('data-token-symbol')) ?? '';
-    const name = (await row.getAttribute('data-token-name')) ?? '';
-    return { symbol, name };
+  async waitForSearchSettled(): Promise<void> {
+    await this.tokenRows
+      .first()
+      .or(this.noResults)
+      .first()
+      .waitFor({ state: 'visible', timeout: 15_000 });
   }
 
-  private rowSwitch(symbol: string): Locator {
-    return this.rowBySymbol(symbol)
+  private rowSwitch(id: string): Locator {
+    return this.rowById(id)
       .first()
       .locator('[data-testid="manage-tokens-item-switch"]');
   }
 
-  async isTokenEnabled(symbol: string): Promise<boolean> {
-    return this.rowSwitch(symbol).locator('input').isChecked();
+  async isTokenEnabled(id: string): Promise<boolean> {
+    return this.rowSwitch(id).locator('input').isChecked();
   }
 
-  async setTokenEnabled(symbol: string, enabled: boolean): Promise<void> {
+  async setTokenEnabled(token: TokenRef, enabled: boolean): Promise<void> {
     await this.waitForListLoaded();
-    await this.search(symbol);
-    const row = this.rowBySymbol(symbol).first();
+    await this.search(token.address);
+    const row = this.rowById(token.id).first();
     await row.waitFor({ state: 'visible', timeout: 30_000 });
 
-    const input = this.rowSwitch(symbol).locator('input');
+    const input = this.rowSwitch(token.id).locator('input');
     if ((await input.isChecked()) === enabled) {
       return;
     }
-    await this.rowSwitch(symbol).click();
+    await this.rowSwitch(token.id).click();
     await expect(input).toBeChecked({ checked: enabled, timeout: 10_000 });
   }
-
-  // ── Hide-spam / hide-no-balance switches ──────────────────────────────
 
   async setHideSpam(hidden: boolean): Promise<void> {
     await this.setSwitch(this.hideSpamSwitch, hidden);
@@ -180,11 +200,46 @@ export class ManageTokensPage extends BasePage {
     await expect(input).toBeChecked({ checked, timeout: 10_000 });
   }
 
-  async scamIndicatorCount(): Promise<number> {
-    return this.scamIndicators.count();
+  /**
+   * Scrolls the virtualized token list from top to bottom looking for a scam
+   * indicator, so the check does not depend on a flagged row happening to be
+   * among the initially mounted react-window rows.
+   */
+  async hasScamIndicator(): Promise<boolean> {
+    await this.waitForListLoaded();
+    if ((await this.scamIndicators.count()) > 0) {
+      return true;
+    }
+    for (let step = 0; step < 40; step++) {
+      const atBottom = await this.tokenRows.first().evaluate((rowEl) => {
+        const scroller = rowEl.closest(
+          'div[style*="overflow"]',
+        ) as HTMLElement | null;
+        if (!scroller) {
+          return true;
+        }
+        const previous = scroller.scrollTop;
+        scroller.scrollTop = Math.min(
+          previous + scroller.clientHeight,
+          scroller.scrollHeight,
+        );
+        return scroller.scrollTop === previous;
+      });
+      await this.page.evaluate(
+        () =>
+          new Promise<void>((resolve) =>
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+          ),
+      );
+      if ((await this.scamIndicators.count()) > 0) {
+        return true;
+      }
+      if (atBottom) {
+        break;
+      }
+    }
+    return (await this.scamIndicators.count()) > 0;
   }
-
-  // ── Add Custom Token sub-page ─────────────────────────────────────────
 
   async openAddCustom(): Promise<void> {
     await this.addCustomButton.click();
@@ -194,15 +249,53 @@ export class ManageTokensPage extends BasePage {
     await this.addressInput.waitFor({ state: 'visible', timeout: 15_000 });
   }
 
-  async enterCustomTokenAddress(address: string): Promise<void> {
-    await this.addressInput.fill(address);
+  /**
+   * Fills the address and waits for on-chain metadata validation to settle:
+   * the Add button enables for a resolvable token. The on-chain read can
+   * transiently fail under RPC load, leaving the button disabled with an
+   * inline error, so re-fill to retry a bounded number of times.
+   */
+  private async fillAndValidate(
+    address: string,
+    retries = 2,
+  ): Promise<boolean> {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      await this.addressInput.fill('');
+      await this.addressInput.fill(address);
+      await this.page
+        .waitForFunction(
+          () => {
+            const button = document.querySelector(
+              '[data-testid="add-custom-token-submit-button"]',
+            ) as HTMLButtonElement | null;
+            const error = document.querySelector(
+              '[data-testid="add-custom-token-error"]',
+            );
+            return (
+              (!!button && !button.disabled) ||
+              (!!error && (error.textContent ?? '').trim().length > 0)
+            );
+          },
+          undefined,
+          { timeout: 45_000 },
+        )
+        .catch(() => {});
+      if (await this.addSubmitButton.isEnabled()) {
+        return true;
+      }
+    }
+    return this.addSubmitButton.isEnabled();
   }
 
-  /**
-   * Submits the custom-token form. The Add button stays disabled while the
-   * contract metadata is validated on-chain, so we wait for it to enable
-   * (a resolvable token) before clicking.
-   */
+  async enterValidatedAddress(address: string): Promise<void> {
+    const enabled = await this.fillAndValidate(address);
+    if (!enabled) {
+      throw new Error(
+        `Add Token stayed disabled for ${address}; on-chain metadata validation did not succeed (possible RPC throttling).`,
+      );
+    }
+  }
+
   async submitCustomToken(): Promise<void> {
     await expect(this.addSubmitButton).toBeEnabled({ timeout: 30_000 });
     await this.addSubmitButton.click();
@@ -212,5 +305,74 @@ export class ManageTokensPage extends BasePage {
     return this.page
       .locator('[data-sonner-toast]')
       .filter({ hasText: 'Token Added' });
+  }
+
+  /**
+   * Attempts to add one custom token (assumes the Add Custom Token page is
+   * open) and classifies the result from the actual UI signal: the success
+   * toast means added; the "already exists" inline warning means the catalog
+   * already lists it; anything else (no signal in time, a transient on-chain
+   * error) is reported as a retryable timeout rather than a false duplicate.
+   */
+  async attemptAddCustomToken(address: string): Promise<AddCustomTokenOutcome> {
+    if (!(await this.fillAndValidate(address))) {
+      return { status: 'timeout' };
+    }
+
+    await this.addSubmitButton.click();
+    const signal = await this.page
+      .waitForFunction(
+        () => {
+          const added = Array.from(
+            document.querySelectorAll('[data-sonner-toast]'),
+          ).some((t) => (t.textContent ?? '').includes('Token Added'));
+          if (added) {
+            return 'added';
+          }
+          const error = document.querySelector(
+            '[data-testid="add-custom-token-error"]',
+          );
+          const text = (error?.textContent ?? '').trim();
+          return text.length > 0 ? `error:${text}` : false;
+        },
+        undefined,
+        { timeout: 60_000 },
+      )
+      .then((handle) => handle.jsonValue() as Promise<string>)
+      .catch(() => null);
+
+    if (signal === 'added') {
+      const toast = this.successToast();
+      const title =
+        (await toast
+          .locator('[data-title]')
+          .first()
+          .textContent()
+          .catch(() => null)) ?? (await toast.textContent().catch(() => null));
+      return { status: 'added', toastTitle: (title ?? '').trim() };
+    }
+    if (typeof signal === 'string' && signal.includes('already exists')) {
+      return { status: 'duplicate' };
+    }
+    return { status: 'timeout' };
+  }
+
+  async addFirstAddableCandidate(
+    addresses: string[],
+  ): Promise<{ address: string; toastTitle: string } | null> {
+    for (const address of addresses) {
+      for (let attempt = 0; attempt < 2; attempt++) {
+        await this.ensureOnList();
+        await this.openAddCustom();
+        const outcome = await this.attemptAddCustomToken(address);
+        if (outcome.status === 'added') {
+          return { address, toastTitle: outcome.toastTitle ?? '' };
+        }
+        if (outcome.status === 'duplicate') {
+          break;
+        }
+      }
+    }
+    return null;
   }
 }
