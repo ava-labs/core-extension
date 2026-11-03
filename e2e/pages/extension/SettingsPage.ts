@@ -84,7 +84,10 @@ export class SettingsPage extends BasePage {
   async reloadExtension(): Promise<void> {
     await this.page.reload({ waitUntil: 'domcontentloaded' });
     const passwordInput = this.page.getByPlaceholder(/password/i);
-    if (await passwordInput.isVisible({ timeout: 5_000 }).catch(() => false)) {
+    await expect(
+      passwordInput.or(this.settingsPage).or(this.settingsButton).first(),
+    ).toBeVisible({ timeout: 45_000 });
+    if (await passwordInput.isVisible().catch(() => false)) {
       await unlockWallet(this.page);
     }
     // The app restores the last visited route, usually #/settings, whose route
