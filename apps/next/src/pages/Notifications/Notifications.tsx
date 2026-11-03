@@ -118,7 +118,11 @@ export const Notifications = () => {
             onChange={handleTabChange}
           >
             {tabItems.map((tab) => (
-              <Tab key={tab.value} label={tab.label} />
+              <Tab
+                key={tab.value}
+                label={tab.label}
+                data-testid={`notifications-tab-${tab.value.toLowerCase()}`}
+              />
             ))}
           </TabMenu>
         </Box>

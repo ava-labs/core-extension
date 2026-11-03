@@ -4,6 +4,12 @@ import { BasePage } from './BasePage';
 
 export type NotificationTabName = 'All' | 'Transactions' | 'Prices';
 
+const TAB_TESTID: Record<NotificationTabName, string> = {
+  All: 'notifications-tab-all',
+  Transactions: 'notifications-tab-transactions',
+  Prices: 'notifications-tab-price_updates',
+};
+
 /**
  * Notifications page (`/notifications`).
  *
@@ -19,12 +25,16 @@ export type NotificationTabName = 'All' | 'Transactions' | 'Prices';
  */
 export class NotificationsPage extends BasePage {
   readonly notificationsButton: Locator;
+  readonly unreadBadge: Locator;
   readonly emptyState: Locator;
+  readonly clearButton: Locator;
 
   constructor(page: Page) {
     super(page);
     this.notificationsButton = page.getByTestId('notifications-button');
+    this.unreadBadge = page.getByTestId('notifications-unread-badge');
     this.emptyState = page.getByTestId('notifications-empty-state');
+    this.clearButton = page.getByTestId('notifications-clear-button');
   }
 
   /**
@@ -72,12 +82,22 @@ export class NotificationsPage extends BasePage {
     return this.page.getByRole('tab', { name, exact: true });
   }
 
+  tabByTestId(name: NotificationTabName): Locator {
+    return this.page.getByTestId(TAB_TESTID[name]);
+  }
+
   async selectTab(name: NotificationTabName): Promise<void> {
     const tab = this.tab(name);
     await tab.waitFor({ state: 'visible', timeout: 10_000 });
     await tab.click();
-    // Small settle window for the tab transition / list re-render.
-    await this.page.waitForTimeout(300);
+    await expect(tab).toHaveAttribute('aria-selected', 'true', {
+      timeout: 5_000,
+    });
+  }
+
+  async isTabSelected(name: NotificationTabName): Promise<boolean> {
+    const selected = await this.tab(name).getAttribute('aria-selected');
+    return selected === 'true';
   }
 
   transferItem(transferId: string): Locator {
