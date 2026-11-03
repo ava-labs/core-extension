@@ -4,23 +4,13 @@ import { TEST_SEND } from '../constants';
 
 const SEND_TEST_TIMEOUT_MS = 180_000;
 
-async function prepareCChainAvaxSend(sendPage: SendPage): Promise<void> {
-  await sendPage.openSendFromPortfolioHome();
-  await sendPage.selectToken(TEST_SEND.CCHAIN_AVAX.tokenSymbol);
-  await sendPage.enterAmount(TEST_SEND.CCHAIN_AVAX.amount);
-  await sendPage.selectRecipientAccount(TEST_SEND.CCHAIN_AVAX.recipientAccount);
-
+async function submitToApproval(sendPage: SendPage): Promise<void> {
   await expect
     .poll(() => sendPage.isSendButtonEnabled(), { timeout: 15_000 })
     .toBe(true);
 
   await sendPage.clickSend();
   await sendPage.waitForApprovalScreen();
-
-  if (await sendPage.isGaslessToggleVisible()) {
-    await sendPage.toggleGaslessOff();
-    await expect(sendPage.getGaslessCheckbox()).not.toBeChecked();
-  }
 }
 
 test.describe('Transaction Toast Tests', () => {
@@ -42,11 +32,26 @@ test.describe('Transaction Toast Tests', () => {
     async ({ unlockedExtensionPage }, testInfo) => {
       testInfo.setTimeout(SEND_TEST_TIMEOUT_MS);
       const sendPage = new SendPage(unlockedExtensionPage);
+      const sendData = TEST_SEND.ETH;
 
-      await prepareCChainAvaxSend(sendPage);
+      await sendPage.openSendFromPortfolioHome();
+      await sendPage.selectTokenBySymbolAndChainBadge(
+        sendData.tokenSearchTerm,
+        sendData.chainBadgeAltText,
+        sendData.chainFilterChip,
+      );
+      await sendPage.enterAmount(sendData.amount);
+      await sendPage.selectRecipientAccount(sendData.recipientAccount);
+      await submitToApproval(sendPage);
 
-      // The pending toast is dismissed as soon as the tx confirms, so start
-      // watching for it before approving to avoid missing a short-lived banner.
+      const networkRow = sendPage.getApprovalDetailRow('Network');
+      await expect(networkRow).toContainText(sendData.networkLabel);
+
+      // Ethereum is not an Avalanche primary network, so
+      // TransactionStatusProvider always shows a pending toast before
+      // confirmation (Avalanche primary chains can skip it via optimistic
+      // confirmations). The toast is dismissed on confirmation, so start
+      // watching for it before approving.
       const pendingToastPromise =
         sendPage.waitForPendingToast(SEND_TEST_TIMEOUT_MS);
 
@@ -54,11 +59,6 @@ test.describe('Transaction Toast Tests', () => {
 
       const pendingToast = await pendingToastPromise;
       await expect(pendingToast).toContainText('Transaction pending');
-
-      await expect(sendPage.getSuccessToast()).toContainText(
-        'Transaction successful',
-        { timeout: SEND_TEST_TIMEOUT_MS },
-      );
     },
   );
 
@@ -81,7 +81,24 @@ test.describe('Transaction Toast Tests', () => {
       testInfo.setTimeout(SEND_TEST_TIMEOUT_MS);
       const sendPage = new SendPage(unlockedExtensionPage);
 
-      await prepareCChainAvaxSend(sendPage);
+      await sendPage.openSendFromPortfolioHome();
+      await sendPage.selectTokenBySymbolAndChainBadge(
+        TEST_SEND.CCHAIN_AVAX.tokenSymbol,
+        /\(C-Chain\)/i,
+      );
+      await sendPage.enterAmount(TEST_SEND.CCHAIN_AVAX.amount);
+      await sendPage.selectRecipientAccount(
+        TEST_SEND.CCHAIN_AVAX.recipientAccount,
+      );
+      await submitToApproval(sendPage);
+
+      const networkRow = sendPage.getApprovalDetailRow('Network');
+      await expect(networkRow).toContainText('Avalanche');
+
+      if (await sendPage.isGaslessToggleVisible()) {
+        await sendPage.toggleGaslessOff();
+        await expect(sendPage.getGaslessCheckbox()).not.toBeChecked();
+      }
 
       const successToastPromise =
         sendPage.waitForSuccessToast(SEND_TEST_TIMEOUT_MS);
@@ -95,10 +112,8 @@ test.describe('Transaction Toast Tests', () => {
         timeout: 15_000,
       });
 
-      // The explorer link exposes either an EVM hash (0x…) or a base58
-      // Avalanche tx id, depending on which AVAX chain the send resolves to.
       const txHash = await sendPage.getTxHashFromToast();
-      expect(txHash).toMatch(/^(0x[a-fA-F0-9]{64}|[1-9A-HJ-NP-Za-km-z]{30,})$/);
+      expect(txHash).toMatch(/^0x[a-fA-F0-9]{64}$/);
     },
   );
 });

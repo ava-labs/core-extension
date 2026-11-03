@@ -21,6 +21,7 @@ test.describe('Notifications Tests', () => {
       const notificationsPage = new NotificationsPage(unlockedExtensionPage);
 
       await notificationsPage.openFromHeader();
+      await notificationsPage.ensureEmpty();
 
       await expect(notificationsPage.emptyState).toBeVisible({
         timeout: 30_000,
@@ -60,6 +61,11 @@ test.describe('Notifications Tests', () => {
       await expect(notificationsPage.tabByTestId('All')).toBeVisible();
       await expect(notificationsPage.tabByTestId('Transactions')).toBeVisible();
       await expect(notificationsPage.tabByTestId('Prices')).toBeVisible();
+
+      const { topRatio, bottomGap } =
+        await notificationsPage.getTabBarViewportMetrics();
+      expect(topRatio).toBeGreaterThan(0.5);
+      expect(bottomGap).toBeLessThan(8);
 
       expect(await notificationsPage.isTabSelected('All')).toBe(true);
 

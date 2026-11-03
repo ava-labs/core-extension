@@ -7,7 +7,7 @@ export type NotificationTabName = 'All' | 'Transactions' | 'Prices';
 const TAB_TESTID: Record<NotificationTabName, string> = {
   All: 'notifications-tab-all',
   Transactions: 'notifications-tab-transactions',
-  Prices: 'notifications-tab-price_updates',
+  Prices: 'notifications-tab-price-updates',
 };
 
 /**
@@ -28,6 +28,7 @@ export class NotificationsPage extends BasePage {
   readonly unreadBadge: Locator;
   readonly emptyState: Locator;
   readonly clearButton: Locator;
+  readonly tabBar: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -35,6 +36,20 @@ export class NotificationsPage extends BasePage {
     this.unreadBadge = page.getByTestId('notifications-unread-badge');
     this.emptyState = page.getByTestId('notifications-empty-state');
     this.clearButton = page.getByTestId('notifications-clear-button');
+    this.tabBar = page.getByTestId('notifications-tab-bar');
+  }
+
+  /**
+   * Forces the empty state regardless of the remote notification-center
+   * response. The Clear button only renders when the current tab has items, so
+   * its visibility doubles as the "has notifications" signal.
+   */
+  async ensureEmpty(): Promise<void> {
+    await this.tabBar.waitFor({ state: 'visible', timeout: 30_000 });
+
+    if (await this.clearButton.isVisible().catch(() => false)) {
+      await this.clearButton.click();
+    }
   }
 
   /**
@@ -98,6 +113,22 @@ export class NotificationsPage extends BasePage {
   async isTabSelected(name: NotificationTabName): Promise<boolean> {
     const selected = await this.tab(name).getAttribute('aria-selected');
     return selected === 'true';
+  }
+
+  async getTabBarViewportMetrics(): Promise<{
+    topRatio: number;
+    bottomGap: number;
+  }> {
+    await this.tabBar.waitFor({ state: 'visible', timeout: 10_000 });
+    const box = await this.tabBar.boundingBox();
+    if (!box) {
+      throw new Error('notifications-tab-bar has no bounding box');
+    }
+    const innerHeight = await this.page.evaluate(() => window.innerHeight);
+    return {
+      topRatio: box.y / innerHeight,
+      bottomGap: innerHeight - (box.y + box.height),
+    };
   }
 
   transferItem(transferId: string): Locator {
