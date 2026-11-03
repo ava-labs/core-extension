@@ -1,6 +1,9 @@
 import { test, expect } from '../fixtures/extension.fixture';
 import { PortfolioPage } from '../pages/extension/PortfolioPage';
-import { ManageTokensPage } from '../pages/extension/ManageTokensPage';
+import {
+  ManageTokensPage,
+  DUPLICATE_WARNING,
+} from '../pages/extension/ManageTokensPage';
 
 /**
  * Copy note: two TestRail titles quote text that differs from the real UI.
@@ -31,7 +34,6 @@ const NO_CANDIDATE_MESSAGE =
 // C-Chain USDC: present in Core's token catalog, so re-adding it is rejected
 // as an existing token.
 const DUPLICATE_TOKEN_ADDRESS = '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E';
-const DUPLICATE_WARNING = 'Token already exists in the wallet.';
 
 test.describe('Manage Tokens', () => {
   test(
@@ -285,8 +287,6 @@ test.describe('Manage Tokens', () => {
       await manageTokens.enterValidatedAddress(DUPLICATE_TOKEN_ADDRESS);
       await manageTokens.submitCustomToken();
 
-      // TestRail wording is "This token is already added."; the real inline
-      // warning reads "Token already exists in the wallet.".
       await expect(manageTokens.addError).toHaveText(DUPLICATE_WARNING, {
         timeout: 30_000,
       });

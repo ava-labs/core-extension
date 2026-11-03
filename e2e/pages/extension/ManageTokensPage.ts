@@ -3,6 +3,10 @@ import { BasePage } from './BasePage';
 
 export type TokenRef = { id: string; address: string };
 
+// Inline warning shown by AddCustomToken.tsx when the catalog already lists
+// the token (see useAddCustomToken.ts).
+export const DUPLICATE_WARNING = 'Token already exists in the wallet.';
+
 export class ManageTokensPage extends BasePage {
   readonly portfolioManageButton: Locator;
 
@@ -338,9 +342,9 @@ export class ManageTokensPage extends BasePage {
    * Adds the first candidate the catalog accepts. A successful add navigates
    * back to the list (pageRoot reappears); a catalog duplicate keeps the
    * add-custom page open with the inline warning. Only the deterministic
-   * duplicate advances to the next candidate — any other outcome (validation
-   * stalled, no settled signal in time) throws so the transient RPC failure
-   * fails loudly and is left to the CI retry on a fresh context.
+   * duplicate warning advances to the next candidate — any other warning or
+   * no settled signal in time throws, so a non-duplicate failure fails loudly
+   * rather than masquerading as "no candidate was addable".
    */
   async addFirstAddableCandidate(
     addresses: string[],
@@ -377,6 +381,13 @@ export class ManageTokensPage extends BasePage {
             .catch(() => null)) ??
           (await toast.textContent().catch(() => null));
         return { address, toastTitle: (title ?? '').trim() };
+      }
+
+      const warning = (await this.addError.textContent())?.trim() ?? '';
+      if (warning !== DUPLICATE_WARNING) {
+        throw new Error(
+          `Adding ${address} failed with an unexpected warning: "${warning}".`,
+        );
       }
     }
     return null;
