@@ -9,8 +9,6 @@ import { TEST_CONFIG } from '../constants';
 // (see GetPrivateKeyHandler). We assert the shape only, never the value.
 const PRIVATE_KEY_FORMAT = /^0x[0-9a-fA-F]{64}$/;
 
-// Secrets / fixtures are centralized in TEST_CONFIG.wallet & TEST_CONFIG.keystore
-// so env parsing lives in one place.
 const { wallet, keystore } = TEST_CONFIG;
 const MAINNET_SNAPSHOT = TEST_CONFIG.snapshots.mainnet;
 
@@ -31,6 +29,12 @@ const requireFixture = (isMissing: boolean, message: string) => {
   }
   test.skip(true, message);
 };
+
+// Several tests here reveal account addresses / private keys. Playwright forbids
+// scoping trace/video/screenshot to a describe (it would force a new worker), so
+// built-in artifacts are disabled file-wide; non-sensitive failures still get the
+// fixture's manual screenshot, which is skipped for the `sensitive` annotation.
+test.use({ trace: 'off', video: 'off', screenshot: 'off' });
 
 test.describe('Account Management Tests', () => {
   test(
@@ -129,7 +133,6 @@ test.describe('Account Management Tests', () => {
         }),
       ).toBeVisible({ timeout: 30000 });
 
-      // Open the imported account details and verify its X/P-Chain address.
       await accountManagement.openMyWallets();
       await accountManagement.openImportedAccountDetails();
 
@@ -221,7 +224,6 @@ test.describe('Account Management Tests', () => {
         wallet.recoveryPhrase24,
       );
 
-      // On success the fullscreen import tab closes and returns to the wallet.
       await importPage.waitForEvent('close', { timeout: 60000 });
     },
   );
@@ -617,6 +619,10 @@ test.describe('Account Management Tests', () => {
       await accountManagement.enableAccountRemovalFlag();
       await accountManagement.openMyWallets();
       const count = await accountManagement.getAccountCount();
+      expect(
+        count,
+        'ACC-015 needs a snapshot with at least 2 accounts',
+      ).toBeGreaterThanOrEqual(2);
 
       await accountManagement.enterManageMode();
       await expect(accountManagement.accountCheckbox(count - 1)).toBeEnabled({
@@ -706,6 +712,7 @@ test.describe('Account Management Tests', () => {
           type: 'testrail_case_field',
           description: 'custom_automation_id:ACC-018',
         },
+        { type: 'sensitive', description: 'exposes account addresses' },
       ],
     },
     async ({ unlockedExtensionPage }) => {
@@ -734,6 +741,7 @@ test.describe('Account Management Tests', () => {
           type: 'testrail_case_field',
           description: 'custom_automation_id:ACC-019',
         },
+        { type: 'sensitive', description: 'exposes account addresses' },
       ],
     },
     async ({ unlockedExtensionPage }) => {
@@ -782,6 +790,7 @@ test.describe('Account Management Tests', () => {
           type: 'testrail_case_field',
           description: 'custom_automation_id:ACC-020',
         },
+        { type: 'sensitive', description: 'exposes account addresses' },
       ],
     },
     async ({ unlockedExtensionPage }) => {
@@ -817,6 +826,7 @@ test.describe('Account Management Tests', () => {
           type: 'testrail_case_field',
           description: 'custom_automation_id:ACC-021',
         },
+        { type: 'sensitive', description: 'exposes a private key' },
       ],
     },
     async ({ unlockedExtensionPage }) => {
@@ -834,6 +844,8 @@ test.describe('Account Management Tests', () => {
       });
       const key = await accountManagement.revealedPrivateKey.inputValue();
       expect(PRIVATE_KEY_FORMAT.test(key)).toBe(true);
+
+      await accountManagement.dismissRevealedKey();
     },
   );
 
@@ -847,6 +859,7 @@ test.describe('Account Management Tests', () => {
           type: 'testrail_case_field',
           description: 'custom_automation_id:ACC-022',
         },
+        { type: 'sensitive', description: 'exposes a private key' },
       ],
     },
     async ({ unlockedExtensionPage }) => {
@@ -865,6 +878,8 @@ test.describe('Account Management Tests', () => {
       });
       const key = await accountManagement.revealedPrivateKey.inputValue();
       expect(PRIVATE_KEY_FORMAT.test(key)).toBe(true);
+
+      await accountManagement.dismissRevealedKey();
     },
   );
 
@@ -878,6 +893,7 @@ test.describe('Account Management Tests', () => {
           type: 'testrail_case_field',
           description: 'custom_automation_id:ACC-023',
         },
+        { type: 'sensitive', description: 'private key reveal screen' },
       ],
     },
     async ({ unlockedExtensionPage }) => {
@@ -907,6 +923,7 @@ test.describe('Account Management Tests', () => {
           type: 'testrail_case_field',
           description: 'custom_automation_id:ACC-024',
         },
+        { type: 'sensitive', description: 'exposes a private key' },
       ],
     },
     async ({ unlockedExtensionPage }) => {
@@ -949,6 +966,8 @@ test.describe('Account Management Tests', () => {
           { timeout: 15000 },
         )
         .toBe(true);
+
+      await accountManagement.dismissRevealedKey();
     },
   );
 
