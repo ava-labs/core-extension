@@ -401,8 +401,6 @@ export class AccountManagementPage extends BasePage {
     await this.revealPrivateKeyButton.click();
   }
 
-  // Dismisses the revealed-key screen so the secret is not left on screen for
-  // end-of-test artifacts.
   async dismissRevealedKey(): Promise<void> {
     await this.page.getByRole('button', { name: 'Done', exact: true }).click();
     await this.revealedPrivateKey.waitFor({ state: 'hidden', timeout: 15000 });
