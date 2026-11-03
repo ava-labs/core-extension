@@ -159,7 +159,7 @@ test.describe('Manage Tokens', () => {
       ],
     },
     async ({ unlockedExtensionPage }) => {
-      test.setTimeout(150_000);
+      test.setTimeout(180_000);
       const portfolio = new PortfolioPage(unlockedExtensionPage);
       const manageTokens = new ManageTokensPage(unlockedExtensionPage);
 
@@ -169,10 +169,10 @@ test.describe('Manage Tokens', () => {
       await manageTokens.openFromPortfolio();
       await manageTokens.waitForListLoaded();
 
-      const token = await manageTokens.firstToggleableToken();
+      const token =
+        await manageTokens.findToggleableTokenFromPortfolio(portfolioIds);
       expect(token.address.length).toBeGreaterThan(0);
-      expect(portfolioIds).toContain(token.id);
-      expect(await manageTokens.isTokenEnabled(token.id)).toBe(true);
+      expect(await manageTokens.isTokenEnabled(token)).toBe(true);
 
       await manageTokens.setTokenEnabled(token, false);
       await portfolio.gotoHome();
@@ -291,13 +291,11 @@ test.describe('Manage Tokens', () => {
         timeout: 30_000,
       });
       await expect(manageTokens.successToast()).toHaveCount(0);
-      // The add-custom page stays open on a duplicate.
       expect(unlockedExtensionPage.url()).toContain(
         '/manage-tokens/add-custom',
       );
       await expect(manageTokens.addressInput).toBeVisible();
 
-      // The rejected add created no new/duplicate row for the token.
       await manageTokens.ensureOnList();
       await manageTokens.search(DUPLICATE_TOKEN_ADDRESS);
       await manageTokens.waitForSearchSettled();

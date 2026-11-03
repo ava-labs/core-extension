@@ -133,15 +133,6 @@ export class ManageTokensPage extends BasePage {
     return refs;
   }
 
-  async firstToggleableToken(): Promise<TokenRef> {
-    const row = this.toggleableRows.first();
-    await row.waitFor({ state: 'visible', timeout: 30_000 });
-    return {
-      id: (await row.getAttribute('data-token-id')) ?? '',
-      address: (await row.getAttribute('data-token-address')) ?? '',
-    };
-  }
-
   async search(query: string): Promise<void> {
     await this.searchInput.waitFor({ state: 'visible', timeout: 15_000 });
     await this.searchInput.fill(query);
@@ -165,8 +156,47 @@ export class ManageTokensPage extends BasePage {
       .locator('[data-testid="manage-tokens-item-switch"]');
   }
 
-  async isTokenEnabled(id: string): Promise<boolean> {
-    return this.rowSwitch(id).locator('input').isChecked();
+  /**
+   * Picks the first Portfolio-visible token (ids in Portfolio order) that is
+   * toggleable (ERC-20/SPL) and resolvable in the Manage Tokens list. The
+   * address is derived from the unique id (`type:address:chainId`) and used to
+   * search the virtualized list so the row is rendered regardless of position.
+   */
+  async findToggleableTokenFromPortfolio(
+    portfolioIds: string[],
+  ): Promise<TokenRef> {
+    for (const id of portfolioIds) {
+      const [type, identifier] = id.split(':');
+      if ((type !== 'ERC20' && type !== 'SPL') || !identifier) {
+        continue;
+      }
+      await this.search(identifier);
+      const row = this.rowById(id).first();
+      const found = await row
+        .waitFor({ state: 'visible', timeout: 10_000 })
+        .then(() => true)
+        .catch(() => false);
+      const hasSwitch =
+        found &&
+        (await row
+          .locator('[data-testid="manage-tokens-item-switch"]')
+          .count()) > 0;
+      await this.clearSearch();
+      if (hasSwitch) {
+        return { id, address: identifier };
+      }
+    }
+    throw new Error(
+      'No Portfolio-visible toggleable (ERC-20/SPL) token found in Manage Tokens.',
+    );
+  }
+
+  async isTokenEnabled(token: TokenRef): Promise<boolean> {
+    await this.search(token.address);
+    await this.rowById(token.id)
+      .first()
+      .waitFor({ state: 'visible', timeout: 30_000 });
+    return this.rowSwitch(token.id).locator('input').isChecked();
   }
 
   async setTokenEnabled(token: TokenRef, enabled: boolean): Promise<void> {
@@ -203,42 +233,61 @@ export class ManageTokensPage extends BasePage {
   /**
    * Scrolls the virtualized token list from top to bottom looking for a scam
    * indicator, so the check does not depend on a flagged row happening to be
-   * among the initially mounted react-window rows.
+   * among the initially mounted react-window rows. Only returns false once the
+   * end of the list has been positively reached; throws if the scroll
+   * container is missing or the step cap is hit before the end, so a "no scam
+   * token" result always reflects a complete scan.
    */
   async hasScamIndicator(): Promise<boolean> {
     await this.waitForListLoaded();
     if ((await this.scamIndicators.count()) > 0) {
       return true;
     }
-    for (let step = 0; step < 40; step++) {
-      const atBottom = await this.tokenRows.first().evaluate((rowEl) => {
+
+    const maxSteps = 200;
+    for (let step = 0; step < maxSteps; step++) {
+      const progress = await this.tokenRows.first().evaluate((rowEl) => {
         const scroller = rowEl.closest(
           'div[style*="overflow"]',
         ) as HTMLElement | null;
         if (!scroller) {
-          return true;
+          return null;
         }
-        const previous = scroller.scrollTop;
         scroller.scrollTop = Math.min(
-          previous + scroller.clientHeight,
+          scroller.scrollTop + scroller.clientHeight,
           scroller.scrollHeight,
         );
-        return scroller.scrollTop === previous;
+        return {
+          atEnd:
+            scroller.scrollTop + scroller.clientHeight >=
+            scroller.scrollHeight - 1,
+        };
       });
+
+      if (progress === null) {
+        throw new Error(
+          'Manage Tokens list scroll container not found; cannot complete a full scam-token scan.',
+        );
+      }
+
       await this.page.evaluate(
         () =>
           new Promise<void>((resolve) =>
             requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
           ),
       );
+
       if ((await this.scamIndicators.count()) > 0) {
         return true;
       }
-      if (atBottom) {
-        break;
+      if (progress.atEnd) {
+        return false;
       }
     }
-    return (await this.scamIndicators.count()) > 0;
+
+    throw new Error(
+      'Manage Tokens list did not reach the end within the scroll-step cap; scam-token scan incomplete.',
+    );
   }
 
   async openAddCustom(): Promise<void> {
@@ -253,15 +302,16 @@ export class ManageTokensPage extends BasePage {
    * Fills the address and waits for on-chain metadata validation to settle:
    * the Add button enables for a resolvable token. The on-chain read can
    * transiently fail under RPC load, leaving the button disabled with an
-   * inline error, so re-fill to retry a bounded number of times.
+   * inline error, so re-fill to retry until the given deadline.
    */
   private async fillAndValidate(
     address: string,
-    retries = 2,
+    deadline = Date.now() + 60_000,
   ): Promise<boolean> {
-    for (let attempt = 0; attempt <= retries; attempt++) {
+    while (Date.now() < deadline) {
       await this.addressInput.fill('');
       await this.addressInput.fill(address);
+      const remaining = deadline - Date.now();
       await this.page
         .waitForFunction(
           () => {
@@ -277,7 +327,7 @@ export class ManageTokensPage extends BasePage {
             );
           },
           undefined,
-          { timeout: 45_000 },
+          { timeout: Math.max(1_000, Math.min(remaining, 20_000)) },
         )
         .catch(() => {});
       if (await this.addSubmitButton.isEnabled()) {
@@ -309,13 +359,20 @@ export class ManageTokensPage extends BasePage {
 
   /**
    * Attempts to add one custom token (assumes the Add Custom Token page is
-   * open) and classifies the result from the actual UI signal: the success
-   * toast means added; the "already exists" inline warning means the catalog
-   * already lists it; anything else (no signal in time, a transient on-chain
-   * error) is reported as a retryable timeout rather than a false duplicate.
+   * open) before `deadline`. Success is scoped to this attempt: the app only
+   * leaves the /add-custom route by navigating back after a successful add, so
+   * that navigation — not a stray global toast — is the success signal. The
+   * "already exists" inline warning means the catalog lists it; anything else
+   * is a retryable timeout rather than a false duplicate.
    */
-  async attemptAddCustomToken(address: string): Promise<AddCustomTokenOutcome> {
-    if (!(await this.fillAndValidate(address))) {
+  async attemptAddCustomToken(
+    address: string,
+    deadline: number,
+  ): Promise<AddCustomTokenOutcome> {
+    if (!(await this.fillAndValidate(address, deadline))) {
+      return { status: 'timeout' };
+    }
+    if (Date.now() >= deadline) {
       return { status: 'timeout' };
     }
 
@@ -323,10 +380,7 @@ export class ManageTokensPage extends BasePage {
     const signal = await this.page
       .waitForFunction(
         () => {
-          const added = Array.from(
-            document.querySelectorAll('[data-sonner-toast]'),
-          ).some((t) => (t.textContent ?? '').includes('Token Added'));
-          if (added) {
+          if (!window.location.hash.includes('/manage-tokens/add-custom')) {
             return 'added';
           }
           const error = document.querySelector(
@@ -336,7 +390,7 @@ export class ManageTokensPage extends BasePage {
           return text.length > 0 ? `error:${text}` : false;
         },
         undefined,
-        { timeout: 60_000 },
+        { timeout: Math.max(2_000, deadline - Date.now()) },
       )
       .then((handle) => handle.jsonValue() as Promise<string>)
       .catch(() => null);
@@ -347,7 +401,7 @@ export class ManageTokensPage extends BasePage {
         (await toast
           .locator('[data-title]')
           .first()
-          .textContent()
+          .textContent({ timeout: 5_000 })
           .catch(() => null)) ?? (await toast.textContent().catch(() => null));
       return { status: 'added', toastTitle: (title ?? '').trim() };
     }
@@ -357,14 +411,36 @@ export class ManageTokensPage extends BasePage {
     return { status: 'timeout' };
   }
 
+  /**
+   * Returns to the list and lets any success toast from a prior (slow) attempt
+   * clear before opening a fresh Add Custom Token page, so a late toast cannot
+   * be miscredited to the next attempt.
+   */
+  private async ensureFreshAddCustom(): Promise<void> {
+    await this.ensureOnList();
+    await this.successToast()
+      .first()
+      .waitFor({ state: 'hidden', timeout: 8_000 })
+      .catch(() => {});
+    await this.openAddCustom();
+  }
+
   async addFirstAddableCandidate(
     addresses: string[],
+    budgetMs = 180_000,
   ): Promise<{ address: string; toastTitle: string } | null> {
+    const overallDeadline = Date.now() + budgetMs;
     for (const address of addresses) {
       for (let attempt = 0; attempt < 2; attempt++) {
-        await this.ensureOnList();
-        await this.openAddCustom();
-        const outcome = await this.attemptAddCustomToken(address);
+        if (Date.now() >= overallDeadline) {
+          return null;
+        }
+        await this.ensureFreshAddCustom();
+        const attemptDeadline = Math.min(overallDeadline, Date.now() + 50_000);
+        const outcome = await this.attemptAddCustomToken(
+          address,
+          attemptDeadline,
+        );
         if (outcome.status === 'added') {
           return { address, toastTitle: outcome.toastTitle ?? '' };
         }
