@@ -65,12 +65,16 @@ async function getEffectiveFeatureFlags(
             return;
           }
           settled = true;
-          if (timer) {
-            clearTimeout(timer);
-          }
-          if (port) {
-            port.onMessage.removeListener(handleMessage);
-            port.disconnect();
+          try {
+            if (timer) {
+              clearTimeout(timer);
+            }
+            if (port) {
+              port.onMessage.removeListener(handleMessage);
+              port.disconnect();
+            }
+          } catch {
+            // Cleanup must never block settlement.
           }
           if (error) {
             reject(error);
