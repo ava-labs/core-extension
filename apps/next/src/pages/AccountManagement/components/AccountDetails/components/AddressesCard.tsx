@@ -30,6 +30,8 @@ export const AddressesCard: FC<Props> = ({ account }) => {
         <List disablePadding>
           <AddressItem
             label="Avalanche C-Chain"
+            testId="account-address-c"
+            copyTestId="account-address-c-copy"
             Icon={
               <QRCodeIconButton onClick={getNavigate('C')}>
                 <CChainIcon />
@@ -55,6 +57,7 @@ export const AddressesCard: FC<Props> = ({ account }) => {
           <Styled.Divider variant="inset" component="li" />
           <AddressItem
             label="Bitcoin"
+            testId="account-address-btc"
             Icon={
               <QRCodeIconButton onClick={getNavigate('BTC')}>
                 <BitcoinColorIcon />
@@ -67,6 +70,7 @@ export const AddressesCard: FC<Props> = ({ account }) => {
           <Styled.Divider variant="inset" component="li" />
           <AddressItem
             label="Ethereum"
+            testId="account-address-eth"
             Icon={
               <QRCodeIconButton onClick={getNavigate('C')}>
                 <EthereumColorIcon />
@@ -78,6 +82,7 @@ export const AddressesCard: FC<Props> = ({ account }) => {
           <Styled.Divider variant="inset" component="li" />
           <AddressItem
             label="Solana"
+            testId="account-address-svm"
             Icon={
               <QRCodeIconButton onClick={getNavigate('SVM')}>
                 <SolanaColorIcon />

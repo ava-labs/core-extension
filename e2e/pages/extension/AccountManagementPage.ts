@@ -18,6 +18,11 @@ const ADD_WALLET_FLAG_OVERRIDES = {
   'add-wallet-with-keystore-file': true,
 };
 
+/** Gates account removal from primary (mnemonic) wallets; see AccountManagerProvider. */
+const ACCOUNT_REMOVAL_FLAG_OVERRIDES = {
+  'primary-account-removal': true,
+};
+
 export class AccountManagementPage extends BasePage {
   // My wallets home
   readonly accountInfoClickable: Locator;
@@ -44,6 +49,32 @@ export class AccountManagementPage extends BasePage {
   // Account details
   readonly importedAccountsCard: Locator;
   readonly accountAddressAvm: Locator;
+  readonly accountAddressC: Locator;
+  readonly accountAddressCCopy: Locator;
+  readonly accountAddressBtc: Locator;
+  readonly accountAddressEth: Locator;
+  readonly accountAddressSvm: Locator;
+  readonly accountDetailsRenameButton: Locator;
+  readonly accountDetailsRemoveButton: Locator;
+  // Rename form
+  readonly renameNameInput: Locator;
+  readonly renameSaveButton: Locator;
+  readonly renameCancelButton: Locator;
+  readonly walletRenameButton: Locator;
+  // Delete form
+  readonly deleteConfirmButton: Locator;
+  readonly deleteCancelButton: Locator;
+  // Manage mode / bulk delete
+  readonly manageWalletsButton: Locator;
+  readonly deleteSelectedButton: Locator;
+  readonly bulkDeleteCancelButton: Locator;
+  // Show private key
+  readonly showPrivateKeyButton: Locator;
+  readonly privateKeyChainSelect: Locator;
+  readonly privateKeyPasswordInput: Locator;
+  readonly revealPrivateKeyButton: Locator;
+  readonly revealedPrivateKey: Locator;
+  readonly copyPrivateKeyButton: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -69,6 +100,41 @@ export class AccountManagementPage extends BasePage {
     this.keystoreTryAgainButton = page.getByTestId('keystore-try-again-button');
     this.importedAccountsCard = page.getByTestId('wallet-card-__IMPORTED__');
     this.accountAddressAvm = page.getByTestId('account-address-avm');
+    this.accountAddressC = page.getByTestId('account-address-c');
+    this.accountAddressCCopy = page.getByTestId('account-address-c-copy');
+    this.accountAddressBtc = page.getByTestId('account-address-btc');
+    this.accountAddressEth = page.getByTestId('account-address-eth');
+    this.accountAddressSvm = page.getByTestId('account-address-svm');
+    this.accountDetailsRenameButton = page.getByTestId(
+      'account-details-rename-button',
+    );
+    this.accountDetailsRemoveButton = page.getByTestId(
+      'account-details-remove-button',
+    );
+    this.renameNameInput = page.getByTestId('rename-name-input');
+    this.renameSaveButton = page.getByTestId('rename-save-button');
+    this.renameCancelButton = page.getByTestId('rename-cancel-button');
+    this.walletRenameButton = page.getByTestId('wallet-rename-button');
+    this.deleteConfirmButton = page.getByTestId(
+      'delete-account-confirm-button',
+    );
+    this.deleteCancelButton = page.getByTestId('delete-account-cancel-button');
+    this.manageWalletsButton = page.getByTestId('manage-wallets-button');
+    this.deleteSelectedButton = page.getByTestId('delete-selected-button');
+    this.bulkDeleteCancelButton = page.getByTestId('bulk-delete-cancel-button');
+    this.showPrivateKeyButton = page.getByTestId('show-private-key-button');
+    this.privateKeyChainSelect = page.getByTestId('private-key-chain-select');
+    this.privateKeyPasswordInput = page.getByTestId(
+      'private-key-password-input',
+    );
+    this.revealPrivateKeyButton = page.getByTestId('reveal-private-key-button');
+    this.revealedPrivateKey = page.getByTestId('revealed-private-key');
+    this.copyPrivateKeyButton = page.getByTestId('copy-private-key-button');
+  }
+
+  /** Account rows in document order (primary accounts first, then imported). */
+  accountRow(index: number): Locator {
+    return this.accountListItems.nth(index);
   }
 
   private extensionHostFromUrl(url: string): string | null {
@@ -298,5 +364,114 @@ export class AccountManagementPage extends BasePage {
     await importPage.getByRole('button', { name: /^save$/i }).click();
 
     return importPage;
+  }
+
+  /** Pushes a feature-flag override into unencrypted storage (merged by FeatureFlagService). */
+  async setFeatureFlagOverrides(
+    overrides: Record<string, boolean>,
+  ): Promise<void> {
+    try {
+      await this.page.evaluate((flags) => {
+        return new Promise<void>((resolve) => {
+          chrome.storage.local.set(
+            { '__feature-flag-overrides__': { data: flags } },
+            () => resolve(),
+          );
+        });
+      }, overrides);
+    } catch {
+      // chrome.storage unavailable — DEFAULT_FLAGS already enable these flags.
+    }
+  }
+
+  /** Forces the primary-account-removal flag so delete/manage flows are available. */
+  async enableAccountRemovalFlag(): Promise<void> {
+    await this.setFeatureFlagOverrides(ACCOUNT_REMOVAL_FLAG_OVERRIDES);
+  }
+
+  /** Opens the details of the account at the given list position via its hover "Options" button. */
+  async openAccountDetails(index = 0): Promise<void> {
+    const row = this.accountRow(index);
+    await row.waitFor({ state: 'visible', timeout: 15000 });
+    await row.hover();
+    await row.getByRole('button', { name: 'Options', exact: true }).click();
+    await this.accountAddressC.waitFor({ state: 'visible', timeout: 15000 });
+  }
+
+  /** Right-clicks an account row to open its address context menu. */
+  async openAccountContextMenu(index = 0): Promise<void> {
+    const row = this.accountRow(index);
+    await row.waitFor({ state: 'visible', timeout: 15000 });
+    await row.click({ button: 'right' });
+  }
+
+  /** From the account details page, renames the account to `newName`. */
+  async renameAccountFromDetails(newName: string): Promise<void> {
+    await this.accountDetailsRenameButton.click();
+    await this.renameNameInput.waitFor({ state: 'visible', timeout: 15000 });
+    await this.renameNameInput.fill(newName);
+    await expect(this.renameSaveButton).toBeEnabled({ timeout: 15000 });
+    await this.renameSaveButton.click();
+  }
+
+  /** Hovers the first (renamable) wallet card and opens its rename form. */
+  async openRenameWallet(): Promise<void> {
+    const walletCard = this.page
+      .locator('[data-testid^="wallet-card-"]')
+      .first();
+    await walletCard.waitFor({ state: 'visible', timeout: 15000 });
+    await walletCard.hover();
+    await this.walletRenameButton.click();
+    await this.renameNameInput.waitFor({ state: 'visible', timeout: 15000 });
+  }
+
+  /** Enters Manage mode and waits for the bulk action buttons to appear. */
+  async enterManageMode(): Promise<void> {
+    await this.manageWalletsButton.click();
+    await this.deleteSelectedButton.waitFor({
+      state: 'visible',
+      timeout: 15000,
+    });
+  }
+
+  /** Toggles selection of an account row (Manage mode must be active). */
+  async toggleAccountSelection(index: number): Promise<void> {
+    await this.accountRow(index).click();
+  }
+
+  accountCheckbox(index: number): Locator {
+    return this.accountRow(index)
+      .getByTestId('account-list-checkbox')
+      .locator('input');
+  }
+
+  /** Confirms the delete screen and waits for the success toast. */
+  async confirmDelete(): Promise<void> {
+    await this.deleteConfirmButton.click();
+  }
+
+  /** Opens the Show Private Key screen from the account details page. */
+  async openShowPrivateKey(): Promise<void> {
+    await this.showPrivateKeyButton.scrollIntoViewIfNeeded();
+    await this.showPrivateKeyButton.click();
+    await this.privateKeyPasswordInput.waitFor({
+      state: 'visible',
+      timeout: 15000,
+    });
+  }
+
+  /** Selects the private-key chain (C-Chain is the default). */
+  async selectPrivateKeyChain(
+    label: 'Avalanche C-Chain' | 'Avalanche X/P-Chain',
+  ) {
+    await this.privateKeyChainSelect.click();
+    await this.page.getByRole('option', { name: label, exact: true }).click();
+  }
+
+  /** Enters the password and clicks Reveal on the Show Private Key screen. */
+  async submitRevealPassword(password: string): Promise<void> {
+    await this.privateKeyPasswordInput.fill(password);
+    await expect(this.revealPrivateKeyButton).toBeEnabled({ timeout: 15000 });
+    await this.revealPrivateKeyButton.click();
   }
 }

@@ -49,7 +49,7 @@ export const NetworksWithBalances: FC<Props> = ({ networksWithBalance }) => {
   const hasNextIcon = (index: number) => index < visibleNetworks.length - 1;
 
   return (
-    <Stack direction="row" alignItems="center">
+    <Stack direction="row" alignItems="center" data-testid="account-networks">
       <svg width="0" height="0" style={{ position: 'absolute' }}>
         <defs>
           <mask id="crescent-mask">

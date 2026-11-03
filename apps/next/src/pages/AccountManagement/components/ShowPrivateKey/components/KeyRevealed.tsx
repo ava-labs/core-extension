@@ -63,11 +63,15 @@ export const KeyRevealed: FC<Props> = ({ privateKey }) => {
           input: {
             readOnly: true,
           },
+          htmlInput: {
+            'data-testid': 'revealed-private-key',
+          },
         }}
       />
 
       <Box mx="auto" py={0.5}>
         <Button
+          data-testid="copy-private-key-button"
           variant="contained"
           color="secondary"
           size="xsmall"

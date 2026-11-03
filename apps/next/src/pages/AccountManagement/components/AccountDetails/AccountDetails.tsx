@@ -73,6 +73,7 @@ export const AccountDetails: FC = () => {
             label: t('Rename'),
             onClick: switchTo.rename,
             color: 'secondary',
+            'data-testid': 'account-details-rename-button',
           }}
           bottom={
             isSeedlessWalletAccount
@@ -83,6 +84,7 @@ export const AccountDetails: FC = () => {
                   color: 'secondary',
                   panic: true,
                   disabled: !isAccountSelectable(account),
+                  'data-testid': 'account-details-remove-button',
                 }
           }
         />

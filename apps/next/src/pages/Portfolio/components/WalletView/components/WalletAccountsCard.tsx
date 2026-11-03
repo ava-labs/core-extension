@@ -30,7 +30,11 @@ export const WalletAccountsCard = ({
       }}
     >
       <Typography variant="h3">{t('Accounts')}</Typography>
-      <Typography variant="subtitle4" mb={2}>
+      <Typography
+        variant="subtitle4"
+        mb={2}
+        data-testid="wallet-accounts-summary"
+      >
         {t(
           'This wallet has {{accountCount}} {{accountUnit}} over {{networkCount}} {{networkUnit}}',
           {

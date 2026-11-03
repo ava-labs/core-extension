@@ -9,6 +9,7 @@ type Props = {
 type ActionButtonProps = Omit<ButtonProps, 'children'> & {
   label: string;
   panic?: boolean;
+  'data-testid'?: string;
 };
 
 export const ActionButtons: FC<Props> = ({ top, bottom }) => {

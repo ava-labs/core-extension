@@ -50,6 +50,7 @@ export const WalletAccount: FC<Props> = ({
 
   return (
     <ClickableStack
+      data-testid="wallet-account-item"
       direction="row"
       alignItems="center"
       justifyContent="space-between"
@@ -61,14 +62,19 @@ export const WalletAccount: FC<Props> = ({
     >
       <Stack direction="row" alignItems="center" gap={1} minWidth={0} flex={1}>
         {isActiveAccount(account.id) && (
-          <MdCircle
-            size={6}
-            color={theme.palette.success.main}
-            style={{
-              position: 'absolute',
-              left: '-8px',
-            }}
-          />
+          <span
+            data-testid="wallet-account-active-indicator"
+            style={{ display: 'contents' }}
+          >
+            <MdCircle
+              size={6}
+              color={theme.palette.success.main}
+              style={{
+                position: 'absolute',
+                left: '-8px',
+              }}
+            />
+          </span>
         )}
         <PersonalAvatar
           name={avatarName}
