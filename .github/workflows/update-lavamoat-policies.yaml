@@ -30,13 +30,15 @@ name: Update LavaMoat policies
 #     If `Lint` is in your branch protection's required-checks list,
 #     the PR will sit waiting for it until you push another commit or
 #     hit "Re-run all jobs" on the original pr-checks run.
-on:
+on: # zizmor: ignore[dangerous-triggers] gated on OWNER/MEMBER/COLLABORATOR; rejects cross-repo PRs
   issue_comment:
     types: [created]
 
 concurrency:
   group: update-lavamoat-policies-${{ github.event.issue.number }}
   cancel-in-progress: true
+
+permissions: {}
 
 jobs:
   update:
@@ -112,7 +114,7 @@ jobs:
       - name: Find validate-lavamoat-policies run for the PR head commit
         id: ci-run
         run: |
-          HEAD_SHA='${{ steps.pr.outputs.head_sha }}'
+          HEAD_SHA="${STEPS_PR_OUTPUTS_HEAD_SHA}"
           echo "Looking for a completed validate-lavamoat-policies run for ${HEAD_SHA}..."
           RUN=$(gh run list \
             --workflow=validate-lavamoat-policies.yaml \
@@ -133,6 +135,8 @@ jobs:
             echo "run_id=${RUN_ID}"
             echo "conclusion=${CONCLUSION}"
           } >> "$GITHUB_OUTPUT"
+        env:
+          STEPS_PR_OUTPUTS_HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
 
       - name: Post comment (no drift)
         if: ${{ steps.ci-run.outputs.conclusion == 'success' }}
@@ -166,10 +170,12 @@ jobs:
             echo "Found policy diff artifacts:"
             ls -la /tmp/lavamoat-policy-diffs/
           else
-            BODY=$'`validate-lavamoat-policies` failed but no policy diff artifact was produced (the job may have crashed before uploading). See the [validation run logs]('"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ steps.ci-run.outputs.run_id }}"$').'
+            BODY=$'`validate-lavamoat-policies` failed but no policy diff artifact was produced (the job may have crashed before uploading). See the [validation run logs]('"${{ github.server_url }}/${{ github.repository }}/actions/runs/${STEPS_CI_RUN_OUTPUTS_RUN_ID}"$').'
             gh pr comment "${PR_NUMBER}" --repo "${REPO}" --body "$BODY"
             exit 1
           fi
+        env:
+          STEPS_CI_RUN_OUTPUTS_RUN_ID: ${{ steps.ci-run.outputs.run_id }}
 
       # We only need the working tree to apply the patch — we never push
       # back through git. The commit is created via the
@@ -182,6 +188,7 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 0
+          persist-credentials: true  # kept: job runs git commands that use the checkout token
 
       - name: Switch to PR branch
         run: gh pr checkout "${PR_NUMBER}"
@@ -205,7 +212,7 @@ jobs:
       - name: Create signed commit via createCommitOnBranch
         run: |
           HEAD_OID=$(git rev-parse HEAD)
-          BRANCH='${{ steps.pr.outputs.head_branch }}'
+          BRANCH="${STEPS_PR_OUTPUTS_HEAD_BRANCH}"
 
           # Walk the diff and partition by file status into the two arrays
           # `createCommitOnBranch` accepts. Using `--name-status` (vs the
@@ -295,6 +302,8 @@ jobs:
                 }
               }
             }' | gh api graphql --input -
+        env:
+          STEPS_PR_OUTPUTS_HEAD_BRANCH: ${{ steps.pr.outputs.head_branch }}
 
       # `createCommitOnBranch` returns once the commit is on the branch,
       # so by the time the dispatched run starts `actions/checkout` is
@@ -303,7 +312,9 @@ jobs:
         run: |
           gh workflow run validate-lavamoat-policies.yaml \
             --repo "${REPO}" \
-            --ref '${{ steps.pr.outputs.head_branch }}'
+            --ref "${STEPS_PR_OUTPUTS_HEAD_BRANCH}"
+        env:
+          STEPS_PR_OUTPUTS_HEAD_BRANCH: ${{ steps.pr.outputs.head_branch }}
 
       - name: Post success comment
         run: |

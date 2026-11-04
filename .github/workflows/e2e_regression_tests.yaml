@@ -46,11 +46,12 @@ on:
           - 'false'
         default: 'true'
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   download:
+    permissions:
+      contents: read
     name: Download or Build Extension
     runs-on: ubuntu-latest-16-cores-core-extension
     environment: alpha
@@ -73,6 +74,7 @@ jobs:
         with:
           sparse-checkout: '.'
           sparse-checkout-cone-mode: false
+          persist-credentials: false
 
       - name: Download latest alpha release
         id: download-release
@@ -108,6 +110,7 @@ jobs:
         with:
           ref: ${{ github.event.inputs.test-branch || 'main' }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Node.js (build path)
         if: ${{ github.event.inputs.build-from-branch == 'true' }}
@@ -166,18 +169,24 @@ jobs:
         if: ${{ github.event.inputs.build-from-branch == 'true' }}
         run: |
           yarn build:alpha
-          echo "Extension built to ./dist from branch: ${{ github.event.inputs.test-branch }}"
+          echo "Extension built to ./dist from branch: ${GITHUB_EVENT_INPUTS_TEST_BRANCH}"
           ls -la ./dist
+        env:
+          GITHUB_EVENT_INPUTS_TEST_BRANCH: ${{ github.event.inputs.test-branch }}
 
       # ── Common: upload artifact, identify source, create TestRail run ──
       - name: Identify build source
         id: identify-source
         run: |
-          if [ "${{ github.event.inputs.build-from-branch }}" = "true" ]; then
-            echo "build_source=branch:${{ github.event.inputs.test-branch }}" >> "$GITHUB_OUTPUT"
+          if [ "${GITHUB_EVENT_INPUTS_BUILD_FROM_BRANCH}" = "true" ]; then
+            echo "build_source=branch:${GITHUB_EVENT_INPUTS_TEST_BRANCH}" >> "$GITHUB_OUTPUT"
           else
-            echo "build_source=release:${{ steps.download-release.outputs.release_tag }}" >> "$GITHUB_OUTPUT"
+            echo "build_source=release:${STEPS_DOWNLOAD_RELEASE_OUTPUTS_RELEASE_TAG}" >> "$GITHUB_OUTPUT"
           fi
+        env:
+          GITHUB_EVENT_INPUTS_BUILD_FROM_BRANCH: ${{ github.event.inputs.build-from-branch }}
+          GITHUB_EVENT_INPUTS_TEST_BRANCH: ${{ github.event.inputs.test-branch }}
+          STEPS_DOWNLOAD_RELEASE_OUTPUTS_RELEASE_TAG: ${{ steps.download-release.outputs.release_tag }}
 
       - name: Upload extension artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -192,16 +201,20 @@ jobs:
         id: create-testrail-run
         run: |
           TS=$(date -u +'%Y-%m-%d-%H:%M:%S')
-          SOURCE="${{ steps.identify-source.outputs.build_source }}"
+          SOURCE="${STEPS_IDENTIFY_SOURCE_OUTPUTS_BUILD_SOURCE}"
           TEST_RUN_ID=$(trcli -y -h https://avalabs.testrail.io \
             --project "New Gen Core Extension" \
-            --username ${{ env.TESTRAIL_EMAIL }} \
-            --key ${{ env.TESTRAIL_API_KEY }} \
+            --username ${TESTRAIL_EMAIL} \
+            --key ${TESTRAIL_API_KEY} \
             add_run --title "Extension Playwright Regression Run - $TS ($SOURCE)" \
             --run-include-all | grep "run_id:" | awk '{print $2}')
           echo "test_run_id=$TEST_RUN_ID" >> $GITHUB_OUTPUT
+        env:
+          STEPS_IDENTIFY_SOURCE_OUTPUTS_BUILD_SOURCE: ${{ steps.identify-source.outputs.build_source }}
 
   testrail-drift:
+    permissions:
+      contents: read
     name: TestRail Automation ID Drift (advisory)
     runs-on: ubuntu-latest
     continue-on-error: true
@@ -216,6 +229,7 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           ref: ${{ github.event.inputs.test-branch || 'main' }}
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
@@ -349,6 +363,7 @@ jobs:
         with:
           ref: ${{ github.event.inputs.test-branch || 'main' }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Install Chrome
         working-directory: e2e
@@ -474,14 +489,14 @@ jobs:
           pip3 install trcli
           trcli -n -h https://avalabs.testrail.io \
             --project "New Gen Core Extension" \
-            --username ${{ env.TESTRAIL_EMAIL }} \
-            --key ${{ env.TESTRAIL_API_KEY }} \
+            --username ${TESTRAIL_EMAIL} \
+            --key ${TESTRAIL_API_KEY} \
             parse_junit -f ./e2e/test-results/junit-report-${{ matrix.shardIndex }}.xml \
-            --run-id=${{ env.TEST_RUN_ID }}
+            --run-id=${TEST_RUN_ID}
 
       - name: Output TestRail run link
         if: always() && env.TEST_RUN_ID != ''
-        run: echo https://avalabs.testrail.io/index.php?/runs/view/${{ env.TEST_RUN_ID }}
+        run: echo https://avalabs.testrail.io/index.php?/runs/view/${TEST_RUN_ID}
 
       - name: Upload test results
         if: always() && steps.redact.outcome == 'success'
@@ -494,6 +509,7 @@ jobs:
           retention-days: 30
 
   slack-notification:
+    permissions: {}
     name: Send Slack Notification
     runs-on: ubuntu-latest
     environment: e2e

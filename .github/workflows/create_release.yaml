@@ -1,7 +1,14 @@
 name: Create prod release
 on: workflow_dispatch
+permissions: {}
+
 jobs:
   release:
+    permissions:
+      contents: write
+      id-token: write
+      issues: write
+      pull-requests: write
     name: Release
     runs-on: ubuntu-latest
     environment: production
@@ -10,6 +17,7 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 0
+          persist-credentials: true  # kept: job runs git commands that use the checkout token
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
@@ -75,4 +83,4 @@ jobs:
           RELEASE_TYPE: production
           ID_SERVICE_URL: ${{ secrets.ID_SERVICE_URL }}
           ID_SERVICE_API_KEY: ${{ secrets.ID_SERVICE_API_KEY }}
-        run: yarn run semantic-release --branches ${{ github.ref_name }}
+        run: yarn run semantic-release --branches ${GITHUB_REF_NAME}
