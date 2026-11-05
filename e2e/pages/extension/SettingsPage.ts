@@ -7,6 +7,7 @@ import { BasePage } from './BasePage';
 
 export class SettingsPage extends BasePage {
   readonly showHighlightsToggle: Locator;
+  readonly testnetModeToggle: Locator;
   readonly backButton: Locator;
 
   constructor(page: Page) {
@@ -14,6 +15,9 @@ export class SettingsPage extends BasePage {
 
     this.showHighlightsToggle = page.locator(
       '[data-testid="settings-show-highlights-toggle"]',
+    );
+    this.testnetModeToggle = page.locator(
+      '[data-testid="settings-testnet-mode-row"]',
     );
     this.backButton = page.locator('[data-testid="page-back-button"]');
   }
@@ -39,6 +43,22 @@ export class SettingsPage extends BasePage {
       await this.showHighlightsToggle.click();
       await expect
         .poll(() => this.isHighlightsEnabled(), { timeout: 5_000 })
+        .toBe(enabled);
+    }
+  }
+
+  async isTestnetEnabled(): Promise<boolean> {
+    const input = this.testnetModeToggle.locator('input[type="checkbox"]');
+    return input.isChecked();
+  }
+
+  async setTestnet(enabled: boolean): Promise<void> {
+    await this.testnetModeToggle.waitFor({ state: 'visible', timeout: 15_000 });
+    const current = await this.isTestnetEnabled();
+    if (current !== enabled) {
+      await this.testnetModeToggle.click();
+      await expect
+        .poll(() => this.isTestnetEnabled(), { timeout: 5_000 })
         .toBe(enabled);
     }
   }

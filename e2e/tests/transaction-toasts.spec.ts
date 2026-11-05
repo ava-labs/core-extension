@@ -1,6 +1,8 @@
 import type { Page } from '@playwright/test';
 import { test, expect } from '../fixtures/extension.fixture';
 import { SendPage } from '../pages/extension/SendPage';
+import { PortfolioPage } from '../pages/extension/PortfolioPage';
+import { SettingsPage } from '../pages/extension/SettingsPage';
 import {
   setFeatureFlagOverrides,
   waitForFeatureFlagValue,
@@ -18,15 +20,33 @@ const CCHAIN_AVAX_SEND = {
   recipientAccount: 'Account 2',
 };
 
+// The seeded snapshot sets the active network to a Fuji testnet, but under
+// parallel load the service worker's network init can fail to resolve the
+// stored testnet scope against a contended chainlist and fall back to mainnet
+// (NetworkService.init). Enable testnet mode explicitly via Settings instead of
+// relying on the snapshot, so Avalanche C-Chain is deterministically Fuji.
+async function ensureTestnetMode(page: Page): Promise<void> {
+  const testnetBanner = page.getByText('Testnet mode is on');
+  if (await testnetBanner.isVisible({ timeout: 10_000 }).catch(() => false)) {
+    return;
+  }
+
+  const portfolio = new PortfolioPage(page);
+  const settings = new SettingsPage(page);
+
+  await portfolio.openSettings();
+  await settings.waitForLoaded();
+  await settings.setTestnet(true);
+  await settings.goBackToPortfolio();
+
+  await expect(testnetBanner).toBeVisible({ timeout: 30_000 });
+}
+
 async function openCChainAvaxApproval(
   page: Page,
   sendPage: SendPage,
 ): Promise<void> {
-  // Developer (testnet) mode is on ⇒ Avalanche C-Chain is Fuji (43113), never
-  // mainnet (43114). Assert it before entering an amount or approving.
-  await expect(page.getByText('Testnet mode is on')).toBeVisible({
-    timeout: 30_000,
-  });
+  await ensureTestnetMode(page);
 
   await sendPage.openSendFromPortfolioHome();
   await sendPage.selectFujiCChainAvax();
