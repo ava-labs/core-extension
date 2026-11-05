@@ -10,6 +10,7 @@ export class SettingsPage extends BasePage {
   readonly settingsPage: Locator;
   readonly pageTitle: Locator;
   readonly backButton: Locator;
+  readonly lockButton: Locator;
 
   readonly testnetSwitch: Locator;
   readonly privacySwitch: Locator;
@@ -38,6 +39,7 @@ export class SettingsPage extends BasePage {
     this.settingsPage = page.getByTestId('settings-page');
     this.pageTitle = page.getByRole('heading', { level: 1 });
     this.backButton = page.getByTestId('page-back-button');
+    this.lockButton = page.getByTestId('settings-lock-button');
 
     this.testnetSwitch = page.getByTestId('settings-testnet-switch');
     this.privacySwitch = page.getByTestId('settings-privacy-switch');
@@ -89,17 +91,25 @@ export class SettingsPage extends BasePage {
     await this.page.waitForURL(/#\/(\?|$)/, { timeout: 10_000 });
   }
 
-  async reloadExtension(): Promise<void> {
-    await this.page.reload({ waitUntil: 'domcontentloaded' });
-    const passwordInput = this.page.getByPlaceholder(/password/i);
-    await expect(
-      passwordInput.or(this.settingsPage).or(this.settingsButton).first(),
-    ).toBeVisible({ timeout: 45_000 });
-    if (await passwordInput.isVisible().catch(() => false)) {
-      // Restored route is usually #/settings, which lacks the Portfolio shell
-      // unlockWallet waits for by default; wait only for the lock screen to go.
-      await unlockWallet(this.page, undefined, { waitForPortfolio: false });
+  /**
+   * Locks then unlocks the wallet. A page reload keeps the service worker's
+   * in-memory `_cachedSettings`, so it would not prove settings survive from
+   * storage; locking clears that cache and unlocking forces a fresh read from
+   * encrypted storage, which is what the persistence checks need to verify.
+   */
+  async relockAndReopen(): Promise<void> {
+    if (!(await this.settingsPage.isVisible().catch(() => false))) {
+      await this.open();
     }
+    await this.lockButton.click();
+
+    const passwordInput = this.page.getByPlaceholder(/password/i);
+    await passwordInput.waitFor({ state: 'visible', timeout: 15_000 });
+
+    // Restored route is usually #/settings, which lacks the Portfolio shell
+    // unlockWallet waits for by default; wait only for the lock screen to go.
+    await unlockWallet(this.page, undefined, { waitForPortfolio: false });
+
     // The app restores the last visited route, usually #/settings, whose route
     // has no header; step back to Portfolio home where the shell lives.
     await Promise.race([
@@ -164,6 +174,19 @@ export class SettingsPage extends BasePage {
       this.themeSelector,
       `theme-selector-menu-item-${theme}`,
     );
+    // The theme effect applies the background asynchronously after the menu
+    // closes; wait for it so callers reading the baseline luminance don't
+    // capture the previous palette. SYSTEM follows the OS scheme (driven by
+    // emulateMedia in the test), so there is no fixed target to wait for.
+    if (theme === 'LIGHT') {
+      await expect
+        .poll(() => this.settingsBackgroundLuminance(), { timeout: 10_000 })
+        .toBeGreaterThan(0.6);
+    } else if (theme === 'DARK') {
+      await expect
+        .poll(() => this.settingsBackgroundLuminance(), { timeout: 10_000 })
+        .toBeLessThan(0.3);
+    }
   }
 
   /** Relative luminance (0..1) of the Settings page background. */

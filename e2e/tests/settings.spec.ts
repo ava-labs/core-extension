@@ -96,22 +96,20 @@ test.describe('Settings Tests', () => {
     'As a CORE ext user, I can switch languages',
     snapshot('SET-005'),
     async ({ unlockedExtensionPage }) => {
-      // The LANGUAGES override only applies after a live PostHog flag fetch,
-      // so allow well beyond the default 60s timeout.
-      test.setTimeout(120_000);
+      // The LANGUAGES override only applies after a live PostHog flag fetch, so
+      // allow well beyond the default 60s. A failure here is a real regression
+      // (or missing POSTHOG_KEY), so let it fail loudly rather than silently
+      // skipping and leaving language switching untested.
+      test.setTimeout(150_000);
       const settings = new SettingsPage(unlockedExtensionPage);
 
       await settings.open();
       await setFeatureFlagOverrides(unlockedExtensionPage, { languages: true });
-      let languagesEffective = true;
-      try {
-        await waitForFeatureFlagValue(unlockedExtensionPage, 'languages', true);
-      } catch {
-        languagesEffective = false;
-      }
-      test.skip(
-        !languagesEffective,
-        'LANGUAGES feature flag unavailable (POSTHOG_KEY missing / flag fetch failed)',
+      await waitForFeatureFlagValue(
+        unlockedExtensionPage,
+        'languages',
+        true,
+        120_000,
       );
 
       await expect(settings.languageSelector).toBeVisible({ timeout: 15_000 });
@@ -127,7 +125,11 @@ test.describe('Settings Tests', () => {
     'As a CORE ext user, I can switch currency',
     snapshot('SET-006'),
     async ({ unlockedExtensionPage }) => {
-      test.setTimeout(120_000);
+      // The balance-service-integration override only applies after a live
+      // PostHog flag fetch; a failure is a real regression (or missing
+      // POSTHOG_KEY), so let it fail loudly rather than silently skipping and
+      // leaving currency switching untested.
+      test.setTimeout(150_000);
       const settings = new SettingsPage(unlockedExtensionPage);
 
       await settings.open();
@@ -136,19 +138,11 @@ test.describe('Settings Tests', () => {
       await setFeatureFlagOverrides(unlockedExtensionPage, {
         'balance-service-integration': true,
       });
-      let balanceServiceEffective = true;
-      try {
-        await waitForFeatureFlagValue(
-          unlockedExtensionPage,
-          'balance-service-integration',
-          true,
-        );
-      } catch {
-        balanceServiceEffective = false;
-      }
-      test.skip(
-        !balanceServiceEffective,
-        'BALANCE_SERVICE_INTEGRATION unavailable (POSTHOG_KEY missing / flag fetch failed)',
+      await waitForFeatureFlagValue(
+        unlockedExtensionPage,
+        'balance-service-integration',
+        true,
+        120_000,
       );
 
       const current = await settings.getSelectedCurrency();
@@ -162,7 +156,7 @@ test.describe('Settings Tests', () => {
         timeout: 15_000,
       });
 
-      await settings.reloadExtension();
+      await settings.relockAndReopen();
       await settings.open();
       await expect(settings.currencySelector).toHaveText(targetSymbol);
     },
@@ -266,7 +260,7 @@ test.describe('Settings Tests', () => {
       await settings.setSwitch(settings.analyticsToggle, false);
       await settings.setSwitch(settings.analyticsToggle, true);
 
-      await settings.reloadExtension();
+      await settings.relockAndReopen();
       await settings.open();
       expect(await settings.isSwitchOn(settings.analyticsToggle)).toBe(true);
     },
@@ -282,7 +276,7 @@ test.describe('Settings Tests', () => {
       await settings.setSwitch(settings.analyticsToggle, true);
       await settings.setSwitch(settings.analyticsToggle, false);
 
-      await settings.reloadExtension();
+      await settings.relockAndReopen();
       await settings.open();
       expect(await settings.isSwitchOn(settings.analyticsToggle)).toBe(false);
     },

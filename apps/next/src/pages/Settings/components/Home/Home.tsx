@@ -497,6 +497,7 @@ export const SettingsHomePage = () => {
         variant="contained"
         color="secondary"
         onClick={lockWallet}
+        data-testid="settings-lock-button"
       >
         {t('Lock Core')}
       </Button>
