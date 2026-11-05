@@ -547,7 +547,7 @@
       "packages": {
         "@metamask/rpc-errors>@metamask/utils>@ethereumjs/tx>@ethereumjs/rlp": true,
         "buffer": true,
-        "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>ethereum-cryptography": true,
+        "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>ethereum-cryptography": true,
         "events": true,
         "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>micro-ftch": true
       }
@@ -932,8 +932,8 @@
       "packages": {
         "@avalabs/fusion-sdk>@bitcoinerlab/secp256k1": true,
         "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities": true,
-        "@paraswap/sdk>axios": true,
-        "web3>web3-core>bignumber.js": true,
+        "@avalabs/fusion-sdk>axios": true,
+        "@avalabs/fusion-sdk>bignumber.js": true,
         "@avalabs/bridge-unified>bitcoinjs-lib": true,
         "buffer": true,
         "@rsbuild/plugin-node-polyfill>process": true
@@ -948,7 +948,7 @@
       },
       "packages": {
         "@avalabs/fusion-sdk>@bitcoinerlab/secp256k1": true,
-        "@paraswap/sdk>axios": true,
+        "@avalabs/fusion-sdk>axios": true,
         "@avalabs/fusion-sdk>bignumber.js": true,
         "@avalabs/fusion-sdk>bitcoinjs-lib": true,
         "buffer": true,
@@ -1147,12 +1147,12 @@
         "@ledgerhq/device-signer-kit-solana>@solana/web3.js>@noble/hashes": true
       }
     },
-    "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>ethereum-cryptography>@noble/curves": {
+    "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>ethereum-cryptography>@noble/curves": {
       "globals": {
         "TextEncoder": true
       },
       "packages": {
-        "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>ethereum-cryptography>@noble/curves>@noble/hashes": true
+        "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>ethereum-cryptography>@noble/hashes": true
       }
     },
     "ethers>@noble/curves": {
@@ -1267,12 +1267,6 @@
         "crypto": true
       }
     },
-    "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>ethereum-cryptography>@noble/curves>@noble/hashes": {
-      "globals": {
-        "TextEncoder": true,
-        "crypto": true
-      }
-    },
     "hypersdk-client>@noble/curves>@noble/hashes": {
       "globals": {
         "TextEncoder": true,
@@ -1299,12 +1293,6 @@
       }
     },
     "@avalabs/bridge-unified>bitcoinjs-lib>bs58check>@noble/hashes": {
-      "globals": {
-        "TextEncoder": true,
-        "crypto": true
-      }
-    },
-    "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>ethereum-cryptography>@noble/hashes": {
       "globals": {
         "TextEncoder": true,
         "crypto": true
@@ -2366,7 +2354,7 @@
     },
     "fireblocks-sdk>@notabene/pii-sdk>axios-oauth-client": {
       "packages": {
-        "fireblocks-sdk>@notabene/pii-sdk>axios-oauth-client>qs": true
+        "fireblocks-sdk>qs": true
       }
     },
     "fireblocks-sdk>@notabene/pii-sdk>axios-token-interceptor": {
@@ -2374,27 +2362,7 @@
         "fireblocks-sdk>@notabene/pii-sdk>axios-token-interceptor>lock": true
       }
     },
-    "fireblocks-sdk>@notabene/pii-sdk>axios": {
-      "globals": {
-        "Blob": true,
-        "Buffer.from": true,
-        "FormData": true,
-        "URLSearchParams": true,
-        "WorkerGlobalScope": true,
-        "XMLHttpRequest": true,
-        "btoa": true,
-        "console.warn": true,
-        "document": true,
-        "importScripts": true,
-        "location.href": true,
-        "navigator": true,
-        "setTimeout": true
-      },
-      "packages": {
-        "buffer": true
-      }
-    },
-    "@paraswap/sdk>axios": {
+    "@avalabs/fusion-sdk>axios": {
       "globals": {
         "AbortController": true,
         "Blob": true,
@@ -2423,6 +2391,26 @@
         "@rsbuild/plugin-node-polyfill>process": true
       }
     },
+    "fireblocks-sdk>@notabene/pii-sdk>axios": {
+      "globals": {
+        "Blob": true,
+        "Buffer.from": true,
+        "FormData": true,
+        "URLSearchParams": true,
+        "WorkerGlobalScope": true,
+        "XMLHttpRequest": true,
+        "btoa": true,
+        "console.warn": true,
+        "document": true,
+        "importScripts": true,
+        "location.href": true,
+        "navigator": true,
+        "setTimeout": true
+      },
+      "packages": {
+        "buffer": true
+      }
+    },
     "fireblocks-sdk>axios": {
       "globals": {
         "Blob": true,
@@ -2441,6 +2429,16 @@
       },
       "packages": {
         "buffer": true
+      }
+    },
+    "@ledgerhq/device-signer-kit-solana>@solana/web3.js>bs58>base-x": {
+      "packages": {
+        "bip32>bs58check>safe-buffer": true
+      }
+    },
+    "@ledgerhq/device-signer-kit-solana>@solana/web3.js>borsh>bs58>base-x": {
+      "packages": {
+        "bip32>bs58check>safe-buffer": true
       }
     },
     "bip32>bs58check>bs58>base-x": {
@@ -2464,11 +2462,6 @@
       }
     },
     "@avalabs/fusion-sdk>bignumber.js": {
-      "globals": {
-        "crypto": true
-      }
-    },
-    "web3>web3-core>bignumber.js": {
       "globals": {
         "crypto": true
       }
@@ -2633,24 +2626,24 @@
         "msCrypto": true
       }
     },
-    "@ethereumjs/tx>ethereumjs-util>ethereum-cryptography>browserify-aes": {
+    "ethereumjs-util>ethereum-cryptography>browserify-aes": {
       "globals": {
         "Buffer.concat": true
       },
       "packages": {
         "buffer": true,
-        "@ethereumjs/tx>ethereumjs-util>ethereum-cryptography>browserify-aes>buffer-xor": true,
+        "ethereumjs-util>ethereum-cryptography>browserify-aes>buffer-xor": true,
         "bip32>create-hash>cipher-base": true,
-        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>evp_bytestokey": true,
+        "ethereumjs-util>ethereum-cryptography>browserify-aes>evp_bytestokey": true,
         "bip32>create-hash>inherits": true,
         "bip32>bs58check>safe-buffer": true
       }
     },
     "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher": {
       "packages": {
-        "@ethereumjs/tx>ethereumjs-util>ethereum-cryptography>browserify-aes": true,
+        "ethereumjs-util>ethereum-cryptography>browserify-aes": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>browserify-des": true,
-        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>evp_bytestokey": true
+        "ethereumjs-util>ethereum-cryptography>browserify-aes>evp_bytestokey": true
       }
     },
     "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>browserify-des": {
@@ -2715,12 +2708,12 @@
     },
     "@ledgerhq/device-signer-kit-solana>@solana/web3.js>bs58": {
       "packages": {
-        "bip32>bs58check>bs58>base-x": true
+        "@ledgerhq/device-signer-kit-solana>@solana/web3.js>bs58>base-x": true
       }
     },
     "@ledgerhq/device-signer-kit-solana>@solana/web3.js>borsh>bs58": {
       "packages": {
-        "bip32>bs58check>bs58>base-x": true
+        "@ledgerhq/device-signer-kit-solana>@solana/web3.js>borsh>bs58>base-x": true
       }
     },
     "bip32>bs58check>bs58": {
@@ -2772,7 +2765,7 @@
         "buffer": true
       }
     },
-    "@ethereumjs/tx>ethereumjs-util>ethereum-cryptography>browserify-aes>buffer-xor": {
+    "ethereumjs-util>ethereum-cryptography>browserify-aes>buffer-xor": {
       "globals": {
         "Buffer": true
       },
@@ -2783,13 +2776,13 @@
     "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bind>call-bind-apply-helpers": {
       "packages": {
         "bip39>pbkdf2>to-buffer>typed-array-buffer>es-errors": true,
-        "@paraswap/sdk>axios>form-data>hasown>function-bind": true
+        "fireblocks-sdk>axios>form-data>hasown>function-bind": true
       }
     },
     "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound>call-bind-apply-helpers": {
       "packages": {
         "bip39>pbkdf2>to-buffer>typed-array-buffer>es-errors": true,
-        "@paraswap/sdk>axios>form-data>hasown>function-bind": true
+        "fireblocks-sdk>axios>form-data>hasown>function-bind": true
       }
     },
     "@rsbuild/plugin-node-polyfill>assert>call-bind": {
@@ -2998,7 +2991,7 @@
         "bitcoinjs-lib>bech32": true,
         "fireblocks-sdk>@notabene/pii-sdk>did-jwt>canonicalize": true,
         "bip32>tiny-secp256k1>elliptic": true,
-        "web3>web3-utils>ethereum-bloom-filters>js-sha3": true,
+        "fireblocks-sdk>@notabene/pii-sdk>did-jwt>js-sha3": true,
         "@walletconnect/core>uint8arrays>multiformats": true,
         "@walletconnect/core>uint8arrays": true
       }
@@ -3014,10 +3007,10 @@
         "bip39>randombytes": true
       }
     },
-    "@paraswap/sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto>dunder-proto": {
+    "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto>dunder-proto": {
       "packages": {
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound>call-bind-apply-helpers": true,
-        "@paraswap/sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto>dunder-proto>gopd": true
+        "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto>dunder-proto>gopd": true
       }
     },
     "fireblocks-sdk>jsonwebtoken>jws>jwa>ecdsa-sig-formatter": {
@@ -3042,7 +3035,7 @@
       "packages": {
         "bn.js": true,
         "bip32>tiny-secp256k1>elliptic>brorand": true,
-        "bip32>tiny-secp256k1>elliptic>hash.js": true,
+        "ethereumjs-util>ethereum-cryptography>hash.js": true,
         "bip32>tiny-secp256k1>elliptic>hmac-drbg": true,
         "bip32>create-hash>inherits": true,
         "bip32>tiny-secp256k1>elliptic>minimalistic-assert": true,
@@ -3096,34 +3089,58 @@
         "eth-json-rpc-middleware>eth-sig-util>ethereumjs-util": true
       }
     },
-    "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>ethereum-cryptography": {
-      "globals": {
-        "TextDecoder": true,
-        "crypto": true
-      },
-      "packages": {
-        "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>ethereum-cryptography>@noble/curves": true,
-        "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@ethereumjs/util>ethereum-cryptography>@noble/hashes": true
-      }
-    },
     "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>ethereum-cryptography": {
       "globals": {
         "TextDecoder": true,
         "crypto": true
       },
       "packages": {
+        "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>ethereum-cryptography>@noble/curves": true,
         "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>ethereum-cryptography>@noble/hashes": true
       }
     },
-    "@ethereumjs/tx>ethereumjs-util>ethereum-cryptography": {
+    "ethereumjs-util>ethereum-cryptography": {
       "globals": {
         "Buffer.from": true
       },
       "packages": {
         "buffer": true,
-        "@ethereumjs/tx>ethereumjs-util>ethereum-cryptography>keccak": true,
+        "ethereumjs-util>ethereum-cryptography>keccak": true,
         "bip39>randombytes": true,
-        "@avalabs/core-wallets-sdk>hdkey>secp256k1": true
+        "ethereumjs-util>ethereum-cryptography>secp256k1": true
+      }
+    },
+    "@metamask/eth-sig-util>ethereumjs-util>ethereum-cryptography": {
+      "globals": {
+        "Buffer.from": true
+      },
+      "packages": {
+        "buffer": true,
+        "ethereumjs-util>ethereum-cryptography>keccak": true,
+        "bip39>randombytes": true,
+        "ethereumjs-util>ethereum-cryptography>secp256k1": true
+      }
+    },
+    "eth-json-rpc-middleware>eth-sig-util>ethereumjs-util>ethereum-cryptography": {
+      "globals": {
+        "Buffer.from": true
+      },
+      "packages": {
+        "buffer": true,
+        "ethereumjs-util>ethereum-cryptography>keccak": true,
+        "bip39>randombytes": true,
+        "ethereumjs-util>ethereum-cryptography>secp256k1": true
+      }
+    },
+    "@metamask/eth-sig-util>ethereumjs-abi>ethereumjs-util>ethereum-cryptography": {
+      "globals": {
+        "Buffer.from": true
+      },
+      "packages": {
+        "buffer": true,
+        "ethereumjs-util>ethereum-cryptography>keccak": true,
+        "bip39>randombytes": true,
+        "ethereumjs-util>ethereum-cryptography>secp256k1": true
       }
     },
     "@metamask/eth-sig-util>ethereumjs-abi": {
@@ -3146,7 +3163,7 @@
         "eth-json-rpc-middleware>eth-sig-util>ethereumjs-abi>ethereumjs-util": true
       }
     },
-    "@ethereumjs/tx>ethereumjs-util": {
+    "ethereumjs-util": {
       "globals": {
         "Buffer": true
       },
@@ -3155,8 +3172,8 @@
         "bn.js": true,
         "buffer": true,
         "bip32>create-hash": true,
-        "@ethereumjs/tx>ethereumjs-util>ethereum-cryptography": true,
-        "@ethereumjs/tx>ethereumjs-util>rlp": true
+        "ethereumjs-util>ethereum-cryptography": true,
+        "ethereumjs-util>rlp": true
       }
     },
     "@metamask/eth-sig-util>ethereumjs-util": {
@@ -3169,9 +3186,9 @@
         "buffer": true,
         "bip32>create-hash": true,
         "bip32>tiny-secp256k1>elliptic": true,
-        "@ethereumjs/tx>ethereumjs-util>ethereum-cryptography": true,
+        "@metamask/eth-sig-util>ethereumjs-util>ethereum-cryptography": true,
         "@metamask/eth-sig-util>ethjs-util": true,
-        "@ethereumjs/tx>ethereumjs-util>rlp": true
+        "ethereumjs-util>rlp": true
       }
     },
     "eth-json-rpc-middleware>eth-sig-util>ethereumjs-util": {
@@ -3184,9 +3201,9 @@
         "buffer": true,
         "bip32>create-hash": true,
         "bip32>tiny-secp256k1>elliptic": true,
-        "@ethereumjs/tx>ethereumjs-util>ethereum-cryptography": true,
+        "eth-json-rpc-middleware>eth-sig-util>ethereumjs-util>ethereum-cryptography": true,
         "@metamask/eth-sig-util>ethjs-util": true,
-        "@ethereumjs/tx>ethereumjs-util>rlp": true,
+        "ethereumjs-util>rlp": true,
         "bip32>bs58check>safe-buffer": true
       }
     },
@@ -3200,9 +3217,9 @@
         "buffer": true,
         "bip32>create-hash": true,
         "bip32>tiny-secp256k1>elliptic": true,
-        "@ethereumjs/tx>ethereumjs-util>ethereum-cryptography": true,
+        "@metamask/eth-sig-util>ethereumjs-abi>ethereumjs-util>ethereum-cryptography": true,
         "@metamask/eth-sig-util>ethjs-util": true,
-        "@ethereumjs/tx>ethereumjs-util>rlp": true
+        "ethereumjs-util>rlp": true
       }
     },
     "eth-json-rpc-middleware>eth-sig-util>ethereumjs-abi>ethereumjs-util": {
@@ -3215,9 +3232,9 @@
         "buffer": true,
         "bip32>create-hash": true,
         "bip32>tiny-secp256k1>elliptic": true,
-        "@ethereumjs/tx>ethereumjs-util>ethereum-cryptography": true,
+        "eth-json-rpc-middleware>eth-sig-util>ethereumjs-util>ethereum-cryptography": true,
         "@metamask/eth-sig-util>ethjs-util": true,
-        "@ethereumjs/tx>ethereumjs-util>rlp": true
+        "ethereumjs-util>rlp": true
       }
     },
     "ethers": {
@@ -3268,7 +3285,7 @@
         "console": true
       }
     },
-    "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>evp_bytestokey": {
+    "ethereumjs-util>ethereum-cryptography>browserify-aes>evp_bytestokey": {
       "packages": {
         "bip32>create-hash>md5.js": true,
         "bip32>bs58check>safe-buffer": true
@@ -3398,7 +3415,8 @@
       "packages": {
         "external:../common/node_modules/@avalabs/fusion-sdk/dist/constants.js": true,
         "external:../common/node_modules/@avalabs/fusion-sdk/dist/mod.js": true,
-        "external:../common/src/unifiedTransfer/constants.ts": true
+        "external:../common/src/unifiedTransfer/constants.ts": true,
+        "@rsbuild/plugin-node-polyfill>process": true
       }
     },
     "external:../common/src/utils/accounts/accountTypeGuards.ts": {
@@ -3473,6 +3491,9 @@
       "globals": {
         "process.env.NODE_ENV": true,
         "process.env.RELEASE": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>process": true
       }
     },
     "external:../common/src/utils/errors/errorHelpers.ts": {
@@ -3966,10 +3987,10 @@
       },
       "packages": {
         "bip39>pbkdf2>to-buffer>typed-array-buffer>es-errors": true,
-        "@paraswap/sdk>axios>form-data>hasown>function-bind": true,
+        "fireblocks-sdk>axios>form-data>hasown>function-bind": true,
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bind>get-intrinsic>has-proto": true,
         "i18next-scanner>vinyl-fs>object.assign>has-symbols": true,
-        "@paraswap/sdk>axios>form-data>hasown": true
+        "fireblocks-sdk>axios>form-data>hasown": true
       }
     },
     "@rsbuild/plugin-node-polyfill>assert>object-is>call-bind>get-intrinsic": {
@@ -4008,12 +4029,12 @@
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound>get-intrinsic>es-define-property": true,
         "bip39>pbkdf2>to-buffer>typed-array-buffer>es-errors": true,
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound>get-intrinsic>es-object-atoms": true,
-        "@paraswap/sdk>axios>form-data>hasown>function-bind": true,
-        "@paraswap/sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto": true,
+        "fireblocks-sdk>axios>form-data>hasown>function-bind": true,
+        "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto": true,
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound>get-intrinsic>gopd": true,
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound>get-intrinsic>has-symbols": true,
-        "@paraswap/sdk>axios>form-data>hasown": true,
-        "@paraswap/sdk>axios>form-data>es-set-tostringtag>get-intrinsic>math-intrinsics": true
+        "fireblocks-sdk>axios>form-data>hasown": true,
+        "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>math-intrinsics": true
       }
     },
     "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bind>set-function-length>gopd>get-intrinsic": {
@@ -4040,12 +4061,12 @@
         "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map>get-intrinsic>es-define-property": true,
         "bip39>pbkdf2>to-buffer>typed-array-buffer>es-errors": true,
         "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map>get-intrinsic>es-object-atoms": true,
-        "@paraswap/sdk>axios>form-data>hasown>function-bind": true,
-        "@paraswap/sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto": true,
+        "fireblocks-sdk>axios>form-data>hasown>function-bind": true,
+        "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto": true,
         "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map>get-intrinsic>gopd": true,
         "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map>get-intrinsic>has-symbols": true,
-        "@paraswap/sdk>axios>form-data>hasown": true,
-        "@paraswap/sdk>axios>form-data>es-set-tostringtag>get-intrinsic>math-intrinsics": true
+        "fireblocks-sdk>axios>form-data>hasown": true,
+        "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>math-intrinsics": true
       }
     },
     "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-weakmap>get-intrinsic": {
@@ -4060,12 +4081,12 @@
         "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-weakmap>get-intrinsic>es-define-property": true,
         "bip39>pbkdf2>to-buffer>typed-array-buffer>es-errors": true,
         "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-weakmap>get-intrinsic>es-object-atoms": true,
-        "@paraswap/sdk>axios>form-data>hasown>function-bind": true,
-        "@paraswap/sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto": true,
+        "fireblocks-sdk>axios>form-data>hasown>function-bind": true,
+        "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto": true,
         "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-weakmap>get-intrinsic>gopd": true,
         "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-weakmap>get-intrinsic>has-symbols": true,
-        "@paraswap/sdk>axios>form-data>hasown": true,
-        "@paraswap/sdk>axios>form-data>es-set-tostringtag>get-intrinsic>math-intrinsics": true
+        "fireblocks-sdk>axios>form-data>hasown": true,
+        "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>math-intrinsics": true
       }
     },
     "fireblocks-sdk>qs>side-channel>get-intrinsic": {
@@ -4080,10 +4101,10 @@
         "@lavamoat/allow-scripts>resolve>is-core-module>has": true
       }
     },
-    "@paraswap/sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto": {
+    "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto": {
       "packages": {
-        "@paraswap/sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto>dunder-proto": true,
-        "@paraswap/sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto>es-object-atoms": true
+        "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto>dunder-proto": true,
+        "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto>es-object-atoms": true
       }
     },
     "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bind>set-function-length>gopd": {
@@ -4145,15 +4166,15 @@
         "@rsbuild/plugin-node-polyfill>stream-browserify": true
       }
     },
-    "bip32>tiny-secp256k1>elliptic>hash.js": {
+    "ethereumjs-util>ethereum-cryptography>hash.js": {
       "packages": {
         "bip32>create-hash>inherits": true,
         "bip32>tiny-secp256k1>elliptic>minimalistic-assert": true
       }
     },
-    "@paraswap/sdk>axios>form-data>hasown": {
+    "fireblocks-sdk>axios>form-data>hasown": {
       "packages": {
-        "@paraswap/sdk>axios>form-data>hasown>function-bind": true
+        "fireblocks-sdk>axios>form-data>hasown>function-bind": true
       }
     },
     "@avalabs/core-wallets-sdk>hdkey": {
@@ -4162,12 +4183,12 @@
         "bip32>bs58check": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify": true,
         "bip32>bs58check>safe-buffer": true,
-        "@avalabs/core-wallets-sdk>hdkey>secp256k1": true
+        "ethereumjs-util>ethereum-cryptography>secp256k1": true
       }
     },
     "bip32>tiny-secp256k1>elliptic>hmac-drbg": {
       "packages": {
-        "bip32>tiny-secp256k1>elliptic>hash.js": true,
+        "ethereumjs-util>ethereum-cryptography>hash.js": true,
         "bip32>tiny-secp256k1>elliptic>minimalistic-assert": true,
         "bip32>tiny-secp256k1>elliptic>minimalistic-crypto-utils": true
       }
@@ -4354,7 +4375,7 @@
         "structuredClone": true
       }
     },
-    "web3>web3-utils>ethereum-bloom-filters>js-sha3": {
+    "fireblocks-sdk>@notabene/pii-sdk>did-jwt>js-sha3": {
       "globals": {
         "define": true,
         "process": true
@@ -4412,7 +4433,7 @@
         "@rsbuild/plugin-node-polyfill>util": true
       }
     },
-    "@ethereumjs/tx>ethereumjs-util>ethereum-cryptography>keccak": {
+    "ethereumjs-util>ethereum-cryptography>keccak": {
       "globals": {
         "Buffer.alloc": true,
         "Buffer.from": true,
@@ -4530,7 +4551,7 @@
         "@avalabs/core-utils-sdk>is-ipfs>multiaddr>is-ip": true,
         "@walletconnect/core>uint8arrays>multiformats": true,
         "@walletconnect/core>uint8arrays": true,
-        "@avalabs/core-utils-sdk>is-ipfs>multiaddr>varint": true
+        "fireblocks-sdk>@notabene/pii-sdk>multicodec>varint": true
       }
     },
     "fireblocks-sdk>@notabene/pii-sdk>multibase": {
@@ -4610,8 +4631,8 @@
     "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>parse-asn1": {
       "packages": {
         "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>parse-asn1>asn1.js": true,
-        "@ethereumjs/tx>ethereumjs-util>ethereum-cryptography>browserify-aes": true,
-        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>evp_bytestokey": true,
+        "ethereumjs-util>ethereum-cryptography>browserify-aes": true,
+        "ethereumjs-util>ethereum-cryptography>browserify-aes>evp_bytestokey": true,
         "bip39>pbkdf2": true,
         "bip32>bs58check>safe-buffer": true
       }
@@ -4619,8 +4640,8 @@
     "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>parse-asn1": {
       "packages": {
         "@rsbuild/plugin-node-polyfill>crypto-browserify>public-encrypt>parse-asn1>asn1.js": true,
-        "@ethereumjs/tx>ethereumjs-util>ethereum-cryptography>browserify-aes": true,
-        "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-cipher>evp_bytestokey": true,
+        "ethereumjs-util>ethereum-cryptography>browserify-aes": true,
+        "ethereumjs-util>ethereum-cryptography>browserify-aes>evp_bytestokey": true,
         "bip39>pbkdf2": true,
         "bip32>bs58check>safe-buffer": true
       }
@@ -4692,11 +4713,6 @@
     "@avalabs/bitcoin-module>bitcoinjs-lib>pushdata-bitcoin": {
       "packages": {
         "@avalabs/bitcoin-module>bitcoinjs-lib>bitcoin-ops": true
-      }
-    },
-    "fireblocks-sdk>@notabene/pii-sdk>axios-oauth-client>qs": {
-      "packages": {
-        "fireblocks-sdk>qs>side-channel": true
       }
     },
     "fireblocks-sdk>qs": {
@@ -4815,7 +4831,7 @@
         "bip32>create-hash>inherits": true
       }
     },
-    "@ethereumjs/tx>ethereumjs-util>rlp": {
+    "ethereumjs-util>rlp": {
       "globals": {
         "Buffer.concat": true,
         "Buffer.from": true,
@@ -4872,7 +4888,7 @@
         "@rsbuild/plugin-node-polyfill>process": true
       }
     },
-    "@avalabs/core-wallets-sdk>hdkey>secp256k1": {
+    "ethereumjs-util>ethereum-cryptography>secp256k1": {
       "packages": {
         "bip32>tiny-secp256k1>elliptic": true
       }
@@ -5211,7 +5227,7 @@
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bind": true,
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound": true,
         "bip39>pbkdf2>to-buffer>typed-array-buffer>is-typed-array>which-typed-array>for-each": true,
-        "@paraswap/sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto": true,
+        "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto": true,
         "bip39>pbkdf2>to-buffer>typed-array-buffer>is-typed-array>which-typed-array>gopd": true,
         "bip39>pbkdf2>to-buffer>typed-array-buffer>is-typed-array>which-typed-array>has-tostringtag": true
       }
