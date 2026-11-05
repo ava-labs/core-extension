@@ -294,27 +294,47 @@ export class ManageTokensPage extends BasePage {
   private async fillAndValidate(
     address: string,
     timeout = 20_000,
+    attempts = 3,
   ): Promise<boolean> {
-    await this.addressInput.fill('');
-    await this.addressInput.fill(address);
-    await this.page
-      .waitForFunction(
-        () => {
-          const button = document.querySelector(
-            '[data-testid="add-custom-token-submit-button"]',
-          ) as HTMLButtonElement | null;
-          const error = document.querySelector(
-            '[data-testid="add-custom-token-error"]',
-          );
-          return (
-            (!!button && !button.disabled) ||
-            (!!error && (error.textContent ?? '').trim().length > 0)
-          );
-        },
-        undefined,
-        { timeout },
-      )
-      .catch(() => {});
+    // Validation calls the chain for token metadata; a transient RPC failure
+    // surfaces as "Not a valid ERC-20 token…" and leaves the button disabled.
+    // That is retryable. The catalog-duplicate warning is terminal, so return
+    // immediately on it rather than burning retries.
+    for (let attempt = 0; attempt < attempts; attempt++) {
+      await this.addressInput.fill('');
+      await this.addressInput.fill(address);
+      await this.page
+        .waitForFunction(
+          () => {
+            const button = document.querySelector(
+              '[data-testid="add-custom-token-submit-button"]',
+            ) as HTMLButtonElement | null;
+            const error = document.querySelector(
+              '[data-testid="add-custom-token-error"]',
+            );
+            return (
+              (!!button && !button.disabled) ||
+              (!!error && (error.textContent ?? '').trim().length > 0)
+            );
+          },
+          undefined,
+          { timeout },
+        )
+        .catch(() => {});
+
+      if (await this.addSubmitButton.isEnabled()) {
+        return true;
+      }
+
+      const error = (await this.addError.textContent().catch(() => ''))?.trim();
+      if (error === DUPLICATE_WARNING) {
+        return false;
+      }
+
+      if (attempt < attempts - 1) {
+        await this.page.waitForTimeout(2_000);
+      }
+    }
     return this.addSubmitButton.isEnabled();
   }
 
