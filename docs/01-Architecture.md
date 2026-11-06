@@ -30,18 +30,18 @@ The Injected provider is an [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) 
 
 The repository is a Yarn workspaces monorepo. Each of the four pieces above lives in its own package:
 
-| Workspace                  | Contents                                                                                     |
-| -------------------------- | -------------------------------------------------------------------------------------------- |
-| `apps/next`                | The extension frontend (React app, all entry points)                                         |
-| `packages/service-worker`  | Services, handlers, and the VM module layer running in the service worker                    |
-| `packages/content-script`  | The bridge between the service worker and the injected provider                              |
-| `packages/inpage`          | The EIP-1193 / EIP-6963 provider injected into web pages                                     |
-| `packages/offscreen`       | Offscreen document, used where DOM APIs are unavailable in the service worker                |
-| `packages/ui`              | Shared React components, hooks, and providers                                                |
-| `packages/messaging`       | Cross-context messaging and JSON serialization                                               |
-| `packages/common`          | Shared utilities, constants, and helpers                                                     |
-| `packages/types`           | Shared TypeScript type definitions                                                           |
-| `packages/lavamoat-rspack` | Build-time supply-chain sandboxing (see its [README](../packages/lavamoat-rspack/README.md)) |
+| Workspace                  | Contents                                                                                                                                       |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/next`                | The extension frontend (React app, all entry points)                                                                                           |
+| `packages/service-worker`  | Services, handlers, and the VM module layer running in the service worker                                                                      |
+| `packages/content-script`  | The bridge between the service worker and the injected provider                                                                                |
+| `packages/inpage`          | The EIP-1193 / EIP-6963 provider injected into web pages                                                                                       |
+| `packages/offscreen`       | Offscreen document, used where DOM APIs are unavailable in the service worker                                                                  |
+| `packages/ui`              | Shared React components, hooks, and providers                                                                                                  |
+| `packages/messaging`       | Cross-context messaging and JSON serialization                                                                                                 |
+| `packages/common`          | Shared utilities, constants, and helpers                                                                                                       |
+| `packages/types`           | Shared TypeScript type definitions                                                                                                             |
+| `packages/lavamoat-rspack` | Build-time supply-chain sandboxing (see its [README](https://github.com/ava-labs/core-extension/blob/main/packages/lavamoat-rspack/README.md)) |
 
 ## VM modules and address derivation
 
@@ -51,10 +51,10 @@ Each module knows how to build the derivation path and pick the cryptographic cu
 
 One public key can yield multiple addresses — the Avalanche module, for example, returns addresses for both the P- and X-Chains.
 
-<img src="images/address-derivation.drawio.png"/>
+![address derivation](images/address-derivation.drawio.png)
 
 To develop against a locally modified VM module, see [Linking local VM modules with yalc](YALC_VM_MODULES.md).
 
 ## Architecture diagram
 
-<img src="images/architecture.png"/>
+![architecture](images/architecture.png)
