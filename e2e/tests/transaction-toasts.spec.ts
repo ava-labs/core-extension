@@ -1,8 +1,7 @@
 import type { Page } from '@playwright/test';
 import { test, expect } from '../fixtures/extension.fixture';
 import { SendPage } from '../pages/extension/SendPage';
-import { PortfolioPage } from '../pages/extension/PortfolioPage';
-import { SettingsPage } from '../pages/extension/SettingsPage';
+import { ensureTestnetMode } from '../helpers/networkMode';
 import {
   setFeatureFlagOverrides,
   waitForFeatureFlagValue,
@@ -19,28 +18,6 @@ const CCHAIN_AVAX_SEND = {
   amount: '0.0001',
   recipientAccount: 'Account 2',
 };
-
-// The seeded snapshot sets the active network to a Fuji testnet, but under
-// parallel load the service worker's network init can fail to resolve the
-// stored testnet scope against a contended chainlist and fall back to mainnet
-// (NetworkService.init). Enable testnet mode explicitly via Settings instead of
-// relying on the snapshot, so Avalanche C-Chain is deterministically Fuji.
-async function ensureTestnetMode(page: Page): Promise<void> {
-  const testnetBanner = page.getByText('Testnet mode is on');
-  if (await testnetBanner.isVisible({ timeout: 10_000 }).catch(() => false)) {
-    return;
-  }
-
-  const portfolio = new PortfolioPage(page);
-  const settings = new SettingsPage(page);
-
-  await portfolio.openSettings();
-  await settings.waitForLoaded();
-  await settings.setTestnet(true);
-  await settings.goBackToPortfolio();
-
-  await expect(testnetBanner).toBeVisible({ timeout: 30_000 });
-}
 
 async function openCChainAvaxApproval(
   page: Page,
@@ -101,15 +78,16 @@ test.describe('Transaction Toast Tests', () => {
 
       await openCChainAvaxApproval(unlockedExtensionPage, sendPage);
 
-      // The pending toast is dismissed on confirmation, so start watching for
-      // it before approving.
+      // The pending toast is dismissed on confirmation (~2s on Fuji), so start
+      // watching before approving. waitForPendingToast already filters on the
+      // "Transaction pending" text, so awaiting it is the assertion — don't
+      // re-check the text afterwards, which races the dismissal.
       const pendingToastPromise =
         sendPage.waitForPendingToast(SEND_TEST_TIMEOUT_MS);
 
       await sendPage.approveTransaction();
 
-      const pendingToast = await pendingToastPromise;
-      await expect(pendingToast).toContainText('Transaction pending');
+      await pendingToastPromise;
     },
   );
 
