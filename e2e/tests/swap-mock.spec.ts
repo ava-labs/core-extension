@@ -21,6 +21,7 @@
 
 import type { Locator, Page } from '@playwright/test';
 import { test, expect } from '../fixtures/extension.fixture';
+import { ALLOW_FAILURE_SCREENSHOT_ANNOTATION } from '../constants';
 import { SwapPage } from '../pages/extension/SwapPage';
 import {
   loadSwapFixture,
@@ -109,6 +110,7 @@ test.describe('Swap Mock — Pair Flows', () => {
       `${pair.from.symbol} → ${pair.to.symbol} (${pair.chain}) (mock)`,
       {
         annotation: [
+          { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
           { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
           {
             type: 'testrail_case_field',
@@ -175,6 +177,7 @@ test.describe('Swap Mock — Reject', () => {
     'reject button on transaction approval returns to swap page (mock)',
     {
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
         {
           type: 'testrail_case_field',
@@ -267,6 +270,7 @@ test.describe('Swap Mock — Quick Swaps (Degen Mode)', () => {
       `${pair.from.symbol} → ${pair.to.symbol} completes with Quick Swaps enabled via UI (${chain}) (mock)`,
       {
         annotation: [
+          { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
           { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
           {
             type: 'testrail_case_field',
@@ -308,6 +312,7 @@ test.describe('Swap Mock — Quick Swaps (Degen Mode)', () => {
     'Quick Swaps settings — toggle, fee selector, and swap amount limit (mock)',
     {
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
         {
           type: 'testrail_case_field',
@@ -409,6 +414,7 @@ test.describe('Swap Mock — Edge Cases', () => {
     'amount exceeds balance → swap disabled (mock)',
     {
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
         {
           type: 'testrail_case_field',

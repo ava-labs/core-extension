@@ -1,6 +1,6 @@
 import { test, expect } from '../fixtures/extension.fixture';
 import { SendPage } from '../pages/extension/SendPage';
-import { TEST_SEND } from '../constants';
+import { ALLOW_FAILURE_SCREENSHOT_ANNOTATION, TEST_SEND } from '../constants';
 import {
   verifyTransactionOnExplorer,
   type ExplorerNetwork,
@@ -18,6 +18,7 @@ test.describe('Send Tests', () => {
     {
       tag: ['@smoke', '@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'testnetPrimaryExtWallet',
@@ -227,6 +228,7 @@ test.describe('Send Tests', () => {
       {
         tag: ['@regression'],
         annotation: [
+          { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
           {
             type: 'snapshot',
             description: 'testnetPrimaryExtWallet',
@@ -314,6 +316,7 @@ test.describe('Send Tests', () => {
       {
         tag: ['@regression'],
         annotation: [
+          { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
           {
             type: 'snapshot',
             description: 'testnetPrimaryExtWallet',
@@ -397,6 +400,7 @@ test.describe('Send Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'testnetPrimaryExtWallet',
@@ -491,6 +495,7 @@ test.describe('Send Tests', () => {
       {
         tag: ['@regression'],
         annotation: [
+          { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
           {
             type: 'snapshot',
             description: 'testnetPrimaryExtWallet',
@@ -646,6 +651,7 @@ test.describe('Send Tests', () => {
       {
         tag: ['@regression'],
         annotation: [
+          { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
           {
             type: 'snapshot',
             description: 'testnetContactExtWallet',
@@ -729,6 +735,7 @@ test.describe('Send Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'testnetContactExtWallet',
@@ -852,6 +859,7 @@ test.describe('Send Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'testnetPrimaryExtWallet',
@@ -880,6 +888,7 @@ test.describe('Send Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'testnetPrimaryExtWallet',
@@ -910,6 +919,7 @@ test.describe('Send Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'testnetContactExtWallet',
@@ -944,6 +954,7 @@ test.describe('Send Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'testnetContactExtWallet',
@@ -972,6 +983,7 @@ test.describe('Send Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'testnetPrimaryExtWallet',
@@ -1002,6 +1014,7 @@ test.describe('Send Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'testnetPrimaryExtWallet',
@@ -1029,6 +1042,7 @@ test.describe('Send Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'testnetPrimaryExtWallet',
@@ -1058,6 +1072,7 @@ test.describe('Send Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'testnetPrimaryExtWallet',
@@ -1100,6 +1115,7 @@ test.describe('Send Tests', () => {
       {
         tag: ['@regression'],
         annotation: [
+          { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
           {
             type: 'snapshot',
             description: 'testnetPrimaryExtWallet',
@@ -1153,6 +1169,7 @@ test.describe('Send Tests', () => {
       {
         tag: ['@regression'],
         annotation: [
+          { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
           {
             type: 'snapshot',
             description: 'testnetPrimaryExtWallet',

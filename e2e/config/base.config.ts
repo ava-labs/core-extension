@@ -66,14 +66,19 @@ export const baseConfig: PlaywrightTestConfig = {
 
   // Shared settings for all projects
   use: {
-    trace: 'on-first-retry',
+    trace: {
+      mode: 'on-first-retry',
+      screenshots: false,
+      snapshots: true,
+      sources: true,
+    },
     video: 'on-first-retry',
     headless: process.env.HEADLESS === 'true',
     bypassCSP: true,
     navigationTimeout: 30000,
     actionTimeout: 30000,
     ignoreHTTPSErrors: true,
-    screenshot: 'only-on-failure',
+    screenshot: 'off',
     viewport: { width: 1920, height: 1080 },
   },
 

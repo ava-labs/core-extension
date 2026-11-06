@@ -1,6 +1,10 @@
 import { test, expect } from '../fixtures/extension.fixture';
 import { NetworksPage } from '../pages/extension/NetworksPage';
-import { MONAD_CHAIN_ID, MONAD_NETWORK } from '../constants';
+import {
+  ALLOW_FAILURE_SCREENSHOT_ANNOTATION,
+  MONAD_CHAIN_ID,
+  MONAD_NETWORK,
+} from '../constants';
 
 test.describe('Networks Tests', () => {
   test(
@@ -8,6 +12,7 @@ test.describe('Networks Tests', () => {
     {
       tag: ['@smoke', '@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'mainnetPrimaryExtWallet',
@@ -37,6 +42,7 @@ test.describe('Networks Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'mainnetPrimaryExtWallet',
@@ -73,6 +79,7 @@ test.describe('Networks Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'mainnetPrimaryExtWallet',
@@ -117,6 +124,7 @@ test.describe('Networks Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'mainnetPrimaryExtWallet',
@@ -167,6 +175,7 @@ test.describe('Networks Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'mainnetPrimaryExtWallet',
@@ -211,6 +220,7 @@ test.describe('Networks Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'mainnetMonadNetworkExtWallet',
@@ -354,6 +364,7 @@ test.describe('Networks Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'mainnetMonadNetworkExtWallet',
@@ -425,6 +436,7 @@ test.describe('Networks Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'mainnetPrimaryExtWallet',
@@ -513,6 +525,7 @@ test.describe('Networks Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'mainnetMonadNetworkExtWallet',
@@ -567,6 +580,7 @@ test.describe('Networks Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'mainnetMonadNetworkExtWallet',
