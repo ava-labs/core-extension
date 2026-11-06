@@ -72,6 +72,7 @@ export const AccountInfo: FC<Props> = ({
           color="green.light"
           gap={0.5}
           alignItems="center"
+          data-testid="portfolio-testnet-indicator"
         >
           <WaterDropIcon size={16} />
           <Typography variant="subtitle3">{t('Testnet mode is on')}</Typography>

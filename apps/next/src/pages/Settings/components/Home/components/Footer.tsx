@@ -27,6 +27,7 @@ export const Footer = (props: StackProps) => {
             components={{
               termsLink: (
                 <InTextLink
+                  data-testid="footer-terms-link"
                   sx={{ ml: 0.25 }}
                   target="_blank"
                   href="https://core.app/terms/core"
@@ -36,6 +37,7 @@ export const Footer = (props: StackProps) => {
               ),
               policyLink: (
                 <InTextLink
+                  data-testid="footer-privacy-link"
                   sx={{ ml: 0.25 }}
                   target="_blank"
                   href="https://www.avalabs.org/legal/privacy-policy"
