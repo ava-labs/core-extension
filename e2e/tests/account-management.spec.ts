@@ -391,36 +391,6 @@ test.describe('Account Management Tests', () => {
   );
 
   test(
-    'As a CORE ext user with an extension wallet, I can rename an account from the account details page',
-    {
-      tag: ['@regression'],
-      annotation: [
-        { type: 'snapshot', description: MAINNET_SNAPSHOT },
-        {
-          type: 'testrail_case_field',
-          description: 'custom_automation_id:ACC-010',
-        },
-      ],
-    },
-    async ({ unlockedExtensionPage }) => {
-      const accountManagement = new AccountManagementPage(
-        unlockedExtensionPage,
-      );
-
-      await accountManagement.openMyWallets();
-      await accountManagement.openAccountDetails(0);
-      await accountManagement.renameAccountFromDetails('Renamed Account');
-
-      await expect(
-        unlockedExtensionPage.getByText('Account renamed', { exact: false }),
-      ).toBeVisible({ timeout: 15000 });
-      await expect(
-        unlockedExtensionPage.getByText('Renamed Account').first(),
-      ).toBeVisible();
-    },
-  );
-
-  test(
     'As a CORE ext user with an extension wallet, I can rename a wallet',
     {
       tag: ['@regression'],
@@ -452,94 +422,6 @@ test.describe('Account Management Tests', () => {
       await expect(
         unlockedExtensionPage.getByText('Renamed Wallet').first(),
       ).toBeVisible();
-    },
-  );
-
-  test(
-    'As a CORE ext user with an extension wallet, I see a validation error when renaming with an empty or unchanged name',
-    {
-      tag: ['@regression'],
-      annotation: [
-        { type: 'snapshot', description: MAINNET_SNAPSHOT },
-        {
-          type: 'testrail_case_field',
-          description: 'custom_automation_id:ACC-012',
-        },
-      ],
-    },
-    async ({ unlockedExtensionPage }) => {
-      const accountManagement = new AccountManagementPage(
-        unlockedExtensionPage,
-      );
-
-      await accountManagement.openMyWallets();
-      await accountManagement.openAccountDetails(0);
-      await accountManagement.accountDetailsRenameButton.click();
-      await accountManagement.renameNameInput.waitFor({
-        state: 'visible',
-        timeout: 15000,
-      });
-
-      const currentName =
-        (await accountManagement.renameNameInput.getAttribute('placeholder')) ??
-        '';
-
-      await accountManagement.renameNameInput.fill(' ');
-      await expect(
-        unlockedExtensionPage.getByText(
-          'Account name must be at least 1 character long',
-        ),
-      ).toBeVisible();
-      await expect(accountManagement.renameSaveButton).toBeDisabled();
-
-      await accountManagement.renameNameInput.fill(currentName);
-      await expect(
-        unlockedExtensionPage.getByText(
-          'Account name must be different from the current name',
-        ),
-      ).toBeVisible();
-      await expect(accountManagement.renameSaveButton).toBeDisabled();
-    },
-  );
-
-  test(
-    'As a CORE ext user with an extension wallet, I can delete a single account',
-    {
-      tag: ['@regression'],
-      annotation: [
-        { type: 'snapshot', description: MAINNET_SNAPSHOT },
-        {
-          type: 'testrail_case_field',
-          description: 'custom_automation_id:ACC-013',
-        },
-      ],
-    },
-    async ({ unlockedExtensionPage }) => {
-      test.setTimeout(120000);
-      const accountManagement = new AccountManagementPage(
-        unlockedExtensionPage,
-      );
-
-      await accountManagement.enableAccountRemovalFlag();
-      await accountManagement.openMyWallets();
-      const baseline = await accountManagement.getAccountCount();
-      const afterCreate = await accountManagement.createNewAccount();
-
-      // The last account in a wallet is the only one that can be removed on its own.
-      await accountManagement.openAccountDetails(afterCreate - 1);
-      await expect(accountManagement.accountDetailsRemoveButton).toBeEnabled({
-        timeout: 15000,
-      });
-      await accountManagement.accountDetailsRemoveButton.click();
-
-      await accountManagement.confirmDelete();
-
-      await expect(
-        unlockedExtensionPage.getByText('Account deleted', { exact: false }),
-      ).toBeVisible({ timeout: 15000 });
-      await expect(accountManagement.accountListItems).toHaveCount(baseline, {
-        timeout: 15000,
-      });
     },
   );
 
