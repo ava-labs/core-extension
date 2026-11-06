@@ -13,7 +13,7 @@ To bridge the gap between the inpage provider and the service worker, the conten
 
 You can read more about the content script here: https://developer.chrome.com/docs/extensions/mv3/content_scripts/
 
-<img src="images/inpage-provider-communication.png"/>
+![inpage provider communication](images/inpage-provider-communication.png)
 
 ## What gets injected
 
@@ -49,7 +49,7 @@ If another extension was faster and defined `window.ethereum` as non-writable, C
 
 ## Initialization
 
-<img src="images/inpage-initialization-process.png"/>
+![inpage initialization process](images/inpage-initialization-process.png)
 
 The lower half of the diagram covers the wallet selection that happens on the first connect request, described above. The source is [`diagrams/window-ethereum-proxy.drawio`](diagrams/window-ethereum-proxy.drawio); re-export it to `images/inpage-initialization-process.png` when you change it.
 
