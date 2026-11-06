@@ -52,6 +52,7 @@ export const EnterPassword: FC<Props> = ({ account, onAuthenticated }) => {
   return (
     <Stack height={1} gap={1.5} mt={2}>
       <StyledSelect
+        data-testid="private-key-chain-select"
         label={t('Chain')}
         value={chain}
         onChange={(e) => setChain(e.target.value as PrivateKeyChain)}
@@ -68,11 +69,15 @@ export const EnterPassword: FC<Props> = ({ account, onAuthenticated }) => {
         onChange={(e) => setPassword(e.target.value)}
         error={!!error}
         helperText={error}
+        slotProps={{
+          htmlInput: { 'data-testid': 'private-key-password-input' },
+        }}
         {...shortcuts}
       />
 
       <Button
         ref={revealButtonRef}
+        data-testid="reveal-private-key-button"
         variant="contained"
         color="primary"
         size="extension"

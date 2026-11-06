@@ -57,6 +57,7 @@ export const AccountContextMenu: FC<Props> = ({
     >
       <AddressItem
         label="Avalanche C-Chain"
+        testId="context-menu-address-c"
         Icon={CChainIcon}
         address={account.addressC}
         onClick={onClose}
@@ -64,6 +65,7 @@ export const AccountContextMenu: FC<Props> = ({
       <Styled.Divider variant="inset" component="li" />
       <AddressItem
         label="Avalanche X/P-Chain"
+        testId="context-menu-address-avm"
         Icon={XPChainIcon}
         address={account.addressAVM}
         onClick={onClose}
@@ -71,6 +73,7 @@ export const AccountContextMenu: FC<Props> = ({
       <Styled.Divider variant="inset" component="li" />
       <AddressItem
         label="Bitcoin"
+        testId="context-menu-address-btc"
         Icon={BitcoinColorIcon}
         address={account.addressBTC}
         onClick={onClose}
@@ -78,6 +81,7 @@ export const AccountContextMenu: FC<Props> = ({
       <Styled.Divider variant="inset" component="li" />
       <AddressItem
         label="Ethereum"
+        testId="context-menu-address-eth"
         Icon={EthereumColorIcon}
         address={account.addressC}
         onClick={onClose}
@@ -85,6 +89,7 @@ export const AccountContextMenu: FC<Props> = ({
       <Styled.Divider variant="inset" component="li" />
       <AddressItem
         label="Solana"
+        testId="context-menu-address-svm"
         Icon={SolanaColorIcon}
         address={account.addressSVM}
         onClick={onClose}

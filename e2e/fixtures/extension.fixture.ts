@@ -149,8 +149,14 @@ export const test = base.extend<ExtensionFixtures>({
 
     await use(context);
 
+    // Tests annotated `sensitive` reveal secrets (private keys / addresses);
+    // skip failure screenshots so they never land in CI artifacts.
+    const isSensitive = testInfo.annotations.some(
+      (a) => a.type === 'sensitive',
+    );
+
     // Take screenshots on failure before closing
-    if (testInfo.status !== testInfo.expectedStatus) {
+    if (testInfo.status !== testInfo.expectedStatus && !isSensitive) {
       const pages = context.pages();
       for (let i = 0; i < pages.length; i++) {
         const page = pages[i];
