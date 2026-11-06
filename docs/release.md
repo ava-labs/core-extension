@@ -49,7 +49,7 @@ The plugin chain is defined in `.releaserc.js`:
 
 1. **Sentry release:** `yarn sentry core-extension@<version>` injects and uploads the source maps, then deletes the `*.js.map` files from `dist/`.
 2. **Replace version:** writes the version into `dist/manifest.json` and into `CORE_EXTENSION_VERSION` in `dist/inpage/js/inpage.js`.
-3. **Submit build:** POSTs the manifest hash, version and the SHA-256 checksum of every `dist/` `.js` file to `${ID_SERVICE_URL}/v2/ext/submit-build`, using the CI-only `ID_SERVICE_API_KEY`. The `core-id-api` service stores it for the extension's App Check checks. See [core-id-api](index.md#backend-dependencies).
+3. **Submit build:** POSTs JSON to `${ID_SERVICE_URL}/v2/ext/submit-build` (headers `X-App-Version` = manifest version, `X-Api-Key` = the CI-only `ID_SERVICE_API_KEY`). The body is `{ manifest, pathChecksumMap }`: `manifest` is the whole `dist/manifest.json`, base64-encoded; `pathChecksumMap` maps each `dist/` `.js` file path (relative to `dist/`, files with `node_modules` in the name skipped) to the SHA-256 hex of the string `<manifest.version>:<base64 of the file's bytes>`, so a plain file hash will not match. The `core-id-api` service stores it for the extension's App Check checks. See [core-id-api](index.md#backend-dependencies).
 4. **Zip:** `yarn zip` packages `dist/`.
 5. **GitHub Release:** attaches the zip to the release.
 
