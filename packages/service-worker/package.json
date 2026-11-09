@@ -103,7 +103,7 @@
     "@lavamoat/preinstall-always-fail": "1.0.0",
     "@rsbuild/core": "1.3.3",
     "@rsbuild/plugin-node-polyfill": "1.3.0",
-    "@rsdoctor/rspack-plugin": "1.0.2",
+    "@rsdoctor/rspack-plugin": "1.5.16",
     "@rspack/core": "1.3.2",
     "@semantic-release/commit-analyzer": "9.0.2",
     "@semantic-release/exec": "6.0.3",
@@ -138,7 +138,7 @@
     "path-browserify": "1.0.1",
     "prettier": "3.4.2",
     "semantic-release": "19.0.3",
-    "shell-quote": "1.8.1",
+    "shell-quote": "1.9.0",
     "ts-jest": "29.3.0",
     "typescript": "5.8.2",
     "webextension-polyfill": "0.10.0"

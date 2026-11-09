@@ -73,7 +73,7 @@
         "@avalabs/bridge-unified>@noble/hashes": true,
         "@avalabs/bridge-unified>@scure/base": true,
         "@avalabs/fusion-sdk>coinselect": true,
-        "@avalabs/bridge-unified>lodash": true,
+        "lodash": true,
         "@avalabs/bridge-unified>viem": true,
         "@avalabs/bridge-unified>zod": true
       }
@@ -517,7 +517,7 @@
         "setTimeout": true
       },
       "packages": {
-        "@cubist-labs/cubesigner-sdk>@hpke/core": true,
+        "@avalabs/core-utils-sdk>@hpke/core": true,
         "buffer": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify": true,
         "@cubist-labs/cubesigner-sdk>openapi-fetch": true
@@ -722,24 +722,20 @@
         "joi>@hapi/hoek": true
       }
     },
-    "@cubist-labs/cubesigner-sdk>@hpke/core>@hpke/common": {
+    "@avalabs/core-utils-sdk>@hpke/core>@hpke/common": {
       "globals": {
-        "TextDecoder": true,
-        "TextEncoder": true,
         "atob": true,
         "btoa": true,
-        "crypto": true
-      },
-      "packages": {
-        "@rsbuild/plugin-node-polyfill>crypto-browserify": true
+        "crypto": true,
+        "require": true
       }
     },
-    "@cubist-labs/cubesigner-sdk>@hpke/core": {
+    "@avalabs/core-utils-sdk>@hpke/core": {
       "globals": {
         "define": true
       },
       "packages": {
-        "@cubist-labs/cubesigner-sdk>@hpke/core>@hpke/common": true
+        "@avalabs/core-utils-sdk>@hpke/core>@hpke/common": true
       }
     },
     "@ledgerhq/context-module>inversify>@inversifyjs/container": {
@@ -932,7 +928,7 @@
       "packages": {
         "@avalabs/fusion-sdk>@bitcoinerlab/secp256k1": true,
         "@avalabs/bridge-unified>@layerzerolabs/lz-v2-utilities": true,
-        "@avalabs/fusion-sdk>axios": true,
+        "fireblocks-sdk>axios": true,
         "@avalabs/fusion-sdk>bignumber.js": true,
         "@avalabs/bridge-unified>bitcoinjs-lib": true,
         "buffer": true,
@@ -948,7 +944,7 @@
       },
       "packages": {
         "@avalabs/fusion-sdk>@bitcoinerlab/secp256k1": true,
-        "@avalabs/fusion-sdk>axios": true,
+        "fireblocks-sdk>axios": true,
         "@avalabs/fusion-sdk>bignumber.js": true,
         "@avalabs/fusion-sdk>bitcoinjs-lib": true,
         "buffer": true,
@@ -1086,7 +1082,7 @@
         "buffer": true,
         "eslint>debug": true,
         "@metamask/rpc-errors>@metamask/utils>pony-cause": true,
-        "semver": true,
+        "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/abi-utils>@metamask/utils>semver": true,
         "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/utils>superstruct": true
       }
     },
@@ -1102,7 +1098,7 @@
         "buffer": true,
         "eslint>debug": true,
         "@metamask/rpc-errors>@metamask/utils>pony-cause": true,
-        "semver": true,
+        "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/utils>semver": true,
         "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/utils>superstruct": true
       }
     },
@@ -1339,12 +1335,12 @@
         "fireblocks-sdk>@notabene/pii-sdk>@stablelib/ed25519": true,
         "fireblocks-sdk>@notabene/pii-sdk>axios-oauth-client": true,
         "fireblocks-sdk>@notabene/pii-sdk>axios-token-interceptor": true,
-        "fireblocks-sdk>@notabene/pii-sdk>axios": true,
+        "fireblocks-sdk>axios": true,
         "fireblocks-sdk>@notabene/pii-sdk>base64url": true,
         "bitcoinjs-lib>bs58check>bs58": true,
         "buffer": true,
         "fireblocks-sdk>@notabene/pii-sdk>did-jwt": true,
-        "fireblocks-sdk>@notabene/pii-sdk>lodash": true,
+        "lodash": true,
         "fireblocks-sdk>@notabene/pii-sdk>multibase": true,
         "fireblocks-sdk>@notabene/pii-sdk>multicodec": true
       }
@@ -2329,7 +2325,7 @@
         "bn.js": true,
         "bip32>create-hash>inherits": true,
         "bip32>tiny-secp256k1>elliptic>minimalistic-assert": true,
-        "@blockaid/client>node-fetch>encoding>iconv-lite>safer-buffer": true
+        "@rsdoctor/rspack-plugin>@rsdoctor/sdk>safer-buffer": true
       }
     },
     "@rsbuild/plugin-node-polyfill>assert": {
@@ -2362,11 +2358,10 @@
         "fireblocks-sdk>@notabene/pii-sdk>axios-token-interceptor>lock": true
       }
     },
-    "@avalabs/fusion-sdk>axios": {
+    "fireblocks-sdk>axios": {
       "globals": {
         "AbortController": true,
         "Blob": true,
-        "Buffer.from": true,
         "FormData": true,
         "ReadableStream": true,
         "URL": true,
@@ -2376,59 +2371,20 @@
         "btoa": true,
         "clearTimeout": true,
         "console.warn": true,
+        "cookieStore": true,
         "document": true,
         "fetch": true,
         "importScripts": true,
         "location.href": true,
         "navigator": true,
+        "performance": true,
         "process": true,
         "queueMicrotask": true,
         "setImmediate": true,
         "setTimeout": true
       },
       "packages": {
-        "buffer": true,
         "@rsbuild/plugin-node-polyfill>process": true
-      }
-    },
-    "fireblocks-sdk>@notabene/pii-sdk>axios": {
-      "globals": {
-        "Blob": true,
-        "Buffer.from": true,
-        "FormData": true,
-        "URLSearchParams": true,
-        "WorkerGlobalScope": true,
-        "XMLHttpRequest": true,
-        "btoa": true,
-        "console.warn": true,
-        "document": true,
-        "importScripts": true,
-        "location.href": true,
-        "navigator": true,
-        "setTimeout": true
-      },
-      "packages": {
-        "buffer": true
-      }
-    },
-    "fireblocks-sdk>axios": {
-      "globals": {
-        "Blob": true,
-        "Buffer.from": true,
-        "FormData": true,
-        "URLSearchParams": true,
-        "WorkerGlobalScope": true,
-        "XMLHttpRequest": true,
-        "btoa": true,
-        "console.warn": true,
-        "document": true,
-        "importScripts": true,
-        "location.href": true,
-        "navigator": true,
-        "setTimeout": true
-      },
-      "packages": {
-        "buffer": true
       }
     },
     "@ledgerhq/device-signer-kit-solana>@solana/web3.js>bs58>base-x": {
@@ -2775,13 +2731,13 @@
     },
     "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bind>call-bind-apply-helpers": {
       "packages": {
-        "bip39>pbkdf2>to-buffer>typed-array-buffer>es-errors": true,
+        "fireblocks-sdk>qs>side-channel>es-errors": true,
         "fireblocks-sdk>axios>form-data>hasown>function-bind": true
       }
     },
     "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound>call-bind-apply-helpers": {
       "packages": {
-        "bip39>pbkdf2>to-buffer>typed-array-buffer>es-errors": true,
+        "fireblocks-sdk>qs>side-channel>es-errors": true,
         "fireblocks-sdk>axios>form-data>hasown>function-bind": true
       }
     },
@@ -2828,12 +2784,6 @@
         "i18next-scanner>vinyl-fs>object.assign>call-bind>get-intrinsic": true
       }
     },
-    "fireblocks-sdk>qs>side-channel>call-bind": {
-      "packages": {
-        "fireblocks-sdk>qs>side-channel>call-bind>function-bind": true,
-        "fireblocks-sdk>qs>side-channel>get-intrinsic": true
-      }
-    },
     "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound": {
       "packages": {
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound>call-bind-apply-helpers": true,
@@ -2878,14 +2828,6 @@
         "bip32>create-hash>md5.js": true,
         "bip32>create-hash>ripemd160": true,
         "bip32>create-hash>sha.js": true
-      }
-    },
-    "bip39>pbkdf2>create-hash": {
-      "globals": {
-        "Buffer": true
-      },
-      "packages": {
-        "buffer": true
       }
     },
     "bip32>create-hmac": {
@@ -2949,7 +2891,7 @@
     "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bind>set-function-length>define-data-property": {
       "packages": {
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bind>es-define-property": true,
-        "bip39>pbkdf2>to-buffer>typed-array-buffer>es-errors": true,
+        "fireblocks-sdk>qs>side-channel>es-errors": true,
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bind>set-function-length>gopd": true
       }
     },
@@ -3007,10 +2949,10 @@
         "bip39>randombytes": true
       }
     },
-    "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto>dunder-proto": {
+    "fireblocks-sdk>qs>side-channel>side-channel-map>get-intrinsic>get-proto>dunder-proto": {
       "packages": {
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound>call-bind-apply-helpers": true,
-        "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto>dunder-proto>gopd": true
+        "fireblocks-sdk>qs>side-channel>side-channel-map>get-intrinsic>get-proto>dunder-proto>gopd": true
       }
     },
     "fireblocks-sdk>jsonwebtoken>jws>jwa>ecdsa-sig-formatter": {
@@ -3293,10 +3235,8 @@
     },
     "external:../../node_modules/react-i18next/dist/es/context.js": {
       "packages": {
+        "i18next>@babel/runtime": true,
         "external:../../node_modules/react-i18next/dist/es/unescape.js": true,
-        "external:../../node_modules/react-i18next/node_modules/@babel/runtime/helpers/esm/classCallCheck.js": true,
-        "external:../../node_modules/react-i18next/node_modules/@babel/runtime/helpers/esm/createClass.js": true,
-        "external:../../node_modules/react-i18next/node_modules/@babel/runtime/helpers/esm/defineProperty.js": true,
         "hypersdk-client>@metamask/sdk>react": true
       }
     },
@@ -3986,11 +3926,11 @@
         "WeakRef": true
       },
       "packages": {
-        "bip39>pbkdf2>to-buffer>typed-array-buffer>es-errors": true,
+        "fireblocks-sdk>qs>side-channel>es-errors": true,
         "fireblocks-sdk>axios>form-data>hasown>function-bind": true,
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bind>get-intrinsic>has-proto": true,
         "i18next-scanner>vinyl-fs>object.assign>has-symbols": true,
-        "fireblocks-sdk>axios>form-data>hasown": true
+        "fireblocks-sdk>axios>form-data>es-set-tostringtag>hasown": true
       }
     },
     "@rsbuild/plugin-node-polyfill>assert>object-is>call-bind>get-intrinsic": {
@@ -4027,14 +3967,14 @@
       "packages": {
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound>call-bind-apply-helpers": true,
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound>get-intrinsic>es-define-property": true,
-        "bip39>pbkdf2>to-buffer>typed-array-buffer>es-errors": true,
+        "fireblocks-sdk>qs>side-channel>es-errors": true,
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound>get-intrinsic>es-object-atoms": true,
         "fireblocks-sdk>axios>form-data>hasown>function-bind": true,
-        "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-map>get-intrinsic>get-proto": true,
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound>get-intrinsic>gopd": true,
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound>get-intrinsic>has-symbols": true,
-        "fireblocks-sdk>axios>form-data>hasown": true,
-        "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>math-intrinsics": true
+        "fireblocks-sdk>axios>form-data>es-set-tostringtag>hasown": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-map>get-intrinsic>math-intrinsics": true
       }
     },
     "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bind>set-function-length>gopd>get-intrinsic": {
@@ -4049,7 +3989,7 @@
         "@lavamoat/allow-scripts>resolve>is-core-module>has": true
       }
     },
-    "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map>get-intrinsic": {
+    "fireblocks-sdk>qs>side-channel>side-channel-map>get-intrinsic": {
       "globals": {
         "AggregateError": true,
         "FinalizationRegistry": true,
@@ -4058,18 +3998,18 @@
       },
       "packages": {
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound>call-bind-apply-helpers": true,
-        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map>get-intrinsic>es-define-property": true,
-        "bip39>pbkdf2>to-buffer>typed-array-buffer>es-errors": true,
-        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map>get-intrinsic>es-object-atoms": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-map>get-intrinsic>es-define-property": true,
+        "fireblocks-sdk>qs>side-channel>es-errors": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-map>get-intrinsic>es-object-atoms": true,
         "fireblocks-sdk>axios>form-data>hasown>function-bind": true,
-        "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto": true,
-        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map>get-intrinsic>gopd": true,
-        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map>get-intrinsic>has-symbols": true,
-        "fireblocks-sdk>axios>form-data>hasown": true,
-        "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>math-intrinsics": true
+        "fireblocks-sdk>qs>side-channel>side-channel-map>get-intrinsic>get-proto": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-map>get-intrinsic>gopd": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-map>get-intrinsic>has-symbols": true,
+        "fireblocks-sdk>axios>form-data>es-set-tostringtag>hasown": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-map>get-intrinsic>math-intrinsics": true
       }
     },
-    "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-weakmap>get-intrinsic": {
+    "fireblocks-sdk>qs>side-channel>side-channel-weakmap>get-intrinsic": {
       "globals": {
         "AggregateError": true,
         "FinalizationRegistry": true,
@@ -4078,33 +4018,21 @@
       },
       "packages": {
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound>call-bind-apply-helpers": true,
-        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-weakmap>get-intrinsic>es-define-property": true,
-        "bip39>pbkdf2>to-buffer>typed-array-buffer>es-errors": true,
-        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-weakmap>get-intrinsic>es-object-atoms": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-weakmap>get-intrinsic>es-define-property": true,
+        "fireblocks-sdk>qs>side-channel>es-errors": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-weakmap>get-intrinsic>es-object-atoms": true,
         "fireblocks-sdk>axios>form-data>hasown>function-bind": true,
-        "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto": true,
-        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-weakmap>get-intrinsic>gopd": true,
-        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-weakmap>get-intrinsic>has-symbols": true,
-        "fireblocks-sdk>axios>form-data>hasown": true,
-        "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>math-intrinsics": true
+        "fireblocks-sdk>qs>side-channel>side-channel-map>get-intrinsic>get-proto": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-weakmap>get-intrinsic>gopd": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-weakmap>get-intrinsic>has-symbols": true,
+        "fireblocks-sdk>axios>form-data>es-set-tostringtag>hasown": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-map>get-intrinsic>math-intrinsics": true
       }
     },
-    "fireblocks-sdk>qs>side-channel>get-intrinsic": {
-      "globals": {
-        "AggregateError": true,
-        "FinalizationRegistry": true,
-        "WeakRef": true
-      },
+    "fireblocks-sdk>qs>side-channel>side-channel-map>get-intrinsic>get-proto": {
       "packages": {
-        "fireblocks-sdk>qs>side-channel>call-bind>function-bind": true,
-        "i18next-scanner>vinyl-fs>object.assign>has-symbols": true,
-        "@lavamoat/allow-scripts>resolve>is-core-module>has": true
-      }
-    },
-    "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto": {
-      "packages": {
-        "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto>dunder-proto": true,
-        "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto>es-object-atoms": true
+        "fireblocks-sdk>qs>side-channel>side-channel-map>get-intrinsic>get-proto>dunder-proto": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-map>get-intrinsic>get-proto>es-object-atoms": true
       }
     },
     "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bind>set-function-length>gopd": {
@@ -4157,13 +4085,11 @@
       }
     },
     "bip39>pbkdf2>ripemd160>hash-base": {
-      "globals": {
-        "Buffer": true
-      },
       "packages": {
-        "buffer": true,
         "bip32>create-hash>inherits": true,
-        "@rsbuild/plugin-node-polyfill>stream-browserify": true
+        "bip39>pbkdf2>ripemd160>hash-base>readable-stream": true,
+        "bip32>bs58check>safe-buffer": true,
+        "bip39>pbkdf2>to-buffer": true
       }
     },
     "ethereumjs-util>ethereum-cryptography>hash.js": {
@@ -4172,7 +4098,7 @@
         "bip32>tiny-secp256k1>elliptic>minimalistic-assert": true
       }
     },
-    "fireblocks-sdk>axios>form-data>hasown": {
+    "fireblocks-sdk>axios>form-data>es-set-tostringtag>hasown": {
       "packages": {
         "fireblocks-sdk>axios>form-data>hasown>function-bind": true
       }
@@ -4340,7 +4266,7 @@
     },
     "@ledgerhq/device-signer-kit-solana>@solana/web3.js>jayson": {
       "packages": {
-        "fireblocks-sdk>uuid": true
+        "@ledgerhq/device-signer-kit-solana>@solana/web3.js>jayson>uuid": true
       }
     },
     "joi": {
@@ -4405,10 +4331,10 @@
         "buffer": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify": true,
         "fireblocks-sdk>jsonwebtoken>jws": true,
-        "fireblocks-sdk>jsonwebtoken>lodash": true,
+        "lodash": true,
         "fireblocks-sdk>jsonwebtoken>ms": true,
         "@rsbuild/plugin-node-polyfill>process": true,
-        "semver": true
+        "fireblocks-sdk>jsonwebtoken>semver": true
       }
     },
     "fireblocks-sdk>jsonwebtoken>jws>jwa": {
@@ -4451,21 +4377,6 @@
       }
     },
     "lodash": {
-      "globals": {
-        "define": true
-      }
-    },
-    "@avalabs/bridge-unified>lodash": {
-      "globals": {
-        "define": true
-      }
-    },
-    "fireblocks-sdk>@notabene/pii-sdk>lodash": {
-      "globals": {
-        "define": true
-      }
-    },
-    "fireblocks-sdk>jsonwebtoken>lodash": {
       "globals": {
         "define": true
       }
@@ -4577,13 +4488,19 @@
         "crypto.subtle.digest": true
       }
     },
-    "fireblocks-sdk>qs>side-channel>object-inspect": {
+    "fireblocks-sdk>qs>side-channel>side-channel-list>object-inspect": {
       "globals": {
         "HTMLElement": true,
         "WeakRef": true
       }
     },
-    "@rsbuild/plugin-node-polyfill>url>qs>side-channel>object-inspect": {
+    "fireblocks-sdk>qs>side-channel>side-channel-map>object-inspect": {
+      "globals": {
+        "HTMLElement": true,
+        "WeakRef": true
+      }
+    },
+    "fireblocks-sdk>qs>side-channel>object-inspect": {
       "globals": {
         "HTMLElement": true,
         "WeakRef": true
@@ -4663,7 +4580,7 @@
         "setTimeout": true
       },
       "packages": {
-        "bip39>pbkdf2>create-hash": true,
+        "bip32>create-hash": true,
         "@rsbuild/plugin-node-polyfill>process": true,
         "bip39>pbkdf2>ripemd160": true,
         "bip32>bs58check>safe-buffer": true,
@@ -4717,12 +4634,8 @@
     },
     "fireblocks-sdk>qs": {
       "packages": {
+        "fireblocks-sdk>qs>es-define-property": true,
         "fireblocks-sdk>qs>side-channel": true
-      }
-    },
-    "@rsbuild/plugin-node-polyfill>url>qs": {
-      "packages": {
-        "@rsbuild/plugin-node-polyfill>url>qs>side-channel": true
       }
     },
     "fireblocks-sdk>query-string": {
@@ -4804,6 +4717,26 @@
         "bestzip>archiver>readable-stream>util-deprecate": true
       }
     },
+    "bip39>pbkdf2>ripemd160>hash-base>readable-stream": {
+      "globals": {
+        "process.browser": true,
+        "process.stderr": true,
+        "process.stdout": true,
+        "process.version.slice": true,
+        "setImmediate": true
+      },
+      "packages": {
+        "i18next-scanner>vinyl-fs>readable-stream>core-util-is": true,
+        "events": true,
+        "bip32>create-hash>inherits": true,
+        "bip39>pbkdf2>ripemd160>hash-base>readable-stream>isarray": true,
+        "i18next-scanner>vinyl>cloneable-readable>process-nextick-args": true,
+        "@rsbuild/plugin-node-polyfill>process": true,
+        "bip39>pbkdf2>ripemd160>hash-base>readable-stream>safe-buffer": true,
+        "bip39>pbkdf2>ripemd160>hash-base>readable-stream>string_decoder": true,
+        "bestzip>archiver>readable-stream>util-deprecate": true
+      }
+    },
     "reflect-metadata": {
       "globals": {
         "crypto": true,
@@ -4822,9 +4755,6 @@
       }
     },
     "bip39>pbkdf2>ripemd160": {
-      "globals": {
-        "Buffer": true
-      },
       "packages": {
         "buffer": true,
         "bip39>pbkdf2>ripemd160>hash-base": true,
@@ -4874,12 +4804,22 @@
         "buffer": true
       }
     },
+    "bip39>pbkdf2>ripemd160>hash-base>readable-stream>safe-buffer": {
+      "packages": {
+        "buffer": true
+      }
+    },
     "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>readable-stream>string_decoder>safe-buffer": {
       "packages": {
         "buffer": true
       }
     },
-    "@blockaid/client>node-fetch>encoding>iconv-lite>safer-buffer": {
+    "bip39>pbkdf2>ripemd160>hash-base>readable-stream>string_decoder>safe-buffer": {
+      "packages": {
+        "buffer": true
+      }
+    },
+    "@rsdoctor/rspack-plugin>@rsdoctor/sdk>safer-buffer": {
       "globals": {
         "process.binding": true
       },
@@ -4921,10 +4861,37 @@
         "@rsbuild/plugin-node-polyfill>process": true
       }
     },
+    "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/abi-utils>@metamask/utils>semver": {
+      "globals": {
+        "console.error": true,
+        "process": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>process": true
+      }
+    },
+    "@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/utils>semver": {
+      "globals": {
+        "console.error": true,
+        "process": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>process": true
+      }
+    },
+    "fireblocks-sdk>jsonwebtoken>semver": {
+      "globals": {
+        "console.error": true,
+        "process": true
+      },
+      "packages": {
+        "@rsbuild/plugin-node-polyfill>process": true
+      }
+    },
     "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bind>set-function-length": {
       "packages": {
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bind>set-function-length>define-data-property": true,
-        "bip39>pbkdf2>to-buffer>typed-array-buffer>es-errors": true,
+        "fireblocks-sdk>qs>side-channel>es-errors": true,
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bind>get-intrinsic": true,
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bind>set-function-length>gopd": true,
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bind>set-function-length>has-property-descriptors": true
@@ -4937,43 +4904,36 @@
         "bip39>pbkdf2>to-buffer": true
       }
     },
-    "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-list": {
+    "fireblocks-sdk>qs>side-channel>side-channel-list": {
       "packages": {
-        "bip39>pbkdf2>to-buffer>typed-array-buffer>es-errors": true,
-        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>object-inspect": true
+        "fireblocks-sdk>qs>side-channel>es-errors": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-list>object-inspect": true
       }
     },
-    "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map": {
+    "fireblocks-sdk>qs>side-channel>side-channel-map": {
       "packages": {
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound": true,
-        "bip39>pbkdf2>to-buffer>typed-array-buffer>es-errors": true,
-        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map>get-intrinsic": true,
-        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>object-inspect": true
+        "fireblocks-sdk>qs>side-channel>es-errors": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-map>get-intrinsic": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-map>object-inspect": true
       }
     },
-    "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-weakmap": {
+    "fireblocks-sdk>qs>side-channel>side-channel-weakmap": {
       "packages": {
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound": true,
-        "bip39>pbkdf2>to-buffer>typed-array-buffer>es-errors": true,
-        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-weakmap>get-intrinsic": true,
-        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>object-inspect": true,
-        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map": true
+        "fireblocks-sdk>qs>side-channel>es-errors": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-weakmap>get-intrinsic": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-map>object-inspect": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-map": true
       }
     },
     "fireblocks-sdk>qs>side-channel": {
       "packages": {
-        "fireblocks-sdk>qs>side-channel>call-bind": true,
-        "fireblocks-sdk>qs>side-channel>get-intrinsic": true,
-        "fireblocks-sdk>qs>side-channel>object-inspect": true
-      }
-    },
-    "@rsbuild/plugin-node-polyfill>url>qs>side-channel": {
-      "packages": {
-        "bip39>pbkdf2>to-buffer>typed-array-buffer>es-errors": true,
-        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>object-inspect": true,
-        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-list": true,
-        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-map": true,
-        "@rsbuild/plugin-node-polyfill>url>qs>side-channel>side-channel-weakmap": true
+        "fireblocks-sdk>qs>side-channel>es-errors": true,
+        "fireblocks-sdk>qs>side-channel>object-inspect": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-list": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-map": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-weakmap": true
       }
     },
     "@rsbuild/plugin-node-polyfill>stream-browserify": {
@@ -5018,6 +4978,11 @@
     "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>readable-stream>string_decoder": {
       "packages": {
         "@rsbuild/plugin-node-polyfill>crypto-browserify>browserify-sign>readable-stream>string_decoder>safe-buffer": true
+      }
+    },
+    "bip39>pbkdf2>ripemd160>hash-base>readable-stream>string_decoder": {
+      "packages": {
+        "bip39>pbkdf2>ripemd160>hash-base>readable-stream>string_decoder>safe-buffer": true
       }
     },
     "@metamask/eth-sig-util>ethjs-util>strip-hex-prefix": {
@@ -5094,7 +5059,7 @@
     "bip39>pbkdf2>to-buffer>typed-array-buffer": {
       "packages": {
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound": true,
-        "bip39>pbkdf2>to-buffer>typed-array-buffer>es-errors": true,
+        "fireblocks-sdk>qs>side-channel>es-errors": true,
         "bip39>pbkdf2>to-buffer>typed-array-buffer>is-typed-array": true
       }
     },
@@ -5119,7 +5084,7 @@
     "@rsbuild/plugin-node-polyfill>url": {
       "packages": {
         "@rsbuild/plugin-node-polyfill>url>punycode": true,
-        "@rsbuild/plugin-node-polyfill>url>qs": true
+        "fireblocks-sdk>qs": true
       }
     },
     "bestzip>archiver>readable-stream>util-deprecate": {
@@ -5156,6 +5121,12 @@
       }
     },
     "fireblocks-sdk>uuid": {
+      "globals": {
+        "crypto": true,
+        "msCrypto": true
+      }
+    },
+    "@ledgerhq/device-signer-kit-solana>@solana/web3.js>jayson>uuid": {
       "globals": {
         "crypto": true,
         "msCrypto": true
@@ -5227,7 +5198,7 @@
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bind": true,
         "@core/lavamoat-rspack>lavamoat-core>json-stable-stringify>call-bound": true,
         "bip39>pbkdf2>to-buffer>typed-array-buffer>is-typed-array>which-typed-array>for-each": true,
-        "fireblocks-sdk>axios>form-data>es-set-tostringtag>get-intrinsic>get-proto": true,
+        "fireblocks-sdk>qs>side-channel>side-channel-map>get-intrinsic>get-proto": true,
         "bip39>pbkdf2>to-buffer>typed-array-buffer>is-typed-array>which-typed-array>gopd": true,
         "bip39>pbkdf2>to-buffer>typed-array-buffer>is-typed-array>which-typed-array>has-tostringtag": true
       }
@@ -5282,18 +5253,12 @@
     "zod": {
       "globals": {
         "File": true,
-        "JSONSchema": true,
         "URL": true,
+        "__zod_globalConfig": true,
         "__zod_globalRegistry": true,
         "atob": true,
         "btoa": true,
-        "coerce": true,
-        "core": true,
-        "iso": true,
-        "locales": true,
-        "navigator": true,
-        "regexes": true,
-        "util": true
+        "navigator": true
       }
     },
     "@avalabs/avalanche-module>zod": {
