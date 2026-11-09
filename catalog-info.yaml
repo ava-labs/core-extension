@@ -55,6 +55,7 @@ spec:
     - api:default/proxy-api-worker
     - api:default/core-proxy-api
   dependsOn:
+    - component:default/core-identity-frontend
     - resource:default/posthog
     - resource:default/firebase-app-check
     - resource:default/firebase-cloud-messaging

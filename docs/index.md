@@ -35,6 +35,8 @@ flowchart LR
         PXW["proxy-api-worker"]
     end
 
+    IDF["core-identity-frontend"]
+
     subgraph TP["Third parties"]
         PH["PostHog"]
         FB["Firebase"]
@@ -54,6 +56,7 @@ flowchart LR
     SW -->|"eligibility, fund"| GAS
     OFF -->|"PoW challenge"| GAS
     SW -->|"seedless"| SEED
+    UI -->|"FIDO popup (MFA)"| IDF
     SW -->|"Glacier"| PXC
     SW -->|"flags, scans, RPC, prices"| PXW
 
@@ -89,6 +92,8 @@ Hardcoded production hosts apply to every build:
 | ------------------------------------------------ | ---------------------------------------------------- |
 | `proxy-api.avax.network/proxy/nownodes/hype/evm` | HyperEVM RPC                                         |
 | `cdn.jsdelivr.net`                               | Currency rates (`@fawazahmed0/currency-api`, hourly) |
+
+Seedless MFA with a passkey or security key opens a popup at `SEEDLESS_FIDO_IDENTITY_URL`, with `/register` and `/authenticate` paths (`launchFidoFlow`, called from the UI). The popup is `core-identity-frontend` (identity.core.app, see [its repository](https://github.com/ava-labs/core-identity-frontend)). It returns the credential with `postMessage`, so the extension IDs must stay in its allowed origins.
 
 ## Third parties
 
