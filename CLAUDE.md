@@ -210,3 +210,20 @@ Failure screenshots are deny-by-default. Every new or modified E2E test must exp
 - Avoid memory leaks in long-running background processes
 
 Always run `yarn lint` and `yarn typecheck` before committing changes.
+
+## Docs and service catalogue
+
+`docs/` and `catalog-info.yaml` are published in the Core Backstage catalogue, so **update them in the same change as the code**:
+
+- New or changed backend calls, or env-var base URLs → `consumesApis` / `dependsOn` in `catalog-info.yaml` and the backend dependencies / third parties tables and flowchart in `docs/index.md`. A new third party also needs an `external-service` Resource in `catalog/external.yaml` of the service-catalogue repo.
+- Release workflows, `.releaserc.js` or `build-scripts/submitBuild.mjs` → `docs/release.md`.
+- Dev setup commands, Node version or env files → `docs/development.md` (and the commands in this file if they repeat them).
+- Architecture changes → the matching numbered page in `docs/`.
+
+Don't update docs for pure refactors, tests or dependency bumps.
+
+Links between docs pages are relative and stay inside `docs/` (MkDocs serves nothing outside it). Check with:
+
+```bash
+docker run --rm -v "$PWD:/content" -w /content spotify/techdocs build --strict -d /tmp/site
+```

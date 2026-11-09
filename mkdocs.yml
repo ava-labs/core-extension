@@ -1,0 +1,28 @@
+site_name: core-extension
+repo_url: https://github.com/ava-labs/core-extension
+edit_uri: edit/main/docs/
+
+nav:
+  - Overview: index.md
+  - Architecture:
+      - Architecture: 01-Architecture.md
+      - Service worker: 02-Service-worker.md
+      - Storage: 03-Storage.md
+      - Frontend: 04-Frontend.md
+      - Dapp connections: 05-Dapp-connections.md
+  - Integrations:
+      - Ledger: 06-Ledger.md
+      - Localization: 07-Localization.md
+      - Analytics and feature flags: 08-Analytics-and-Feature-Flags.md
+      - Seedless: 10-Seedless.md
+  - Guides:
+      - Development: development.md
+      - Release: release.md
+      - Linking local VM modules with yalc: YALC_VM_MODULES.md
+
+exclude_docs: |
+  /README.md
+  diagrams/README.md
+
+plugins:
+  - techdocs-core

@@ -59,7 +59,7 @@ The onboarding flow requires communication with both the Core seedless backend a
 5. For existing users, the extension prompts the user to use the previously configured MFA device and exchanges the OIDC token for a signer session token.
 6. Using the session token, extension configures the account list and initializes the seedless wallet.
 
-<img src="images/seedless-onboarding-flow.png" />
+![seedless onboarding flow](images/seedless-onboarding-flow.png)
 
 ### OIDC providers
 
@@ -100,7 +100,7 @@ Using raw blob signing requires adding the `AllowRawBlobSigning` policy to the u
 
 ### Signing flow
 
-<img src="images/seedless-signing-flow.png" />
+![seedless signing flow](images/seedless-signing-flow.png)
 
 ## Recovery phrase export
 
@@ -112,7 +112,7 @@ Seedless users can export their mnemonic, but CubeSigner enforces a mandatory wa
 4. Completing the export decrypts the mnemonic (`Exporting` → `Exported`).
 5. The user can cancel at any point, which resets the state back to `NotInitiated`.
 
-<img src="images/seedless-export-phrase-flow.png" />
+![seedless export phrase flow](images/seedless-export-phrase-flow.png)
 
 ## Deleting accounts
 

@@ -8,7 +8,7 @@ Core provides Ledger support since the very early versions. Core supports both B
 
 Due to some Manifest V3 restrictions, namely the lack of WebUSB access on the service worker, there is a special `LedgerTransport` object (`packages/service-worker/src/services/ledger/LedgerTransport.ts`) on the service worker. It implements Ledger's Transport interface and makes relaying the requests to the Ledger device possible through the frontend.
 
-<img src="images/ledger-architecture.png"/>
+![ledger architecture](images/ledger-architecture.png)
 
 To avoid some unnecessary `frontend -> service worker -> frontend -> ledger -> frontend -> service worker` loops, we decided to expose a very limited set of Ledger interactions directly on the LedgerProvider on the frontend. These are meant for collecting all the public key and account information needed for Ledger onboarding.
 
@@ -19,11 +19,11 @@ To get ahead of this issue, the browser extension closes all non-active windows,
 
 ## Bitcoin: why Core asks for the `Bitcoin Recovery` app
 
-Core keeps a Ledger wallet's Bitcoin addresses on the same account as its EVM addresses, so the wallet policy it registers on the device is derived from an Ethereum coin type: `44'/60'/0'` for BIP44 wallets and `44'/60'/n'` for LedgerLive ones (see [`useRegisterBtcWalletPolicy`](../packages/ui/src/hooks/useRegisterBtcWalletPolicy.ts)). No Bitcoin BIP describes that path, which makes it a non-standard one from the Bitcoin app's point of view.
+Core keeps a Ledger wallet's Bitcoin addresses on the same account as its EVM addresses, so the wallet policy it registers on the device is derived from an Ethereum coin type: `44'/60'/0'` for BIP44 wallets and `44'/60'/n'` for LedgerLive ones (see [`useRegisterBtcWalletPolicy`](https://github.com/ava-labs/core-extension/blob/main/packages/ui/src/hooks/useRegisterBtcWalletPolicy.ts)). No Bitcoin BIP describes that path, which makes it a non-standard one from the Bitcoin app's point of view.
 
-Ledger's `Bitcoin` app stopped accepting non-standard derivation paths in version `2.4.3`, which locks Core out of it. `MAX_BITCOIN_APP_VERSION` in [`LedgerProvider`](../packages/ui/src/contexts/LedgerProvider/LedgerProvider.tsx) therefore pins the last usable version at `2.4.2`; on anything newer the approval overlay renders the `unsupported-btc-version` state and links users to the [support article](https://support.core.app/en/articles/13145665-why-doesn-t-my-bitcoin-ledger-application-work-with-core) instead of prompting for a signature.
+Ledger's `Bitcoin` app stopped accepting non-standard derivation paths in version `2.4.3`, which locks Core out of it. `MAX_BITCOIN_APP_VERSION` in [`LedgerProvider`](https://github.com/ava-labs/core-extension/blob/main/packages/ui/src/contexts/LedgerProvider/LedgerProvider.tsx) therefore pins the last usable version at `2.4.2`; on anything newer the approval overlay renders the `unsupported-btc-version` state and links users to the [support article](https://support.core.app/en/articles/13145665-why-doesn-t-my-bitcoin-ledger-application-work-with-core) instead of prompting for a signature.
 
-The way around it is Ledger's `Bitcoin Recovery` app, which is still shipped without the path restriction. So `getRequiredApp()` in [`useLedgerApprovalState`](../apps/next/src/pages/Approve/components/hardware/ledger/useLedgerApprovalState.ts) asks for `Bitcoin Recovery` on Bitcoin networks, while `isCompatibleApp()` keeps accepting a plain `Bitcoin` app as long as it is on `2.4.2` or below — users who have not updated do not need to install anything new.
+The way around it is Ledger's `Bitcoin Recovery` app, which is still shipped without the path restriction. So `getRequiredApp()` in [`useLedgerApprovalState`](https://github.com/ava-labs/core-extension/blob/main/apps/next/src/pages/Approve/components/hardware/ledger/useLedgerApprovalState.ts) asks for `Bitcoin Recovery` on Bitcoin networks, while `isCompatibleApp()` keeps accepting a plain `Bitcoin` app as long as it is on `2.4.2` or below — users who have not updated do not need to install anything new.
 
 ### Wallet policy registration
 
@@ -35,7 +35,7 @@ Registration only runs on a compatible Bitcoin app, so a user on `Bitcoin` 2.4.3
 
 The diagram below shows the generic data flow of signing a transaction. The generic idea is the same for all types of transactions, the only difference is the UI and the handler.
 
-<img src="images/ledger-signing-flow.png" />
+![ledger signing flow](images/ledger-signing-flow.png)
 
 ## Most common issues
 

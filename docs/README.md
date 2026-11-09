@@ -2,6 +2,12 @@
 
 <hr>
 
+## Start here
+
+- [Overview](index.md): what the extension is, its pieces, and its backend dependencies
+- [Development](development.md): setup, run, load in Chrome, commands
+- [Release](release.md): versioning, alpha and production releases
+
 ## Architecture
 
 1. [Architecture](01-Architecture.md)
@@ -19,8 +25,10 @@
 
 ## Guides
 
+- [Development](development.md)
+- [Release](release.md)
 - [Linking local VM modules with yalc](YALC_VM_MODULES.md)
 - [Editing the diagrams](diagrams/README.md)
-- [Regenerating the API clients](../packages/service-worker/src/api-clients/README.md)
-- [End-to-end tests](../e2e/README.md)
-- [LavaMoat build-time sandboxing](../packages/lavamoat-rspack/README.md)
+- [Regenerating the API clients](https://github.com/ava-labs/core-extension/blob/main/packages/service-worker/src/api-clients/README.md)
+- [End-to-end tests](https://github.com/ava-labs/core-extension/blob/main/e2e/README.md)
+- [LavaMoat build-time sandboxing](https://github.com/ava-labs/core-extension/blob/main/packages/lavamoat-rspack/README.md)

@@ -30,4 +30,4 @@ Since the service worker runs outside of a document, the following limitations a
 
 ## Architecture diagram
 
-<img src="images/background-architecture.png"/>
+![background architecture](images/background-architecture.png)
