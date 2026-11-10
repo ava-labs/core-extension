@@ -57,7 +57,17 @@ describe('BalanceNotificationService', () => {
 
   describe('subscribe', () => {
     it('should not resubscribe with the same details', async () => {
-      const balanceNotificationService = createBalanceNotificationService(true);
+      accountsServiceMock.getAccountList.mockReturnValue([
+        { addressC: '0x123' },
+      ]);
+      storageServiceMock.load.mockResolvedValue({
+        isSubscribed: true,
+        addresses: ['0x123'],
+        chainIds: [ChainId.AVALANCHE_MAINNET_ID.toString()],
+      });
+
+      const balanceNotificationService =
+        createBalanceNotificationService(false);
       await balanceNotificationService.init('deviceArn');
 
       jest.clearAllMocks();
@@ -67,7 +77,6 @@ describe('BalanceNotificationService', () => {
         addresses: ['0x123'],
         chainIds: [ChainId.AVALANCHE_MAINNET_ID.toString()],
       });
-
       accountsServiceMock.getAccountList.mockReturnValueOnce([
         { addressC: '0x123' },
       ]);
