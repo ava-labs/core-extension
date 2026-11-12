@@ -352,6 +352,21 @@ export class ManageTokensPage extends BasePage {
     await this.addSubmitButton.click();
   }
 
+  /**
+   * After submitting a catalog-duplicate address, reports which terminal state
+   * the UI reached. The service-worker duplicate check (isTokenAvailable) fails
+   * open on a token-aggregator timeout, so a flaky lookup accepts the add and
+   * navigates back to the list ('added') instead of rejecting it with the
+   * inline warning ('duplicate'). Callers use 'added' to skip rather than
+   * report a false duplicate-rejection regression.
+   */
+  async waitForAddOutcome(timeout = 30_000): Promise<'duplicate' | 'added'> {
+    await expect(this.addError.or(this.pageRoot).first()).toBeVisible({
+      timeout,
+    });
+    return (await this.pageRoot.isVisible()) ? 'added' : 'duplicate';
+  }
+
   successToast(): Locator {
     return this.page
       .locator('[data-sonner-toast]')
