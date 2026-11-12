@@ -17,6 +17,7 @@ export const ClearButton: FC<ClearButtonProps> = ({ onClick, disabled }) => {
       size="small"
       onClick={onClick}
       disabled={disabled}
+      data-testid="notifications-clear-button"
       sx={{
         backgroundColor: alpha(theme.palette.text.secondary, 0.25),
         borderRadius: '360px',
