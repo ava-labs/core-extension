@@ -1,6 +1,10 @@
 import { test, expect } from '../fixtures/extension.fixture';
 import { OnboardingPage } from '../pages/extension/OnboardingPage';
-import { INVALID_RECOVERY_PHRASE_12, TEST_WALLET_NAMES } from '../constants';
+import {
+  ALLOW_FAILURE_SCREENSHOT_ANNOTATION,
+  INVALID_RECOVERY_PHRASE_12,
+  TEST_WALLET_NAMES,
+} from '../constants';
 
 // All languages exposed by useLanguage() (packages/ui/src/hooks/useLanguages.ts).
 const EXPECTED_LANGUAGE_CODES = [
@@ -29,6 +33,7 @@ test.describe('Onboarding Tests', () => {
     {
       tag: ['@smoke', '@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'none',
@@ -58,6 +63,7 @@ test.describe('Onboarding Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'none',
@@ -115,6 +121,7 @@ test.describe('Onboarding Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'none',
@@ -141,6 +148,7 @@ test.describe('Onboarding Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'none',
@@ -185,6 +193,7 @@ test.describe('Onboarding Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'none',
@@ -294,6 +303,7 @@ test.describe('Onboarding Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         {
           type: 'snapshot',
           description: 'none',

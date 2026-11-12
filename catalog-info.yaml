@@ -1,0 +1,68 @@
+# https://backstage.io/docs/features/software-catalog/descriptor-format
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: core-extension
+  title: Core Extension
+  description: Non-custodial Core Wallet browser extension (Manifest V3) for Bitcoin, EVM, Avalanche and Solana.
+  annotations:
+    github.com/project-slug: ava-labs/core-extension
+    backstage.io/source-location: url:https://github.com/ava-labs/core-extension/tree/main/
+    backstage.io/techdocs-ref: dir:.
+  tags:
+    - typescript
+    - react
+    - browser-extension
+spec:
+  owner: group:default/core-engineering
+  domain: core-client-apps
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: core-extension
+  description: Core Wallet Chrome extension (Manifest V3), published on the Chrome Web Store.
+  annotations:
+    github.com/project-slug: ava-labs/core-extension
+    backstage.io/source-location: url:https://github.com/ava-labs/core-extension/tree/main/
+    backstage.io/techdocs-entity: system:default/core-extension
+    backstage.io/techdocs-entity-path: /
+  links:
+    - url: https://chrome.google.com/webstore/detail/core-crypto-nft-wallet-ex/agoakfejjabomempkjlepdflaleeobhb
+      title: Chrome Web Store
+      icon: web
+    - url: https://github.com/ava-labs/core-extension/releases
+      title: GitHub Releases
+      icon: github
+  tags:
+    - typescript
+    - react
+    - manifest-v3
+spec:
+  type: browser-extension
+  lifecycle: production
+  owner: group:default/core-engineering
+  system: core-extension
+  consumesApis:
+    - api:default/core-balance-api
+    - api:default/core-profile-api
+    - api:default/token-aggregator-api
+    - api:default/core-id-api
+    - api:default/core-notification-sender-api
+    - api:default/core-gas-station-api
+    - api:default/core-seedless-api
+    - api:default/proxy-api-worker
+    - api:default/core-proxy-api
+  dependsOn:
+    - component:default/core-identity-frontend
+    - resource:default/posthog
+    - resource:default/firebase-app-check
+    - resource:default/firebase-cloud-messaging
+    - resource:default/cubesigner
+    - resource:default/google-oauth
+    - resource:default/currency-api
+    - resource:default/apple-oauth
+    - resource:default/sentry
+    - resource:default/walletconnect
+    - resource:default/firebase-vertex-ai

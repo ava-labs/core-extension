@@ -3,7 +3,7 @@ import path from 'node:path';
 import { test, expect } from '../fixtures/extension.fixture';
 import { AccountManagementPage } from '../pages/extension/AccountManagementPage';
 import { WalletViewPage } from '../pages/extension/WalletViewPage';
-import { TEST_CONFIG } from '../constants';
+import { ALLOW_FAILURE_SCREENSHOT_ANNOTATION, TEST_CONFIG } from '../constants';
 
 const { wallet, keystore } = TEST_CONFIG;
 const MAINNET_SNAPSHOT = TEST_CONFIG.snapshots.mainnet;
@@ -32,6 +32,7 @@ test.describe('Account Management Tests', () => {
     {
       tag: ['@smoke', '@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: MAINNET_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -230,6 +231,7 @@ test.describe('Account Management Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: MAINNET_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -265,6 +267,7 @@ test.describe('Account Management Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: MAINNET_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -310,6 +313,7 @@ test.describe('Account Management Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: MAINNET_SNAPSHOT },
         {
           type: 'testrail_case_field',
@@ -355,6 +359,7 @@ test.describe('Account Management Tests', () => {
     {
       tag: ['@regression'],
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: MAINNET_SNAPSHOT },
         {
           type: 'testrail_case_field',

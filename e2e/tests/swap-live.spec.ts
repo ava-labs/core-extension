@@ -13,6 +13,7 @@
  */
 
 import { test, expect } from '../fixtures/extension.fixture';
+import { ALLOW_FAILURE_SCREENSHOT_ANNOTATION } from '../constants';
 import { SwapPage } from '../pages/extension/SwapPage';
 import {
   SWAP_PAIRS,
@@ -66,6 +67,7 @@ test.describe('Swap Live', () => {
       `${pair.from.symbol} → ${pair.to.symbol} (${pair.chain}) (live)`,
       {
         annotation: [
+          { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
           { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
           {
             type: 'testrail_case_field',
@@ -129,6 +131,7 @@ test.describe('Swap Live — Gasless', () => {
     'AVAX → USDC with gasless toggled on (live)',
     {
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
         {
           type: 'testrail_case_field',
@@ -245,6 +248,7 @@ test.describe('Swap Live — Edge Cases', () => {
     'amount exceeds balance → swap disabled (live)',
     {
       annotation: [
+        { type: ALLOW_FAILURE_SCREENSHOT_ANNOTATION },
         { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
         {
           type: 'testrail_case_field',
