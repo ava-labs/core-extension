@@ -67,7 +67,7 @@
     "semver": "7.6.0",
     "viem": "2.38.3",
     "xss": "1.0.13",
-    "zod": "4.3.5",
+    "zod": "4.6.6",
     "zxcvbn": "4.4.2"
   },
   "devDependencies": {
