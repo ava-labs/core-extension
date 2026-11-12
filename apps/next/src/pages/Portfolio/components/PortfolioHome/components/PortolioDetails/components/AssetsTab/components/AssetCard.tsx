@@ -14,7 +14,11 @@ import { Card } from '@/components/Card';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 import { OverflowingTypography } from '@/components/OverflowingTypography';
 import { TokenAvatar } from '@/components/TokenAvatar';
-import { FungibleTokenBalance, getFungibleTokenKey } from '@core/types';
+import {
+  FungibleTokenBalance,
+  getFungibleTokenKey,
+  getUniqueTokenId,
+} from '@core/types';
 import { useSettingsContext } from '@core/ui';
 import { ProfitAndLoss } from '../../ProfitAndLoss';
 import { isAvaxToken } from '@/lib/tokens';
@@ -50,6 +54,7 @@ export const AssetCard: FC<AssetCardProps> = ({ asset }) => {
   return (
     <Card
       data-testid="asset-card"
+      data-token-id={getUniqueTokenId(asset)}
       data-asset-name={asset.name}
       data-asset-balance={String(asset.balanceInCurrency ?? 0)}
       data-asset-is-avax={String(isAvaxToken(asset))}

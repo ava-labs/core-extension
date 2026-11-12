@@ -266,6 +266,10 @@ export class PortfolioPage extends BasePage {
     return this.readAssetAttribute('data-asset-name');
   }
 
+  async getAssetTokenIds(): Promise<string[]> {
+    return this.readAssetAttribute('data-token-id');
+  }
+
   async getAssetBalances(): Promise<number[]> {
     return (await this.readAssetAttribute('data-asset-balance')).map(Number);
   }
