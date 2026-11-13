@@ -186,7 +186,7 @@ jobs:
           path: ./dist
 
       - name: Install TestRail CLI
-        run: pip3 install trcli
+        run: pip3 install 'trcli==1.16.0'
 
       - name: Create test run in TestRail
         id: create-testrail-run
@@ -471,7 +471,7 @@ jobs:
         shell: bash
         run: |
           source ~/py_env/bin/activate
-          pip3 install trcli
+          pip3 install 'trcli==1.16.0'
           node e2e/scripts/inject-testrail-ids.mjs \
             ./e2e/test-results/junit-report-${{ matrix.shardIndex }}.xml \
             ./e2e/testrail-cases.json
