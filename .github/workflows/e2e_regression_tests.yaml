@@ -186,7 +186,7 @@ jobs:
           path: ./dist
 
       - name: Install TestRail CLI
-        run: pip3 install trcli
+        run: pip3 install 'trcli==1.15.3'
 
       - name: Create test run in TestRail
         id: create-testrail-run
@@ -471,7 +471,7 @@ jobs:
         shell: bash
         run: |
           source ~/py_env/bin/activate
-          pip3 install trcli
+          pip3 install 'trcli==1.15.3'
           trcli -n -h https://avalabs.testrail.io \
             --project "New Gen Core Extension" \
             --username ${{ env.TESTRAIL_EMAIL }} \
