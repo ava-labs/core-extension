@@ -8,11 +8,12 @@ on: pull_request
 # protection rules. Keeping `pr-checks` secret-free shrinks the blast
 # radius if a PR ever exfiltrates env vars (e.g. via a malicious test
 # or a compromised transitive dep).
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   lint:
+    permissions:
+      contents: read
     name: Lint and build
     runs-on: ubuntu-latest
     # NOTE: deliberately no `environment:` block — this job must never
@@ -24,6 +25,7 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
@@ -65,6 +67,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
