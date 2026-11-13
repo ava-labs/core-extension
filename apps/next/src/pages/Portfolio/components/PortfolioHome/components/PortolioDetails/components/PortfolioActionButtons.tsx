@@ -67,6 +67,7 @@ export const PortfolioActionButtons = ({
         <Fade in timeout={getDelay()} easing="ease-out">
           <OfflineTooltip placement="top">
             <SquareButton
+              data-testid="swap-nav-button"
               variant="extension"
               icon={<SwapIcon size={ICON_SIZE} />}
               label={t('Swap')}
@@ -97,6 +98,7 @@ export const PortfolioActionButtons = ({
       <Fade in timeout={getDelay()} easing="ease-out">
         <OfflineTooltip placement="top">
           <SquareButton
+            data-testid="receive-nav-button"
             variant="extension"
             icon={<QrCodeIcon size={ICON_SIZE} />}
             label={t('Receive')}
