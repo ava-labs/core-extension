@@ -32,6 +32,9 @@
  *   --suiteId <id>              Optional suite filter (or TESTRAIL_SUITE_ID env)
  *   --testrailField <key>       Custom field key (default: custom_case_automation_id)
  *   --grep <pattern>            Restrict Playwright discovery (e.g. "@regression")
+ *   --emit-map <path>           Write an automation_id → TestRail case id JSON map
+ *                               and exit (no Playwright discovery; used to feed the
+ *                               JUnit test_id injection at upload time)
  *   --apply                     Push title-matched updates to TestRail
  *   --failOnMissing             Exit 1 if any local IDs are absent in TestRail
  *   --failOnDuplicates          Exit 1 if local tests share an automation_id
@@ -65,6 +68,7 @@ function parseArgs(argv) {
     suiteId: process.env.TESTRAIL_SUITE_ID,
     testrailField: 'custom_case_automation_id',
     grep: undefined,
+    emitMap: undefined,
     apply: false,
     failOnMissing: false,
     failOnDuplicates: false,
@@ -110,6 +114,9 @@ function parseArgs(argv) {
       case '--grep':
       case '-g':
         args.grep = consumeValue();
+        break;
+      case '--emit-map':
+        args.emitMap = consumeValue();
         break;
       case '--apply':
         args.apply = true;
@@ -171,6 +178,7 @@ Flags:
   --suiteId, -s            Optional suite filter
   --testrailField, -f      Custom field key (default: custom_case_automation_id)
   --grep, -g               Restrict Playwright discovery (e.g. "@regression")
+  --emit-map <path>        Write automation_id -> case id JSON map and exit
   --apply                  Push title-matched updates to TestRail (default: report-only)
   --failOnMissing          Exit 1 if any local IDs are absent in TestRail
   --failOnDuplicates       Exit 1 if local tests share an automation_id
@@ -403,6 +411,40 @@ async function updateTestRailCase({
   return response.json();
 }
 
+/**
+ * Build an `automation_id -> TestRail case id` lookup from fetched cases.
+ * Throws when two cases share an automation id, since that makes the id an
+ * ambiguous key for upload matching.
+ */
+function buildAutomationIdMap(cases, fieldName) {
+  const map = {};
+  const collisions = new Map();
+
+  for (const c of cases) {
+    const id = normalizeId(c?.[fieldName]);
+    if (!id) {
+      continue;
+    }
+    if (map[id] !== undefined && map[id] !== c.id) {
+      const seen = collisions.get(id) ?? [map[id]];
+      seen.push(c.id);
+      collisions.set(id, seen);
+    }
+    map[id] = c.id;
+  }
+
+  if (collisions.size > 0) {
+    const detail = [...collisions.entries()]
+      .map(([id, ids]) => `  ${id}: cases ${uniq(ids).join(', ')}`)
+      .join('\n');
+    throw new Error(
+      `Duplicate automation IDs in TestRail — mapping is ambiguous:\n${detail}`,
+    );
+  }
+
+  return map;
+}
+
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
@@ -436,6 +478,28 @@ async function main() {
   console.log(`TestRail field:     ${args.testrailField}`);
   console.log(`Discovery grep:     ${args.grep ?? '(none)'}`);
   console.log(`Mode:               ${args.apply ? 'APPLY' : 'report-only'}`);
+
+  if (args.emitMap) {
+    const cases = await fetchAllCases({
+      host,
+      email,
+      apiKey,
+      projectId: args.projectId,
+      suiteId: args.suiteId,
+    });
+    const map = buildAutomationIdMap(cases, args.testrailField);
+    const sorted = Object.fromEntries(
+      Object.keys(map)
+        .sort()
+        .map((key) => [key, map[key]]),
+    );
+    const outPath = path.resolve(process.cwd(), args.emitMap);
+    await fs.writeFile(outPath, `${JSON.stringify(sorted, null, 2)}\n`, 'utf8');
+    console.log(
+      `\nWrote ${Object.keys(sorted).length} automation_id → case id entries to ${outPath}`,
+    );
+    process.exit(0);
+  }
 
   const [pwReport, testRailCases] = await Promise.all([
     discoverTests({ grep: args.grep }),

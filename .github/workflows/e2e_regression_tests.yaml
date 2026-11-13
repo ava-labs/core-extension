@@ -472,11 +472,15 @@ jobs:
         run: |
           source ~/py_env/bin/activate
           pip3 install trcli
+          node e2e/scripts/inject-testrail-ids.mjs \
+            ./e2e/test-results/junit-report-${{ matrix.shardIndex }}.xml \
+            ./e2e/testrail-cases.json
           trcli -n -h https://avalabs.testrail.io \
             --project "New Gen Core Extension" \
             --username ${{ env.TESTRAIL_EMAIL }} \
             --key ${{ env.TESTRAIL_API_KEY }} \
             parse_junit -f ./e2e/test-results/junit-report-${{ matrix.shardIndex }}.xml \
+            --case-matcher property \
             --run-id=${{ env.TEST_RUN_ID }}
 
       - name: Output TestRail run link

@@ -10,7 +10,8 @@
     "test:ui": "playwright test --ui",
     "report": "playwright show-report",
     "testrail:report": "node scripts/testrail-sync.mjs",
-    "testrail:sync": "node scripts/testrail-sync.mjs --apply"
+    "testrail:sync": "node scripts/testrail-sync.mjs --apply",
+    "testrail:map": "node scripts/testrail-sync.mjs --emit-map testrail-cases.json"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",
