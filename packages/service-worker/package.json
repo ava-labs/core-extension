@@ -80,7 +80,7 @@
     "joi": "17.7.0",
     "jose": "4.15.5",
     "json-rpc-engine": "6.1.0",
-    "lodash": "4.17.23",
+    "lodash": "4.18.1",
     "lru-cache": "7.10.1",
     "micro-key-producer": "0.7.5",
     "micro-signals": "2.4.0",
