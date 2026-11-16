@@ -551,40 +551,52 @@ async function waitForPChainCommittedOnNode(
   }
 }
 
-/** AvalancheGo: X-Chain export/import style finality is `Accepted` or `Committed`. */
+interface AvmGetTxResult {
+  tx: string;
+  encoding: string;
+}
+
 async function waitForXChainAcceptedOnNode(
   txID: string,
   net: NetEnv,
 ): Promise<void> {
   const rpcUrl = X_CHAIN_RPC[net];
   console.log(
-    `[explorer] X-Chain node RPC avm.getTxStatus  net=${net}  tx=${txID}  rpc=${rpcUrl}`,
+    `[explorer] X-Chain node RPC avm.getTx  net=${net}  tx=${txID}  rpc=${rpcUrl}`,
   );
 
-  const response = await pollUntilConfirmed(
-    () =>
-      fetchJson<JsonRpcResponse<PlatformGetTxStatusResult>>(rpcUrl, {
-        method: 'POST',
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          method: 'avm.getTxStatus',
-          params: { txID },
-          id: 1,
-        }),
-      }),
-    (data) => isAvmOrPlatformTxDone(data.result?.status),
+  const result = await pollUntilConfirmed(
+    async (): Promise<PlatformGetTxStatusResult> => {
+      const response = await fetchJson<JsonRpcResponse<AvmGetTxResult>>(
+        rpcUrl,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            method: 'avm.getTx',
+            params: { txID, encoding: 'hex' },
+            id: 1,
+          }),
+        },
+      );
+
+      if (response.error?.message === 'not found') {
+        return { status: 'Unknown' };
+      }
+
+      if (response.error || !response.result) {
+        throw new Error(
+          `avm.getTx failed for ${txID}: ${JSON.stringify(response.error ?? response)}`,
+        );
+      }
+
+      return { status: 'Accepted' };
+    },
+    (data) => isAvmOrPlatformTxDone(data.status),
     { label: 'X-Chain node' },
   );
 
-  console.log(
-    `[explorer] X-Chain final status=${response.result?.status}  tx=${txID}`,
-  );
-
-  if (!isAvmOrPlatformTxDone(response.result?.status)) {
-    throw new Error(
-      `Avalanche X-Chain tx not accepted for ${txID}: ${JSON.stringify(response.result)}`,
-    );
-  }
+  console.log(`[explorer] X-Chain final status=${result.status}  tx=${txID}`);
 }
 
 /**
@@ -816,7 +828,7 @@ export async function verifyPChainTransaction(
  * Verifies an X-Chain transaction (cb58 txID, not an EVM 0x hash).
  *
  * With Glacier key: poll indexer until 200, then assert `Accepted` / `Committed`
- * via `avm.getTxStatus`. Without Glacier: node RPC only.
+ * via `avm.getTx`. Without Glacier: node RPC only.
  */
 export async function verifyXChainTransaction(
   txID: string,
