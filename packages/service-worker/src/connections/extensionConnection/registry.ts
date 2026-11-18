@@ -53,6 +53,7 @@ import { LockStateChangedEvents } from '../../services/lock/events/lockStateChan
 import { LockChangePasswordHandler } from '../../services/lock/handlers/changeWalletPassword';
 import { GetLockStateHandler } from '../../services/lock/handlers/getLockState';
 import { LockWalletHandler } from '../../services/lock/handlers/lockWallet';
+import { ScheduleClipboardSecretClearHandler } from '../../services/clipboard/handlers/scheduleSecretClear';
 import { UnlockWalletHandler } from '../../services/lock/handlers/unlockWalletState';
 import { GetNavigationHistoryHandler } from '../../services/navigationHistory/handlers/getNavigationHistory';
 import { GetNavigationHistoryDataHandler } from '../../services/navigationHistory/handlers/getNavigationHistoryData';
@@ -195,6 +196,10 @@ import { SetBridgeDevEnvHandler } from '~/services/settings/handlers/setBridgeDe
   { token: 'ExtensionRequestHandler', useToken: LedgerDeviceRequestHandler },
   { token: 'ExtensionRequestHandler', useToken: LockChangePasswordHandler },
   { token: 'ExtensionRequestHandler', useToken: LockWalletHandler },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: ScheduleClipboardSecretClearHandler,
+  },
   { token: 'ExtensionRequestHandler', useToken: UnlockWalletHandler },
   { token: 'ExtensionRequestHandler', useToken: GetLockStateHandler },
   { token: 'ExtensionRequestHandler', useToken: GetNavigationHistoryHandler },

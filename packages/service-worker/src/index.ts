@@ -53,6 +53,7 @@ export type { LedgerVersionWarningClosedHandler } from './services/ledger/handle
 export type { LockChangePasswordHandler } from './services/lock/handlers/changeWalletPassword';
 export type { GetLockStateHandler } from './services/lock/handlers/getLockState';
 export type { LockWalletHandler } from './services/lock/handlers/lockWallet';
+export type { ScheduleClipboardSecretClearHandler } from './services/clipboard/handlers/scheduleSecretClear';
 export type { UnlockWalletHandler } from './services/lock/handlers/unlockWalletState';
 export type { GetNavigationHistoryHandler } from './services/navigationHistory/handlers/getNavigationHistory';
 export type { GetNavigationHistoryDataHandler } from './services/navigationHistory/handlers/getNavigationHistoryData';

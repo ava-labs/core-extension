@@ -6,6 +6,7 @@ import { AppCheckService } from '../services/appcheck/AppCheckService';
 import { TransactionStatusEventsSubscriber } from '~/services/transactions/TransactionStatusEventsSubscriber';
 import { GasStationService } from '../services/gasless/GasStationService';
 import { LockService } from '../services/lock/LockService';
+import { ClipboardService } from '../services/clipboard/ClipboardService';
 import { NotificationsService } from '../services/notifications/NotificationsService';
 import { RecurringSwapNotificationService } from '../services/notifications/RecurringSwapNotificationService';
 import { OnboardingService } from '../services/onboarding/OnboardingService';
@@ -30,11 +31,15 @@ export class BackgroundRuntime {
     private recurringSwapNotificationService: RecurringSwapNotificationService,
     private settingsService: SettingsService,
     private transferTrackingService: TransferTrackingService,
+    private clipboardService: ClipboardService,
     // Injected so it is created at startup and subscribes to TransactionStatusEvents
     private _transactionStatusEventsSubscriber: TransactionStatusEventsSubscriber,
   ) {}
 
   async activate() {
+    // Registers an alarm listener; must run before the first `await` so an
+    // alarm that woke the service worker is not missed.
+    this.clipboardService.activate();
     this.startKeepAliveTimer();
     this.onInstalled();
     this.registerInpageScript();
@@ -148,8 +153,12 @@ export class BackgroundRuntime {
     try {
       await browser.offscreen.createDocument({
         url: 'offscreen/offscreen.html',
-        reasons: [browser.offscreen.Reason.WORKERS],
-        justification: 'offload computation',
+        reasons: [
+          browser.offscreen.Reason.WORKERS,
+          browser.offscreen.Reason.CLIPBOARD,
+        ],
+        justification:
+          'offload computation and clear copied secrets from the clipboard',
       });
     } catch (err) {
       // We're getting error logs of Chrome 109 not liking "WORKERS" as a reason for creating the offscreen document.

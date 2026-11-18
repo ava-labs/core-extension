@@ -12,7 +12,7 @@ The deeper design lives in the numbered pages. Start with [Architecture](01-Arch
 | `packages/service-worker`                                                    | MV3 background service worker. Single source of truth: encrypted `chrome.storage`, services, VM modules, generated API clients, App Check, notifications and gasless. |
 | `packages/content-script`                                                    | Bridges page `postMessage` and the service worker port.                                                                                                               |
 | `packages/inpage`                                                            | EIP-1193 and EIP-6963 provider, injected into the page's MAIN world.                                                                                                  |
-| `packages/offscreen`                                                         | Offscreen document that solves the gasless proof-of-work challenge with `@avalabs/core-gasless-sdk`.                                                                  |
+| `packages/offscreen`                                                         | Offscreen document that solves the gasless proof-of-work challenge with `@avalabs/core-gasless-sdk` and clears copied secrets from the clipboard.                     |
 | `packages/messaging`, `ui`, `common`, `types`, `tsconfig`, `lavamoat-rspack` | Shared libraries and the LavaMoat build plugin.                                                                                                                       |
 
 ```mermaid
@@ -22,6 +22,7 @@ flowchart LR
     CS -->|"port"| SW["service worker"]
     UI["UI pages"] -->|"port"| SW
     OFF["offscreen"] -->|"port"| SW
+    SW -->|"runtime message"| OFF
 
     subgraph CORE["Core services"]
         BAL["core-balance-api"]
