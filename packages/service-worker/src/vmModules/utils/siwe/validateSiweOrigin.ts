@@ -45,12 +45,13 @@ export function validateSiweOrigin(
 
   if (!domainMismatch && !uriMismatch) return undefined;
 
-  const dappHostname = dappOrigin.hostname ?? dappUrl;
+  // EIP-4361 domain is an authority, so show host plus any non-default port.
+  const dappAuthority = dappOrigin.host || dappUrl;
   const dappDisplay = formatOrigin(dappOrigin, dappUrl);
   const reasons: string[] = [];
   if (domainMismatch)
     reasons.push(
-      `Domain "${siwe.domain}" doesn't match dApp origin "${dappHostname}".`,
+      `Domain "${siwe.domain}" doesn't match dApp origin "${dappAuthority}".`,
     );
   if (uriMismatch)
     reasons.push(
@@ -101,11 +102,24 @@ function effectivePort(url: URL): string {
   return url.port || DEFAULT_PORTS[url.protocol] || '';
 }
 
+/**
+ * EIP-4361 defines `domain` as an RFC 3986 authority (host plus optional
+ * port), so it has to match the requesting origin's host *and* port exactly:
+ * a subdomain, parent domain or different port is a different authority.
+ * A domain without a port implies the default port of the dApp's scheme
+ * (or of its own scheme, if a non-standard scheme prefix was included).
+ */
 function domainFieldMismatch(
   parsedDomain: URL,
   hasScheme: boolean,
   dappOrigin: URL,
 ): boolean {
+  // Userinfo ("victim.com@attacker.com") is not a meaningful SIWE domain and
+  // only serves to make the displayed domain misleading.
+  if (parsedDomain.username || parsedDomain.password) {
+    return true;
+  }
+
   if (
     normalizeDomain(parsedDomain.hostname) !==
     normalizeDomain(dappOrigin.hostname ?? '')
@@ -121,10 +135,12 @@ function domainFieldMismatch(
     return true;
   }
 
-  return (
-    parsedDomain.port !== '' &&
-    effectivePort(parsedDomain) !== effectivePort(dappOrigin)
-  );
+  const domainPort =
+    parsedDomain.port ||
+    DEFAULT_PORTS[hasScheme ? parsedDomain.protocol : dappOrigin.protocol] ||
+    '';
+
+  return domainPort !== effectivePort(dappOrigin);
 }
 
 function formatOrigin(url: URL, fallback: string): string {

@@ -5,7 +5,10 @@ import type {
   SigningData,
 } from '@avalabs/vm-module-types';
 
-import { maybeInjectSiweAlert } from './getSiweAlert';
+import {
+  decodePersonalSignMessage,
+  maybeInjectSiweAlert,
+} from './getSiweAlert';
 
 const toHex = (message: string) =>
   `0x${Buffer.from(message, 'utf8').toString('hex')}`;
@@ -124,5 +127,74 @@ describe('maybeInjectSiweAlert', () => {
     });
 
     expect(result).toBe(displayData);
+  });
+
+  describe('plain UTF-8 (non-hex) personal_sign payloads', () => {
+    const plainSigningData = (message: string): SigningData => ({
+      type: RpcMethod.PERSONAL_SIGN,
+      account: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+      data: message,
+    });
+
+    it('injects a DANGER alert when a plain-text SIWE domain does not match', () => {
+      const result = maybeInjectSiweAlert({
+        request: buildRequest('https://example.com'),
+        signingData: plainSigningData(
+          buildSiweMessage('evil.com', 'https://evil.com/login'),
+        ),
+        displayData,
+      });
+
+      expect(result.alert?.type).toBe(AlertType.DANGER);
+      expect(result.alert?.details.title).toBe('Sign-In Request Mismatch');
+    });
+
+    it('does not alert when a plain-text SIWE message matches the dApp', () => {
+      const result = maybeInjectSiweAlert({
+        request: buildRequest('https://example.com'),
+        signingData: plainSigningData(
+          buildSiweMessage('example.com', 'https://example.com/login'),
+        ),
+        displayData,
+      });
+
+      expect(result).toBe(displayData);
+    });
+  });
+
+  describe('decodePersonalSignMessage', () => {
+    it('decodes 0x-prefixed hex as UTF-8', () => {
+      expect(decodePersonalSignMessage(toHex('héllo wörld'))).toBe(
+        'héllo wörld',
+      );
+    });
+
+    it('accepts upper-case hex digits', () => {
+      expect(
+        decodePersonalSignMessage(
+          toHex('abc').toUpperCase().replace('0X', '0x'),
+        ),
+      ).toBe('abc');
+    });
+
+    it('returns plain strings unchanged', () => {
+      expect(decodePersonalSignMessage('example.com wants you')).toBe(
+        'example.com wants you',
+      );
+    });
+
+    it('treats odd-length or non-hex 0x strings as plain text', () => {
+      expect(decodePersonalSignMessage('0xabc')).toBe('0xabc');
+      expect(decodePersonalSignMessage('0xzz')).toBe('0xzz');
+    });
+
+    it('returns undefined for hex that is not valid UTF-8', () => {
+      expect(decodePersonalSignMessage('0xff')).toBeUndefined();
+    });
+
+    it('returns undefined for empty or non-string data', () => {
+      expect(decodePersonalSignMessage('')).toBeUndefined();
+      expect(decodePersonalSignMessage(undefined)).toBeUndefined();
+    });
   });
 });

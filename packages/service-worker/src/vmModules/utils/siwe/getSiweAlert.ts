@@ -29,7 +29,7 @@ export function maybeInjectSiweAlert({
   // Already has an alert from simulation/Blockaid — don't override it
   if (displayData.alert) return displayData;
 
-  const message = hexToUtf8(signingData.data);
+  const message = decodePersonalSignMessage(signingData.data);
   if (!message) return displayData;
 
   const siwe = parseSiweMessage(message);
@@ -41,13 +41,27 @@ export function maybeInjectSiweAlert({
   return { ...displayData, alert };
 }
 
-function hexToUtf8(hex: string): string | undefined {
+const HEX_REGEX = /^0x(?:[0-9a-fA-F]{2})*$/;
+
+/**
+ * personal_sign accepts either a 0x-prefixed hex string or a plain UTF-8
+ * string (the evm-module signs the raw string when it isn't hex), so the
+ * SIWE check has to understand both encodings. Hex that doesn't decode to
+ * valid UTF-8 can't be a SIWE message.
+ */
+export function decodePersonalSignMessage(data: unknown): string | undefined {
+  if (typeof data !== 'string' || data.length === 0) return undefined;
+
+  if (!HEX_REGEX.test(data)) return data;
+
   try {
-    const cleaned = hex.startsWith('0x') ? hex.slice(2) : hex;
     const bytes = new Uint8Array(
-      cleaned.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) ?? [],
+      data
+        .slice(2)
+        .match(/.{2}/g)
+        ?.map((byte) => parseInt(byte, 16)) ?? [],
     );
-    return new TextDecoder().decode(bytes);
+    return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
   } catch {
     return undefined;
   }

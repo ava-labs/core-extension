@@ -210,4 +210,83 @@ describe('validateSiweOrigin', () => {
       'This could be a phishing attempt. Proceed with caution.',
     );
   });
+
+  describe('EIP-4361 authority matching (host + port)', () => {
+    it.each([
+      ['subdomain of the dApp', 'login.example.com', 'https://example.com'],
+      ['parent domain of the dApp', 'example.com', 'https://app.example.com'],
+      ['look-alike suffix', 'example.com.evil.io', 'https://example.com'],
+    ])('returns DANGER for a %s', (_, domain, dappUrl) => {
+      const siwe = { ...baseSiwe, domain, uri: dappUrl };
+      const result = validateSiweOrigin(siwe, dappUrl);
+
+      expect(result?.type).toBe(AlertType.DANGER);
+      expect(result?.details.body?.[0]).toContain(`Domain "${domain}"`);
+    });
+
+    it('returns DANGER when the domain omits the non-default port the dApp is served on', () => {
+      const siwe = {
+        ...baseSiwe,
+        domain: 'localhost',
+        uri: 'http://localhost:3000',
+      };
+      const result = validateSiweOrigin(siwe, 'http://localhost:3000');
+
+      expect(result?.type).toBe(AlertType.DANGER);
+      expect(result?.details.body?.[0]).toBe(
+        'Domain "localhost" doesn\'t match dApp origin "localhost:3000".',
+      );
+    });
+
+    it('returns DANGER when the domain names a port but the dApp uses the default port', () => {
+      const siwe = { ...baseSiwe, domain: 'example.com:8443' };
+      const result = validateSiweOrigin(siwe, 'https://example.com');
+
+      expect(result?.type).toBe(AlertType.DANGER);
+    });
+
+    it('treats an explicit default port in the domain as equivalent', () => {
+      expect(
+        validateSiweOrigin(
+          { ...baseSiwe, domain: 'example.com:443' },
+          'https://example.com',
+        ),
+      ).toBeUndefined();
+      expect(
+        validateSiweOrigin(
+          {
+            ...baseSiwe,
+            domain: 'example.com:80',
+            uri: 'http://example.com/login',
+          },
+          'http://example.com',
+        ),
+      ).toBeUndefined();
+    });
+
+    it('returns DANGER when only the URI scheme differs (http URI on an https dApp)', () => {
+      const result = validateSiweOrigin(
+        { ...baseSiwe, uri: 'http://example.com/login' },
+        'https://example.com',
+      );
+
+      expect(result?.type).toBe(AlertType.DANGER);
+      expect(result?.details.body?.[0]).not.toContain('Domain');
+    });
+
+    it('returns DANGER when the domain carries userinfo', () => {
+      const result = validateSiweOrigin(
+        { ...baseSiwe, domain: 'trusted.com@example.com' },
+        'https://example.com',
+      );
+
+      expect(result?.type).toBe(AlertType.DANGER);
+    });
+
+    it('matches when the dApp frame URL has a path, query and fragment', () => {
+      expect(
+        validateSiweOrigin(baseSiwe, 'https://example.com/a/b?c=d#e'),
+      ).toBeUndefined();
+    });
+  });
 });
