@@ -67,8 +67,18 @@ export type ViewMode = 'floating' | 'sidebar';
 export type FeeSetting = 'low' | 'medium' | 'high';
 export type MaxBuyOption = '1000' | '5000' | '10000' | '50000' | 'unlimited';
 
-/** Wallet auto-lock timeout, in minutes of inactivity. */
-export type AutoLockTimer = 5 | 10 | 15 | 20 | 30;
+/**
+ * User-selectable wallet auto-lock timeouts, in minutes of inactivity.
+ * Capped at 20 minutes so every selectable value satisfies the WSR
+ * requirement that the wallet auto-locks within 20 minutes of inactivity.
+ */
+export const AUTO_LOCK_TIMER_OPTIONS = [5, 10, 15, 20] as const;
+export type AutoLockTimer = (typeof AUTO_LOCK_TIMER_OPTIONS)[number];
+export const DEFAULT_AUTO_LOCK_TIMER: AutoLockTimer = 20;
+export const MAX_AUTO_LOCK_TIMER: AutoLockTimer = 20;
+
+export const isAutoLockTimer = (value: unknown): value is AutoLockTimer =>
+  AUTO_LOCK_TIMER_OPTIONS.includes(value as AutoLockTimer);
 
 export interface SettingsState {
   currency: string;

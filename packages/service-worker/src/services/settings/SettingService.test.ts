@@ -506,5 +506,32 @@ describe('background/services/settings/SettingsService.ts', () => {
         });
       });
     });
+
+    describe('setAutoLockTimer', () => {
+      it('saves a supported auto-lock timeout', async () => {
+        const eventListener = jest.fn();
+        service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
+
+        await service.setAutoLockTimer(10);
+
+        expect(eventListener).toHaveBeenCalledWith({
+          ...storedSettings,
+          autoLockTimer: 10,
+        });
+      });
+
+      it.each([30, 60, 0])(
+        'rejects an unsupported auto-lock timeout (%i)',
+        async (value) => {
+          const eventListener = jest.fn();
+          service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
+
+          await expect(service.setAutoLockTimer(value as any)).rejects.toThrow(
+            'Invalid auto-lock timer',
+          );
+          expect(eventListener).not.toHaveBeenCalled();
+        },
+      );
+    });
   });
 });

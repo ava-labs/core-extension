@@ -5,6 +5,8 @@ import {
   CollectiblesVisibility,
   ColorTheme,
   CURRENCIES,
+  DEFAULT_AUTO_LOCK_TIMER,
+  isAutoLockTimer,
   EnsureDefined,
   FeatureFlagEvents,
   FeatureGates,
@@ -45,7 +47,7 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   privacyMode: false,
   filterSmallUtxos: true,
   isBridgeDevEnv: false,
-  autoLockTimer: 20,
+  autoLockTimer: DEFAULT_AUTO_LOCK_TIMER,
 };
 
 @singleton()
@@ -367,6 +369,9 @@ export class SettingsService implements OnStorageReady, OnLock {
   }
 
   async setAutoLockTimer(autoLockTimer: AutoLockTimer) {
+    if (!isAutoLockTimer(autoLockTimer)) {
+      throw new Error(`Invalid auto-lock timer: ${autoLockTimer}`);
+    }
     const settings = await this.getSettings();
     await this.saveSettings({
       ...settings,

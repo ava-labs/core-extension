@@ -1,7 +1,11 @@
+import { EXTENSION_SCRIPT } from '@core/common';
 import {
   AlarmsEvents,
+  DEFAULT_AUTO_LOCK_TIMER,
+  isAutoLockTimer,
   LockEvents,
   LockStateChangedEventPayload,
+  MAX_AUTO_LOCK_TIMER,
   SETTINGS_STORAGE_KEY,
   SettingsState,
 } from '@core/types';
@@ -10,8 +14,6 @@ import { singleton } from 'tsyringe';
 import { CallbackManager } from '../../runtime/CallbackManager';
 import { OnAllExtensionClosed } from '../../runtime/lifecycleCallbacks';
 import { StorageService } from '../storage/StorageService';
-
-const DEFAULT_AUTO_LOCK_IN_MINUTES = 20;
 
 @singleton()
 export class LockService implements OnAllExtensionClosed {
@@ -28,8 +30,17 @@ export class LockService implements OnAllExtensionClosed {
   ) {}
 
   async activate() {
-    chrome.runtime.onConnect.addListener(() => {
-      chrome.alarms.clear(AlarmsEvents.AUTO_LOCK);
+    chrome.runtime.onConnect.addListener((port) => {
+      // Only an extension UI view (popup, side panel, approval window, tab)
+      // counts as wallet activity. Content-script ports connect on every
+      // http(s) page and frame, so letting them clear the alarm would mean
+      // ordinary browsing keeps the wallet unlocked indefinitely.
+      if (
+        port?.name === EXTENSION_SCRIPT &&
+        port.sender?.id === chrome.runtime.id
+      ) {
+        chrome.alarms.clear(AlarmsEvents.AUTO_LOCK);
+      }
     });
 
     chrome.alarms.onAlarm.addListener((alarm) => {
@@ -54,9 +65,13 @@ export class LockService implements OnAllExtensionClosed {
     try {
       const settings =
         await this.storageService.load<SettingsState>(SETTINGS_STORAGE_KEY);
-      return settings?.autoLockTimer ?? DEFAULT_AUTO_LOCK_IN_MINUTES;
+      const value = settings?.autoLockTimer;
+      // Never exceed the maximum, even if storage holds an unexpected value.
+      return isAutoLockTimer(value)
+        ? Math.min(value, MAX_AUTO_LOCK_TIMER)
+        : DEFAULT_AUTO_LOCK_TIMER;
     } catch {
-      return DEFAULT_AUTO_LOCK_IN_MINUTES;
+      return DEFAULT_AUTO_LOCK_TIMER;
     }
   }
 

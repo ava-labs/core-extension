@@ -1,10 +1,10 @@
 import { ButtonProps, Typography } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
-import { AutoLockTimer } from '@core/types';
+import { AUTO_LOCK_TIMER_OPTIONS, AutoLockTimer } from '@core/types';
 import { useAnalyticsContext, useSettingsContext } from '@core/ui';
 import { SelectButton } from '@/components/SelectButton';
 
-const autoLockOptions: AutoLockTimer[] = [5, 10, 15, 20, 30];
+const autoLockOptions: readonly AutoLockTimer[] = AUTO_LOCK_TIMER_OPTIONS;
 
 export const AutoLockTimerSelector = (props: ButtonProps) => {
   const { t } = useTranslation();
