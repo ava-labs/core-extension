@@ -5,18 +5,15 @@
 export const CLIPBOARD_SECRET_CLEAR_DELAY_MS = 60 * 1000;
 
 /**
- * Alarm names are `${CLIPBOARD_CLEAR_ALARM_PREFIX}${sha256HexOfSecret}`. Using
- * the alarm name to carry the hash keeps the service worker stateless (it may
- * restart before the alarm fires) and means the plaintext secret never leaves
- * the page that copied it.
+ * Sent from the service worker to the offscreen document over the existing
+ * offscreen connection when a clipboard-clear alarm fires.
  */
-export const CLIPBOARD_CLEAR_ALARM_PREFIX = 'clear-clipboard:';
+export enum ClipboardEvents {
+  CLEAR_SECRET = 'Clipboard: CLEAR_SECRET',
+}
 
-export const OFFSCREEN_CLEAR_CLIPBOARD_MESSAGE = 'offscreen:clear-clipboard';
-
-export type OffscreenClearClipboardMessage = {
-  target: 'offscreen';
-  type: typeof OFFSCREEN_CLEAR_CLIPBOARD_MESSAGE;
+export type ClipboardClearSecretEventValue = {
+  /** SHA-256 (hex) of the copied secret. */
   hash: string;
 };
 

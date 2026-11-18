@@ -30,7 +30,7 @@ Since the service worker runs outside of a document, the following limitations a
 
 ## Clearing copied secrets from the clipboard
 
-When the UI copies a recovery phrase or private key, it calls `ExtensionRequest.CLIPBOARD_SCHEDULE_SECRET_CLEAR` with the SHA-256 of the secret (never the secret itself). `ClipboardService` schedules a `chrome.alarms` alarm named `clear-clipboard:<hash>`, so nothing needs to survive a service worker restart. When the alarm fires, the service worker messages the offscreen document, which clears the clipboard if it still holds the secret. If it cannot read the clipboard (the extension has no `clipboardRead` permission), it clears it anyway. The UI also keeps a 60-second in-page timer for the common case where the page stays open.
+When the UI copies a recovery phrase or private key, it calls `ExtensionRequest.CLIPBOARD_SCHEDULE_SECRET_CLEAR` with the SHA-256 of the secret (never the secret itself). `ClipboardService` schedules a `chrome.alarms` alarm named `clear-clipboard:<hash>`, so nothing needs to survive a service worker restart. When the alarm fires, `ClipboardService` (registered as an `OffscreenEventEmitter`) sends a `ClipboardEvents.CLEAR_SECRET` event over the existing offscreen port, holding it until the offscreen document reconnects if the alarm woke the service worker. The offscreen document clears the clipboard if it still holds the secret. If it cannot read the clipboard (the extension has no `clipboardRead` permission), it clears it anyway. The UI also keeps a 60-second in-page timer for the common case where the page stays open.
 
 ## Architecture diagram
 

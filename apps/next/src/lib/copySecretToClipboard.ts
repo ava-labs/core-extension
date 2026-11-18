@@ -61,7 +61,7 @@ export const copySecretToClipboard = async (
   await clipboard.write(secret);
   notify();
 
-  const hash = await sha256Hex(secret);
+  const hash = sha256Hex(secret);
   const clearDelay = Math.min(delayMs, CLIPBOARD_SECRET_CLEAR_DELAY_MS);
 
   setTimeout(() => {

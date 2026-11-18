@@ -1,27 +1,23 @@
 import {
-  CLIPBOARD_CLEAR_ALARM_PREFIX,
+  AlarmsEvents,
   CLIPBOARD_SECRET_CLEAR_DELAY_MS,
-  ClipboardClearResult,
-  OFFSCREEN_CLEAR_CLIPBOARD_MESSAGE,
+  ClipboardEvents,
 } from '@core/types';
-import {
-  ClipboardService,
-  OFFSCREEN_MESSAGE_MAX_ATTEMPTS,
-  OFFSCREEN_MESSAGE_RETRY_DELAY_MS,
-} from './ClipboardService';
+import { ClipboardService } from './ClipboardService';
 
 const HASH = 'ab'.repeat(32);
+const ALARM_NAME = `${AlarmsEvents.CLEAR_CLIPBOARD}${HASH}`;
 
 describe('ClipboardService', () => {
   const alarms = {
     create: jest.fn(),
     onAlarm: { addListener: jest.fn() },
   };
-  const runtime = { sendMessage: jest.fn() };
   let service: ClipboardService;
 
   beforeEach(() => {
-    (global as any).chrome = { alarms, runtime };
+    jest.resetAllMocks();
+    (global as any).chrome = { alarms };
     jest.useFakeTimers({ now: 1_000_000 });
     service = new ClipboardService();
   });
@@ -45,10 +41,9 @@ describe('ClipboardService', () => {
     it('creates an alarm carrying the hash that fires after 60 seconds', async () => {
       await service.scheduleSecretClear(HASH);
 
-      expect(alarms.create).toHaveBeenCalledWith(
-        `${CLIPBOARD_CLEAR_ALARM_PREFIX}${HASH}`,
-        { when: 1_000_000 + CLIPBOARD_SECRET_CLEAR_DELAY_MS },
-      );
+      expect(alarms.create).toHaveBeenCalledWith(ALARM_NAME, {
+        when: 1_000_000 + CLIPBOARD_SECRET_CLEAR_DELAY_MS,
+      });
     });
 
     it('caps the delay at 60 seconds', async () => {
@@ -71,67 +66,63 @@ describe('ClipboardService', () => {
   });
 
   describe('onAlarm', () => {
-    it('ignores unrelated alarms', async () => {
-      await expect(service.onAlarm(alarm('auto-lock'))).resolves.toBe(
-        undefined,
-      );
-      expect(runtime.sendMessage).not.toHaveBeenCalled();
+    const expectedEvent = {
+      name: ClipboardEvents.CLEAR_SECRET,
+      value: { hash: HASH },
+    };
+
+    it('ignores unrelated alarms', () => {
+      const listener = jest.fn();
+      service.addListener(listener);
+
+      service.onAlarm(alarm(AlarmsEvents.AUTO_LOCK));
+
+      expect(listener).not.toHaveBeenCalled();
     });
 
-    it('ignores clipboard alarms with a malformed hash', async () => {
-      await service.onAlarm(alarm(`${CLIPBOARD_CLEAR_ALARM_PREFIX}oops`));
+    it('ignores clipboard alarms with a malformed hash', () => {
+      const listener = jest.fn();
+      service.addListener(listener);
 
-      expect(runtime.sendMessage).not.toHaveBeenCalled();
+      service.onAlarm(alarm(`${AlarmsEvents.CLEAR_CLIPBOARD}oops`));
+
+      expect(listener).not.toHaveBeenCalled();
     });
 
-    it('asks the offscreen document to clear the clipboard if it still holds the secret', async () => {
-      runtime.sendMessage.mockResolvedValue(ClipboardClearResult.Cleared);
+    it('sends the clear event to the connected offscreen document', () => {
+      const listener = jest.fn();
+      service.addListener(listener);
 
-      await expect(
-        service.onAlarm(alarm(`${CLIPBOARD_CLEAR_ALARM_PREFIX}${HASH}`)),
-      ).resolves.toBe(ClipboardClearResult.Cleared);
+      service.onAlarm(alarm(ALARM_NAME));
 
-      expect(runtime.sendMessage).toHaveBeenCalledTimes(1);
-      expect(runtime.sendMessage).toHaveBeenCalledWith({
-        target: 'offscreen',
-        type: OFFSCREEN_CLEAR_CLIPBOARD_MESSAGE,
-        hash: HASH,
-      });
+      expect(listener).toHaveBeenCalledTimes(1);
+      expect(listener).toHaveBeenCalledWith(expectedEvent);
     });
 
-    it('retries while the offscreen document is not ready yet', async () => {
-      runtime.sendMessage
-        .mockRejectedValueOnce(
-          new Error(
-            'Could not establish connection. Receiving end does not exist.',
-          ),
-        )
-        .mockResolvedValueOnce(undefined)
-        .mockResolvedValueOnce(ClipboardClearResult.Changed);
+    it('holds the event until the offscreen document connects', () => {
+      service.onAlarm(alarm(ALARM_NAME));
 
-      const promise = service.onAlarm(
-        alarm(`${CLIPBOARD_CLEAR_ALARM_PREFIX}${HASH}`),
-      );
-      await jest.advanceTimersByTimeAsync(OFFSCREEN_MESSAGE_RETRY_DELAY_MS * 2);
+      const listener = jest.fn();
+      service.addListener(listener);
 
-      await expect(promise).resolves.toBe(ClipboardClearResult.Changed);
-      expect(runtime.sendMessage).toHaveBeenCalledTimes(3);
+      expect(listener).toHaveBeenCalledTimes(1);
+      expect(listener).toHaveBeenCalledWith(expectedEvent);
+
+      // Delivered only once, not again to a later connection.
+      const laterListener = jest.fn();
+      service.removeListener(listener);
+      service.addListener(laterListener);
+      expect(laterListener).not.toHaveBeenCalled();
     });
 
-    it('gives up after the maximum number of attempts', async () => {
-      runtime.sendMessage.mockRejectedValue(new Error('no receiver'));
+    it('stops sending events to a removed listener', () => {
+      const listener = jest.fn();
+      service.addListener(listener);
+      service.removeListener(listener);
 
-      const promise = service.onAlarm(
-        alarm(`${CLIPBOARD_CLEAR_ALARM_PREFIX}${HASH}`),
-      );
-      await jest.advanceTimersByTimeAsync(
-        OFFSCREEN_MESSAGE_RETRY_DELAY_MS * OFFSCREEN_MESSAGE_MAX_ATTEMPTS,
-      );
+      service.onAlarm(alarm(ALARM_NAME));
 
-      await expect(promise).resolves.toBeUndefined();
-      expect(runtime.sendMessage).toHaveBeenCalledTimes(
-        OFFSCREEN_MESSAGE_MAX_ATTEMPTS,
-      );
+      expect(listener).not.toHaveBeenCalled();
     });
   });
 });

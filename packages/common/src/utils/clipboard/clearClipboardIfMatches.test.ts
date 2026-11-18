@@ -5,11 +5,7 @@ import { sha256Hex } from './sha256Hex';
 const SECRET = 'test test test test test test test test test test test junk';
 
 describe('clearClipboardIfMatches', () => {
-  let hash: string;
-
-  beforeAll(async () => {
-    hash = await sha256Hex(SECRET);
-  });
+  const hash = sha256Hex(SECRET);
 
   it('clears the clipboard when it still holds the secret', async () => {
     const write = jest.fn().mockReturnValue(true);

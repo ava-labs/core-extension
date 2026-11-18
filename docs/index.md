@@ -22,7 +22,6 @@ flowchart LR
     CS -->|"port"| SW["service worker"]
     UI["UI pages"] -->|"port"| SW
     OFF["offscreen"] -->|"port"| SW
-    SW -->|"runtime message"| OFF
 
     subgraph CORE["Core services"]
         BAL["core-balance-api"]

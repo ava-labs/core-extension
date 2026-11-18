@@ -62,9 +62,7 @@ describe('copySecretToClipboard', () => {
   it('schedules a background clear with the hash, never the plaintext secret', async () => {
     await copy();
 
-    expect(scheduleBackgroundClear).toHaveBeenCalledWith(
-      await sha256Hex(SECRET),
-    );
+    expect(scheduleBackgroundClear).toHaveBeenCalledWith(sha256Hex(SECRET));
     expect(JSON.stringify(scheduleBackgroundClear.mock.calls)).not.toContain(
       'junk',
     );

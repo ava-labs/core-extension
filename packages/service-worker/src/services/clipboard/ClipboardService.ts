@@ -1,17 +1,17 @@
 import {
-  CLIPBOARD_CLEAR_ALARM_PREFIX,
+  AlarmsEvents,
   CLIPBOARD_SECRET_CLEAR_DELAY_MS,
-  ClipboardClearResult,
+  ClipboardClearSecretEventValue,
+  ClipboardEvents,
+  ExtensionConnectionEvent,
   isSha256Hex,
-  OFFSCREEN_CLEAR_CLIPBOARD_MESSAGE,
-  OffscreenClearClipboardMessage,
+  OffscreenEventEmitter,
 } from '@core/types';
+import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 
-export const OFFSCREEN_MESSAGE_MAX_ATTEMPTS = 10;
-export const OFFSCREEN_MESSAGE_RETRY_DELAY_MS = 500;
-
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+type ClearSecretEvent =
+  ExtensionConnectionEvent<ClipboardClearSecretEventValue>;
 
 /**
  * Clears secrets (recovery phrase / private key) from the clipboard after
@@ -19,13 +19,20 @@ const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
  * been closed in the meantime (WSR-PHYS-001).
  *
  * The page sends only the SHA-256 of the secret. It is carried in the alarm
- * name, so nothing has to be kept in memory or storage across service worker
- * restarts, and the plaintext secret never reaches the service worker. When
- * the alarm fires, the offscreen document (which can access the clipboard)
- * clears it if it still holds the secret.
+ * name, so nothing has to be kept in storage across service worker restarts,
+ * and the plaintext secret never reaches the service worker. When the alarm
+ * fires, a {@link ClipboardEvents.CLEAR_SECRET} event is sent to the offscreen
+ * document (which can access the clipboard) over the offscreen connection.
+ *
+ * Registered as an `OffscreenEventEmitter`. When the alarm wakes the service
+ * worker, the offscreen document is still being recreated, so events are held
+ * until the offscreen connection attaches its listener.
  */
 @singleton()
-export class ClipboardService {
+export class ClipboardService implements OffscreenEventEmitter {
+  #eventEmitter = new EventEmitter();
+  #pending: ClearSecretEvent[] = [];
+
   constructor() {
     this.onAlarm = this.onAlarm.bind(this);
   }
@@ -46,59 +53,43 @@ export class ClipboardService {
       throw new Error('Invalid clipboard secret hash');
     }
 
-    await chrome.alarms.create(`${CLIPBOARD_CLEAR_ALARM_PREFIX}${hash}`, {
+    await chrome.alarms.create(`${AlarmsEvents.CLEAR_CLIPBOARD}${hash}`, {
       when: Date.now() + Math.min(delayMs, CLIPBOARD_SECRET_CLEAR_DELAY_MS),
     });
   }
 
-  async onAlarm(
-    alarm: chrome.alarms.Alarm,
-  ): Promise<ClipboardClearResult | undefined> {
-    if (!alarm.name.startsWith(CLIPBOARD_CLEAR_ALARM_PREFIX)) {
+  onAlarm(alarm: chrome.alarms.Alarm) {
+    if (!alarm.name.startsWith(AlarmsEvents.CLEAR_CLIPBOARD)) {
       return;
     }
 
-    const hash = alarm.name.slice(CLIPBOARD_CLEAR_ALARM_PREFIX.length);
+    const hash = alarm.name.slice(AlarmsEvents.CLEAR_CLIPBOARD.length);
     if (!isSha256Hex(hash)) {
       return;
     }
 
-    return this.#requestOffscreenClear(hash);
-  }
-
-  async #requestOffscreenClear(
-    hash: string,
-  ): Promise<ClipboardClearResult | undefined> {
-    const message: OffscreenClearClipboardMessage = {
-      target: 'offscreen',
-      type: OFFSCREEN_CLEAR_CLIPBOARD_MESSAGE,
-      hash,
+    const event: ClearSecretEvent = {
+      name: ClipboardEvents.CLEAR_SECRET,
+      value: { hash },
     };
 
-    // The alarm may have just woken the service worker, in which case the
-    // offscreen document is being (re)created by BackgroundRuntime and is not
-    // listening yet. Retry for a few seconds.
-    for (
-      let attempt = 1;
-      attempt <= OFFSCREEN_MESSAGE_MAX_ATTEMPTS;
-      attempt++
-    ) {
-      try {
-        const result = (await chrome.runtime.sendMessage(message)) as
-          | ClipboardClearResult
-          | undefined;
-        if (result) {
-          return result;
-        }
-      } catch {
-        // "Receiving end does not exist": offscreen document not ready yet.
-      }
-
-      if (attempt < OFFSCREEN_MESSAGE_MAX_ATTEMPTS) {
-        await wait(OFFSCREEN_MESSAGE_RETRY_DELAY_MS);
-      }
+    if (this.#eventEmitter.listenerCount('update') === 0) {
+      this.#pending.push(event);
+      return;
     }
 
-    return undefined;
+    this.#eventEmitter.emit('update', event);
+  }
+
+  addListener(handler: (event: ExtensionConnectionEvent) => void): void {
+    this.#eventEmitter.on('update', handler);
+
+    const pending = this.#pending;
+    this.#pending = [];
+    pending.forEach((event) => handler(event));
+  }
+
+  removeListener(handler: (event: ExtensionConnectionEvent) => void): void {
+    this.#eventEmitter.off('update', handler);
   }
 }

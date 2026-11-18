@@ -26,7 +26,7 @@ export const clearClipboardIfMatches = async (
     current = null;
   }
 
-  if (current !== null && (await sha256Hex(current)) !== expectedHash) {
+  if (current !== null && sha256Hex(current) !== expectedHash) {
     return ClipboardClearResult.Changed;
   }
 

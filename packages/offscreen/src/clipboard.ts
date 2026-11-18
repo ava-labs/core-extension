@@ -3,37 +3,21 @@ import {
   readClipboardText,
   writeClipboardText,
 } from '@core/common';
-import {
-  isSha256Hex,
-  OFFSCREEN_CLEAR_CLIPBOARD_MESSAGE,
-  OffscreenClearClipboardMessage,
-} from '@core/types';
-import browser from 'webextension-polyfill';
-
-const isClearClipboardMessage = (
-  message: unknown,
-): message is OffscreenClearClipboardMessage =>
-  typeof message === 'object' &&
-  message !== null &&
-  (message as OffscreenClearClipboardMessage).target === 'offscreen' &&
-  (message as OffscreenClearClipboardMessage).type ===
-    OFFSCREEN_CLEAR_CLIPBOARD_MESSAGE &&
-  isSha256Hex((message as OffscreenClearClipboardMessage).hash);
+import { ClipboardClearSecretEventValue, isSha256Hex } from '@core/types';
 
 /**
- * Handles the service worker's request to clear a copied secret from the
- * clipboard (see ClipboardService). Only requests from this extension are
- * accepted.
+ * Handles the service worker's ClipboardEvents.CLEAR_SECRET event (see
+ * ClipboardService): clears the clipboard if it still holds the secret.
  */
-export const registerClipboardListener = () => {
-  browser.runtime.onMessage.addListener((message: unknown, sender) => {
-    if (sender.id !== browser.runtime.id || !isClearClipboardMessage(message)) {
-      return undefined;
-    }
+export const clearCopiedSecret = async (value: unknown) => {
+  const hash = (value as Partial<ClipboardClearSecretEventValue> | undefined)
+    ?.hash;
+  if (!isSha256Hex(hash)) {
+    return;
+  }
 
-    return clearClipboardIfMatches(message.hash, {
-      read: () => readClipboardText(document),
-      write: (text) => writeClipboardText(text, document),
-    });
+  return clearClipboardIfMatches(hash, {
+    read: () => readClipboardText(document),
+    write: (text) => writeClipboardText(text, document),
   });
 };
