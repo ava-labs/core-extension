@@ -142,11 +142,9 @@ export class SwapPage extends BasePage {
     const chip = this.page
       .locator('[role="presentation"]')
       .getByRole('button', { name: new RegExp(`^(${label} )?${label}$`) });
-    const isChipVisible = await chip
-      .waitFor({ state: 'visible', timeout: 5_000 })
-      .then(() => true)
-      .catch(() => false);
-    if (isChipVisible) await chip.click();
+    await chip.waitFor({ state: 'visible', timeout: 15_000 });
+    await chip.click();
+    await this.page.waitForTimeout(500);
   }
 
   private async selectToken(
