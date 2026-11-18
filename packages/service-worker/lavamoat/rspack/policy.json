@@ -3411,6 +3411,7 @@
         "@avalabs/core-wallets-sdk": true,
         "@avalabs/vm-module-types": true,
         "bitcoinjs-lib": true,
+        "ethers": true,
         "external:../common/src/utils/object.ts": true
       }
     },
