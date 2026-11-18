@@ -12,8 +12,13 @@ import { isAddress } from 'ethers';
  * exactly.
  */
 export const isSameAddress = (a: string, b: string): boolean => {
-  if (isAddress(a) && isAddress(b)) {
-    return a.toLowerCase() === b.toLowerCase();
+  const lowerA = a.toLowerCase();
+  const lowerB = b.toLowerCase();
+
+  // `isAddress` rejects mixed-case input with an invalid EIP-55 checksum, so
+  // detection runs on the lowercased forms.
+  if (isAddress(lowerA) && isAddress(lowerB)) {
+    return lowerA === lowerB;
   }
 
   return a === b;
