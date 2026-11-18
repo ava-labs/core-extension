@@ -24,7 +24,7 @@ jest.mock('../hooks/useRevealKey', () => ({
 }));
 
 const SHARE_WARNING =
-  'Do not share this private key with anyone! It can be used to steal all funds in the account(s) associated with it.';
+  'Anyone with this private key can access the account(s) associated with it';
 
 describe('EnterPassword (private key reveal)', () => {
   let i18n: ReturnType<typeof createInstance>;

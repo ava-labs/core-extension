@@ -55,7 +55,7 @@ export const EnterPassword: FC<Props> = ({ account, onAuthenticated }) => {
       {/* Shown before authentication so the risk is clear before the key renders. */}
       <WarningMessage data-testid="private-key-share-warning" pb={0.5}>
         {t(
-          'Do not share this private key with anyone! It can be used to steal all funds in the account(s) associated with it.',
+          'Anyone with this private key can access the account(s) associated with it',
         )}
       </WarningMessage>
 
