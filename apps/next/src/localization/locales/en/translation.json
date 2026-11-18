@@ -736,7 +736,7 @@
   "Resuming": "Resuming",
   "Retry": "Retry",
   "Reveal": "Reveal",
-  "Review and revoke token approvals for this account using revoke.cash, a third-party tool.": "Review and revoke token approvals for this account using revoke.cash, a third-party tool.",
+  "Review and revoke token approvals on core.app.": "Review and revoke token approvals on core.app.",
   "Revoked allowance for {{tokenSymbol}}": "Revoked allowance for {{tokenSymbol}}",
   "Rewards": "Rewards",
   "Russian": "Russian",

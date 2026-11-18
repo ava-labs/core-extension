@@ -1,6 +1,6 @@
 import { ThemeProvider } from '@avalabs/k2-alpine';
 import { openNewTab } from '@core/common';
-import { useAccountsContext, useAnalyticsContext } from '@core/ui';
+import { useAnalyticsContext } from '@core/ui';
 import { fireEvent, render, screen } from '@shared/tests/test-utils';
 import { createInstance } from 'i18next';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
@@ -13,14 +13,12 @@ jest.mock('@core/common', () => ({
 }));
 
 jest.mock('@core/ui', () => ({
-  useAccountsContext: jest.fn(),
   useAnalyticsContext: jest.fn(),
 }));
 
-const mockAccounts = (active?: { addressC?: string }) =>
-  jest.mocked(useAccountsContext).mockReturnValue({
-    accounts: { active },
-  } as unknown as ReturnType<typeof useAccountsContext>);
+jest.mock('@/config', () => ({
+  CORE_WEB_BASE_URL: 'https://core.app',
+}));
 
 describe('TokenApprovalsNavItem', () => {
   let i18n: ReturnType<typeof createInstance>;
@@ -51,57 +49,23 @@ describe('TokenApprovalsNavItem', () => {
       </ThemeProvider>,
     );
 
-  it('renders the item with a third-party tool description', () => {
-    mockAccounts({ addressC: '0x1111111111111111111111111111111111111111' });
-
+  it('renders the item with its description', () => {
     renderItem();
 
     expect(screen.getByText('Token approvals')).toBeTruthy();
     expect(
-      screen.getByText(
-        'Review and revoke token approvals for this account using revoke.cash, a third-party tool.',
-      ),
+      screen.getByText('Review and revoke token approvals on core.app.'),
     ).toBeTruthy();
   });
 
-  it('opens revoke.cash for the active account C-chain address in a new tab', () => {
-    const addressC = '0xAbCdEf0000000000000000000000000000000123';
-    mockAccounts({ addressC });
-
+  it("opens Core's revoke access tool in a new tab", () => {
     renderItem();
     fireEvent.click(screen.getByText('Token approvals'));
 
     expect(openNewTab).toHaveBeenCalledTimes(1);
     expect(openNewTab).toHaveBeenCalledWith({
-      url: `https://revoke.cash/address/${addressC}`,
+      url: 'https://core.app/tools/revoke-access',
     });
     expect(capture).toHaveBeenCalledWith('TokenApprovalsClicked');
-  });
-
-  it('uses the newly active account after switching accounts', () => {
-    mockAccounts({ addressC: '0x1111111111111111111111111111111111111111' });
-    const { rerender } = renderItem();
-
-    mockAccounts({ addressC: '0x2222222222222222222222222222222222222222' });
-    rerender(
-      <ThemeProvider theme="light" toastVariant="extension">
-        <I18nextProvider i18n={i18n}>
-          <TokenApprovalsNavItem />
-        </I18nextProvider>
-      </ThemeProvider>,
-    );
-    fireEvent.click(screen.getByText('Token approvals'));
-
-    expect(openNewTab).toHaveBeenCalledWith({
-      url: 'https://revoke.cash/address/0x2222222222222222222222222222222222222222',
-    });
-  });
-
-  it('renders nothing when there is no active EVM address', () => {
-    mockAccounts(undefined);
-
-    renderItem();
-
-    expect(screen.queryByText('Token approvals')).toBeNull();
   });
 });
