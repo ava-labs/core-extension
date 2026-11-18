@@ -1,5 +1,6 @@
 import { Select } from '@/components/Select';
 import { LessRoundedPasswordField } from '@/components/StandaloneField';
+import { WarningMessage } from '@/components/WarningMessage';
 import { useSubmitButton } from '@/hooks/useSubmitButton';
 import {
   Button,
@@ -51,6 +52,13 @@ export const EnterPassword: FC<Props> = ({ account, onAuthenticated }) => {
 
   return (
     <Stack height={1} gap={1.5} mt={2}>
+      {/* Shown before authentication so the risk is clear before the key renders. */}
+      <WarningMessage data-testid="private-key-share-warning" pb={0.5}>
+        {t(
+          'Do not share this private key with anyone! It can be used to steal all funds in the account(s) associated with it.',
+        )}
+      </WarningMessage>
+
       <StyledSelect
         data-testid="private-key-chain-select"
         label={t('Chain')}

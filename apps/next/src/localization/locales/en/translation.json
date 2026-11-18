@@ -260,6 +260,7 @@
   "Dismiss": "Dismiss",
   "Do not close this window until the process is complete or you may need to restart.": "Do not close this window until the process is complete or you may need to restart.",
   "Do not share this phrase with anyone! These words can be used to steal all your accounts.": "Do not share this phrase with anyone! These words can be used to steal all your accounts.",
+  "Do not share this private key with anyone! It can be used to steal all funds in the account(s) associated with it.": "Do not share this private key with anyone! It can be used to steal all funds in the account(s) associated with it.",
   "Do you really want to save?": "Do you really want to save?",
   "Do you want to <br /> add a new network?": "Do you want to <br /> add a new network?",
   "Do you want to <br/> turn testnet {{onOrOff}}?": "Do you want to <br/> turn testnet {{onOrOff}}?",
