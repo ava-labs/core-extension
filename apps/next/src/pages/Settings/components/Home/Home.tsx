@@ -45,6 +45,7 @@ import {
   Footer,
   SettingsCard,
   SettingsNavItem,
+  TokenApprovalsNavItem,
 } from './components';
 import { BridgeDevModeSwitchCard } from './components/BridgeDevModeSwitchCard';
 import { useMediaQuery } from '@avalabs/k2-alpine';
@@ -298,6 +299,7 @@ export const SettingsHomePage = () => {
           divider
           onClick={() => capture('ConnectedSitesClicked')}
         />
+        <TokenApprovalsNavItem divider />
         <SettingsNavItem
           label={t('Change password')}
           divider

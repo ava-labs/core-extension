@@ -13,3 +13,4 @@ export const HEADER_HEIGHT = 56; // Height of Header and PageTopBar in pixels
 
 export const DEFAULT_FEE_PRESET: TransactionPriority = 'low';
 export const DEFAULT_FEE_PRESET_C_CHAIN: TransactionPriority = 'high';
+export const REVOKE_CASH_ADDRESS_URL = 'https://revoke.cash/address/';
