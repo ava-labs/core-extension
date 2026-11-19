@@ -3,6 +3,26 @@ import { NetworkVMType } from '@avalabs/vm-module-types';
 import { Account } from '@core/types';
 import { omitUndefined } from './object';
 import { address, networks } from 'bitcoinjs-lib';
+import { isAddress } from 'ethers';
+
+/**
+ * Compares two addresses for equality. EVM addresses are hex and
+ * case-insensitive, so they are compared without regard to case. All other
+ * address types (Bitcoin, X/P-Chain, Solana) are case-sensitive and compared
+ * exactly.
+ */
+export const isSameAddress = (a: string, b: string): boolean => {
+  const lowerA = a.toLowerCase();
+  const lowerB = b.toLowerCase();
+
+  // `isAddress` rejects mixed-case input with an invalid EIP-55 checksum, so
+  // detection runs on the lowercased forms.
+  if (isAddress(lowerA) && isAddress(lowerB)) {
+    return lowerA === lowerB;
+  }
+
+  return a === b;
+};
 
 export const mapVMAddresses = (addresses: Record<NetworkVMType, string>) =>
   omitUndefined({
