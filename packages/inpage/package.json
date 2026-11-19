@@ -14,8 +14,8 @@
     "typecheck": "yarn tsc --skipLibCheck --noEmit"
   },
   "dependencies": {
-    "@avalabs/evm-module": "5.0.3",
-    "@avalabs/svm-module": "5.0.3",
+    "@avalabs/evm-module": "0.0.0-feat-runtime-glacier-api-key-20261119094452",
+    "@avalabs/svm-module": "0.0.0-feat-runtime-glacier-api-key-20261119094452",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/types": "workspace:*",
