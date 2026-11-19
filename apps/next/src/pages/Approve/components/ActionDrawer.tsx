@@ -5,6 +5,7 @@ import {
   Stack,
   StackProps,
   styled,
+  Typography,
 } from '@avalabs/k2-alpine';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +21,8 @@ type ActionDrawerProps = StackProps & {
   withConfirmationSwitch?: boolean;
   isProcessing: boolean;
   isDisabled?: boolean;
+  /** Short explanation shown above the buttons, e.g. why approve is disabled. */
+  approveHint?: string;
 };
 
 export const ActionDrawer = ({
@@ -31,6 +34,7 @@ export const ActionDrawer = ({
   withConfirmationSwitch,
   isProcessing,
   isDisabled = false,
+  approveHint,
   ...props
 }: ActionDrawerProps) => {
   const { t } = useTranslation();
@@ -45,6 +49,16 @@ export const ActionDrawer = ({
             isConfirmed={userHasConfirmed}
             setIsConfirmed={setUserHasConfirmed}
           />
+        )}
+        {approveHint && (
+          <Typography
+            data-testid="approve-action-hint"
+            variant="caption"
+            color="text.secondary"
+            textAlign="center"
+          >
+            {approveHint}
+          </Typography>
         )}
         <Stack gap={1}>
           {approve && (
