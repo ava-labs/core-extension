@@ -75,9 +75,14 @@ export const DappAccountSelector: FC<DappAccountSelectorProps> = ({
     <NoScrollStack stackProps={{ mt: 5 }}>
       <Stack px={2} alignItems="center" gap={3}>
         <SizedAvatar size={60} src={action.displayData.dappIcon} />
-        <Typography variant="body3" mx={5} textAlign="center">
+        <Typography
+          variant="body3"
+          mx={5}
+          textAlign="center"
+          data-testid="dapp-connect-title"
+        >
           <Trans
-            i18nKey="Do you want to allow <b>{{dappUrl}}</b> to access your wallet?"
+            i18nKey="<b>{{dappUrl}}</b> wants to connect to your wallet."
             components={{
               b: <b />,
             }}
@@ -85,6 +90,17 @@ export const DappAccountSelector: FC<DappAccountSelectorProps> = ({
               dappUrl: sanitizeDappUrl(action.displayData.dappUrl),
             }}
           />
+        </Typography>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          mx={5}
+          textAlign="center"
+          data-testid="dapp-connect-disclosure"
+        >
+          {t(
+            'Connecting lets this site view your wallet addresses, balances and transaction history, and request transactions and message signatures. Each request still requires your approval.',
+          )}
         </Typography>
       </Stack>
       {action.displayData.isMalicious && (
