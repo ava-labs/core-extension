@@ -12,6 +12,8 @@ export enum LockEvents {
 export enum AlarmsEvents {
   AUTO_LOCK = 'auto-lock',
   RECURRING_SWAP_SUBSCRIPTION_DISCOVERY = 'recurring-swap-subscription-discovery',
+  /** Prefix: the full alarm name is `clear-clipboard:<sha256 of the secret>`. */
+  CLEAR_CLIPBOARD = 'clear-clipboard:',
 }
 
 export interface LockStateChangedEventPayload {

@@ -56,6 +56,8 @@ export enum ExtensionRequest {
   LOCK_GET_STATE = 'lock_getState',
   LOCK_CHANGE_PASSWORD = 'lock_changePassword',
 
+  CLIPBOARD_SCHEDULE_SECRET_CLEAR = 'clipboard_scheduleSecretClear',
+
   ACTION_GET = 'action_getAction',
   ACTION_UPDATE = 'action_updateAction',
   ACTION_UPDATE_TX_DATA = 'action_updateTxData',

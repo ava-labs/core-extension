@@ -43,3 +43,4 @@ export * from './notification-center';
 export * from './notifications';
 export * from './trendingToken';
 export * from './unifiedTransfer';
+export * from './clipboard';
