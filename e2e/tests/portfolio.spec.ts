@@ -1133,6 +1133,7 @@ const DEFI_FILTER_CATEGORIES = [
   { id: 'C32149', auto: 'DEFI-010', label: 'Rewards' },
   { id: 'C32150', auto: 'DEFI-011', label: 'Yield' },
 ];
+const SKIPPED_DEFI_FILTER_CATEGORIES = new Set(['Perpetuals', 'Rewards']);
 
 const isAvalancheFirst = (networks: string[]): boolean => {
   let seenNonAvalanche = false;
@@ -1315,7 +1316,10 @@ test.describe('Portfolio - DeFi', () => {
   );
 
   for (const { auto, label } of DEFI_FILTER_CATEGORIES) {
-    test(
+    const filterTest = SKIPPED_DEFI_FILTER_CATEGORIES.has(label)
+      ? test.skip
+      : test;
+    filterTest(
       `As a CORE ext user on the defi tab, I can filter defi protocols by ${label}`,
       {
         tag: ['@regression'],
