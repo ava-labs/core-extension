@@ -30,8 +30,12 @@ on:
           - 'false'
         default: 'true'
 
+permissions: {}
+
 jobs:
   build:
+    permissions:
+      contents: read
     name: Build Extension
     runs-on: ubuntu-latest-16-cores-core-extension
     if: ${{ !github.event.pull_request.draft }}
@@ -59,6 +63,7 @@ jobs:
           # unmerged branch HEAD, so a stale branch produced an extension
           # missing newer testids/DOM that the up-to-date tests expect.
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Create env file
         run: |
@@ -125,8 +130,8 @@ jobs:
           fi
           TEST_RUN_ID=$(trcli -y -h https://avalabs.testrail.io \
             --project "New Gen Core Extension" \
-            --username ${{ env.TESTRAIL_EMAIL }} \
-            --key ${{ env.TESTRAIL_API_KEY }} \
+            --username ${TESTRAIL_EMAIL} \
+            --key ${TESTRAIL_API_KEY} \
             add_run --title "Extension Playwright ${RUN_LABEL} Run - $TS" \
             --run-include-all | grep "run_id:" | awk '{print $2}')
           echo "test_run_id=$TEST_RUN_ID" >> $GITHUB_OUTPUT
@@ -172,6 +177,7 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Install Chrome
         working-directory: e2e
@@ -284,14 +290,14 @@ jobs:
           pip3 install 'trcli==1.15.3'
           trcli -n -h https://avalabs.testrail.io \
             --project "New Gen Core Extension" \
-            --username ${{ env.TESTRAIL_EMAIL }} \
-            --key ${{ env.TESTRAIL_API_KEY }} \
+            --username ${TESTRAIL_EMAIL} \
+            --key ${TESTRAIL_API_KEY} \
             parse_junit -f ./e2e/test-results/junit-report-${{ matrix.shardIndex }}.xml \
-            --run-id=${{ env.TEST_RUN_ID }}
+            --run-id=${TEST_RUN_ID}
 
       - name: Output TestRail run link
         if: always() && env.TEST_RUN_ID != ''
-        run: echo https://avalabs.testrail.io/index.php?/runs/view/${{ env.TEST_RUN_ID }}
+        run: echo https://avalabs.testrail.io/index.php?/runs/view/${TEST_RUN_ID}
 
       - name: Upload test results
         if: always() && steps.redact.outcome == 'success'
@@ -304,6 +310,7 @@ jobs:
           retention-days: 30
 
   slack-notification:
+    permissions: {}
     name: Send Slack Notification
     runs-on: ubuntu-latest
     environment: e2e
