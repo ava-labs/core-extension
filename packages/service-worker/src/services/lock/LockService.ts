@@ -1,7 +1,13 @@
+import { EXTENSION_SCRIPT } from '@core/common';
 import {
   AlarmsEvents,
+  DEFAULT_AUTO_LOCK_TIMER,
+  isAutoLockTimer,
   LockEvents,
   LockStateChangedEventPayload,
+  MAX_AUTO_LOCK_TIMER,
+  SETTINGS_STORAGE_KEY,
+  SettingsState,
 } from '@core/types';
 import EventEmitter from 'events';
 import { singleton } from 'tsyringe';
@@ -14,8 +20,6 @@ export class LockService implements OnAllExtensionClosed {
   private eventEmitter = new EventEmitter();
   #locked = true;
 
-  #autoLockInMinutes = 30;
-
   public get locked(): boolean {
     return this.#locked;
   }
@@ -26,8 +30,17 @@ export class LockService implements OnAllExtensionClosed {
   ) {}
 
   async activate() {
-    chrome.runtime.onConnect.addListener(() => {
-      chrome.alarms.clear(AlarmsEvents.AUTO_LOCK);
+    chrome.runtime.onConnect.addListener((port) => {
+      // Only an extension UI view (popup, side panel, approval window, tab)
+      // counts as wallet activity. Content-script ports connect on every
+      // http(s) page and frame, so letting them clear the alarm would mean
+      // ordinary browsing keeps the wallet unlocked indefinitely.
+      if (
+        port?.name === EXTENSION_SCRIPT &&
+        port.sender?.id === chrome.runtime.id
+      ) {
+        chrome.alarms.clear(AlarmsEvents.AUTO_LOCK);
+      }
     });
 
     chrome.alarms.onAlarm.addListener((alarm) => {
@@ -37,11 +50,28 @@ export class LockService implements OnAllExtensionClosed {
     });
   }
 
-  onAllExtensionsClosed(): void | Promise<void> {
+  async onAllExtensionsClosed(): Promise<void> {
     if (!this.#locked) {
       chrome.alarms.create(AlarmsEvents.AUTO_LOCK, {
-        periodInMinutes: this.#autoLockInMinutes,
+        delayInMinutes: await this.#getAutoLockInMinutes(),
       });
+    }
+  }
+
+  // Read the auto-lock timeout straight from encrypted storage rather than
+  // depending on SettingsService, which would introduce a circular dependency:
+  // LockService -> SettingsService -> FeatureFlagService -> LockService.
+  async #getAutoLockInMinutes(): Promise<number> {
+    try {
+      const settings =
+        await this.storageService.load<SettingsState>(SETTINGS_STORAGE_KEY);
+      const value = settings?.autoLockTimer;
+      // Never exceed the maximum, even if storage holds an unexpected value.
+      return isAutoLockTimer(value)
+        ? Math.min(value, MAX_AUTO_LOCK_TIMER)
+        : DEFAULT_AUTO_LOCK_TIMER;
+    } catch {
+      return DEFAULT_AUTO_LOCK_TIMER;
     }
   }
 

@@ -35,6 +35,7 @@ import { Card } from '@/components/Card';
 import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
 import { getContactsPath } from '@/config/routes';
 import { AnalyticsConsent, FeatureGates, SecretType } from '@core/types';
+import { AutoLockTimerSelector } from '../AutoLockTimerSelector';
 import { CurrencySelector } from '../CurrencySelector';
 import { FeeSettingsSelector } from '../FeeSettingsSelector';
 import { MaxBuySelector } from '../MaxBuySelector';
@@ -331,6 +332,11 @@ export const SettingsHomePage = () => {
             />
           )}
 
+        <SettingsNavItem
+          label={t('Auto-lock timer')}
+          divider
+          secondaryAction={<AutoLockTimerSelector sx={navItemActionCommonSx} />}
+        />
         <SettingsNavItem
           label={t('Participate in Core Analytics')}
           description={t(

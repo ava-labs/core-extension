@@ -141,6 +141,7 @@ import { SetShowHighlightBannersHandler } from '~/services/settings/handlers/set
 import { SetQuickSwapsEnabledHandler } from '~/services/settings/handlers/setQuickSwapsEnabled';
 import { SetFeeSettingHandler } from '~/services/settings/handlers/setFeeSetting';
 import { SetMaxBuyHandler } from '~/services/settings/handlers/setMaxBuy';
+import { SetAutoLockTimerHandler } from '~/services/settings/handlers/setAutoLockTimer';
 import { EnableNetworkHandler } from '~/services/network/handlers/enableNetwork';
 import { DisableNetworkHandler } from '~/services/network/handlers/disableNetwork';
 import { GetTrendingTokensHandler } from '~/services/trendingTokens/handlers/getTrendingTokens';
@@ -497,6 +498,10 @@ import { SetBridgeDevEnvHandler } from '~/services/settings/handlers/setBridgeDe
   {
     token: 'ExtensionRequestHandler',
     useToken: SetMaxBuyHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: SetAutoLockTimerHandler,
   },
   { token: 'ExtensionRequestHandler', useToken: ImportLedgerHandlerNew },
   { token: 'ExtensionRequestHandler', useToken: CheckIfWalletExists },

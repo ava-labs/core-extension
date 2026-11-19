@@ -94,6 +94,7 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
     privacyMode: false,
     filterSmallUtxos: false,
     isBridgeDevEnv: false,
+    autoLockTimer: 20,
   };
 
   const mockSettingsResponse: WalletSetSettingsResponse = {

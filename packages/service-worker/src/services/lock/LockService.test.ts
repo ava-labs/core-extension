@@ -1,4 +1,9 @@
-import { AlarmsEvents, LockEvents } from '@core/types';
+import {
+  CONTENT_SCRIPT,
+  EXTENSION_SCRIPT,
+  OFFSCREEN_SCRIPT,
+} from '@core/common';
+import { AlarmsEvents, LockEvents, SETTINGS_STORAGE_KEY } from '@core/types';
 import { CallbackManager } from '~/runtime/CallbackManager';
 import { StorageService } from '../storage/StorageService';
 import { LockService } from './LockService';
@@ -14,7 +19,10 @@ const mockChromeAlarms = {
   },
 };
 
+const EXTENSION_ID = 'core-extension-id';
+
 const mockChromeRuntime = {
+  id: EXTENSION_ID,
   onConnect: {
     addListener: jest.fn(),
   },
@@ -45,6 +53,7 @@ describe('src/services/lock/LockService.ts', () => {
       changePassword: jest.fn().mockResolvedValue(undefined),
       verifyPassword: jest.fn().mockResolvedValue(true),
       clearSessionStorage: jest.fn(),
+      load: jest.fn().mockResolvedValue({ autoLockTimer: 20 }),
     } as unknown as jest.Mocked<StorageService>;
 
     lockService = new LockService(callbackManager, storageService);
@@ -71,18 +80,65 @@ describe('src/services/lock/LockService.ts', () => {
   });
 
   describe('activate', () => {
-    it('sets up runtime onConnect listener that clears auto-lock alarm', async () => {
+    const getOnConnectCallback = async () => {
       await lockService.activate();
-
       expect(mockChromeRuntime.onConnect.addListener).toHaveBeenCalledTimes(1);
+      return mockChromeRuntime.onConnect.addListener.mock.calls[0][0];
+    };
 
-      const onConnectCallback =
-        mockChromeRuntime.onConnect.addListener.mock.calls[0][0];
-      onConnectCallback();
+    it('clears the auto-lock alarm when an extension UI view connects', async () => {
+      const onConnectCallback = await getOnConnectCallback();
+
+      onConnectCallback({
+        name: EXTENSION_SCRIPT,
+        sender: { id: EXTENSION_ID },
+      });
 
       expect(mockChromeAlarms.clear).toHaveBeenCalledWith(
         AlarmsEvents.AUTO_LOCK,
       );
+    });
+
+    it('does not clear the auto-lock alarm when a content script connects', async () => {
+      const onConnectCallback = await getOnConnectCallback();
+
+      // Content scripts run in every http(s) page/frame and report the
+      // extension's own id as sender id, so only the port name tells them apart.
+      onConnectCallback({
+        name: CONTENT_SCRIPT,
+        sender: { id: EXTENSION_ID, url: 'https://example.com' },
+      });
+
+      expect(mockChromeAlarms.clear).not.toHaveBeenCalled();
+    });
+
+    it('does not clear the auto-lock alarm for other or foreign ports', async () => {
+      const onConnectCallback = await getOnConnectCallback();
+
+      onConnectCallback({
+        name: OFFSCREEN_SCRIPT,
+        sender: { id: EXTENSION_ID },
+      });
+      onConnectCallback({ name: EXTENSION_SCRIPT, sender: { id: 'other-id' } });
+      onConnectCallback(undefined);
+
+      expect(mockChromeAlarms.clear).not.toHaveBeenCalled();
+    });
+
+    it('keeps the armed alarm while the user browses dApp pages', async () => {
+      const onConnectCallback = await getOnConnectCallback();
+      await lockService.unlock('password');
+      await lockService.onAllExtensionsClosed();
+
+      for (let i = 0; i < 5; i++) {
+        onConnectCallback({
+          name: CONTENT_SCRIPT,
+          sender: { id: EXTENSION_ID, url: `https://site-${i}.example` },
+        });
+      }
+
+      expect(mockChromeAlarms.create).toHaveBeenCalledTimes(1);
+      expect(mockChromeAlarms.clear).not.toHaveBeenCalled();
     });
 
     it('sets up alarm listener that locks when auto-lock alarm fires', async () => {
@@ -117,19 +173,75 @@ describe('src/services/lock/LockService.ts', () => {
   });
 
   describe('onAllExtensionsClosed', () => {
-    it('creates auto-lock alarm when wallet is unlocked', async () => {
+    it('creates auto-lock alarm using the configured timeout when wallet is unlocked', async () => {
+      storageService.load.mockResolvedValue({ autoLockTimer: 15 } as any);
       await lockService.unlock('password');
 
-      lockService.onAllExtensionsClosed();
+      await lockService.onAllExtensionsClosed();
 
       expect(mockChromeAlarms.create).toHaveBeenCalledWith(
         AlarmsEvents.AUTO_LOCK,
-        { periodInMinutes: 30 },
+        { delayInMinutes: 15 },
       );
     });
 
-    it('does not create alarm when wallet is locked', () => {
-      lockService.onAllExtensionsClosed();
+    it('falls back to the default timeout when settings cannot be read', async () => {
+      storageService.load.mockRejectedValue(new Error('locked'));
+      await lockService.unlock('password');
+
+      await lockService.onAllExtensionsClosed();
+
+      expect(mockChromeAlarms.create).toHaveBeenCalledWith(
+        AlarmsEvents.AUTO_LOCK,
+        { delayInMinutes: 20 },
+      );
+    });
+
+    it('uses a 20 minute default when no timeout is stored', async () => {
+      storageService.load.mockResolvedValue({} as any);
+      await lockService.unlock('password');
+
+      await lockService.onAllExtensionsClosed();
+
+      expect(storageService.load).toHaveBeenCalledWith(SETTINGS_STORAGE_KEY);
+      expect(mockChromeAlarms.create).toHaveBeenCalledWith(
+        AlarmsEvents.AUTO_LOCK,
+        { delayInMinutes: 20 },
+      );
+    });
+
+    it.each([5, 10, 15, 20])(
+      'respects the configured %i minute timeout',
+      async (autoLockTimer) => {
+        storageService.load.mockResolvedValue({ autoLockTimer } as any);
+        await lockService.unlock('password');
+
+        await lockService.onAllExtensionsClosed();
+
+        expect(mockChromeAlarms.create).toHaveBeenCalledWith(
+          AlarmsEvents.AUTO_LOCK,
+          { delayInMinutes: autoLockTimer },
+        );
+      },
+    );
+
+    it.each([30, 0, -1, 'abc', null])(
+      'falls back to 20 minutes for an unsupported stored value (%p)',
+      async (autoLockTimer) => {
+        storageService.load.mockResolvedValue({ autoLockTimer } as any);
+        await lockService.unlock('password');
+
+        await lockService.onAllExtensionsClosed();
+
+        expect(mockChromeAlarms.create).toHaveBeenCalledWith(
+          AlarmsEvents.AUTO_LOCK,
+          { delayInMinutes: 20 },
+        );
+      },
+    );
+
+    it('does not create alarm when wallet is locked', async () => {
+      await lockService.onAllExtensionsClosed();
 
       expect(mockChromeAlarms.create).not.toHaveBeenCalled();
     });
