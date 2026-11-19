@@ -12,6 +12,7 @@ export * from './calculateGasAndFees';
 export * from './calculateTotalBalance';
 export * from './canSkipApproval';
 export * from './constants';
+export * from './coreApiKeys';
 export * from './createMnemonicPhrase';
 export * from './distributiveomit';
 export * from './encoding';

@@ -3392,13 +3392,13 @@
     },
     "external:../common/src/unifiedTransfer/getServiceInitializer.ts": {
       "globals": {
-        "process.env.MARKR_API_TOKEN": true,
         "process.env.MARKR_API_URL": true
       },
       "packages": {
         "external:../common/node_modules/@avalabs/fusion-sdk/dist/constants.js": true,
         "external:../common/node_modules/@avalabs/fusion-sdk/dist/mod.js": true,
-        "external:../common/src/unifiedTransfer/constants.ts": true
+        "external:../common/src/unifiedTransfer/constants.ts": true,
+        "external:../common/src/utils/coreApiKeys.ts": true
       }
     },
     "external:../common/src/utils/accounts/accountTypeGuards.ts": {
@@ -3467,6 +3467,11 @@
         "external:../common/src/utils/getSyncDomain.ts": true,
         "external:../common/src/utils/isActiveTab.ts": true,
         "webextension-polyfill": true
+      }
+    },
+    "external:../common/src/utils/coreApiKeys.ts": {
+      "globals": {
+        "chrome.storage": true
       }
     },
     "external:../common/src/utils/environment.ts": {
@@ -3601,12 +3606,11 @@
     "external:../common/src/utils/network/addGlacierAPIKeyIfNeeded.ts": {
       "globals": {
         "URL": true,
-        "process.env.GLACIER_API_KEY": true,
         "process.env.GLACIER_URL": true,
         "process.env.PROXY_URL": true
       },
       "packages": {
-        "@rsbuild/plugin-node-polyfill>process": true
+        "external:../common/src/utils/coreApiKeys.ts": true
       }
     },
     "external:../common/src/utils/network/buildCoreEth.ts": {
@@ -3621,15 +3625,14 @@
     },
     "external:../common/src/utils/network/getProviderForNetwork.ts": {
       "globals": {
-        "process.env.GLACIER_API_KEY": true,
         "process.env.PROXY_URL": true
       },
       "packages": {
         "@avalabs/core-chains-sdk": true,
         "@avalabs/core-wallets-sdk": true,
         "ethers": true,
-        "external:../common/src/utils/network/addGlacierAPIKeyIfNeeded.ts": true,
-        "@rsbuild/plugin-node-polyfill>process": true
+        "external:../common/src/utils/coreApiKeys.ts": true,
+        "external:../common/src/utils/network/addGlacierAPIKeyIfNeeded.ts": true
       }
     },
     "external:../common/src/utils/network/isAvalanchePchainNetwork.ts": {

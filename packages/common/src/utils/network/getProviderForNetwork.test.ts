@@ -14,8 +14,12 @@ import { FetchRequest, Network } from 'ethers';
 import { getProviderForNetwork } from './getProviderForNetwork';
 import { addGlacierAPIKeyIfNeeded } from './addGlacierAPIKeyIfNeeded';
 import { decorateWithCaipId } from '../caipConversion';
+import { getCoreApiKey } from '../coreApiKeys';
 
 jest.mock('./addGlacierAPIKeyIfNeeded');
+jest.mock('../coreApiKeys', () => ({
+  getCoreApiKey: jest.fn(),
+}));
 
 jest.mock('@avalabs/core-wallets-sdk', () => {
   const BitcoinProviderMock = jest.fn();
@@ -81,6 +85,7 @@ describe('src/utils/network/getProviderForNetwork', () => {
 
   beforeEach(() => {
     jest.mocked(addGlacierAPIKeyIfNeeded).mockImplementation((url) => url);
+    jest.mocked(getCoreApiKey).mockResolvedValue('glacier-api-key');
     (JsonRpcBatchInternal as unknown as jest.Mock).mockReturnValue(
       mockJsonRpcBatchInternalInstance,
     );
@@ -192,7 +197,7 @@ describe('src/utils/network/getProviderForNetwork', () => {
       undefined,
       `${process.env.PROXY_URL}/proxy/nownodes/btcbook-testnet`,
       `${process.env.PROXY_URL}/proxy/nownodes/btc-testnet`,
-      { rltoken: process.env.GLACIER_API_KEY },
+      { rltoken: 'glacier-api-key' },
     );
   });
 
@@ -208,7 +213,22 @@ describe('src/utils/network/getProviderForNetwork', () => {
       undefined,
       `${process.env.PROXY_URL}/proxy/nownodes/btcbook`,
       `${process.env.PROXY_URL}/proxy/nownodes/btc`,
-      { rltoken: process.env.GLACIER_API_KEY },
+      { rltoken: 'glacier-api-key' },
+    );
+  });
+
+  it('omits the bitcoin rltoken when no glacier key is stored', async () => {
+    jest.mocked(getCoreApiKey).mockResolvedValue(undefined);
+
+    await getProviderForNetwork(decorateWithCaipId(BITCOIN_NETWORK));
+
+    expect(getCoreApiKey).toHaveBeenCalledWith('glacier');
+    expect(BitcoinProvider).toHaveBeenCalledWith(
+      true,
+      undefined,
+      `${process.env.PROXY_URL}/proxy/nownodes/btcbook`,
+      `${process.env.PROXY_URL}/proxy/nownodes/btc`,
+      {},
     );
   });
 

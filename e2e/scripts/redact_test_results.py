@@ -24,6 +24,10 @@ SECRET_ENV_VARS = [
     'APITOKEN_ETHERSCAN',
     'APITOKEN_GLACIER',
     'TESTRAIL_API_KEY',
+    'CORE_PROXY_API_KEY',
+    'GLACIER_API_KEY',
+    'MARKR_API_TOKEN',
+    'ID_SERVICE_API_KEY',
 ]
 # Only values that can appear unmasked on screen require media removal.
 ON_SCREEN_SECRET_ENV_VARS = {
@@ -40,7 +44,12 @@ TEXT_SUFFIXES = (
 )
 MEDIA_SUFFIXES = ('.png', '.jpeg', '.jpg', '.webm')
 EVALUATE_METHODS = {'evaluateExpression', 'evaluateExpressionHandle'}
-EVALUATE_API_NAMES = {'page.evaluate', 'page.evaluateHandle'}
+EVALUATE_API_NAMES = {
+    'page.evaluate',
+    'page.evaluateHandle',
+    'worker.evaluate',
+    'worker.evaluateHandle',
+}
 REDACTED_VALUE = {'value': {'s': '[REDACTED]'}, 'handles': []}
 INPUT_TAGS = {'INPUT', 'TEXTAREA'}
 INPUT_VALUE_ATTRS = ('value', '__playwright_value_')
