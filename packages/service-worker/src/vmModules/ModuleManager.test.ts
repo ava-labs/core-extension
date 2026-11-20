@@ -1,10 +1,18 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import { DEFAULT_FLAGS } from '@core/common';
+import { AvalancheModule } from '@avalabs/avalanche-module';
+import { BitcoinModule } from '@avalabs/bitcoin-module';
+import { EvmModule } from '@avalabs/evm-module';
+import { SvmModule } from '@avalabs/svm-module';
+import { DEFAULT_FLAGS, getCachedCoreApiKey } from '@core/common';
 import { ModuleManager } from './ModuleManager';
 import { VMModuleError } from '@core/types';
 import { ApprovalController } from './ApprovalController';
 import { FeatureFlagService } from '../services/featureFlags/FeatureFlagService';
 
+jest.mock('@core/common', () => ({
+  ...jest.requireActual('@core/common'),
+  getCachedCoreApiKey: jest.fn(),
+}));
 jest.mock('@avalabs/bitcoin-module', () => {
   return {
     BitcoinModule: jest.fn().mockImplementation(() => {
@@ -155,6 +163,25 @@ describe('ModuleManager', () => {
     beforeEach(async () => {
       await manager.activate();
     });
+
+    it.each([
+      ['EvmModule', EvmModule],
+      ['AvalancheModule', AvalancheModule],
+      ['BitcoinModule', BitcoinModule],
+      ['SvmModule', SvmModule],
+    ])(
+      'gives %s a getter for the runtime Glacier API key',
+      (_, ModuleClass) => {
+        const { runtime } = jest.mocked(ModuleClass).mock.calls.at(-1)![0];
+
+        jest.mocked(getCachedCoreApiKey).mockReturnValue('glacier-key');
+        expect(runtime?.getGlacierApiKey?.()).toBe('glacier-key');
+        expect(getCachedCoreApiKey).toHaveBeenCalledWith('glacier');
+
+        jest.mocked(getCachedCoreApiKey).mockReturnValue(undefined);
+        expect(runtime?.getGlacierApiKey?.()).toBeUndefined();
+      },
+    );
 
     it('should load the correct modules', async () => {
       const params = [

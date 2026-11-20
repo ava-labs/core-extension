@@ -1,4 +1,9 @@
+import { getCachedCoreApiKey } from '../coreApiKeys';
 import { addGlacierAPIKeyIfNeeded } from './addGlacierAPIKeyIfNeeded';
+
+jest.mock('../coreApiKeys', () => ({
+  getCachedCoreApiKey: jest.fn(),
+}));
 
 describe('utils/addGlacierAPIKeyIfNeeded', () => {
   const env = process.env;
@@ -6,10 +11,10 @@ describe('utils/addGlacierAPIKeyIfNeeded', () => {
   beforeEach(() => {
     process.env = {
       ...env,
-      GLACIER_API_KEY: 'glacierapikey',
       GLACIER_URL: 'https://glacier-api-dev.avax.network',
       PROXY_URL: 'https://proxy-api-dev.avax.network',
     };
+    jest.mocked(getCachedCoreApiKey).mockReturnValue('glacierapikey');
   });
 
   afterEach(() => {
@@ -61,7 +66,7 @@ describe('utils/addGlacierAPIKeyIfNeeded', () => {
   });
 
   it('does nothing when no glacier key is present', () => {
-    delete process.env.GLACIER_API_KEY;
+    jest.mocked(getCachedCoreApiKey).mockReturnValue(undefined);
 
     expect(
       addGlacierAPIKeyIfNeeded(

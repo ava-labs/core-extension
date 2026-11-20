@@ -11,6 +11,7 @@ import shutil
 import sys
 import xml.etree.ElementTree as ET
 import zipfile
+from urllib.parse import quote, quote_plus
 
 SECRET_ENV_VARS = [
     'RECOVERY_PHRASE_12_WORDS',
@@ -24,6 +25,10 @@ SECRET_ENV_VARS = [
     'APITOKEN_ETHERSCAN',
     'APITOKEN_GLACIER',
     'TESTRAIL_API_KEY',
+    'CORE_PROXY_API_KEY',
+    'GLACIER_API_KEY',
+    'MARKR_API_TOKEN',
+    'ID_SERVICE_API_KEY',
 ]
 # Only values that can appear unmasked on screen require media removal.
 ON_SCREEN_SECRET_ENV_VARS = {
@@ -40,7 +45,12 @@ TEXT_SUFFIXES = (
 )
 MEDIA_SUFFIXES = ('.png', '.jpeg', '.jpg', '.webm')
 EVALUATE_METHODS = {'evaluateExpression', 'evaluateExpressionHandle'}
-EVALUATE_API_NAMES = {'page.evaluate', 'page.evaluateHandle'}
+EVALUATE_API_NAMES = {
+    'page.evaluate',
+    'page.evaluateHandle',
+    'worker.evaluate',
+    'worker.evaluateHandle',
+}
 REDACTED_VALUE = {'value': {'s': '[REDACTED]'}, 'handles': []}
 INPUT_TAGS = {'INPUT', 'TEXTAREA'}
 INPUT_VALUE_ATTRS = ('value', '__playwright_value_')
@@ -77,6 +87,10 @@ class Redactor:
         variants = {value}
         if value.startswith('0x'):
             variants.add(value[2:])
+        for variant in list(variants):
+            # API keys travel as query parameters, so network records in
+            # traces hold them percent- or form-encoded.
+            variants.update({quote(variant, safe=''), quote_plus(variant, safe='')})
         for variant in list(variants):
             # Values also appear JSON-escaped, and double-escaped inside
             # step titles such as `Fill "<value>"`.

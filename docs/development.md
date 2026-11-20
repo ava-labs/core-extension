@@ -19,6 +19,8 @@ Volta is optional. Any tool that reads `.nvmrc`, such as `nvm`, works.
 | `.env.production` | Local production builds only. CI writes it from the `production` environment secrets. |
 | `e2e/.env`        | End-to-end tests. Copy it from `e2e/.env.example`.                                    |
 
+The build inlines only the variables listed in `BUNDLED_ENV_VARS` in `build-scripts/getEnvVars.ts`; any other `process.env.X` in app code is `undefined` at runtime. Every build artifact is public, so add a variable there only if its value is safe to publish. Keep secrets out of builds and read them at runtime instead, like the [runtime API keys](#runtime-api-keys).
+
 ## Setup and run
 
 1. Install dependencies and allow the build scripts:
@@ -95,3 +97,26 @@ The service worker reads these at runtime. `FIREBASE_CONFIG` and `GASLESS_SERVIC
 | `POSTHOG_KEY`                     | PostHog project key for analytics events           |
 
 The backend URLs and their routes are listed in the [Overview](index.md#backend-dependencies).
+
+## Runtime API keys
+
+Some API keys only bypass rate limits or authorize test traffic. They are not build variables, so they can never end up in a published zip. The extension reads them from the unencrypted `core.api-keys` entry in `chrome.storage.local`, in every build.
+
+| Key         | Sent as                                                        |
+| ----------- | -------------------------------------------------------------- |
+| `proxy`     | `X-Core-Api-Key` to `core-proxy-api`                           |
+| `glacier`   | `rltoken` query parameter on Glacier, `proxy-api` and NOWNodes |
+| `markr`     | Markr API token for Fusion swaps                               |
+| `idService` | `X-Api-Key` to `core-id-api` App Check requests                |
+
+To set them locally, open the service worker console (`chrome://extensions/`, then **Inspect views: service worker**) and run:
+
+```js
+chrome.storage.local.set({
+  'core.api-keys': { proxy: '…', glacier: '…', markr: '…', idService: '…' },
+});
+```
+
+Leave out the keys you don't need. Running extension contexts pick up changes without a reload. The keys survive reloads of the unpacked extension but not a reinstall.
+
+End-to-end tests seed the same entry before each test from `CORE_PROXY_API_KEY`, `GLACIER_API_KEY`, `MARKR_API_TOKEN` and `ID_SERVICE_API_KEY` in `e2e/.env`, or the job env in CI.
