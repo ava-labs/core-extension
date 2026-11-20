@@ -3,6 +3,7 @@ import {
   isBase58AddressInNetwork,
   isBech32Address,
   isBech32AddressInNetwork,
+  isSameAddress,
 } from './address';
 
 // valid
@@ -16,6 +17,37 @@ const testnetP2SH = '2MzQwSSnBHWHqSAqtTVQ6v47XtaisrJa1Vc';
 
 // Not valid
 const invalidAddress = 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t5';
+
+describe('isSameAddress', () => {
+  // EIP-55 test vector
+  const checksummedEvmAddress = '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed';
+
+  it('matches EVM addresses regardless of case', () => {
+    expect(
+      isSameAddress(checksummedEvmAddress, checksummedEvmAddress.toLowerCase()),
+    ).toBe(true);
+  });
+
+  it('matches EVM addresses whose casing breaks the EIP-55 checksum', () => {
+    const invalidChecksum = '0x5AAeb6053F3E94C9b9A09f33669435E7Ef1BeAed';
+
+    expect(isSameAddress(checksummedEvmAddress, invalidChecksum)).toBe(true);
+  });
+
+  it('does not match different EVM addresses', () => {
+    expect(
+      isSameAddress(
+        checksummedEvmAddress,
+        '0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359',
+      ),
+    ).toBe(false);
+  });
+
+  it('compares non-EVM addresses case-sensitively', () => {
+    expect(isSameAddress(mainnetP2PKH, mainnetP2PKH)).toBe(true);
+    expect(isSameAddress(mainnetP2PKH, mainnetP2PKH.toLowerCase())).toBe(false);
+  });
+});
 
 describe('isBech32Address', () => {
   it('Should return true when passing in an valid mainnet address', () => {

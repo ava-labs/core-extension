@@ -21,6 +21,7 @@ import {
   assertPresent,
   assertPropDefined,
   getAllAddressesForAccount,
+  isSameAddress,
   isMissingAnyAddress,
   isPrimaryAccount,
   isProductionBuild,
@@ -130,7 +131,9 @@ export class AccountsService implements OnLock, OnUnlock {
     const accounts = this.#accounts.primary[activeAccount.walletId] ?? [];
 
     return accounts.find((account) =>
-      getAllAddressesForAccount(account).includes(address),
+      getAllAddressesForAccount(account).some((accountAddress) =>
+        isSameAddress(accountAddress, address),
+      ),
     );
   }
 
