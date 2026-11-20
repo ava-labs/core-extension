@@ -19,6 +19,8 @@ Volta is optional. Any tool that reads `.nvmrc`, such as `nvm`, works.
 | `.env.production` | Local production builds only. CI writes it from the `production` environment secrets. |
 | `e2e/.env`        | End-to-end tests. Copy it from `e2e/.env.example`.                                    |
 
+The build inlines only the variables listed in `BUNDLED_ENV_VARS` in `build-scripts/getEnvVars.ts`; any other `process.env.X` in app code is `undefined` at runtime. Every build artifact is public, so add a variable there only if its value is safe to publish. Keep secrets out of builds and read them at runtime instead, like the [runtime API keys](#runtime-api-keys).
+
 ## Setup and run
 
 1. Install dependencies and allow the build scripts:
