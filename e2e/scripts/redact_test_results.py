@@ -11,6 +11,7 @@ import shutil
 import sys
 import xml.etree.ElementTree as ET
 import zipfile
+from urllib.parse import quote, quote_plus
 
 SECRET_ENV_VARS = [
     'RECOVERY_PHRASE_12_WORDS',
@@ -86,6 +87,10 @@ class Redactor:
         variants = {value}
         if value.startswith('0x'):
             variants.add(value[2:])
+        for variant in list(variants):
+            # API keys travel as query parameters, so network records in
+            # traces hold them percent- or form-encoded.
+            variants.update({quote(variant, safe=''), quote_plus(variant, safe='')})
         for variant in list(variants):
             # Values also appear JSON-escaped, and double-escaped inside
             # step titles such as `Fill "<value>"`.
