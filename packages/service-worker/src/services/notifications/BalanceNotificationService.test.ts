@@ -57,7 +57,41 @@ describe('BalanceNotificationService', () => {
 
   describe('subscribe', () => {
     it('should not resubscribe with the same details', async () => {
-      const balanceNotificationService = createBalanceNotificationService(true);
+      accountsServiceMock.getAccountList.mockReturnValue([
+        { addressC: '0x123' },
+      ]);
+      storageServiceMock.load.mockResolvedValue({
+        isSubscribed: true,
+        addresses: ['0x123'],
+        chainIds: [ChainId.AVALANCHE_MAINNET_ID.toString()],
+      });
+
+      const balanceNotificationService =
+        createBalanceNotificationService(false);
+      await balanceNotificationService.init('deviceArn');
+
+      jest.clearAllMocks();
+
+      storageServiceMock.load.mockResolvedValueOnce({
+        isSubscribed: true,
+        addresses: ['0x123'],
+        chainIds: [ChainId.AVALANCHE_MAINNET_ID.toString()],
+      });
+      accountsServiceMock.getAccountList.mockReturnValueOnce([
+        { addressC: '0x123' },
+      ]);
+
+      await balanceNotificationService.subscribe();
+      expect(sendRequest).not.toHaveBeenCalled();
+    });
+
+    it('should resubscribe when stored chain ids differ', async () => {
+      accountsServiceMock.getAccountList.mockReturnValue([
+        { addressC: '0x123' },
+      ]);
+
+      const balanceNotificationService =
+        createBalanceNotificationService(false);
       await balanceNotificationService.init('deviceArn');
 
       jest.clearAllMocks();
@@ -76,7 +110,15 @@ describe('BalanceNotificationService', () => {
       ]);
 
       await balanceNotificationService.subscribe();
-      expect(sendRequest).not.toHaveBeenCalled();
+
+      expect(sendRequest).toHaveBeenCalledWith({
+        path: 'v1/push/balance-changes/subscribe',
+        clientId: 'deviceArn',
+        payload: {
+          chainIds: [ChainId.AVALANCHE_MAINNET_ID.toString()],
+          addresses: ['0x123'],
+        },
+      });
     });
 
     it('should subscribe correctly', async () => {
@@ -93,10 +135,7 @@ describe('BalanceNotificationService', () => {
       storageServiceMock.load.mockResolvedValueOnce({
         isSubscribed: false,
         addresses: ['0x123'],
-        chainIds: [
-          ChainId.AVALANCHE_MAINNET_ID.toString(),
-          ChainId.AVALANCHE_TESTNET_ID.toString(),
-        ],
+        chainIds: [ChainId.AVALANCHE_MAINNET_ID.toString()],
       });
 
       accountsServiceMock.getAccountList.mockReturnValueOnce([
@@ -110,10 +149,7 @@ describe('BalanceNotificationService', () => {
         path: 'v1/push/balance-changes/subscribe',
         clientId: 'deviceArn',
         payload: {
-          chainIds: [
-            ChainId.AVALANCHE_MAINNET_ID.toString(),
-            ChainId.AVALANCHE_TESTNET_ID.toString(),
-          ],
+          chainIds: [ChainId.AVALANCHE_MAINNET_ID.toString()],
           addresses: ['0x123', '0x456'],
         },
       });
@@ -123,10 +159,7 @@ describe('BalanceNotificationService', () => {
         {
           isSubscribed: true,
           addresses: ['0x123', '0x456'],
-          chainIds: [
-            ChainId.AVALANCHE_MAINNET_ID.toString(),
-            ChainId.AVALANCHE_TESTNET_ID.toString(),
-          ],
+          chainIds: [ChainId.AVALANCHE_MAINNET_ID.toString()],
         },
       );
     });
@@ -163,10 +196,7 @@ describe('BalanceNotificationService', () => {
       storageServiceMock.load.mockResolvedValueOnce({
         isSubscribed: true,
         addresses: ['0x123'],
-        chainIds: [
-          ChainId.AVALANCHE_MAINNET_ID.toString(),
-          ChainId.AVALANCHE_TESTNET_ID.toString(),
-        ],
+        chainIds: [ChainId.AVALANCHE_MAINNET_ID.toString()],
       });
 
       await balanceNotificationService.unsubscribe();
@@ -218,10 +248,7 @@ describe('BalanceNotificationService', () => {
     storageServiceMock.load.mockResolvedValueOnce({
       isSubscribed: true,
       addresses: ['0x123'],
-      chainIds: [
-        ChainId.AVALANCHE_MAINNET_ID.toString(),
-        ChainId.AVALANCHE_TESTNET_ID.toString(),
-      ],
+      chainIds: [ChainId.AVALANCHE_MAINNET_ID.toString()],
     });
 
     const subscriptions = await balanceNotificationService.getSubscriptions();

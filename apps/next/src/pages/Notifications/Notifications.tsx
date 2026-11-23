@@ -100,6 +100,7 @@ export const Notifications = () => {
 
       {!isLoading && (
         <Box
+          data-testid="notifications-tab-bar"
           sx={{
             position: 'fixed',
             bottom: 0,
@@ -118,7 +119,13 @@ export const Notifications = () => {
             onChange={handleTabChange}
           >
             {tabItems.map((tab) => (
-              <Tab key={tab.value} label={tab.label} />
+              <Tab
+                key={tab.value}
+                label={tab.label}
+                data-testid={`notifications-tab-${tab.value
+                  .toLowerCase()
+                  .replace(/_/g, '-')}`}
+              />
             ))}
           </TabMenu>
         </Box>

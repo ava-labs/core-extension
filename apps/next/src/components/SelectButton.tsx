@@ -3,6 +3,7 @@ import {
   ButtonProps,
   Popover,
   PopoverItem,
+  Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
 import { useState } from 'react';
@@ -87,18 +88,21 @@ export const SelectButton = <T,>({
         {options.map((option) => (
           <PopoverItem
             key={option.key}
-            label={option.label}
             onClick={() => {
               clickHandler(option.selectValue);
             }}
-            data-testid={option.dataTestId}
             selected={option.selected}
             sx={{
               '&.Mui-selected': {
                 backgroundColor: 'transparent',
               },
             }}
-          />
+          >
+            {/* K2 PopoverItem drops data-testid, so the label node carries it. */}
+            <Typography variant="body1" noWrap data-testid={option.dataTestId}>
+              {option.label}
+            </Typography>
+          </PopoverItem>
         ))}
       </Popover>
     </>

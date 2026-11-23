@@ -1,4 +1,11 @@
+import { getCoreApiKey } from '@core/common';
+
 import { sendRequest } from './sendRequest';
+
+jest.mock('@core/common', () => ({
+  ...jest.requireActual('@core/common'),
+  getCoreApiKey: jest.fn(),
+}));
 
 describe('sendRequest', () => {
   const realEnv = process.env;
@@ -8,13 +15,22 @@ describe('sendRequest', () => {
     ok: true,
   };
 
+  const baseHeaders = {
+    'Content-Type': 'application/json',
+    'X-App-Version': '0.0.0',
+    'X-App-Type': 'extension',
+    'X-App-Manifest':
+      'eyJtYW5pZmVzdF92ZXJzaW9uIjozLCJ2ZXJzaW9uIjoiMC4wLjAifQ==',
+  };
+
   beforeEach(() => {
-    process.env = { ...realEnv };
+    process.env = { ...realEnv, ID_SERVICE_URL: 'https://test.com' };
     global.fetch = jest.fn();
 
     jest
       .mocked(global.fetch)
       .mockResolvedValueOnce(responseMock as unknown as Response);
+    jest.mocked(getCoreApiKey).mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -30,33 +46,23 @@ describe('sendRequest', () => {
     ).rejects.toThrow('ID_SERVICE_URL is missing');
   });
 
-  it('sends a request to the ID service properly on non-development environments', async () => {
-    process.env.NODE_ENV = 'production';
-    process.env.ID_SERVICE_URL = 'https://test.com';
-
+  it('sends a request without an API key when none is stored', async () => {
     const response = await sendRequest({
       path: 'test',
       payload: { foo: 'bar' },
     });
 
     expect(response).toStrictEqual(responseMock);
+    expect(getCoreApiKey).toHaveBeenCalledWith('idService');
     expect(global.fetch).toHaveBeenCalledWith('https://test.com/test', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-App-Version': '0.0.0',
-        'X-App-Type': 'extension',
-        'X-App-Manifest':
-          'eyJtYW5pZmVzdF92ZXJzaW9uIjozLCJ2ZXJzaW9uIjoiMC4wLjAifQ==',
-      },
+      headers: baseHeaders,
       body: JSON.stringify({ foo: 'bar' }),
     });
   });
 
-  it('sends a request to the ID service properly on development environment', async () => {
-    process.env.NODE_ENV = 'development';
-    process.env.ID_SERVICE_URL = 'https://test.com';
-    process.env.ID_SERVICE_API_KEY = 'testkey';
+  it('adds the stored ID service API key', async () => {
+    jest.mocked(getCoreApiKey).mockResolvedValue('testkey');
 
     const response = await sendRequest({
       path: 'test',
@@ -66,14 +72,7 @@ describe('sendRequest', () => {
     expect(response).toStrictEqual(responseMock);
     expect(global.fetch).toHaveBeenCalledWith('https://test.com/test', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-App-Version': '0.0.0',
-        'X-App-Type': 'extension',
-        'X-App-Manifest':
-          'eyJtYW5pZmVzdF92ZXJzaW9uIjozLCJ2ZXJzaW9uIjoiMC4wLjAifQ==',
-        'X-Api-Key': 'testkey',
-      },
+      headers: { ...baseHeaders, 'X-Api-Key': 'testkey' },
       body: JSON.stringify({ foo: 'bar' }),
     });
   });

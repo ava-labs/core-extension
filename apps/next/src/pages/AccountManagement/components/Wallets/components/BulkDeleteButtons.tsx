@@ -27,6 +27,7 @@ export const BulkDeleteButtons: FC = () => {
       {!isManageMode && (
         <Box mx="auto" marginTop="auto">
           <Button
+            data-testid="manage-wallets-button"
             variant="contained"
             size="xsmall"
             color="secondary"
@@ -49,6 +50,7 @@ export const BulkDeleteButtons: FC = () => {
       >
         <Stack direction="column" gap={1} marginTop="auto">
           <Button
+            data-testid="delete-selected-button"
             variant="contained"
             color="primary"
             size="extension"
@@ -79,6 +81,7 @@ export const BulkDeleteButtons: FC = () => {
             {t('Delete selected')}
           </Button>
           <Button
+            data-testid="bulk-delete-cancel-button"
             variant="contained"
             color="secondary"
             size="extension"

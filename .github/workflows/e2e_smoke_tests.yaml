@@ -72,8 +72,7 @@ jobs:
           echo 'POSTHOG_URL="${{ secrets.DEV_POSTHOG_URL }}"' >> .env.dev
           echo 'COVALENT_API_KEY="${{ secrets.DEV_COVALENT_API_KEY }}"' >> .env.dev
           echo 'GLACIER_URL="${{ secrets.DEV_GLACIER_URL }}"' >> .env.dev
-          echo 'CORE_PROXY_GLACIER_BASE_URL="${{ secrets.CORE_PROXY_GLACIER_BASE_URL }}"' >> .env.production
-          echo 'CORE_PROXY_API_KEY="${{ secrets.CORE_PROXY_API_KEY }}"' >> .env.production
+          echo 'CORE_PROXY_GLACIER_BASE_URL="${{ secrets.CORE_PROXY_GLACIER_BASE_URL }}"' >> .env.dev
           echo 'PROXY_URL="${{ secrets.DEV_PROXY_URL }}"' >> .env.dev
           echo 'CORE_EXTENSION_LANDING_URL="${{ secrets.DEV_CORE_EXTENSION_LANDING_URL }}"' >> .env.dev
           echo 'SENTRY_DSN="${{ secrets.DEV_SENTRY_DSN }}"' >> .env.dev
@@ -93,14 +92,11 @@ jobs:
           echo 'ID_SERVICE_URL="${{ secrets.DEV_ID_SERVICE_URL }}"' >> .env.dev
           echo 'GASLESS_SERVICE_URL="${{ secrets.DEV_GASLESS_SERVICE_URL }}"' >> .env.dev
           echo 'NOTIFICATION_SENDER_SERVICE_URL="${{ secrets.DEV_NOTIFICATION_SENDER_SERVICE_URL }}"' >> .env.dev
-          echo 'ID_SERVICE_API_KEY="${{ secrets.DEV_ID_SERVICE_API_KEY }}"' >> .env.dev
-          echo 'GLACIER_API_KEY="${{ secrets.DEV_GLACIER_API_KEY }}"' >> .env.dev
           echo 'EXTENSION_PUBLIC_KEY="${{ secrets.DEV_EXTENSION_PUBLIC_KEY }}"' >> .env.dev
           echo 'BALANCE_SERVICE_URL="${{ secrets.DEV_BALANCE_SERVICE_URL }}"' >> .env.dev
           echo 'PROFILE_SERVICE_URL="${{ secrets.DEV_PROFILE_SERVICE_URL }}"' >> .env.dev
           echo 'TOKEN_AGGREGATOR_SERVICE_URL="${{ secrets.DEV_TOKEN_AGGREGATOR_SERVICE_URL }}"' >> .env.dev
           echo 'MARKR_API_URL="${{ secrets.DEV_MARKR_API_URL }}"' >> .env.dev
-          echo 'MARKR_API_TOKEN="${{ secrets.DEV_MARKR_API_TOKEN }}"' >> .env.dev
       - name: Install dependencies
         run: |
           yarn install
@@ -116,7 +112,7 @@ jobs:
           path: ./dist
 
       - name: Install TestRail CLI
-        run: pip3 install trcli
+        run: pip3 install 'trcli==1.15.3'
 
       - name: Create test run in TestRail
         id: create-testrail-run
@@ -167,6 +163,12 @@ jobs:
       APITOKEN_CRYPTOAPIS: ${{ secrets.APITOKEN_CRYPTOAPIS }}
       APITOKEN_ETHERSCAN: ${{ secrets.APITOKEN_ETHERSCAN }}
       APITOKEN_GLACIER: ${{ secrets.APITOKEN_GLACIER }}
+      # Seeded into the extension's chrome.storage at runtime (see
+      # e2e/helpers/coreApiKeys.ts) so they never end up in the built artifact.
+      CORE_PROXY_API_KEY: ${{ secrets.CORE_PROXY_API_KEY }}
+      GLACIER_API_KEY: ${{ secrets.DEV_GLACIER_API_KEY }}
+      MARKR_API_TOKEN: ${{ secrets.DEV_MARKR_API_TOKEN }}
+      ID_SERVICE_API_KEY: ${{ secrets.DEV_ID_SERVICE_API_KEY }}
 
     container:
       image: mcr.microsoft.com/playwright:v1.55.1-noble
@@ -287,7 +289,7 @@ jobs:
         shell: bash
         run: |
           source ~/py_env/bin/activate
-          pip3 install trcli
+          pip3 install 'trcli==1.15.3'
           trcli -n -h https://avalabs.testrail.io \
             --project "New Gen Core Extension" \
             --username ${TESTRAIL_EMAIL} \

@@ -37,6 +37,7 @@ export const RenameForm: FC<Props> = ({
         error={isError}
         helperText={isError && validation.error.format()._errors.join(', ')}
         autoFocus
+        slotProps={{ htmlInput: { 'data-testid': 'rename-name-input' } }}
         {...shortcuts}
       />
       <ActionButtons
@@ -46,11 +47,13 @@ export const RenameForm: FC<Props> = ({
           disabled: !validation.success,
           onClick: validation.success ? () => onSave(name) : undefined,
           color: 'primary',
+          testId: 'rename-save-button',
         }}
         bottom={{
           label: t('Cancel'),
           color: 'secondary',
           onClick: onCancel,
+          testId: 'rename-cancel-button',
         }}
       />
     </Stack>

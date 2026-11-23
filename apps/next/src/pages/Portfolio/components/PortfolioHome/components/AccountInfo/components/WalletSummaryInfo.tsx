@@ -32,6 +32,7 @@ export const WalletSummaryInfo = ({ walletSummary }: Props) => {
 
   return (
     <ClickableStack
+      data-testid="wallet-summary-info"
       direction="row"
       alignItems="center"
       maxWidth="75%"

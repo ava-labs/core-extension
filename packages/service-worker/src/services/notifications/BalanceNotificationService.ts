@@ -113,20 +113,17 @@ export class BalanceNotificationService {
       return;
     }
 
-    // fixed list of chain ids for now
-    const chainIds = [
-      ChainId.AVALANCHE_MAINNET_ID.toString(),
-      ChainId.AVALANCHE_TESTNET_ID.toString(),
-    ];
+    // mainnet C-chain only
+    const chainIds = [ChainId.AVALANCHE_MAINNET_ID.toString()];
 
     // only evm addresses for now
     const accounts = await this.accountService.getAccountList();
     const addresses = accounts.map((account) => account.addressC);
 
-    // no need to compare chain ids as they are fixed
     if (
       !addresses.length ||
-      JSON.stringify(state.addresses) === JSON.stringify(addresses)
+      (JSON.stringify(state.addresses) === JSON.stringify(addresses) &&
+        JSON.stringify(state.chainIds) === JSON.stringify(chainIds))
     ) {
       return;
     }

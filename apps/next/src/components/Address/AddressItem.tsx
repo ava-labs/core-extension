@@ -22,6 +22,7 @@ export type Props = {
   truncate?: boolean | number;
   AddressEnabler?: ComponentType<AddressEnablerProps>;
   testId?: string;
+  copyTestId?: string;
 };
 
 const DEFAULT_TRUNCATE_FRONT = 7;
@@ -36,6 +37,7 @@ export const AddressItem: FC<Props> = ({
   address,
   AddressEnabler,
   testId,
+  copyTestId,
 }) => {
   const { t } = useTranslation();
 
@@ -84,6 +86,7 @@ export const AddressItem: FC<Props> = ({
       }
       action={
         <CopyActionButton
+          data-testid={copyTestId}
           variant="contained"
           color="secondary"
           size="xsmall"

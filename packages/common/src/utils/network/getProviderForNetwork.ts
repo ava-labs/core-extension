@@ -10,6 +10,7 @@ import { FetchRequest, Network as EthersNetwork } from 'ethers';
 
 import { Network } from '@core/types';
 
+import { getCoreApiKey } from '../coreApiKeys';
 import { addGlacierAPIKeyIfNeeded } from './addGlacierAPIKeyIfNeeded';
 
 export type SupportedProvider =
@@ -49,6 +50,8 @@ export const getProviderForNetwork = async (
   }
 
   if (network.vmName === NetworkVMType.BITCOIN) {
+    const glacierApiKey = await getCoreApiKey('glacier');
+
     return new BitcoinProvider(
       !network.isTestnet,
       undefined,
@@ -58,9 +61,7 @@ export const getProviderForNetwork = async (
       `${process.env.PROXY_URL}/proxy/nownodes/${
         network.isTestnet ? 'btc-testnet' : 'btc'
       }`,
-      process.env.GLACIER_API_KEY
-        ? { rltoken: process.env.GLACIER_API_KEY }
-        : {},
+      glacierApiKey ? { rltoken: glacierApiKey } : {},
     );
   } else if (network.vmName === NetworkVMType.EVM) {
     const fetchConfig = new FetchRequest(

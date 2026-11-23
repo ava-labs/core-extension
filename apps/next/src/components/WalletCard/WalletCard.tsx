@@ -120,7 +120,11 @@ export const WalletCard: FC<WalletCardProps> = ({
               </Stack>
             ) : (
               <Stack minWidth={0} overflow="hidden" flex={1}>
-                <RenamableTitle {...sharedTitleProps} onRename={handleRename}>
+                <RenamableTitle
+                  {...sharedTitleProps}
+                  onRename={handleRename}
+                  renameTestId="wallet-rename-button"
+                >
                   {name}
                 </RenamableTitle>
                 <Typography

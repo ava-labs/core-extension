@@ -177,6 +177,7 @@ export const AddCustomToken: FC = () => {
 
       <Collapse in={Boolean(chainId)}>
         <Styled.TextField
+          data-testid="add-custom-token-address-input"
           fullWidth
           size="small"
           label={t('Token contract address')}
@@ -202,11 +203,14 @@ export const AddCustomToken: FC = () => {
       </Collapse>
 
       <Fade in={error.length > 0}>
-        <WarningMessage>{error}</WarningMessage>
+        <WarningMessage data-testid="add-custom-token-error">
+          {error}
+        </WarningMessage>
       </Fade>
 
       <Box mt="auto">
         <Button
+          data-testid="add-custom-token-submit-button"
           size="extension"
           fullWidth
           variant="contained"

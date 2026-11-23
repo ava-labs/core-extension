@@ -12,6 +12,7 @@ import { MdModeEdit } from 'react-icons/md';
 
 type Props = TypographyProps & {
   onRename: MouseEventHandler<HTMLButtonElement>;
+  renameTestId?: string;
 };
 
 const RenameButton = styled(IconButton)(({ theme }) => ({
@@ -37,6 +38,7 @@ const TitleContainer = styled(Box)(({ theme }) => ({
 export const RenamableTitle: FC<Props> = ({
   children,
   onRename,
+  renameTestId,
   width,
   ...props
 }) => {
@@ -56,7 +58,7 @@ export const RenamableTitle: FC<Props> = ({
       >
         {children}
       </Typography>
-      <RenameButton onClick={onRename} size="small">
+      <RenameButton onClick={onRename} size="small" data-testid={renameTestId}>
         <MdModeEdit size={12} color={props.color} />
       </RenameButton>
     </TitleContainer>

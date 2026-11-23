@@ -52,6 +52,7 @@ export const HeaderAccount = () => {
             sx={{ cursor: 'pointer' }}
           >
             <PersonalAvatar
+              data-testid="header-avatar"
               size="xsmall"
               mr={1}
               ml={0.5}

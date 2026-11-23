@@ -57,8 +57,12 @@ export const AccountSummaryInfo = ({
       </Stack>
 
       <Stack direction="row" alignItems="baseline" gap={0.5}>
-        <Typography variant="h2">{formattedSum}</Typography>
-        <Typography variant="body3">{currency}</Typography>
+        <Typography variant="h2" data-testid="portfolio-total-balance">
+          {formattedSum}
+        </Typography>
+        <Typography variant="body3" data-testid="portfolio-balance-currency">
+          {currency}
+        </Typography>
       </Stack>
     </ClickableStack>
   );

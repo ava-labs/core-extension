@@ -46,6 +46,7 @@ export const MoreDetailsCard: FC<Props> = ({ walletName, walletType }) => {
           <Styled.Divider variant="middle" component="li" />
           <ListItem disablePadding>
             <ListItemButton
+              data-testid="show-private-key-button"
               sx={{ paddingBlock: 0.75 }}
               disabled={!isPrivateKeyRevealable(walletType)}
               onClick={() => {

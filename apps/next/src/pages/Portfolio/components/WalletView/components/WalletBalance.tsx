@@ -62,6 +62,7 @@ export const WalletBalance = ({
   return (
     <Stack mb={1} width="100%">
       <ClickableStack
+        data-testid="wallet-view-header"
         width="fit-content"
         maxWidth="75%"
         onClick={() => {
@@ -94,7 +95,9 @@ export const WalletBalance = ({
           />
         </Stack>
         <Stack direction="row" alignItems="baseline" gap={0.5} ml={0.5}>
-          <Typography variant="h2">{balanceToDisplay}</Typography>
+          <Typography variant="h2" data-testid="wallet-view-balance">
+            {balanceToDisplay}
+          </Typography>
           {!privacyMode && <Typography variant="h7">{currency}</Typography>}
           {isLoading && (
             <CircularProgress size={14} sx={{ margin: '0 0 0 8px' }} />

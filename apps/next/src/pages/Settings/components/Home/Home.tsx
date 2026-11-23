@@ -94,6 +94,7 @@ export const SettingsHomePage = () => {
 
   return (
     <Page
+      data-testid="settings-page"
       title={t('Settings')}
       description={t(
         'Manage and customize your Core experience to your liking.',
@@ -106,6 +107,7 @@ export const SettingsHomePage = () => {
       <Stack direction="row" gap={1.5} width="100%">
         <Stack width="50%" data-testid="settings-testnet-mode-row">
           <SwitchCard
+            dataTestId="settings-testnet-switch"
             titleSize="large"
             checked={isDeveloperMode}
             onChange={() => {
@@ -125,6 +127,7 @@ export const SettingsHomePage = () => {
         </Stack>
         <Stack width="50%">
           <SwitchCard
+            dataTestId="settings-privacy-switch"
             titleSize="large"
             checked={privacyMode}
             onChange={() => {
@@ -180,7 +183,10 @@ export const SettingsHomePage = () => {
         <SettingsNavItem
           label={t('My avatar')}
           secondaryAction={
-            <AvatarButton onClick={() => push('/settings/avatar')} />
+            <AvatarButton
+              data-testid="settings-avatar-button"
+              onClick={() => push('/settings/avatar')}
+            />
           }
           divider
         />
@@ -188,7 +194,12 @@ export const SettingsHomePage = () => {
           divider
           label={t('Currency')}
           onClick={() => capture('CurrencySettingClicked')}
-          secondaryAction={<CurrencySelector sx={navItemActionCommonSx} />}
+          secondaryAction={
+            <CurrencySelector
+              data-testid="settings-currency-selector"
+              sx={navItemActionCommonSx}
+            />
+          }
         />
         {featureFlags[FeatureGates.LANGUAGES] && (
           <SettingsNavItem
@@ -208,6 +219,7 @@ export const SettingsHomePage = () => {
           divider
           secondaryAction={
             <ThemeSelector
+              data-testid="settings-theme-selector"
               sx={{
                 ...navItemActionCommonSx,
                 justifyContent: 'flex-end',
@@ -329,6 +341,7 @@ export const SettingsHomePage = () => {
           }}
           secondaryAction={
             <Switch
+              data-testid="settings-analytics-toggle"
               size="small"
               checked={analyticsConsent === AnalyticsConsent.Approved}
               onChange={(_, newValue) => {
@@ -484,6 +497,7 @@ export const SettingsHomePage = () => {
         variant="contained"
         color="secondary"
         onClick={lockWallet}
+        data-testid="settings-lock-button"
       >
         {t('Lock Core')}
       </Button>

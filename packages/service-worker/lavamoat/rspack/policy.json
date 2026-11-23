@@ -7,7 +7,6 @@
         "clearTimeout": true,
         "console.error": true,
         "fetch": true,
-        "process.env.GLACIER_API_KEY": true,
         "setTimeout": true
       },
       "packages": {
@@ -22,7 +21,6 @@
         "@avalabs/avalanche-module>big.js": true,
         "buffer": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify": true,
-        "@rsbuild/plugin-node-polyfill>process": true,
         "@avalabs/avalanche-module>zod": true
       }
     },
@@ -46,7 +44,6 @@
         "URLSearchParams": true,
         "console.error": true,
         "fetch": true,
-        "process.env.GLACIER_API_KEY": true,
         "setTimeout": true
       },
       "packages": {
@@ -58,7 +55,6 @@
         "@metamask/rpc-errors": true,
         "@avalabs/bitcoin-module>bitcoinjs-lib": true,
         "buffer": true,
-        "@rsbuild/plugin-node-polyfill>process": true,
         "@avalabs/bitcoin-module>zod": true
       }
     },
@@ -226,7 +222,6 @@
         "clearTimeout": true,
         "console.error": true,
         "fetch": true,
-        "process.env.GLACIER_API_KEY": true,
         "setTimeout": true
       },
       "packages": {
@@ -243,7 +238,6 @@
         "buffer": true,
         "ethers": true,
         "@avalabs/evm-module>lodash.startcase": true,
-        "@rsbuild/plugin-node-polyfill>process": true,
         "xss": true,
         "@avalabs/evm-module>zod": true
       }
@@ -312,8 +306,7 @@
     "@avalabs/hvm-module": {
       "globals": {
         "AbortSignal.timeout": true,
-        "fetch": true,
-        "process.env.GLACIER_API_KEY": true
+        "fetch": true
       },
       "packages": {
         "@avalabs/core-utils-sdk": true,
@@ -322,7 +315,6 @@
         "@avalabs/hvm-module>@noble/hashes": true,
         "@scure/base": true,
         "hypersdk-client": true,
-        "@rsbuild/plugin-node-polyfill>process": true,
         "@avalabs/hvm-module>zod": true
       }
     },
@@ -366,7 +358,6 @@
         "URLSearchParams": true,
         "console.error": true,
         "fetch": true,
-        "process.env.GLACIER_API_KEY": true,
         "setTimeout": true
       },
       "meta": {
@@ -397,7 +388,6 @@
         "@avalabs/svm-module>@solana/kit>@solana/transaction-messages": true,
         "@avalabs/svm-module>@solana/kit>@solana/transactions": true,
         "buffer": true,
-        "@rsbuild/plugin-node-polyfill>process": true,
         "@avalabs/svm-module>zod": true
       }
     },
@@ -3392,13 +3382,13 @@
     },
     "external:../common/src/unifiedTransfer/getServiceInitializer.ts": {
       "globals": {
-        "process.env.MARKR_API_TOKEN": true,
         "process.env.MARKR_API_URL": true
       },
       "packages": {
         "external:../common/node_modules/@avalabs/fusion-sdk/dist/constants.js": true,
         "external:../common/node_modules/@avalabs/fusion-sdk/dist/mod.js": true,
-        "external:../common/src/unifiedTransfer/constants.ts": true
+        "external:../common/src/unifiedTransfer/constants.ts": true,
+        "external:../common/src/utils/coreApiKeys.ts": true
       }
     },
     "external:../common/src/utils/accounts/accountTypeGuards.ts": {
@@ -3411,6 +3401,7 @@
         "@avalabs/core-wallets-sdk": true,
         "@avalabs/vm-module-types": true,
         "bitcoinjs-lib": true,
+        "ethers": true,
         "external:../common/src/utils/object.ts": true
       }
     },
@@ -3467,6 +3458,11 @@
         "external:../common/src/utils/getSyncDomain.ts": true,
         "external:../common/src/utils/isActiveTab.ts": true,
         "webextension-polyfill": true
+      }
+    },
+    "external:../common/src/utils/coreApiKeys.ts": {
+      "globals": {
+        "chrome.storage": true
       }
     },
     "external:../common/src/utils/environment.ts": {
@@ -3601,12 +3597,11 @@
     "external:../common/src/utils/network/addGlacierAPIKeyIfNeeded.ts": {
       "globals": {
         "URL": true,
-        "process.env.GLACIER_API_KEY": true,
         "process.env.GLACIER_URL": true,
         "process.env.PROXY_URL": true
       },
       "packages": {
-        "@rsbuild/plugin-node-polyfill>process": true
+        "external:../common/src/utils/coreApiKeys.ts": true
       }
     },
     "external:../common/src/utils/network/buildCoreEth.ts": {
@@ -3621,15 +3616,14 @@
     },
     "external:../common/src/utils/network/getProviderForNetwork.ts": {
       "globals": {
-        "process.env.GLACIER_API_KEY": true,
         "process.env.PROXY_URL": true
       },
       "packages": {
         "@avalabs/core-chains-sdk": true,
         "@avalabs/core-wallets-sdk": true,
         "ethers": true,
-        "external:../common/src/utils/network/addGlacierAPIKeyIfNeeded.ts": true,
-        "@rsbuild/plugin-node-polyfill>process": true
+        "external:../common/src/utils/coreApiKeys.ts": true,
+        "external:../common/src/utils/network/addGlacierAPIKeyIfNeeded.ts": true
       }
     },
     "external:../common/src/utils/network/isAvalanchePchainNetwork.ts": {

@@ -33,6 +33,7 @@ export const ManageTokens: FC = () => {
       title={t('Manage Tokens')}
       titleAction={
         <IconButton
+          data-testid="manage-tokens-add-custom-button"
           size="medium"
           sx={{ padding: 0 }}
           onClick={() => push('/manage-tokens/add-custom')}
@@ -43,6 +44,7 @@ export const ManageTokens: FC = () => {
       contentProps={contentProps}
     >
       <Styled.SearchInput
+        data-testid="manage-tokens-search-input"
         placeholder={t('Search')}
         size="small"
         value={query}
@@ -58,6 +60,7 @@ export const ManageTokens: FC = () => {
           {t('Hide tokens flagged as spam')}
         </Typography>
         <Switch
+          data-testid="manage-tokens-hide-spam-switch"
           size="small"
           checked={hideSpamTokens}
           onChange={(_, checked) => setHideSpamTokens(checked)}
@@ -73,6 +76,7 @@ export const ManageTokens: FC = () => {
           {t('Hide tokens without balance')}
         </Typography>
         <Switch
+          data-testid="manage-tokens-hide-no-balance-switch"
           size="small"
           checked={onlyTokensWithBalance}
           onChange={(_, checked) => setOnlyTokensWithBalance(checked)}

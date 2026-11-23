@@ -12,7 +12,11 @@ import {
 } from '@avalabs/k2-alpine';
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 import { chainIdToCaip, isTokenMalicious } from '@core/common';
-import { FungibleTokenBalance } from '@core/types';
+import {
+  FungibleTokenBalance,
+  getUniqueTokenId,
+  isEvmFungibleToken,
+} from '@core/types';
 import { useSettingsContext } from '@core/ui';
 import { FC, ReactElement } from 'react';
 
@@ -48,12 +52,23 @@ export const TokenListItem: FC<Props> = ({ token }) => {
 
   const caipId = chainIdToCaip(token.coreChainId);
 
+  const tokenAddress =
+    'address' in token
+      ? isEvmFungibleToken(token)
+        ? token.address.toLowerCase()
+        : token.address
+      : undefined;
+
   return (
     <ListItem
       key={token.name}
+      data-testid="manage-tokens-item"
+      data-token-id={getUniqueTokenId(token)}
+      data-token-address={tokenAddress}
       secondaryAction={
         canToggle ? (
           <Switch
+            data-testid="manage-tokens-item-switch"
             checked={getTokenVisibility(token, caipId)}
             onChange={() => toggleTokenVisibility(token, caipId)}
             size="small"
@@ -95,6 +110,7 @@ const MaliciousOverlay: FC<{
   if (isTokenMalicious(token)) {
     return (
       <Box
+        data-testid="manage-tokens-scam-indicator"
         sx={(theme) => ({
           position: 'relative',
           isolation: 'isolate',

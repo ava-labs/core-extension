@@ -1,5 +1,8 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
+import { AvalancheModule } from '@avalabs/avalanche-module';
+import { EvmModule } from '@avalabs/evm-module';
 import { DEFAULT_FLAGS } from '@core/common';
+import { getAuthHeaders } from '../services/appcheck/utils/getAuthHeaders';
 import { ModuleManager } from './ModuleManager';
 import { VMModuleError } from '@core/types';
 import { ApprovalController } from './ApprovalController';
@@ -154,6 +157,15 @@ describe('ModuleManager', () => {
   describe('when initialized', () => {
     beforeEach(async () => {
       await manager.activate();
+    });
+
+    it.each([
+      ['EvmModule', EvmModule],
+      ['AvalancheModule', AvalancheModule],
+    ])('gives %s the Core proxy auth headers resolver', (_, ModuleClass) => {
+      const { runtime } = jest.mocked(ModuleClass).mock.calls.at(-1)![0];
+
+      expect(runtime?.getAuthHeaders).toBe(getAuthHeaders);
     });
 
     it('should load the correct modules', async () => {

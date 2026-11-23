@@ -1,54 +1,266 @@
-/**
- * Settings Page - app settings, including the "Show highlights" toggle that
- * controls the Portfolio highlights/trending banner carousel.
- */
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator, BrowserContext, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
+import { waitForPortfolioShellReady } from '../../helpers/extensionHelpers';
+import { unlockWallet } from '../../helpers/walletHelpers';
+
+type ColorTheme = 'LIGHT' | 'DARK' | 'SYSTEM';
 
 export class SettingsPage extends BasePage {
-  readonly showHighlightsToggle: Locator;
+  readonly settingsButton: Locator;
+  readonly settingsPage: Locator;
+  readonly pageTitle: Locator;
   readonly backButton: Locator;
+  readonly lockButton: Locator;
+
+  readonly testnetSwitch: Locator;
+  readonly privacySwitch: Locator;
+  readonly analyticsToggle: Locator;
+  readonly showHighlightsToggle: Locator;
+
+  readonly currencySelector: Locator;
+  readonly themeSelector: Locator;
+  readonly languageSelector: Locator;
+
+  readonly avatarButton: Locator;
+  readonly avatarOptions: Locator;
+  readonly headerAvatarImage: Locator;
+
+  readonly footerTermsLink: Locator;
+  readonly footerPrivacyLink: Locator;
+
+  readonly portfolioTotalBalance: Locator;
+  readonly portfolioBalanceCurrency: Locator;
+  readonly portfolioTestnetIndicator: Locator;
 
   constructor(page: Page) {
     super(page);
 
-    this.showHighlightsToggle = page.locator(
-      '[data-testid="settings-show-highlights-toggle"]',
+    this.settingsButton = page.getByTestId('settings-button');
+    this.settingsPage = page.getByTestId('settings-page');
+    this.pageTitle = page.getByRole('heading', { level: 1 });
+    this.backButton = page.getByTestId('page-back-button');
+    this.lockButton = page.getByTestId('settings-lock-button');
+
+    this.testnetSwitch = page.getByTestId('settings-testnet-switch');
+    this.privacySwitch = page.getByTestId('settings-privacy-switch');
+    this.analyticsToggle = page.getByTestId('settings-analytics-toggle');
+    this.showHighlightsToggle = page.getByTestId(
+      'settings-show-highlights-toggle',
     );
-    this.backButton = page.locator('[data-testid="page-back-button"]');
+
+    this.currencySelector = page.getByTestId('settings-currency-selector');
+    this.themeSelector = page.getByTestId('settings-theme-selector');
+    this.languageSelector = page.getByTestId('settings-language-selector');
+
+    this.avatarButton = page.getByTestId('settings-avatar-button');
+    this.avatarOptions = page.getByTestId('avatar-option');
+    this.headerAvatarImage = page.getByTestId('header-avatar').locator('img');
+
+    this.footerTermsLink = page.getByTestId('footer-terms-link');
+    this.footerPrivacyLink = page.getByTestId('footer-privacy-link');
+
+    this.portfolioTotalBalance = page.getByTestId('portfolio-total-balance');
+    this.portfolioBalanceCurrency = page.getByTestId(
+      'portfolio-balance-currency',
+    );
+    this.portfolioTestnetIndicator = page.getByTestId(
+      'portfolio-testnet-indicator',
+    );
+  }
+
+  async open(): Promise<void> {
+    await this.settingsButton.click();
+    await this.page.waitForURL(/#\/settings/, { timeout: 10_000 });
+    await this.waitForLoaded();
   }
 
   async waitForLoaded(): Promise<void> {
-    await this.showHighlightsToggle.waitFor({
-      state: 'visible',
-      timeout: 15_000,
-    });
+    await this.settingsPage.waitFor({ state: 'visible', timeout: 15_000 });
+    // Controls render with empty/default values until the settings response
+    // arrives; the theme label is populated by that same response, so its text
+    // confirms analyticsConsent/currency/etc. are also loaded.
+    await expect
+      .poll(async () => (await this.themeSelector.innerText()).trim(), {
+        timeout: 15_000,
+      })
+      .not.toBe('');
   }
 
-  /**
-   * The k2 Switch renders an inner checkbox input; read its checked state.
-   */
-  async isHighlightsEnabled(): Promise<boolean> {
-    const input = this.showHighlightsToggle.locator('input[type="checkbox"]');
-    return input.isChecked();
-  }
-
-  async setHighlights(enabled: boolean): Promise<void> {
-    const current = await this.isHighlightsEnabled();
-    if (current !== enabled) {
-      await this.showHighlightsToggle.click();
-      await expect
-        .poll(() => this.isHighlightsEnabled(), { timeout: 5_000 })
-        .toBe(enabled);
-    }
-  }
-
-  /**
-   * Returns to the Portfolio home via the page back button (Settings' back
-   * navigates to `/`).
-   */
   async goBackToPortfolio(): Promise<void> {
     await this.backButton.click();
     await this.page.waitForURL(/#\/(\?|$)/, { timeout: 10_000 });
+  }
+
+  /**
+   * Locks then unlocks the wallet. A page reload keeps the service worker's
+   * in-memory `_cachedSettings`, so it would not prove settings survive from
+   * storage; locking clears that cache and unlocking forces a fresh read from
+   * encrypted storage, which is what the persistence checks need to verify.
+   */
+  async relockAndReopen(): Promise<void> {
+    if (!(await this.settingsPage.isVisible().catch(() => false))) {
+      await this.open();
+    }
+    await this.lockButton.click();
+
+    const passwordInput = this.page.getByPlaceholder(/password/i);
+    await passwordInput.waitFor({ state: 'visible', timeout: 15_000 });
+
+    // Restored route is usually #/settings, which lacks the Portfolio shell
+    // unlockWallet waits for by default; wait only for the lock screen to go.
+    await unlockWallet(this.page, undefined, { waitForPortfolio: false });
+
+    // The app restores the last visited route, usually #/settings, whose route
+    // has no header; step back to Portfolio home where the shell lives.
+    await Promise.race([
+      this.settingsPage.waitFor({ state: 'visible', timeout: 30_000 }),
+      this.settingsButton.waitFor({ state: 'visible', timeout: 30_000 }),
+    ]).catch(() => {});
+    if (await this.settingsPage.isVisible().catch(() => false)) {
+      await this.goBackToPortfolio();
+    }
+    await waitForPortfolioShellReady(this.page);
+  }
+
+  async isHighlightsEnabled(): Promise<boolean> {
+    return this.isSwitchOn(this.showHighlightsToggle);
+  }
+
+  async setHighlights(enabled: boolean): Promise<void> {
+    await this.setSwitch(this.showHighlightsToggle, enabled);
+  }
+
+  private switchInput(switchLocator: Locator): Locator {
+    return switchLocator.locator('input[type="checkbox"]');
+  }
+
+  async isSwitchOn(switchLocator: Locator): Promise<boolean> {
+    return this.switchInput(switchLocator).isChecked();
+  }
+
+  async setSwitch(switchLocator: Locator, desired: boolean): Promise<void> {
+    if ((await this.isSwitchOn(switchLocator)) !== desired) {
+      await switchLocator.click();
+      await expect
+        .poll(() => this.isSwitchOn(switchLocator), { timeout: 15_000 })
+        .toBe(desired);
+    }
+  }
+
+  private async selectOption(
+    trigger: Locator,
+    optionTestId: string,
+  ): Promise<void> {
+    await trigger.click();
+    const option = this.page.getByTestId(optionTestId);
+    await option.waitFor({ state: 'visible', timeout: 10_000 });
+    await option.click();
+    await option.waitFor({ state: 'hidden', timeout: 10_000 }).catch(() => {});
+  }
+
+  async getSelectedCurrency(): Promise<string> {
+    return (await this.currencySelector.innerText()).trim();
+  }
+
+  async selectCurrency(symbol: string): Promise<void> {
+    await this.selectOption(
+      this.currencySelector,
+      `currency-selector-menu-item-${symbol}`,
+    );
+  }
+
+  async selectTheme(theme: ColorTheme): Promise<void> {
+    await this.selectOption(
+      this.themeSelector,
+      `theme-selector-menu-item-${theme}`,
+    );
+    // The theme effect applies the background asynchronously after the menu
+    // closes; wait for it so callers reading the baseline luminance don't
+    // capture the previous palette. SYSTEM follows the OS scheme (driven by
+    // emulateMedia in the test), so there is no fixed target to wait for.
+    if (theme === 'LIGHT') {
+      await expect
+        .poll(() => this.settingsBackgroundLuminance(), { timeout: 10_000 })
+        .toBeGreaterThan(0.6);
+    } else if (theme === 'DARK') {
+      await expect
+        .poll(() => this.settingsBackgroundLuminance(), { timeout: 10_000 })
+        .toBeLessThan(0.3);
+    }
+  }
+
+  /** Relative luminance (0..1) of the Settings page background. */
+  async settingsBackgroundLuminance(): Promise<number> {
+    return this.settingsPage.evaluate((el) => {
+      const channels = getComputedStyle(el)
+        .backgroundColor.match(/[\d.]+/g)
+        ?.map(Number);
+      if (!channels || channels.length < 3) {
+        return -1;
+      }
+      const [r, g, b] = channels;
+      return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+    });
+  }
+
+  async selectLanguage(code: string): Promise<void> {
+    await this.selectOption(
+      this.languageSelector,
+      `language-selector-menu-item-${code}`,
+    );
+  }
+
+  async pageTitleText(): Promise<string> {
+    return (await this.pageTitle.innerText()).trim();
+  }
+
+  /**
+   * The header renders the avatar in two sibling blocks toggled via CSS
+   * (avatar-only vs account-info), so the tagged one may be display:none. Both
+   * carry the same selected-avatar src, so read the attribute without requiring
+   * visibility.
+   */
+  async getHeaderAvatarSrc(): Promise<string> {
+    await this.headerAvatarImage.waitFor({
+      state: 'attached',
+      timeout: 15_000,
+    });
+    return (await this.headerAvatarImage.getAttribute('src')) ?? '';
+  }
+
+  async openAvatarSelector(): Promise<void> {
+    await this.avatarButton.click();
+    await this.page.waitForURL(/#\/settings\/avatar/, { timeout: 10_000 });
+    await this.avatarOptions.first().waitFor({
+      state: 'visible',
+      timeout: 10_000,
+    });
+  }
+
+  async selectDifferentAvatar(): Promise<void> {
+    const option = this.page
+      .locator('[data-testid="avatar-option"][aria-selected="false"]')
+      .first();
+    await option.click();
+    await this.page.waitForURL(/#\/settings(\?|$)/, { timeout: 10_000 });
+  }
+
+  async clickLinkExpectNewTab(
+    link: Locator,
+    context: BrowserContext,
+  ): Promise<Page> {
+    await link.scrollIntoViewIfNeeded();
+    const pagePromise = context.waitForEvent('page', { timeout: 15_000 });
+    await link.click();
+    return pagePromise;
+  }
+
+  async isBalanceMasked(): Promise<boolean> {
+    const text = await this.portfolioTotalBalance.innerText();
+    return text.includes('•');
+  }
+
+  async getBalanceCurrency(): Promise<string> {
+    return (await this.portfolioBalanceCurrency.innerText()).trim();
   }
 }

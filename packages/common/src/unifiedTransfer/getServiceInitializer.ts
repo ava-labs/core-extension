@@ -9,6 +9,7 @@ import {
 } from '@avalabs/fusion-sdk';
 
 import { UnifiedTransferSigners } from '@core/types';
+import { getCachedCoreApiKey } from '../utils/coreApiKeys';
 import { MARKR_EVM_PARTNER_ID } from './constants';
 
 export type AvalancheFunctions = Omit<AvalancheCctInitializer, 'type'>;
@@ -43,7 +44,7 @@ export function getServiceInitializer(
         type,
         evmSigner: evm,
         solanaSigner: svm,
-        markrApiToken: process.env.MARKR_API_TOKEN,
+        markrApiToken: getCachedCoreApiKey('markr'),
         markrApiUrl: process.env.MARKR_API_URL,
         markrAppId: MARKR_EVM_PARTNER_ID,
         getTargetChainAssets:

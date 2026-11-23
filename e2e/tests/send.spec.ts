@@ -9,10 +9,26 @@ import {
   attachGaslessSkipArtifacts,
   waitForSuccessOrGaslessFail,
 } from '../helpers/gaslessHelpers';
+import { ensureTestnetMode } from '../helpers/networkMode';
 
 const SEND_TEST_TIMEOUT_MS = 180_000;
 
 test.describe('Send Tests', () => {
+  // The `testnet*` snapshots expect Fuji to be the active network, but the
+  // service worker's network init can race to mainnet under parallel load
+  // (see ensureTestnetMode). Force testnet on before any send test that relies
+  // on it, so Fuji chains/addresses/explorers are deterministic.
+  test.beforeEach(async ({ unlockedExtensionPage }, testInfo) => {
+    const usesTestnetSnapshot = testInfo.annotations.some(
+      (annotation) =>
+        annotation.type === 'snapshot' &&
+        annotation.description?.startsWith('testnet'),
+    );
+    if (usesTestnetSnapshot) {
+      await ensureTestnetMode(unlockedExtensionPage);
+    }
+  });
+
   test(
     'As a CORE ext user with an extension wallet, I can send C-Chain AVAX with gasless toggled off',
     {

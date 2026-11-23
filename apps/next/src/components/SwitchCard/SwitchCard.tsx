@@ -21,6 +21,7 @@ interface SwitchCardProps {
   onChange: () => void;
   titleSize: 'small' | 'large';
   descriptionColor?: TypographyProps['color'];
+  dataTestId?: string;
 }
 const titleStyles = {
   small: {
@@ -41,6 +42,7 @@ export const SwitchCard = ({
   onChange,
   descriptionColor = 'text.secondary',
   titleSize = 'small',
+  dataTestId,
   children,
 }: PropsWithChildren<SwitchCardProps>) => {
   return (
@@ -54,6 +56,7 @@ export const SwitchCard = ({
         </Stack>
 
         <Switch
+          data-testid={dataTestId}
           checked={checked}
           disabled={disabled}
           onChange={onChange}

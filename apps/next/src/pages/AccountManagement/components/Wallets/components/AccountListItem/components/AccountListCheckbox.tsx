@@ -27,6 +27,7 @@ export const AccountListCheckbox: FC<Props> = ({ account, active }) => {
         onExited={() => setShowCheckbox(false)}
       >
         <K2Checkbox
+          data-testid="account-list-checkbox"
           tabIndex={-1}
           checked={selectedAccounts.includes(account.id)}
           disabled={disabled}

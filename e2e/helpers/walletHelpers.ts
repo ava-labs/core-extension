@@ -3,12 +3,18 @@ import { TEST_CONFIG } from '../constants';
 import { waitForPortfolioShellReady } from './extensionHelpers';
 
 /**
- * Unlocks the wallet with the provided password
+ * Unlocks the wallet with the provided password.
+ *
+ * `waitForPortfolio` defaults to true. Pass false when the post-unlock route is
+ * not the Portfolio home (e.g. a restored #/settings route after reload), where
+ * the Portfolio shell never renders; the caller then waits for readiness itself.
  */
 export async function unlockWallet(
   page: Page,
   password?: string,
+  options: { waitForPortfolio?: boolean } = {},
 ): Promise<void> {
+  const { waitForPortfolio = true } = options;
   const walletPassword = password || TEST_CONFIG.wallet.password;
 
   // Wait for the password input to be visible
@@ -24,8 +30,12 @@ export async function unlockWallet(
   });
   await unlockButton.click();
 
-  const portfolioTimeout = process.env.CI ? 90_000 : 45_000;
-  await waitForPortfolioShellReady(page, portfolioTimeout);
+  if (waitForPortfolio) {
+    const portfolioTimeout = process.env.CI ? 90_000 : 45_000;
+    await waitForPortfolioShellReady(page, portfolioTimeout);
+  } else {
+    await passwordInput.waitFor({ state: 'hidden', timeout: 45_000 });
+  }
 }
 
 /**

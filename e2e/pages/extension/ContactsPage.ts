@@ -268,6 +268,26 @@ export class ContactsPage extends BasePage {
     return count > 0;
   }
 
+  async getContactListState(
+    contact: ContactData,
+  ): Promise<{ count: number; hasContact: boolean }> {
+    await this.contactsList.waitFor({ state: 'visible', timeout: 5000 });
+    const needle = contact.name.replace(/\s+/g, ' ').trim().toLowerCase();
+    return this.contactItems.evaluateAll(
+      (items, name) => ({
+        count: items.length,
+        hasContact: items.some((item) =>
+          (item.textContent ?? '')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .toLowerCase()
+            .includes(name),
+        ),
+      }),
+      needle,
+    );
+  }
+
   async goBackToContactsList(): Promise<void> {
     await this.backButton.click();
     await this.contactsList.waitFor({ state: 'visible', timeout: 5000 });
