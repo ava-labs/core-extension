@@ -1,4 +1,4 @@
-import { isDevelopment } from '@core/common';
+import { getCoreApiKey } from '@core/common';
 
 type Params = {
   path: string;
@@ -17,6 +17,7 @@ export const sendRequest = async ({ path, payload, timeout }: Params) => {
   const encodedManifest = Buffer.from(JSON.stringify(manifest)).toString(
     'base64',
   );
+  const idServiceApiKey = await getCoreApiKey('idService');
 
   return fetch(`${url}/${path}`, {
     method: 'POST',
@@ -25,9 +26,7 @@ export const sendRequest = async ({ path, payload, timeout }: Params) => {
       'X-App-Version': manifest.version,
       'X-App-Type': 'extension',
       'X-App-Manifest': encodedManifest,
-      ...(isDevelopment() && {
-        'X-Api-Key': process.env.ID_SERVICE_API_KEY ?? '',
-      }),
+      ...(idServiceApiKey && { 'X-Api-Key': idServiceApiKey }),
     },
     body: JSON.stringify(payload),
     ...(timeout && { signal: AbortSignal.timeout(timeout) }),

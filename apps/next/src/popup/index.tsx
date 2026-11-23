@@ -4,7 +4,7 @@ import '../monitoring/initSentryForPopup';
 import { LoadingScreen } from '@/components/LoadingScreen';
 import { globalStyles, initGlobalBehaviors } from '@/lib/global';
 import { GlobalStyles } from '@avalabs/k2-alpine';
-import { i18next, initI18n } from '@core/common';
+import { i18next, initI18n, loadCoreApiKeys } from '@core/common';
 import {
   AnalyticsContextProvider,
   ConnectionContextProvider,
@@ -23,6 +23,7 @@ import { Providers } from './providers';
 // Initialize translations
 initI18n();
 initGlobalBehaviors();
+void loadCoreApiKeys();
 
 const App = lazy(() => {
   return import(/* webpackChunkName: 'App'  */ './app').then((m) => ({

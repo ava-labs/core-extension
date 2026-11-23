@@ -1,6 +1,6 @@
 import { container } from 'tsyringe';
 
-import { Monitoring } from '@core/common';
+import { getCoreApiKey, Monitoring } from '@core/common';
 
 import { AppCheckService } from '../AppCheckService';
 
@@ -8,8 +8,10 @@ const FIREBASE_APP_CHECK_HEADER = 'X-Firebase-AppCheck';
 const CORE_PROXY_API_KEY_HEADER = 'X-Core-Api-Key';
 
 export const getAuthHeaders = async (): Promise<Record<string, string>> => {
-  const appcheckToken = await _getAppcheckToken();
-  const coreProxyApiKey = process.env.CORE_PROXY_API_KEY;
+  const [appcheckToken, coreProxyApiKey] = await Promise.all([
+    _getAppcheckToken(),
+    getCoreApiKey('proxy'),
+  ]);
 
   const appcheckHeader: Record<string, string> = appcheckToken
     ? {

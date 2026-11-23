@@ -9,6 +9,7 @@ import {
   resolveWalletSnapshotName,
   waitForPortfolioShellReady,
 } from '../helpers/extensionHelpers';
+import { seedCoreApiKeys } from '../helpers/coreApiKeys';
 import { unlockWallet } from '../helpers/walletHelpers';
 import { loadWalletSnapshot } from '../helpers/loadWalletSnapshot';
 
@@ -132,6 +133,8 @@ export const test = base.extend<ExtensionFixtures>({
       ignoreHTTPSErrors: true,
       bypassCSP: true,
     });
+
+    await seedCoreApiKeys(context);
 
     // Load wallet snapshot if specified
     if (snapshotName !== 'none') {

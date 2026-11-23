@@ -1,3 +1,5 @@
+import { getCachedCoreApiKey } from '../coreApiKeys';
+
 export function addGlacierAPIKeyIfNeeded(url: string): string {
   if (!process.env.GLACIER_URL || !process.env.PROXY_URL) {
     return url;
@@ -12,9 +14,10 @@ export function addGlacierAPIKeyIfNeeded(url: string): string {
   ]);
 
   const urlObject = new URL(url);
+  const glacierApiKey = getCachedCoreApiKey('glacier');
 
-  if (process.env.GLACIER_API_KEY && knownHosts.has(urlObject.host)) {
-    urlObject.searchParams.append('rltoken', process.env.GLACIER_API_KEY);
+  if (glacierApiKey && knownHosts.has(urlObject.host)) {
+    urlObject.searchParams.append('rltoken', glacierApiKey);
     return urlObject.toString();
   }
 

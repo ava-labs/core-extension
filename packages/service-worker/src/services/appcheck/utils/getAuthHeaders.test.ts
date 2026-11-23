@@ -1,12 +1,13 @@
 import { container } from 'tsyringe';
 
-import { Monitoring } from '@core/common';
+import { getCoreApiKey, Monitoring } from '@core/common';
 
 import { AppCheckService } from '../AppCheckService';
 import { getAuthHeaders } from './getAuthHeaders';
 
 jest.mock('@core/common', () => ({
   ...jest.requireActual('@core/common'),
+  getCoreApiKey: jest.fn(),
   Monitoring: {
     ...jest.requireActual('@core/common').Monitoring,
     sentryCaptureException: jest.fn(),
@@ -16,8 +17,6 @@ jest.mock('@core/common', () => ({
 const getAppcheckToken = jest.fn();
 
 describe('src/services/appcheck/utils/getAuthHeaders', () => {
-  const realEnv = process.env;
-
   beforeEach(() => {
     jest.resetAllMocks();
 
@@ -25,11 +24,15 @@ describe('src/services/appcheck/utils/getAuthHeaders', () => {
       .spyOn(container, 'resolve')
       .mockReturnValue({ getAppcheckToken } as unknown as AppCheckService);
 
-    process.env = { ...realEnv, CORE_PROXY_API_KEY: 'core-proxy-api-key' };
+    jest.mocked(getCoreApiKey).mockResolvedValue('core-proxy-api-key');
   });
 
-  afterAll(() => {
-    process.env = realEnv;
+  it('reads the Core API key from the runtime proxy key', async () => {
+    getAppcheckToken.mockResolvedValue({ token: 'appcheck-token' });
+
+    await getAuthHeaders();
+
+    expect(getCoreApiKey).toHaveBeenCalledWith('proxy');
   });
 
   it('returns both the AppCheck and Core API key headers when a token is available', async () => {
@@ -41,8 +44,8 @@ describe('src/services/appcheck/utils/getAuthHeaders', () => {
     });
   });
 
-  it('omits the Core API key header when CORE_PROXY_API_KEY is unset', async () => {
-    delete process.env.CORE_PROXY_API_KEY;
+  it('omits the Core API key header when no proxy key is stored', async () => {
+    jest.mocked(getCoreApiKey).mockResolvedValue(undefined);
     getAppcheckToken.mockResolvedValue({ token: 'appcheck-token' });
 
     await expect(getAuthHeaders()).resolves.toEqual({
@@ -59,7 +62,7 @@ describe('src/services/appcheck/utils/getAuthHeaders', () => {
   });
 
   it('returns no headers when there is neither a token nor a Core API key', async () => {
-    delete process.env.CORE_PROXY_API_KEY;
+    jest.mocked(getCoreApiKey).mockResolvedValue(undefined);
     getAppcheckToken.mockResolvedValue(undefined);
 
     await expect(getAuthHeaders()).resolves.toEqual({});

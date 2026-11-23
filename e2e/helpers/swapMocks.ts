@@ -7,8 +7,8 @@ import { MARKR_BASE_URL, MOCK_RPC_URL, type SwapFixture } from '../types/swap';
  * Set `RECORD_FIXTURES=1` to forward Markr/Jupiter requests to the real
  * network and write captured responses back to the matching fixture file.
  * Use this whenever the upstream schema changes (new Markr deployment,
- * etc.). The build's `MARKR_API_TOKEN` is replayed automatically so the
- * extension proxy returns 200 instead of 403.
+ * etc.). The `MARKR_API_TOKEN` seeded by `seedCoreApiKeys` is replayed
+ * automatically so the extension proxy returns 200 instead of 403.
  */
 const RECORD_MODE = process.env.RECORD_FIXTURES === '1';
 
