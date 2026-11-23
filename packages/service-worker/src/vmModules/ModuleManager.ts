@@ -20,7 +20,6 @@ import {
   AvaxCaipId,
   AvaxLegacyCaipId,
   BitcoinCaipId,
-  getCachedCoreApiKey,
   isDevelopment,
 } from '@core/common';
 import { getAuthHeaders } from '../services/appcheck/utils/getAuthHeaders';
@@ -90,8 +89,6 @@ export class ModuleManager {
       version: runtime.getManifest().version,
     };
 
-    const getGlacierApiKey = () => getCachedCoreApiKey('glacier');
-
     const evmModule = new EvmModule({
       environment,
       approvalController: this.#approvalController,
@@ -99,7 +96,6 @@ export class ModuleManager {
       runtime: {
         fetch: circuitBreakerFetch,
         getAuthHeaders,
-        getGlacierApiKey,
         features: {
           encryptedERCs:
             this.#featureFlagService.featureFlags[
@@ -115,17 +111,13 @@ export class ModuleManager {
         environment,
         approvalController: this.#approvalController,
         appInfo,
-        runtime: {
-          fetch: circuitBreakerFetch,
-          getAuthHeaders,
-          getGlacierApiKey,
-        },
+        runtime: { fetch: circuitBreakerFetch, getAuthHeaders },
       }),
       new BitcoinModule({
         environment,
         approvalController: this.#approvalController,
         appInfo,
-        runtime: { fetch: circuitBreakerFetch, getGlacierApiKey },
+        runtime: { fetch: circuitBreakerFetch },
       }),
       new HvmModule({
         environment,
@@ -137,7 +129,7 @@ export class ModuleManager {
         environment,
         approvalController: this.#approvalController,
         appInfo,
-        runtime: { fetch: circuitBreakerFetch, getGlacierApiKey },
+        runtime: { fetch: circuitBreakerFetch },
       }),
       new HypercoreModule({
         environment,

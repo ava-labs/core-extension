@@ -7,7 +7,6 @@
         "clearTimeout": true,
         "console.error": true,
         "fetch": true,
-        "process.env.GLACIER_API_KEY": true,
         "setTimeout": true
       },
       "packages": {
@@ -22,7 +21,6 @@
         "@avalabs/avalanche-module>big.js": true,
         "buffer": true,
         "@rsbuild/plugin-node-polyfill>crypto-browserify": true,
-        "@rsbuild/plugin-node-polyfill>process": true,
         "@avalabs/avalanche-module>zod": true
       }
     },
@@ -46,7 +44,6 @@
         "URLSearchParams": true,
         "console.error": true,
         "fetch": true,
-        "process.env.GLACIER_API_KEY": true,
         "setTimeout": true
       },
       "packages": {
@@ -58,7 +55,6 @@
         "@metamask/rpc-errors": true,
         "@avalabs/bitcoin-module>bitcoinjs-lib": true,
         "buffer": true,
-        "@rsbuild/plugin-node-polyfill>process": true,
         "@avalabs/bitcoin-module>zod": true
       }
     },
@@ -226,7 +222,6 @@
         "clearTimeout": true,
         "console.error": true,
         "fetch": true,
-        "process.env.GLACIER_API_KEY": true,
         "setTimeout": true
       },
       "packages": {
@@ -243,7 +238,6 @@
         "buffer": true,
         "ethers": true,
         "@avalabs/evm-module>lodash.startcase": true,
-        "@rsbuild/plugin-node-polyfill>process": true,
         "xss": true,
         "@avalabs/evm-module>zod": true
       }
@@ -312,8 +306,7 @@
     "@avalabs/hvm-module": {
       "globals": {
         "AbortSignal.timeout": true,
-        "fetch": true,
-        "process.env.GLACIER_API_KEY": true
+        "fetch": true
       },
       "packages": {
         "@avalabs/core-utils-sdk": true,
@@ -322,7 +315,6 @@
         "@avalabs/hvm-module>@noble/hashes": true,
         "@scure/base": true,
         "hypersdk-client": true,
-        "@rsbuild/plugin-node-polyfill>process": true,
         "@avalabs/hvm-module>zod": true
       }
     },
@@ -366,7 +358,6 @@
         "URLSearchParams": true,
         "console.error": true,
         "fetch": true,
-        "process.env.GLACIER_API_KEY": true,
         "setTimeout": true
       },
       "meta": {
@@ -397,7 +388,6 @@
         "@avalabs/svm-module>@solana/kit>@solana/transaction-messages": true,
         "@avalabs/svm-module>@solana/kit>@solana/transactions": true,
         "buffer": true,
-        "@rsbuild/plugin-node-polyfill>process": true,
         "@avalabs/svm-module>zod": true
       }
     },
