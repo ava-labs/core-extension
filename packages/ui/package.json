@@ -48,7 +48,7 @@
     "ethers": "6.13.5",
     "events": "3.3.0",
     "hypersdk-client": "0.4.17",
-    "i18next": "21.9.2",
+    "i18next": "26.3.4",
     "i18next-http-backend": "1.4.4",
     "lodash": "4.17.23",
     "lru-cache": "7.10.1",
