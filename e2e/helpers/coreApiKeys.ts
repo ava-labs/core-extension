@@ -1,4 +1,5 @@
-import { expect, type BrowserContext } from '@playwright/test';
+import type { BrowserContext } from '@playwright/test';
+import { getServiceWorkerWithStorage } from './serviceWorker';
 
 // Must match CORE_API_KEYS_STORAGE_KEY in @core/common.
 const CORE_API_KEYS_STORAGE_KEY = 'core.api-keys';
@@ -40,21 +41,7 @@ export async function seedCoreApiKeys(context: BrowserContext): Promise<void> {
     return;
   }
 
-  const serviceWorker =
-    context.serviceWorkers()[0] ??
-    (await context.waitForEvent('serviceworker', { timeout: 30_000 }));
-
-  // Playwright can attach before Chrome binds the extension APIs onto
-  // `chrome`, so `chrome.storage` is briefly undefined.
-  await expect
-    .poll(
-      () =>
-        serviceWorker.evaluate(() =>
-          Boolean(globalThis.chrome?.storage?.local),
-        ),
-      { timeout: 10_000, message: 'chrome.storage never became available' },
-    )
-    .toBe(true);
+  const serviceWorker = await getServiceWorkerWithStorage(context);
 
   await serviceWorker.evaluate(
     ({ storageKey, value }) =>

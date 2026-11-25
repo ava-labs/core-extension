@@ -26,7 +26,7 @@ import {
   DerivationPath,
   getAddressPublicKeyFromXPub,
 } from '@avalabs/core-wallets-sdk';
-import { getEvmExtendedKeyPath } from '@core/common';
+import { getEvmExtendedKeyPath, getLedgerSpeculosUrl } from '@core/common';
 
 jest.mock('../ConnectionProvider', () => {
   const connectionFunctions = {
@@ -54,6 +54,7 @@ jest.mock('@core/common', () => ({
   isLockStateChangedEvent: (evt: { name: string }) =>
     evt.name === LockEvents.LOCK_STATE_CHANGED,
   getEvmExtendedKeyPath: jest.fn((index: number) => `m/44'/60'/${index}'`),
+  getLedgerSpeculosUrl: jest.fn(),
 }));
 
 type DeviceResponders = Partial<
@@ -631,6 +632,26 @@ describe('src/contexts/LedgerProvider.tsx', () => {
           deviceRequestCall('getAppInfo'),
         );
       });
+    });
+
+    it('skips the WebHID prompt when a Speculos URL is configured', async () => {
+      jest
+        .mocked(getLedgerSpeculosUrl)
+        .mockResolvedValueOnce('http://localhost:5050');
+      const requestDevice = jest.fn();
+      stubHid(requestDevice);
+
+      const connectionMocks = useConnectionContext();
+      renderTestComponent();
+      fireEvent.click(screen.getByTestId('popDeviceSelection'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('result').textContent).toBe('true');
+        expect(connectionMocks.request).toHaveBeenCalledWith(
+          deviceRequestCall('getAppInfo'),
+        );
+      });
+      expect(requestDevice).not.toHaveBeenCalled();
     });
 
     it('throws when no device is granted', async () => {

@@ -19,6 +19,8 @@ module.exports = {
     '^@avalabs/crypto-wasm$': '<rootDir>/../../src/tests/mocks/cryptoWasm.js',
     '^@ledgerhq/device-management-kit$':
       '<rootDir>/../../src/tests/mocks/ledgerDmk.js',
+    '^@ledgerhq/device-transport-kit-speculos$':
+      '<rootDir>/../../src/tests/mocks/ledgerDmk.js',
     '^@ledgerhq/device-transport-kit-web-hid$':
       '<rootDir>/../../src/tests/mocks/ledgerDmk.js',
   },

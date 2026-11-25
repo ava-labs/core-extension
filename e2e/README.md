@@ -82,6 +82,66 @@ Set these in `.env` (or export in CI). A template is available in
 | `RECOVERY_PHRASE_12_WORDS` | 12-word recovery phrase (space-separated) |
 | `RECOVERY_PHRASE_24_WORDS` | 24-word recovery phrase (space-separated) |
 
+## Ledger onboarding with Speculos
+
+`tests/ledger-onboarding.spec.ts` onboards a wallet through the Ledger flow against
+[Speculos](https://github.com/LedgerHQ/speculos), Ledger's device emulator, instead of a
+real device. It is tagged `@speculos`, is not part of `@smoke`/`@regression` or any CI run,
+and is skipped unless `USE_SPECULOS=true`.
+
+How it works: the test seeds `core.e2e.ledger-speculos-url` in `chrome.storage.local`. When
+set, the service worker talks to Speculos over HTTP instead of WebHID, and the UI skips the
+WebHID permission prompt. The key is ignored in production builds (`RELEASE=production`).
+Only `http(s)://localhost` and `http(s)://127.0.0.1` URLs are accepted.
+
+The spec needs a dev build (`yarn build:dev` from the repo root): local alpha builds signed
+with the dev extension key cannot reliably obtain an App Check token, so backend calls (and
+the derived-addresses list) stall.
+
+### Prerequisites
+
+- Docker (Docker Desktop or a running daemon) and `git`
+- A dev extension build in `dist/` (see above)
+- The runtime API keys (`CORE_PROXY_API_KEY`, `GLACIER_API_KEY`, `ID_SERVICE_API_KEY`,
+  `MARKR_API_TOKEN`) in `e2e/.env` (see `e2e/.env.example`). The onboarding flow checks
+  address activity through Core's backend, so it stalls without them.
+
+### Run
+
+```bash
+cd e2e
+
+# Build the Avalanche app for the Nano S Plus from ava-labs/ledger-avalanche (once per version)
+yarn speculos:build
+
+# Start Speculos in Docker (Nano S Plus, API on http://localhost:5050)
+yarn speculos:start
+
+USE_SPECULOS=true npx playwright test tests/ledger-onboarding.spec.ts
+
+yarn speculos:stop
+```
+
+The device is seeded with the BIP39 test mnemonic `abandon abandon … about`, whose first EVM
+address is `0x9858EfFD232B4033E47d90003D41EC34EcaEda94`. It is public, so the test opts in to
+failure screenshots.
+
+The built app is cached in `e2e/.speculos/` (gitignored); the build is skipped when the file for
+the requested version already exists. If Docker or the app is missing, the scripts exit with
+instructions.
+
+| Variable                   | Default   | Description                                                                       |
+| -------------------------- | --------- | --------------------------------------------------------------------------------- |
+| `USE_SPECULOS`             | unset     | Must be `true` to run the spec; fails fast if Speculos is down                    |
+| `SPECULOS_PORT`            | `5050`    | Host port of the Speculos API (used by the scripts and spec)                      |
+| `LEDGER_AVALANCHE_VERSION` | `v1.4.22` | `ava-labs/ledger-avalanche` tag built by `speculos:build`                         |
+| `SPECULOS_IMAGE`           | pinned    | Speculos Docker image; default digest is in `scripts/speculos/docker-compose.yml` |
+| `LEDGER_APP_BUILDER_IMAGE` | pinned    | App builder Docker image; default digest is in `scripts/speculos/build-app.sh`    |
+
+Port 5000 is not the default because macOS AirPlay Receiver (ControlCenter) listens on it.
+The tag comes from `ava-labs/ledger-avalanche` on purpose: the `LedgerHQ/app-avalanche` mirror's
+`v1.4.22` tag points at a commit that reports 1.4.20.
+
 ## TestRail Automation Sync
 
 Reconcile the `custom_automation_id` annotations on Playwright tests with

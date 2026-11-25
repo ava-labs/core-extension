@@ -120,3 +120,7 @@ chrome.storage.local.set({
 Leave out the keys you don't need. Running extension contexts pick up changes without a reload. The keys survive reloads of the unpacked extension but not a reinstall.
 
 End-to-end tests seed the same entry before each test from `CORE_PROXY_API_KEY`, `GLACIER_API_KEY`, `MARKR_API_TOKEN` and `ID_SERVICE_API_KEY` in `e2e/.env`, or the job env in CI.
+
+## Ledger emulator (Speculos)
+
+Non-production builds can talk to a [Speculos](https://github.com/LedgerHQ/speculos) Ledger emulator instead of WebHID. The service worker and the UI read the URL from the unencrypted `core.e2e.ledger-speculos-url` entry in `chrome.storage.local`. It is ignored when the build has `RELEASE=production`, and only `http(s)://localhost` and `http(s)://127.0.0.1` URLs are accepted. The Speculos transport kit is also removed from production service worker bundles. Setup and the Ledger onboarding E2E test are described in [`e2e/README.md`](https://github.com/ava-labs/core-extension/blob/main/e2e/README.md#ledger-onboarding-with-speculos).

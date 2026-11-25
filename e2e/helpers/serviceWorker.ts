@@ -1,4 +1,9 @@
-import type { Page } from '@playwright/test';
+import {
+  expect,
+  type BrowserContext,
+  type Page,
+  type Worker,
+} from '@playwright/test';
 
 // Port name the extension UI uses to talk to the service worker (EXTENSION_SCRIPT
 // in @core). Requests are the same `provider_request` envelope the UI sends.
@@ -86,4 +91,26 @@ export async function requestFromServiceWorker<T = unknown>(
       }),
     { portName: EXTENSION_SCRIPT, method, params },
   ) as Promise<T>;
+}
+
+export async function getServiceWorkerWithStorage(
+  context: BrowserContext,
+): Promise<Worker> {
+  const serviceWorker =
+    context.serviceWorkers()[0] ??
+    (await context.waitForEvent('serviceworker', { timeout: 30_000 }));
+
+  // Playwright can attach before Chrome binds the extension APIs onto
+  // `chrome`, so `chrome.storage` is briefly undefined.
+  await expect
+    .poll(
+      () =>
+        serviceWorker.evaluate(() =>
+          Boolean(globalThis.chrome?.storage?.local),
+        ),
+      { timeout: 10_000, message: 'chrome.storage never became available' },
+    )
+    .toBe(true);
+
+  return serviceWorker;
 }

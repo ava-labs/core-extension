@@ -14,17 +14,26 @@ import {
 import { LedgerDmkService } from './LedgerDmkService';
 
 const mockBuild = jest.fn();
+const mockAddTransport = jest.fn();
+const mockGetLedgerSpeculosUrl = jest.fn();
 const mockBtcSigner = {
   getMasterFingerprint: jest.fn(),
   getExtendedPublicKey: jest.fn(),
   registerWallet: jest.fn(),
 };
 
+// jest.config.js maps the DMK and both transport kits to one mock module, so
+// their exports are declared together.
 jest.mock('@ledgerhq/device-management-kit', () => ({
+  webHidTransportFactory: 'web-hid-factory',
+  speculosTransportFactory: (...args: unknown[]) =>
+    `speculos-factory:${args.join(',')}`,
   DeviceActionStatus: { Completed: 'completed', Error: 'error' },
   DeviceStatus: { LOCKED: 'LOCKED', BUSY: 'BUSY', CONNECTED: 'CONNECTED' },
+  DeviceModelId: { NANO_SP: 'nanoSP' },
   DeviceManagementKitBuilder: class {
-    addTransport() {
+    addTransport(factory: unknown) {
+      mockAddTransport(factory);
       return this;
     }
     build() {
@@ -63,6 +72,7 @@ jest.mock('@avalabs/core-wallets-sdk', () => ({
 }));
 jest.mock('@core/common', () => ({
   getSolanaRpcUrl: () => 'https://solana.example',
+  getLedgerSpeculosUrl: () => mockGetLedgerSpeculosUrl(),
 }));
 const device = { id: 'device-id' };
 
@@ -254,7 +264,7 @@ describe('src/background/services/ledger/LedgerDmkService.ts', () => {
       mockBuild.mockReturnValueOnce(oldDmk).mockReturnValueOnce(newDmk);
 
       const pendingRead = service.getAppInfo();
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 10));
       expect(oldDmk.getDeviceSessionState).toHaveBeenCalled();
 
       service.onLock();
@@ -333,6 +343,130 @@ describe('src/background/services/ledger/LedgerDmkService.ts', () => {
       await service.getSession();
 
       await expect(service.getDeviceInfo()).resolves.toBeNull();
+    });
+  });
+
+  describe('transport selection', () => {
+    const originalRelease = process.env.RELEASE;
+
+    beforeEach(() => {
+      const dmk = createDmk();
+      dmk.connect.mockResolvedValue('session-1');
+      mockBuild.mockReturnValue(dmk);
+    });
+
+    afterEach(() => {
+      process.env.RELEASE = originalRelease;
+    });
+
+    it('uses WebHID when no Speculos URL is configured', async () => {
+      mockGetLedgerSpeculosUrl.mockResolvedValue(undefined);
+
+      await service.getSession();
+
+      expect(mockAddTransport).toHaveBeenCalledWith('web-hid-factory');
+    });
+
+    it('uses the Speculos transport for a Nano S Plus when a URL is configured', async () => {
+      mockGetLedgerSpeculosUrl.mockResolvedValue('http://localhost:5050');
+
+      await service.getSession();
+
+      expect(mockAddTransport).toHaveBeenCalledWith(
+        'speculos-factory:http://localhost:5050,true,nanoSP',
+      );
+    });
+
+    it('ignores the Speculos URL in production builds', async () => {
+      process.env.RELEASE = 'production';
+      mockGetLedgerSpeculosUrl.mockResolvedValue('http://localhost:5050');
+
+      await service.getSession();
+
+      expect(mockAddTransport).toHaveBeenCalledWith('web-hid-factory');
+    });
+
+    it('reads the Speculos URL once per DMK instance', async () => {
+      mockGetLedgerSpeculosUrl.mockResolvedValue(undefined);
+
+      await service.getSession();
+      await service.getSession();
+
+      expect(mockGetLedgerSpeculosUrl).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('DMK initialization', () => {
+    it('does not build or connect a DMK when the wallet locks during initialization', async () => {
+      const storageRead = deferred<string | undefined>();
+      mockGetLedgerSpeculosUrl.mockReturnValue(storageRead.promise);
+      const dmk = createDmk();
+      mockBuild.mockReturnValue(dmk);
+
+      const pending = service.getSession();
+      service.onLock();
+      storageRead.resolve(undefined);
+
+      await expect(pending).rejects.toThrow('Ledger connection was reset');
+      expect(mockBuild).not.toHaveBeenCalled();
+      expect(dmk.connect).not.toHaveBeenCalled();
+    });
+
+    it('shares one initialization between concurrent first callers', async () => {
+      const storageRead = deferred<string | undefined>();
+      mockGetLedgerSpeculosUrl.mockReturnValue(storageRead.promise);
+      const dmk = createDmk();
+      dmk.connect.mockResolvedValue('session-1');
+      mockBuild.mockReturnValue(dmk);
+
+      const sessions = Promise.all([
+        service.getSession(),
+        service.getSession(),
+        service.getSession(),
+      ]);
+      storageRead.resolve(undefined);
+
+      await sessions;
+      expect(mockGetLedgerSpeculosUrl).toHaveBeenCalledTimes(1);
+      expect(mockBuild).toHaveBeenCalledTimes(1);
+      expect(dmk.connect).toHaveBeenCalledTimes(1);
+    });
+
+    it('retries initialization after the DMK build throws', async () => {
+      mockGetLedgerSpeculosUrl.mockResolvedValue(undefined);
+      const dmk = createDmk();
+      dmk.connect.mockResolvedValue('session-1');
+      mockBuild
+        .mockImplementationOnce(() => {
+          throw new Error('build failed');
+        })
+        .mockReturnValueOnce(dmk);
+
+      await expect(service.getSession()).rejects.toThrow('build failed');
+
+      await expect(service.getSession()).resolves.toEqual({
+        dmk,
+        sessionId: 'session-1',
+      });
+      expect(mockBuild).toHaveBeenCalledTimes(2);
+    });
+
+    it('builds a fresh DMK after a lock', async () => {
+      mockGetLedgerSpeculosUrl.mockResolvedValue(undefined);
+      const firstDmk = createDmk();
+      const secondDmk = createDmk();
+      firstDmk.connect.mockResolvedValue('session-1');
+      secondDmk.connect.mockResolvedValue('session-2');
+      mockBuild.mockReturnValueOnce(firstDmk).mockReturnValueOnce(secondDmk);
+
+      await service.getSession();
+      service.onLock();
+
+      await expect(service.getSession()).resolves.toEqual({
+        dmk: secondDmk,
+        sessionId: 'session-2',
+      });
+      expect(firstDmk.close).toHaveBeenCalled();
     });
   });
 

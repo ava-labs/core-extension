@@ -32,3 +32,6 @@ helpers/keystore-files/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Speculos Avalanche app build cache
+.speculos/
