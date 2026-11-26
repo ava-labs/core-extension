@@ -1,7 +1,6 @@
 import { NativeTokenBalance } from '@core/types';
 
 import { BtcTxSigningData } from '../types';
-import { getFeeInfo } from './getFeeInfo';
 
 export const hasEnoughForFee = (
   data?: BtcTxSigningData,
@@ -9,8 +8,7 @@ export const hasEnoughForFee = (
 ) => {
   if (!data || !nativeToken) return false;
 
-  const info = getFeeInfo(data);
-  const need = info.feeRate * BigInt(info.limit) + BigInt(data.data.amount);
+  const need = BigInt(data.data.fee) + BigInt(data.data.amount);
 
   return nativeToken.balance >= need;
 };

@@ -5,6 +5,8 @@ import { Collapse, Stack } from '@avalabs/k2-alpine';
 
 import { Action, EvmNetwork, GaslessPhase } from '@core/types';
 
+import { usePendingTxDataUpdate } from '@/pages/Approve/contexts';
+
 import { useGasless } from '../../../../hooks';
 import { DetailsSection } from '../../generic/DetailsSection';
 
@@ -44,6 +46,13 @@ export const GaslessNetworkFee = ({
     [choosePreset, setIsGaslessOn, gaslessPhase],
   );
 
+  const isInsufficient =
+    !isLoading &&
+    Boolean(nativeToken) &&
+    !hasEnoughForNetworkFee &&
+    !isGaslessOn;
+  usePendingTxDataUpdate(isInsufficient);
+
   return (
     <Stack gap={1}>
       <DetailsSection>
@@ -64,14 +73,7 @@ export const GaslessNetworkFee = ({
           <ManualFeeControls feeResult={feeResult} />
         </Collapse>
       </DetailsSection>
-      <InsufficientFeeWarning
-        visible={
-          !isLoading &&
-          Boolean(nativeToken) &&
-          !hasEnoughForNetworkFee &&
-          !isGaslessOn
-        }
-      />
+      <InsufficientFeeWarning visible={isInsufficient} />
     </Stack>
   );
 };

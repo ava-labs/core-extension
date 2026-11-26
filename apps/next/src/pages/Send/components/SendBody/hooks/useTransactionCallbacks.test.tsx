@@ -22,8 +22,13 @@ jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (s: string) => s }),
 }));
 
+let mockActiveAccountId = 'account-a';
+
 jest.mock('@core/ui', () => ({
   toast: { error: jest.fn() },
+  useAccountsContext: () => ({
+    accounts: { active: { id: mockActiveAccountId } },
+  }),
   useAnalyticsContext: () => ({ capture: jest.fn() }),
 }));
 
@@ -33,16 +38,20 @@ describe('useTransactionCallbacks', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockHistory.location = { pathname: '/send', search: '' };
+    mockActiveAccountId = 'account-a';
   });
 
   describe('onSendSuccess', () => {
     const submit = (search: string) => {
       mockHistory.location.search = search;
-      const { result } = renderHook(() =>
+      const { result, rerender, unmount } = renderHook(() =>
         useTransactionCallbacks(network, '0xfrom'),
       );
       result.current.onSendApproved();
-      return result.current;
+      return Object.assign(result.current, {
+        rerender,
+        unmount,
+      });
     };
 
     it('clears amount, recipient and max mode but keeps the selected token', () => {
@@ -108,6 +117,25 @@ describe('useTransactionCallbacks', () => {
         pathname: '/send',
         search: 'token=AVAX&amount=9&to=0xdef',
       };
+
+      callbacks.onSendSuccess('0xhash');
+
+      expect(mockReplace).not.toHaveBeenCalled();
+    });
+
+    it('does not clear the form when the active account changed after submit', () => {
+      const callbacks = submit('token=AVAX&amount=1&to=0xabc');
+      mockActiveAccountId = 'account-b';
+      callbacks.rerender();
+
+      callbacks.onSendSuccess('0xhash');
+
+      expect(mockReplace).not.toHaveBeenCalled();
+    });
+
+    it('does not clear the form once the send body has unmounted', () => {
+      const callbacks = submit('token=AVAX&amount=1&to=0xabc');
+      callbacks.unmount();
 
       callbacks.onSendSuccess('0xhash');
 

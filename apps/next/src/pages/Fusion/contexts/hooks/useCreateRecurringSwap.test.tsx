@@ -45,6 +45,8 @@ const ASSET = { decimals: 18, symbol: 'AAA' } as never;
 const CHAIN = { chainId: 'eip155:43114' } as never;
 const FREQUENCY = { unit: 'week', value: 1 } as never;
 
+let mockDraftKey = 'account-a|schedule-1';
+
 const setup = (initialEntry: string) => {
   const history = createMemoryHistory({ initialEntries: [initialEntry] });
   const wrapper = ({ children }: PropsWithChildren) => (
@@ -55,7 +57,7 @@ const setup = (initialEntry: string) => {
     </Router>
   );
 
-  const { result } = renderHook(
+  const { result, rerender } = renderHook(
     () => {
       const { resetForm } = useRecurringSwapState();
       return useCreateRecurringSwap({
@@ -69,17 +71,19 @@ const setup = (initialEntry: string) => {
         frequency: FREQUENCY,
         numberOfOrders: 4,
         onCreated: resetForm,
+        draftKey: mockDraftKey,
       });
     },
     { wrapper },
   );
 
-  return { history, result };
+  return { history, result, rerender };
 };
 
 describe('useCreateRecurringSwap', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockDraftKey = 'account-a|schedule-1';
     mockQuote.mockResolvedValue({
       uuid: 'quote-uuid',
       numberOfOrders: 4,
@@ -137,4 +141,39 @@ describe('useCreateRecurringSwap', () => {
     expect(history.location.pathname).toBe('/notifications');
     expect(history.location.search).toBe('');
   });
+
+  it.each(['account-b|schedule-1', 'account-a|schedule-2'])(
+    'keeps the amount and the edited schedule when the draft key changed to %s while pending',
+    async (newKey) => {
+      let resolveFill: () => void = () => undefined;
+      mockExecuteFirstFill.mockReturnValue(
+        new Promise<void>((resolve) => {
+          resolveFill = resolve;
+        }),
+      );
+      const { history, result, rerender } = setup(
+        '/fusion?from=src&to=dst&userAmount=2&recurring=true',
+      );
+
+      let pending: Promise<void> | undefined;
+      act(() => {
+        pending = result.current.createRecurringSwap();
+      });
+      await act(async () => {
+        await Promise.resolve();
+      });
+
+      mockDraftKey = newKey;
+      rerender();
+
+      await act(async () => {
+        resolveFill();
+        await pending;
+      });
+
+      const params = new URLSearchParams(history.location.search);
+      expect(params.get('userAmount')).toBe('2');
+      expect(params.get('recurring')).toBe('true');
+    },
+  );
 });

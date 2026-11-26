@@ -222,6 +222,48 @@ describe('useMaxAmountForTokenSend', () => {
     expect(result.current.maxAmount).toBe(900n);
   });
 
+  it('keeps the BTC fee paired with the max it was computed for during a refresh', async () => {
+    getNetworkFee
+      .mockResolvedValueOnce(makeFee(2n))
+      .mockResolvedValue(makeFee(5n));
+
+    const resolvers: Array<
+      (v: { maxAmount: bigint; estimatedFee: bigint }) => void
+    > = [];
+    jest.mocked(getBtcMaxAmount).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolvers.push(resolve);
+        }),
+    );
+
+    const { result } = renderHook(() =>
+      useMaxAmountForTokenSend(account, btcToken, 'recipientA'),
+    );
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(0);
+    });
+    await act(async () => {
+      resolvers[0]!({ maxAmount: 900n, estimatedFee: 20n });
+    });
+    expect(result.current.networkFee).toEqual(makeFee(2n));
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(30_000);
+    });
+
+    expect(result.current.maxAmount).toBe(900n);
+    expect(result.current.networkFee).toEqual(makeFee(2n));
+
+    await act(async () => {
+      resolvers[1]!({ maxAmount: 800n, estimatedFee: 50n });
+    });
+
+    expect(result.current.maxAmount).toBe(800n);
+    expect(result.current.networkFee).toEqual(makeFee(5n));
+  });
+
   it('invalidates the previous BTC max while a new recipient is calculated', async () => {
     getNetworkFee.mockResolvedValue(makeFee(2n));
 

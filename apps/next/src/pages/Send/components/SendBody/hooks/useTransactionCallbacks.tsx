@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 
@@ -7,7 +7,7 @@ import {
   isUserRejectionError,
 } from '@core/common';
 import { NetworkWithCaipId } from '@core/types';
-import { toast, useAnalyticsContext } from '@core/ui';
+import { toast, useAccountsContext, useAnalyticsContext } from '@core/ui';
 
 import { getSendPath, SEND_QUERY_TOKENS } from '@/config/routes';
 
@@ -49,11 +49,28 @@ export const useTransactionCallbacks = (
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
   const history = useHistory();
-  const submittedDraftRef = useRef<string | undefined>(undefined);
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
+  const activeAccountIdRef = useRef(activeAccount?.id);
+  activeAccountIdRef.current = activeAccount?.id;
+  const submittedDraftRef = useRef<
+    { signature: string; accountId?: string } | undefined
+  >(undefined);
+
+  useEffect(
+    () => () => {
+      submittedDraftRef.current = undefined;
+    },
+    [],
+  );
 
   return {
     onSendApproved: () => {
-      submittedDraftRef.current = getDraftSignature(history.location.search);
+      submittedDraftRef.current = {
+        signature: getDraftSignature(history.location.search),
+        accountId: activeAccountIdRef.current,
+      };
 
       if (fromAddress) {
         capture('SendApproved', {
@@ -72,9 +89,13 @@ export const useTransactionCallbacks = (
         });
       }
 
+      const submitted = submittedDraftRef.current;
+
       if (
+        submitted &&
         history.location.pathname === getSendPath() &&
-        submittedDraftRef.current === getDraftSignature(history.location.search)
+        submitted.accountId === activeAccountIdRef.current &&
+        submitted.signature === getDraftSignature(history.location.search)
       ) {
         const current = new URLSearchParams(history.location.search);
         const preserved = new URLSearchParams();

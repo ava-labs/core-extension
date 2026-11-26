@@ -10,9 +10,18 @@ const setup = (initialEntry: string) => {
   const wrapper = ({ children }: PropsWithChildren) => (
     <Router history={history}>{children}</Router>
   );
-  const { result } = renderHook(() => useSwapDraftGuard(), { wrapper });
+  const { result, rerender, unmount } = renderHook(
+    ({ draftKey }) => useSwapDraftGuard(draftKey),
+    { wrapper, initialProps: { draftKey: 'account-a|false' } },
+  );
 
-  return { history, beginDraft: result.current };
+  return {
+    history,
+    beginDraft: result.current,
+    changeDraftKey: (draftKey: string) => rerender({ draftKey }),
+    unmount,
+    wrapper,
+  };
 };
 
 describe('useSwapDraftGuard', () => {
@@ -64,5 +73,42 @@ describe('useSwapDraftGuard', () => {
     });
     expect(applied).toBe(false);
     expect(new URLSearchParams(history.location.search).get('to')).toBe('c');
+  });
+
+  it('does nothing when inputs outside the query changed in the meantime', () => {
+    const { history, beginDraft, changeDraftKey } = setup(
+      '/fusion?from=a&to=b&userAmount=2',
+    );
+    const complete = beginDraft();
+    changeDraftKey('account-b|false');
+
+    let applied: boolean | undefined;
+    act(() => {
+      applied = complete();
+    });
+
+    expect(applied).toBe(false);
+    expect(new URLSearchParams(history.location.search).get('userAmount')).toBe(
+      '2',
+    );
+  });
+
+  it('does not clear a remounted form when a submission from the unmounted page completes late', () => {
+    const { history, beginDraft, unmount, wrapper } = setup(
+      '/fusion?from=a&to=b&userAmount=2',
+    );
+    const complete = beginDraft();
+    unmount();
+    renderHook(() => useSwapDraftGuard('account-a|false'), { wrapper });
+
+    let applied: boolean | undefined;
+    act(() => {
+      applied = complete();
+    });
+
+    expect(applied).toBe(false);
+    expect(new URLSearchParams(history.location.search).get('userAmount')).toBe(
+      '2',
+    );
   });
 });

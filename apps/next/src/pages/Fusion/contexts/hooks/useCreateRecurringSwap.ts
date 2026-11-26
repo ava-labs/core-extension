@@ -45,6 +45,7 @@ type UseCreateRecurringSwapProps = {
   numberOfOrders: number;
   /** Called once the first-fill transaction is broadcast. */
   onCreated?: () => void;
+  draftKey?: string;
 };
 
 export const useCreateRecurringSwap = ({
@@ -59,10 +60,11 @@ export const useCreateRecurringSwap = ({
   frequency,
   numberOfOrders,
   onCreated,
+  draftKey,
 }: UseCreateRecurringSwapProps) => {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
-  const beginDraft = useSwapDraftGuard();
+  const beginDraft = useSwapDraftGuard(draftKey);
   const { request } = useConnectionContext();
   const { getNetworkFee } = useNetworkFeeContext();
   const { feeSetting } = useSettingsContext();

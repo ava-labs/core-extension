@@ -55,6 +55,7 @@ export const useMaxAmountForTokenSend = (
   const [settled, setSettled] = useState<{
     inputs: object;
     result: MaxAmountResult;
+    networkFee: NetworkFee | null;
   }>();
   const isPvmSend = Boolean(
     from && isPvmCapableAccount(from) && token && isPChainToken(token),
@@ -144,7 +145,7 @@ export const useMaxAmountForTokenSend = (
     let isStale = false;
     const apply = (value: MaxAmountResult) => {
       if (!isStale) {
-        setSettled({ inputs: asyncInputs, result: value });
+        setSettled({ inputs: asyncInputs, result: value, networkFee });
       }
     };
     const onError = (error: unknown) => {
@@ -204,14 +205,16 @@ export const useMaxAmountForTokenSend = (
     };
   }
 
-  const current =
-    syncResult ??
-    (settled?.inputs === asyncInputs ? settled.result : undefined);
+  const settledForInputs =
+    settled?.inputs === asyncInputs ? settled : undefined;
+  const current = syncResult ?? settledForInputs?.result;
 
   return {
     maxAmount: current?.maxAmount,
     estimatedFee: current?.estimatedFee,
-    networkFee,
+    networkFee: syncResult
+      ? networkFee
+      : (settledForInputs?.networkFee ?? networkFee),
     isCalculating: current === undefined,
   };
 };

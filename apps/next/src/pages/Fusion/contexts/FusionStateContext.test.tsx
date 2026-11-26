@@ -49,6 +49,7 @@ const BRIDGEABLE = {
   isFetching: false,
   targetChainOptions: [],
 };
+const QUOTE_2 = { ...QUOTE, id: 'quote-2' };
 const QUOTES = {
   bestQuote: QUOTE,
   quotes: [QUOTE],
@@ -93,7 +94,9 @@ const BALANCES = {
   updateBalanceOnNetworks: (...args: unknown[]) =>
     mockUpdateBalanceOnNetworks(...args),
 };
-const ACCOUNTS = { accounts: { active: ACCOUNT } };
+const ACCOUNTS: { accounts: { active: { id: string } } } = {
+  accounts: { active: ACCOUNT },
+};
 const FEATURE_FLAGS = { selectFeatureFlag: () => 100 };
 const NETWORK_FEE = { getNetworkFee: () => Promise.resolve(null) };
 const SETTINGS = { feeSetting: 'medium' };
@@ -202,6 +205,11 @@ const renderProvider = (initialEntry: string) => {
 const SWAP_URL = '/fusion?from=src-token&to=dst-token&userAmount=1.5';
 
 describe('FusionStateContext transfer()', () => {
+  afterEach(() => {
+    ACCOUNTS.accounts.active = ACCOUNT;
+    QUOTES.quotes = [QUOTE];
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     mockTrackTransfer.mockResolvedValue(undefined);
@@ -355,6 +363,77 @@ describe('FusionStateContext transfer()', () => {
     });
 
     expect(history.location.pathname).toBe('/fusion-transfer/transfer-1');
+  });
+
+  it('does not clear a newer draft when an automatic retry succeeds', async () => {
+    QUOTES.quotes = [QUOTE, QUOTE_2];
+    let rejectFirst: (error: Error) => void = () => undefined;
+    mockTransferAsset
+      .mockReturnValueOnce(
+        new Promise((_resolve, reject) => {
+          rejectFirst = reject;
+        }),
+      )
+      .mockResolvedValueOnce({
+        id: 'transfer-1',
+        sourceChain: QUOTE.sourceChain,
+        targetChain: QUOTE.targetChain,
+      });
+    const { history, getState } = renderProvider(SWAP_URL);
+
+    let transferPromise: Promise<void> | undefined;
+    act(() => {
+      transferPromise = getState().transfer();
+    });
+    await waitFor(() => expect(mockTransferAsset).toHaveBeenCalledTimes(1));
+
+    act(() => {
+      history.replace('/fusion?from=src-token&to=dst-token&userAmount=7');
+    });
+
+    await act(async () => {
+      rejectFirst(new Error('Error during gas estimation'));
+      await transferPromise;
+    });
+
+    expect(mockTransferAsset).toHaveBeenCalledTimes(2);
+    expect(new URLSearchParams(history.location.search).get('userAmount')).toBe(
+      '7',
+    );
+  });
+
+  it('does not clear the draft when the active account changed while pending', async () => {
+    let resolveTransfer: (value: unknown) => void = () => undefined;
+    mockTransferAsset.mockReturnValue(
+      new Promise((resolve) => {
+        resolveTransfer = resolve;
+      }),
+    );
+    const { history, getState } = renderProvider(SWAP_URL);
+
+    let transferPromise: Promise<void> | undefined;
+    act(() => {
+      transferPromise = getState().transfer();
+    });
+    await waitFor(() => expect(mockTransferAsset).toHaveBeenCalled());
+
+    ACCOUNTS.accounts.active = { id: 'account-2' };
+    act(() => {
+      history.replace(SWAP_URL);
+    });
+
+    await act(async () => {
+      resolveTransfer({
+        id: 'transfer-1',
+        sourceChain: QUOTE.sourceChain,
+        targetChain: QUOTE.targetChain,
+      });
+      await transferPromise;
+    });
+
+    expect(new URLSearchParams(history.location.search).get('userAmount')).toBe(
+      '1.5',
+    );
   });
 
   it('keeps a newer draft intact when an older transfer resolves', async () => {

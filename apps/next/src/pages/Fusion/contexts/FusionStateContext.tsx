@@ -134,7 +134,6 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     fromQuery,
     toQuery,
   } = useSwapQuery();
-  const beginDraft = useSwapDraftGuard();
   const history = useHistory();
   const { t: translate } = useTranslation();
 
@@ -359,6 +358,15 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     resetForm,
   } = useRecurringSwapState();
 
+  const draftKey = [
+    activeAccount?.id,
+    isRecurring,
+    frequencyUnit,
+    frequencyQuantity,
+    numberOfOrders,
+  ].join('|');
+  const beginDraft = useSwapDraftGuard(draftKey);
+
   const sourceAmountBigInt =
     userAmount && sourceAsset
       ? stringToBigint(userAmount, sourceAsset.decimals)
@@ -446,14 +454,17 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const { priceImpact, priceImpactSeverity, priceImpactAvailability } =
     usePriceImpact(selectedQuote, sourceToken, targetToken);
 
-  const transfer = useCallback(
-    async (specificQuote?: Quote, autoRetryAttempt = 0) => {
+  const executeTransfer = useCallback(
+    async (
+      completeDraft: () => boolean,
+      specificQuote?: Quote,
+      autoRetryAttempt = 0,
+    ) => {
       if (!manager) {
         throw new Error('Manager or quote not found');
       }
 
       setIsConfirming(true);
-      const completeDraft = beginDraft();
 
       const quoteToUse = specificQuote ?? selectedQuote;
 
@@ -556,7 +567,11 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
           const nextQuote = quotes[currentQuoteIndex + 1];
 
           if (nextQuote) {
-            return transfer(nextQuote, currentQuoteIndex + 1);
+            return executeTransfer(
+              completeDraft,
+              nextQuote,
+              currentQuoteIndex + 1,
+            );
           }
         }
 
@@ -581,7 +596,6 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       fromAddress,
       toAddress,
       slippage,
-      beginDraft,
       history,
       translate,
       capture,
@@ -597,6 +611,12 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       getNetworkFee,
       feeSetting,
     ],
+  );
+
+  const transfer = useCallback(
+    (specificQuote?: Quote, autoRetryAttempt = 0) =>
+      executeTransfer(beginDraft(), specificQuote, autoRetryAttempt),
+    [executeTransfer, beginDraft],
   );
 
   const recurringEligibility = useRecurringEligibility({
@@ -633,6 +653,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       frequency: { unit: frequencyUnit, value: frequencyQuantity },
       numberOfOrders,
       onCreated: resetForm,
+      draftKey,
     });
 
   const minimalQuote = useMinimalQuote({
