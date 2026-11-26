@@ -34,6 +34,7 @@ export const SEND_QUERY_TOKENS = {
   token: 'token',
   tokenQuery: 'tokenQ',
   amount: 'amount',
+  isMax: 'isMax',
 };
 export type SendQueryTokens = typeof SEND_QUERY_TOKENS;
 export const getSendPath = (query?: Partial<SendQueryTokens>) => {

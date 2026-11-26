@@ -6,13 +6,12 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   BtcCapableAccount,
   BtcTokenBalance,
-  NetworkFee,
   NetworkWithCaipId,
 } from '@core/types';
-import { toast, useConnectionContext, useNetworkFeeContext } from '@core/ui';
+import { toast, useConnectionContext } from '@core/ui';
 import { isBtcAddressInNetwork, isValidBtcAddress } from '@core/common';
 
-import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
+import { useSendMaxAmount } from '@/pages/Send/contexts';
 
 import { useTransactionCallbacks } from './useTransactionCallbacks';
 
@@ -33,21 +32,15 @@ export const useBtcSend = ({
 }: UseBtcSendArgs) => {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
-  const { getNetworkFee } = useNetworkFeeContext();
 
   const { onSendApproved, onSendFailure, onSendSuccess } =
     useTransactionCallbacks(network, from.addressBTC);
-  const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
+  const { maxAmount, estimatedFee, networkFee } = useSendMaxAmount();
 
   const [isSending, setIsSending] = useState(false);
-  const [networkFee, setNetworkFee] = useState<NetworkFee | null>(null);
   const [error, setError] = useState('');
 
   const maxInitialFee = networkFee?.low.maxFeePerGas;
-
-  useEffect(() => {
-    getNetworkFee(network.caipId).then(setNetworkFee);
-  }, [getNetworkFee, network.caipId]);
 
   useEffect(() => {
     setError('');

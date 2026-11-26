@@ -16,7 +16,7 @@ import {
 } from '@core/ui';
 import { isValidAvmAddress } from '@core/common';
 
-import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
+import { useSendMaxAmount } from '@/pages/Send/contexts';
 
 import { useTransactionCallbacks } from './useTransactionCallbacks';
 import { buildXChainSendTx } from '../lib/buildXChainSendTx';
@@ -44,7 +44,7 @@ export const useXChainSend = ({
   const { filterSmallUtxos } = useSettingsContext();
   const { onSendApproved, onSendFailure, onSendSuccess } =
     useTransactionCallbacks(network, from.addressAVM);
-  const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
+  const { maxAmount, estimatedFee } = useSendMaxAmount();
 
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState('');

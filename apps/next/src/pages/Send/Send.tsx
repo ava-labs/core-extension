@@ -32,6 +32,8 @@ import { getAddressByType } from '@/utils/getAddressByType';
 
 import { SendBody } from './components/SendBody';
 import { getAddressTypeForToken } from '../../lib/getAddressTypeForToken';
+import { SendMaxAmountProvider } from './contexts';
+import { useMaxModeAmountSync } from './hooks/useMaxModeAmountSync';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 
@@ -53,6 +55,7 @@ export const Send = () => {
   const tokenId = searchParams.get(SEND_QUERY_TOKENS.token) ?? '';
   const tokenQuery = searchParams.get(SEND_QUERY_TOKENS.tokenQuery) ?? '';
   const amount = searchParams.get(SEND_QUERY_TOKENS.amount) ?? '';
+  const isMaxMode = searchParams.get(SEND_QUERY_TOKENS.isMax) === '1';
   const recipientId = searchParams.get(SEND_QUERY_TOKENS.to) ?? '';
   const recipientQuery = searchParams.get(SEND_QUERY_TOKENS.toQuery) ?? '';
 
@@ -62,6 +65,10 @@ export const Send = () => {
       payload: Partial<Record<keyof SendQueryTokens, string>>,
     ) => {
       const updated = new URLSearchParams(current);
+
+      if ('amount' in payload && !('isMax' in payload)) {
+        updated.delete(SEND_QUERY_TOKENS.isMax);
+      }
 
       for (const [k, v] of Object.entries(payload)) {
         updated.set(SEND_QUERY_TOKENS[k], v);
@@ -102,7 +109,7 @@ export const Send = () => {
   const recipients = useRecipients(addressType, recipientQuery);
   const recipient = recipients.find((r) => r.id === recipientId);
 
-  const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(
+  const maxAmountInfo = useMaxAmountForTokenSend(
     activeAccount,
     selectedToken,
     recipient
@@ -111,6 +118,17 @@ export const Send = () => {
         // This helps us to at least roughly estimate the max amount before the recipient is selected.
         sourceAddress,
   );
+
+  const { maxAmount, estimatedFee } = maxAmountInfo;
+
+  useMaxModeAmountSync({
+    isMaxMode,
+    maxAmount,
+    token: selectedToken,
+    amount,
+    onSync: (synced) =>
+      updateQueryParam(searchParams, { amount: synced, isMax: '1' }),
+  });
 
   return (
     <Page
@@ -144,6 +162,7 @@ export const Send = () => {
               updateQueryParam(searchParams, {
                 token: value,
                 tokenQuery: '',
+                isMax: '',
               });
             }}
             tokenQuery={tokenQuery}
@@ -151,9 +170,10 @@ export const Send = () => {
               updateQueryParam(searchParams, { tokenQuery: q })
             }
             amount={amount}
-            onAmountChange={(value) =>
+            onAmountChange={(value, isMax) =>
               updateQueryParam(searchParams, {
                 amount: value,
+                isMax: isMax ? '1' : '',
               })
             }
           />
@@ -174,15 +194,17 @@ export const Send = () => {
         />
       </Stack>
 
-      <SendBody
-        account={activeAccount}
-        network={
-          selectedToken ? getNetwork(selectedToken.coreChainId) : undefined
-        }
-        token={selectedToken}
-        amount={amount}
-        recipient={recipient}
-      />
+      <SendMaxAmountProvider value={maxAmountInfo}>
+        <SendBody
+          account={activeAccount}
+          network={
+            selectedToken ? getNetwork(selectedToken.coreChainId) : undefined
+          }
+          token={selectedToken}
+          amount={amount}
+          recipient={recipient}
+        />
+      </SendMaxAmountProvider>
     </Page>
   );
 };

@@ -19,7 +19,7 @@ import { isValidPvmAddress, stripAddressPrefix } from '@core/common';
 
 import { buildPChainSendTx } from '@/lib/buildPChainSendTx';
 import { useGetXPAddresses } from '@/hooks/useGetXPAddresses';
-import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
+import { useSendMaxAmount } from '@/pages/Send/contexts';
 
 import { useTransactionCallbacks } from './useTransactionCallbacks';
 
@@ -45,7 +45,7 @@ export const usePChainSend = ({
   const { filterSmallUtxos } = useSettingsContext();
   const { onSendApproved, onSendFailure, onSendSuccess } =
     useTransactionCallbacks(network, from.addressPVM);
-  const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
+  const { maxAmount, estimatedFee } = useSendMaxAmount();
 
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState('');

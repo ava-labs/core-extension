@@ -26,10 +26,15 @@ const IGNORED_DRAFT_KEYS = [
 
 const getDraftSignature = (search: string) => {
   const params = new URLSearchParams(search);
+  // In max mode the amount is re-synced on every fee refresh while approval is pending
+  const isMaxMode = params.get(SEND_QUERY_TOKENS.isMax) === '1';
   const entries: string[] = [];
 
   params.forEach((value, key) => {
-    if (!IGNORED_DRAFT_KEYS.includes(key)) {
+    if (
+      !IGNORED_DRAFT_KEYS.includes(key) &&
+      !(isMaxMode && key === SEND_QUERY_TOKENS.amount)
+    ) {
       entries.push(`${key}=${value}`);
     }
   });

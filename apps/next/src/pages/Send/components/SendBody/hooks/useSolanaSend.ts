@@ -16,7 +16,7 @@ import { isValidSvmAddress } from '@core/common';
 import { toast, useConnectionContext } from '@core/ui';
 
 import { getSolanaProvider } from '@/lib/getSolanaProvider';
-import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
+import { useSendMaxAmount } from '@/pages/Send/contexts';
 
 import { buildSolanaSendTx } from '../lib/buildSolanaSendTx';
 import { useTransactionCallbacks } from './useTransactionCallbacks';
@@ -44,7 +44,7 @@ export const useSolanaSend = ({
 
   const { onSendApproved, onSendFailure, onSendSuccess } =
     useTransactionCallbacks(network, from.addressSVM);
-  const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
+  const { maxAmount, estimatedFee } = useSendMaxAmount();
 
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState('');

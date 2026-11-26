@@ -5,6 +5,8 @@ import { Stack } from '@avalabs/k2-alpine';
 import { Action, EvmNetwork } from '@core/types';
 import { useNetworkFeeContext } from '@core/ui';
 
+import { usePendingTxDataUpdate } from '@/pages/Approve/contexts';
+
 import { DetailsSection } from '../../generic/DetailsSection';
 
 import { InsufficientFeeWarning, ManualFeeControls } from './components';
@@ -22,6 +24,10 @@ export const StandardNetworkFee = ({
   const feeResult = useEvmTransactionFee({ action, network });
   const { isLoading, nativeToken, hasEnoughForNetworkFee } = feeResult;
 
+  const isInsufficient =
+    !isLoading && Boolean(nativeToken) && !hasEnoughForNetworkFee;
+  usePendingTxDataUpdate(isInsufficient);
+
   // Gasless state lives in the shared NetworkFeeContext and persists across
   // approval screens, so clear any inherited eligibility/phase/toggle to keep
   // gasless fully disabled here.
@@ -35,9 +41,7 @@ export const StandardNetworkFee = ({
       <DetailsSection>
         <ManualFeeControls feeResult={feeResult} />
       </DetailsSection>
-      <InsufficientFeeWarning
-        visible={!isLoading && Boolean(nativeToken) && !hasEnoughForNetworkFee}
-      />
+      <InsufficientFeeWarning visible={isInsufficient} />
     </Stack>
   );
 };

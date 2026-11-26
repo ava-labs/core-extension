@@ -45,9 +45,9 @@ describe('useTransactionCallbacks', () => {
       return result.current;
     };
 
-    it('clears amount and recipient but keeps the selected token', () => {
+    it('clears amount, recipient and max mode but keeps the selected token', () => {
       const callbacks = submit(
-        'fromQ=acc&token=AVAX&tokenQ=av&amount=1.5&to=0xabc&toQ=0xabc',
+        'fromQ=acc&token=AVAX&tokenQ=av&amount=1.5&to=0xabc&toQ=0xabc&isMax=true',
       );
       callbacks.onSendSuccess('0xhash');
 
@@ -62,11 +62,40 @@ describe('useTransactionCallbacks', () => {
       expect(params.has('amount')).toBe(false);
       expect(params.has('to')).toBe(false);
       expect(params.has('toQ')).toBe(false);
+      expect(params.has('isMax')).toBe(false);
     });
 
     it('does not touch navigation when the user already left the send page', () => {
       const callbacks = submit('token=AVAX&amount=1&to=0xabc');
       mockHistory.location = { pathname: '/', search: '' };
+
+      callbacks.onSendSuccess('0xhash');
+
+      expect(mockReplace).not.toHaveBeenCalled();
+    });
+
+    it('still clears the form when max mode re-synced the amount during approval', () => {
+      const callbacks = submit('token=AVAX&amount=1.5&to=0xabc&isMax=1');
+      mockHistory.location = {
+        pathname: '/send',
+        search: 'token=AVAX&amount=1.49&to=0xabc&isMax=1',
+      };
+
+      callbacks.onSendSuccess('0xhash');
+
+      expect(mockReplace).toHaveBeenCalledTimes(1);
+      const params = new URLSearchParams(mockReplace.mock.calls[0]![0].search);
+      expect(params.get('token')).toBe('AVAX');
+      expect(params.has('amount')).toBe(false);
+      expect(params.has('isMax')).toBe(false);
+    });
+
+    it('does not clear when a manual edit replaced max mode', () => {
+      const callbacks = submit('token=AVAX&amount=1.5&to=0xabc&isMax=1');
+      mockHistory.location = {
+        pathname: '/send',
+        search: 'token=AVAX&amount=3&to=0xabc',
+      };
 
       callbacks.onSendSuccess('0xhash');
 
