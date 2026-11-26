@@ -29,6 +29,7 @@ export const TotalFeeAmount: FC<TotalFeeAmountProps> = ({
         <Stack direction="row" alignItems="center" gap={0.5}>
           <CollapsedTokenAmount
             amount={fee}
+            showApproximationSign={false}
             regularProps={{ variant: 'body3' }}
             overlineProps={{ variant: 'caption2' }}
           />
