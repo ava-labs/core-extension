@@ -10,7 +10,7 @@ export const hasEnoughForFee = (
   if (!data || !nativeToken) return false;
 
   const info = getFeeInfo(data);
-  const need = info.feeRate * BigInt(info.limit);
+  const need = info.feeRate * BigInt(info.limit) + BigInt(data.data.value ?? 0);
 
-  return nativeToken.balance > need;
+  return nativeToken.balance >= need;
 };

@@ -5,6 +5,8 @@ import { Fade, Stack, Typography } from '@avalabs/k2-alpine';
 
 import { Action, BtcNetwork } from '@core/types';
 
+import { usePendingTxDataUpdate } from '@/pages/Approve/contexts';
+
 import { DetailsSection } from '../../../generic/DetailsSection';
 import { TotalFeeAmount } from '../../../generic/NetworkFee';
 
@@ -33,6 +35,10 @@ export const BtcNetworkFeeWidget: FC<BtcNetworkFeeWidget> = ({
     network,
   });
 
+  const isInsufficient =
+    !isLoading && Boolean(nativeToken) && !hasEnoughForNetworkFee;
+  usePendingTxDataUpdate(isInsufficient);
+
   return (
     <Stack gap={1}>
       <DetailsSection>
@@ -52,10 +58,10 @@ export const BtcNetworkFeeWidget: FC<BtcNetworkFeeWidget> = ({
           )}
         </Stack>
       </DetailsSection>
-      <Fade in={!isLoading && Boolean(nativeToken) && !hasEnoughForNetworkFee}>
+      <Fade in={isInsufficient}>
         <Stack textAlign="center">
           <Typography variant="caption" color="error.main">
-            {t('Insufficient balance for fee')}
+            {t('Insufficient balance')}
           </Typography>
         </Stack>
       </Fade>

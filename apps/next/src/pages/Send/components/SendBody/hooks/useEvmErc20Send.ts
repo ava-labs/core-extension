@@ -9,7 +9,8 @@ import { Account, Erc20TokenBalance, NetworkWithCaipId } from '@core/types';
 import { toast, useConnectionContext, useNetworkFeeContext } from '@core/ui';
 
 import { getEvmProvider } from '@/lib/getEvmProvider';
-import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
+import { useSendMaxAmount } from '@/pages/Send/contexts';
+import { getDefaultFeePreset } from '@/utils/getDefaultFeePreset';
 
 import { buildErc20SendTx } from '../lib/buildErc20SendTx';
 import { useTransactionCallbacks } from './useTransactionCallbacks';
@@ -33,7 +34,11 @@ export const useEvmErc20Send = ({
   const { request } = useConnectionContext();
   const { getNetworkFee, isGaslessOn } = useNetworkFeeContext();
 
-  const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
+  const {
+    maxAmount,
+    estimatedFee,
+    networkFee: polledNetworkFee,
+  } = useSendMaxAmount();
   const { onSendApproved, onSendFailure, onSendSuccess } =
     useTransactionCallbacks(network, from.addressC);
 
@@ -52,7 +57,8 @@ export const useEvmErc20Send = ({
         return;
       }
 
-      const networkFee = await getNetworkFee(token.coreChainId);
+      const networkFee =
+        polledNetworkFee ?? (await getNetworkFee(token.coreChainId));
 
       if (!networkFee) {
         toast.error(t('Unable to estimate the network fee.'));
@@ -64,6 +70,7 @@ export const useEvmErc20Send = ({
         amount,
         token,
         isGaslessOn,
+        feePreset: getDefaultFeePreset(network),
       });
 
       const hash = await request(
@@ -92,6 +99,8 @@ export const useEvmErc20Send = ({
     from,
     to,
     getNetworkFee,
+    polledNetworkFee,
+    network,
     token,
     t,
     amount,

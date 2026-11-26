@@ -2,7 +2,11 @@ import { Contract, TransactionRequest } from 'ethers';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 
-import { Erc20TokenBalance, NetworkFee } from '@core/types';
+import {
+  Erc20TokenBalance,
+  NetworkFee,
+  TransactionPriority,
+} from '@core/types';
 
 import { asHex } from './asHex';
 import { estimateGasWithStateOverride } from './estimateGasWithStateOverride';
@@ -12,13 +16,14 @@ type Erc20SendOptions = {
   amount: bigint;
   token: Erc20TokenBalance;
   isGaslessOn?: boolean;
+  feePreset?: TransactionPriority;
 };
 
 export const buildErc20SendTx = async (
   from: string,
   provider: JsonRpcBatchInternal,
   networkFee: NetworkFee,
-  { address, amount, token, isGaslessOn }: Erc20SendOptions,
+  { address, amount, token, isGaslessOn, feePreset = 'high' }: Erc20SendOptions,
 ) => {
   const contract = new Contract(token.address || '', ERC20.abi, provider);
 
@@ -32,8 +37,10 @@ export const buildErc20SendTx = async (
       ? Number(populatedTransaction.chainId)
       : undefined,
     from,
-    maxFeePerGas: asHex(networkFee.high.maxFeePerGas),
-    maxPriorityFeePerGas: asHex(networkFee.high.maxPriorityFeePerGas ?? 1n),
+    maxFeePerGas: asHex(networkFee[feePreset].maxFeePerGas),
+    maxPriorityFeePerGas: asHex(
+      networkFee[feePreset].maxPriorityFeePerGas ?? 1n,
+    ),
   };
 
   // When gasless is enabled, estimate gas with state override to avoid

@@ -7,7 +7,8 @@ import { chainIdToCaip } from '@core/common';
 import { Account, FungibleTokenBalance, NetworkWithCaipId } from '@core/types';
 import { useConnectionContext, useNetworkFeeContext } from '@core/ui';
 
-import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
+import { useSendMaxAmount } from '@/pages/Send/contexts';
+import { getDefaultFeePreset } from '@/utils/getDefaultFeePreset';
 import { getEvmProvider } from '@/lib/getEvmProvider';
 
 import { asHex } from '../lib/asHex';
@@ -35,7 +36,11 @@ export const useEvmNativeSend = ({
 
   const provider = getEvmProvider(network);
 
-  const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
+  const {
+    maxAmount,
+    estimatedFee,
+    networkFee: polledNetworkFee,
+  } = useSendMaxAmount();
   const { onSendApproved, onSendFailure, onSendSuccess } =
     useTransactionCallbacks(network, from.addressC);
 
@@ -47,19 +52,24 @@ export const useEvmNativeSend = ({
       setIsSending(true);
       onSendApproved();
 
-      const networkFee = await getNetworkFee(token.coreChainId);
+      const networkFee =
+        polledNetworkFee ?? (await getNetworkFee(token.coreChainId));
 
       if (!networkFee) {
         throw new Error('Network fee not found');
       }
+
+      const feePreset = getDefaultFeePreset(network);
 
       const txParams: Record<string, string | undefined> = {
         from: from.addressC,
         to,
         value: asHex(amount),
         chainId: asHex(token.coreChainId),
-        maxFeePerGas: asHex(networkFee.high.maxFeePerGas),
-        maxPriorityFeePerGas: asHex(networkFee.high.maxPriorityFeePerGas ?? 1n),
+        maxFeePerGas: asHex(networkFee[feePreset].maxFeePerGas),
+        maxPriorityFeePerGas: asHex(
+          networkFee[feePreset].maxPriorityFeePerGas ?? 1n,
+        ),
       };
 
       // When gasless is enabled, estimate gas with state override to avoid
@@ -101,6 +111,8 @@ export const useEvmNativeSend = ({
     to,
     amount,
     getNetworkFee,
+    polledNetworkFee,
+    network,
     isGaslessOn,
     provider,
   ]);

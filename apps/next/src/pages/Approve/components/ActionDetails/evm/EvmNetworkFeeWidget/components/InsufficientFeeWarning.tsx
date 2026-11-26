@@ -15,7 +15,7 @@ export const InsufficientFeeWarning: FC<InsufficientFeeWarningProps> = ({
     <Fade in={visible} mountOnEnter unmountOnExit>
       <Stack textAlign="center">
         <Typography variant="caption" color="error.main">
-          {t('Insufficient balance for fee')}
+          {t('Insufficient balance')}
         </Typography>
       </Stack>
     </Fade>
