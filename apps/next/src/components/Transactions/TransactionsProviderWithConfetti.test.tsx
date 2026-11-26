@@ -10,6 +10,7 @@ type CapturedContext = {
 
 const mockTriggerConfetti = jest.fn();
 const mockHistoryReplace = jest.fn();
+const mockHistoryPush = jest.fn();
 let capturedOnPending:
   | ((params: {
       network?: NetworkWithCaipId;
@@ -32,6 +33,7 @@ jest.mock('@/components/Confetti', () => ({
 jest.mock('react-router-dom', () => ({
   useHistory: () => ({
     replace: mockHistoryReplace,
+    push: mockHistoryPush,
   }),
 }));
 
@@ -125,11 +127,12 @@ describe('TransactionStatusProviderWithConfetti', () => {
       );
     });
 
-    it('navigates to home on pending', async () => {
+    it('does not navigate away on pending', async () => {
       const network = createMockNetwork(ChainId.ETHEREUM_HOMESTEAD);
       await capturedOnPending?.({ network });
 
-      expect(mockHistoryReplace).toHaveBeenCalledWith('/');
+      expect(mockHistoryReplace).not.toHaveBeenCalled();
+      expect(mockHistoryPush).not.toHaveBeenCalled();
     });
 
     it('triggers confetti for Avalanche primary chains before Helicon is enabled', async () => {

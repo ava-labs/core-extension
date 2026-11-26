@@ -21,6 +21,7 @@ import {
   useTransferTrackingContext,
 } from '@core/ui';
 import { useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ERC_ZERO_ADDRESS, Quote, ServiceType } from '@avalabs/fusion-sdk';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { useDebouncedValue } from '@tanstack/react-pacer';
@@ -40,7 +41,7 @@ import {
   FUSION_HYPERCORE_CAIP_ID,
 } from '@core/common';
 
-import { useSwapFormError, useSwapQuery } from '../hooks';
+import { useSwapDraftGuard, useSwapFormError, useSwapQuery } from '../hooks';
 import { usePriceImpact } from '../hooks/usePriceImpact';
 import { shouldRetryWithNextQuote } from '../lib/swapErrors';
 import {
@@ -71,6 +72,11 @@ import { useRequiredTokenAmounts } from './hooks/useRequiredTokenAmounts';
 import { useMinimalQuote } from './hooks/useMinimalQuote';
 import { useRecurringSwapState } from './RecurringSwapContext';
 import { isAvalancheCctRoute } from '../lib/isAvalancheCctRoute';
+import { TransferProgressLink } from '../components/TransferProgressLink';
+
+const CROSS_CHAIN_PENDING_TOAST_ID = 'cross-chain-transfer-pending';
+// No transfer status update dismisses this toast; matches the error toast duration.
+const CROSS_CHAIN_PENDING_TOAST_DURATION_MS = 5000;
 
 const FusionStateContext = createContext<FusionState | undefined>(undefined);
 
@@ -83,7 +89,6 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const { selectFeatureFlag } = useFeatureFlagContext();
   const { trackTransfer } = useTransferTrackingContext();
   const { capture } = useAnalyticsContext();
-  const { replace } = useHistory();
   const { getNetworkFee } = useNetworkFeeContext();
   const getTranslatedError = useErrorMessage();
   const { feeSetting } = useSettingsContext();
@@ -129,6 +134,9 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     fromQuery,
     toQuery,
   } = useSwapQuery();
+  const beginDraft = useSwapDraftGuard();
+  const history = useHistory();
+  const { t: translate } = useTranslation();
 
   const transferMarginBps = Number(
     selectFeatureFlag(FeatureVars.FUSION_TRANSFER_GAS_MARGIN_BPS),
@@ -445,6 +453,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       }
 
       setIsConfirming(true);
+      const completeDraft = beginDraft();
 
       const quoteToUse = specificQuote ?? selectedQuote;
 
@@ -514,11 +523,25 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
           );
         }
 
-        replace(
-          isCrossChainTransfer(transferObject)
-            ? `/fusion-transfer/${transferObject.id}`
-            : '/',
-        );
+        if (isCrossChainTransfer(transferObject)) {
+          const pendingToastId = `${CROSS_CHAIN_PENDING_TOAST_ID}-${transferObject.id}`;
+          toast.pending(translate('Transaction pending...'), {
+            id: pendingToastId,
+            duration: CROSS_CHAIN_PENDING_TOAST_DURATION_MS,
+            action: (
+              <TransferProgressLink
+                transferId={transferObject.id}
+                onOpen={() => {
+                  toast.dismiss(pendingToastId);
+                  history.push(`/fusion-transfer/${transferObject.id}`);
+                }}
+              />
+            ),
+          });
+        }
+
+        completeDraft();
+        setIsConfirming(false);
       } catch (err) {
         if (isUserRejectionError(err)) {
           setIsConfirming(false);
@@ -558,7 +581,9 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       fromAddress,
       toAddress,
       slippage,
-      replace,
+      beginDraft,
+      history,
+      translate,
       capture,
       getTranslatedError,
       quotes,

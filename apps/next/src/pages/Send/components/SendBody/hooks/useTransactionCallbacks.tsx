@@ -1,4 +1,6 @@
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useHistory } from 'react-router-dom';
 
 import {
   isMissingBtcWalletPolicyError,
@@ -7,7 +9,33 @@ import {
 import { NetworkWithCaipId } from '@core/types';
 import { toast, useAnalyticsContext } from '@core/ui';
 
+import { getSendPath, SEND_QUERY_TOKENS } from '@/config/routes';
+
 const TOAST_ID = 'send-result';
+
+const PRESERVED_SEND_QUERY_KEYS = [
+  SEND_QUERY_TOKENS.fromQuery,
+  SEND_QUERY_TOKENS.token,
+  SEND_QUERY_TOKENS.tokenQuery,
+];
+
+const IGNORED_DRAFT_KEYS = [
+  SEND_QUERY_TOKENS.fromQuery,
+  SEND_QUERY_TOKENS.tokenQuery,
+];
+
+const getDraftSignature = (search: string) => {
+  const params = new URLSearchParams(search);
+  const entries: string[] = [];
+
+  params.forEach((value, key) => {
+    if (!IGNORED_DRAFT_KEYS.includes(key)) {
+      entries.push(`${key}=${value}`);
+    }
+  });
+
+  return entries.sort().join('&');
+};
 
 export const useTransactionCallbacks = (
   network: NetworkWithCaipId,
@@ -15,9 +43,13 @@ export const useTransactionCallbacks = (
 ) => {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
+  const history = useHistory();
+  const submittedDraftRef = useRef<string | undefined>(undefined);
 
   return {
     onSendApproved: () => {
+      submittedDraftRef.current = getDraftSignature(history.location.search);
+
       if (fromAddress) {
         capture('SendApproved', {
           address: fromAddress,
@@ -32,6 +64,27 @@ export const useTransactionCallbacks = (
           address: fromAddress,
           txHash: hash,
           chainId: network?.chainId,
+        });
+      }
+
+      if (
+        history.location.pathname === getSendPath() &&
+        submittedDraftRef.current === getDraftSignature(history.location.search)
+      ) {
+        const current = new URLSearchParams(history.location.search);
+        const preserved = new URLSearchParams();
+
+        for (const key of PRESERVED_SEND_QUERY_KEYS) {
+          const value = current.get(key);
+
+          if (value) {
+            preserved.set(key, value);
+          }
+        }
+
+        history.replace({
+          pathname: getSendPath(),
+          search: preserved.toString(),
         });
       }
     },

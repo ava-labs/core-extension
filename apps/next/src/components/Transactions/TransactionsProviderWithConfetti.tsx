@@ -1,6 +1,5 @@
 import { PropsWithChildren, useCallback } from 'react';
 import { ChevronRightIcon, IconButton } from '@avalabs/k2-alpine';
-import { useHistory } from 'react-router-dom';
 import { useConfettiContext } from '@/components/Confetti';
 
 import {
@@ -36,12 +35,10 @@ export const TransactionStatusProviderWithConfetti = ({
   children,
 }: PropsWithChildren) => {
   const { triggerConfetti, stopConfetti } = useConfettiContext();
-  const history = useHistory();
   const shouldUseOptimisticConfirmations = useIsOptimisticConfirmationEnabled();
 
   const handlePending = useCallback(
     async ({ network, context }: TransactionStatusCallbackParams) => {
-      history.replace('/');
       const showSuccessOnPending =
         await shouldUseOptimisticConfirmations(network);
 
@@ -49,7 +46,7 @@ export const TransactionStatusProviderWithConfetti = ({
         triggerConfetti();
       }
     },
-    [history, triggerConfetti, shouldUseOptimisticConfirmations],
+    [triggerConfetti, shouldUseOptimisticConfirmations],
   );
 
   const handleSuccess = useCallback(

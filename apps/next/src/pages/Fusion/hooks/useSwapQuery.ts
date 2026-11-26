@@ -21,7 +21,7 @@ type UseSwapQuery = () => SwapQuery & {
   update: (payload: UpdatePayload) => void;
 };
 export const useSwapQuery: UseSwapQuery = () => {
-  const { replace } = useHistory();
+  const history = useHistory();
 
   const { search } = useLocation();
 
@@ -40,18 +40,18 @@ export const useSwapQuery: UseSwapQuery = () => {
 
   const update = useCallback(
     (payload: UpdatePayload) => {
-      const updated = new URLSearchParams(search);
+      const updated = new URLSearchParams(history.location.search);
 
       for (const [k, v] of Object.entries(payload)) {
         updated.set(FUSION_QUERY_TOKENS[k], v);
       }
 
-      replace({
+      history.replace({
         pathname: getFusionPath(),
         search: updated.toString(),
       });
     },
-    [replace, search],
+    [history],
   );
 
   return {

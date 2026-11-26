@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useHistory } from 'react-router-dom';
 import { type Address } from 'viem';
 import {
   type Asset,
@@ -26,7 +25,7 @@ import {
 import { ExtensionRequest } from '@core/types';
 import type { DiscoverRecurringSwaps } from '@core/service-worker';
 
-import { getRecurringSwapsPath } from '@/config/routes';
+import { useSwapDraftGuard } from '../../hooks/useSwapDraftGuard';
 
 import { getRecurringTokenAddress } from '../../lib/getRecurringTokenAddress';
 import type { RecurringSignerContext } from '../../lib/signers';
@@ -63,7 +62,7 @@ export const useCreateRecurringSwap = ({
 }: UseCreateRecurringSwapProps) => {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
-  const { replace } = useHistory();
+  const beginDraft = useSwapDraftGuard();
   const { request } = useConnectionContext();
   const { getNetworkFee } = useNetworkFeeContext();
   const { feeSetting } = useSettingsContext();
@@ -92,6 +91,7 @@ export const useCreateRecurringSwap = ({
     }
 
     setIsCreatingRecurringSwap(true);
+    const completeDraft = beginDraft();
 
     try {
       const quote = await manager.recurring.quote({
@@ -153,8 +153,9 @@ export const useCreateRecurringSwap = ({
 
       toast.success(t('Recurring swap scheduled'));
 
-      onCreated?.();
-      replace(getRecurringSwapsPath());
+      if (completeDraft()) {
+        onCreated?.();
+      }
 
       // Hand off the order discovery to the service worker.
       request<DiscoverRecurringSwaps>({
@@ -196,7 +197,7 @@ export const useCreateRecurringSwap = ({
     feeSetting,
     capture,
     getTranslatedError,
-    replace,
+    beginDraft,
     onCreated,
     request,
     t,

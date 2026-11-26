@@ -1,9 +1,8 @@
 import { AnimatedSyncIcon } from '@/components/AnimatedSyncIcon';
-import { getChainFilterName } from '@/components/TokenSelect/utils';
 import { Box, useTheme } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import * as Styled from './Styled';
-import { ServiceType, Transfer } from '@avalabs/fusion-sdk';
+import { Transfer } from '@avalabs/fusion-sdk';
 import {
   isCompletedTransfer,
   isConcludedTransfer,
@@ -12,10 +11,10 @@ import {
   isTransferInProgress,
 } from '@core/types';
 import { useTransferTrackingContext } from '@core/ui';
-import { caipToChainId } from '@core/common';
 import { MdCheckCircle, MdError, MdReplay } from 'react-icons/md';
 import { TFunction, useTranslation } from 'react-i18next';
 import { getTransferTimestamp } from '../lib/getTransferTimestamp';
+import { getTransferTokenLabel } from '../lib/getTransferTokenLabel';
 import { NotificationListItem } from './NotificationListItem';
 import { useHistory } from 'react-router-dom';
 
@@ -99,18 +98,4 @@ const getTransferTitle = (transfer: Transfer, t: TFunction) => {
     sourceToken,
     targetToken,
   });
-};
-
-const getTransferTokenLabel = (
-  transfer: Transfer,
-  side: 'source' | 'target',
-) => {
-  const asset = side === 'source' ? transfer.sourceAsset : transfer.targetAsset;
-  const chain = side === 'source' ? transfer.sourceChain : transfer.targetChain;
-
-  if (transfer.type !== ServiceType.AVALANCHE_CCT) {
-    return asset.symbol;
-  }
-
-  return `${asset.symbol} (${getChainFilterName(caipToChainId(chain.chainId))})`;
 };
