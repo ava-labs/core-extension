@@ -22,7 +22,7 @@
     "@avalabs/core-chains-sdk": "4.0.0-alpha.2",
     "@avalabs/core-utils-sdk": "4.0.0-alpha.2",
     "@avalabs/core-wallets-sdk": "4.0.0-alpha.2",
-    "@avalabs/fusion-sdk": "0.28.3",
+    "@avalabs/fusion-sdk": "0.0.0-fix-CP-15193-parallel-service--20261126143623",
     "@avalabs/hypercore-module": "5.1.0",
     "@avalabs/k2-alpine": "1.266.0",
     "@avalabs/prediction-market-sdk": "1.1.4",

@@ -28,7 +28,8 @@ export const lookupTokenByAssetInfo = (
   if (assetLike.type === TokenType.ERC20) {
     const byAddress = tokensByChainId.find(
       (token) =>
-        token.type === VmTokenType.ERC20 && token.address === assetLike.address,
+        token.type === VmTokenType.ERC20 &&
+        token.address.toLowerCase() === assetLike.address.toLowerCase(),
     );
 
     if (byAddress) {

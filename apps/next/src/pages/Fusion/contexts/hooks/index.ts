@@ -14,3 +14,5 @@ export * from './useCreateRecurringSwap';
 export * from './useRecurringEligibility';
 export * from './useRecurringQuote';
 export * from './useHypercoreWithdrawable';
+export * from './useProvisionalTargetToken';
+export * from './useEffectiveTargetToken';

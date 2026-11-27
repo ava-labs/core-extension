@@ -3,8 +3,6 @@ import { skipToken, useQuery } from '@tanstack/react-query';
 import { truncateAddress } from '@avalabs/k2-alpine';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
-import { TokenType } from '@avalabs/vm-module-types';
-import { ERC_ZERO_ADDRESS } from '@avalabs/fusion-sdk';
 import type { Address } from 'viem';
 
 import {
@@ -17,14 +15,13 @@ import {
 import { isUserRejectionError, Monitoring } from '@core/common';
 import type { FungibleTokenBalance } from '@core/types';
 
-import { useAllTokens } from '@/hooks/useAllTokens';
-
-import { useTransferManager } from '../contexts/hooks/useTransferManager';
+import { useSharedTransferManager } from '../contexts/hooks/useSharedTransferManager';
 import { buildChain } from '../contexts/hooks/useAssetAndChain/lib/buildChain';
 import type { RecurringSignerContext } from '../lib/signers';
 
 import type { FrequencyUnit } from '../contexts/RecurringSwapContext';
 import { useIsRecurringSwapsEnabled } from './useIsRecurringSwapsEnabled';
+import { useRecurringOrderTokens } from './useRecurringOrderTokens';
 import {
   mapStatus,
   useOptimisticOrderStatuses,
@@ -99,7 +96,7 @@ const toOrderToken = (
 
 export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
   const isRecurringSwapsEnabled = useIsRecurringSwapsEnabled();
-  const { manager } = useTransferManager();
+  const { manager, statusRevision } = useSharedTransferManager();
   const {
     accounts: { active },
   } = useAccountsContext();
@@ -119,39 +116,17 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
     [getNetwork],
   );
 
-  // Full token list (not just held tokens) so we can resolve the
-  // metadata for an order's target token even when the user doesn't hold it.
-  const tokens = useAllTokens(networks, true);
-
-  const { tokensByAddress, nativeToken } = useMemo(() => {
-    const lookup = new Map<string, FungibleTokenBalance>();
-    let native: FungibleTokenBalance | undefined;
-
-    for (const token of tokens) {
-      if (token.type === TokenType.NATIVE) {
-        native = token;
-      } else if ('address' in token && token.address) {
-        lookup.set(token.address.toLowerCase(), token);
-      }
-    }
-
-    return { tokensByAddress: lookup, nativeToken: native };
-  }, [tokens]);
-
-  const resolveToken = useCallback(
-    (tokenAddress: string): FungibleTokenBalance | undefined =>
-      tokenAddress.toLowerCase() === ERC_ZERO_ADDRESS.toLowerCase()
-        ? nativeToken
-        : tokensByAddress.get(tokenAddress.toLowerCase()),
-    [nativeToken, tokensByAddress],
-  );
-
   const {
     data: fetchedOrders = [],
     status,
     refetch,
   } = useQuery({
-    queryKey: [RECURRING_SWAP_ORDERS_QUERY_KEY, address, manager?.id],
+    queryKey: [
+      RECURRING_SWAP_ORDERS_QUERY_KEY,
+      address,
+      manager?.id,
+      statusRevision,
+    ],
     enabled: isRecurringSwapsEnabled,
     refetchInterval: RECURRING_SWAP_ORDERS_REFETCH_INTERVAL_MS,
     refetchOnWindowFocus: true,
@@ -162,6 +137,17 @@ export const useRecurringSwapOrders = (): UseRecurringSwapOrdersResult => {
               .listOrders({ address, chainId: RECURRING_CHAIN_ID })
               .then((response) => response.orders)
         : skipToken,
+  });
+
+  const orderTokenAddresses = useMemo(
+    () => fetchedOrders.flatMap((order) => [order.tokenIn, order.tokenOut]),
+    [fetchedOrders],
+  );
+
+  const resolveToken = useRecurringOrderTokens({
+    network: networks[0],
+    tokenAddresses: orderTokenAddresses,
+    enabled: isRecurringSwapsEnabled,
   });
 
   // `pending` covers both the initial fetch and the window before the manager /

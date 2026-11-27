@@ -17,11 +17,17 @@ import { getV2Tokens, postV1TokenLookup } from '~/api-clients/token-aggregator';
 import type { NetworkTokensByCaip2Response } from '~/api-clients/token-aggregator';
 import {
   mapApiTokenToContractToken,
+  mapTokenInfoToContractToken,
   NetworkContractTokenWithVerified,
 } from './utils/mapApiToken';
 
 const CATALOG_PAGE_LIMIT = 1000;
 const TOKEN_LOOKUP_TIMEOUT_MS = 5_000;
+// Maximum number of tokens accepted by a single POST /v1/token/lookup request.
+const TOKEN_LOOKUP_BATCH_SIZE = 500;
+// Only EVM addresses are case-insensitive; e.g. Solana base58 mints are not.
+const normalizeLookupAddress = (caip2Id: string, address: string) =>
+  caip2Id.startsWith('eip155:') ? address.toLowerCase() : address;
 
 export type SearchedContractToken = NetworkContractTokenWithVerified & {
   caip2Id: string;
@@ -41,6 +47,8 @@ export class TokenManagerService {
   // because wallet_watchAsset is unrestricted, so any page can trigger these.
   #tokenLookupCache = new Map<string, boolean>();
   #tokenLookupInFlight = new Map<string, Promise<boolean>>();
+
+  #tokenDetailsCache = new Map<string, NetworkContractTokenWithVerified>();
 
   constructor(
     private settingsService: SettingsService,
@@ -199,6 +207,104 @@ export class TokenManagerService {
     });
 
     return { tokens, currentPage, totalPages };
+  }
+
+  async lookupTokens(
+    caip2Id: string,
+    addresses: string[],
+  ): Promise<{
+    tokens: NetworkContractTokenWithVerified[];
+    failedAddresses: string[];
+  }> {
+    const requested = new Map(
+      addresses.map((address) => [
+        normalizeLookupAddress(caip2Id, address),
+        address,
+      ]),
+    );
+    const found: NetworkContractTokenWithVerified[] = [];
+    const missing: string[] = [];
+
+    for (const [normalized, address] of requested) {
+      const cached = this.#tokenDetailsCache.get(`${caip2Id}:${normalized}`);
+
+      if (cached) {
+        found.push(cached);
+      } else {
+        missing.push(address);
+      }
+    }
+
+    const batches: string[][] = [];
+    for (let i = 0; i < missing.length; i += TOKEN_LOOKUP_BATCH_SIZE) {
+      batches.push(missing.slice(i, i + TOKEN_LOOKUP_BATCH_SIZE));
+    }
+
+    const settled = await Promise.allSettled(
+      batches.map((batch) =>
+        postV1TokenLookup<true>({
+          client: tokenAggregatorApiClient,
+          throwOnError: true,
+          body: {
+            tokens: batch.map((address) => ({ caip2Id, address })),
+          },
+        }),
+      ),
+    );
+
+    const rejected = settled.filter(
+      (result): result is PromiseRejectedResult => result.status === 'rejected',
+    );
+    if (
+      rejected.length > 0 &&
+      rejected.length === settled.length &&
+      found.length === 0
+    ) {
+      throw rejected[0]!.reason;
+    }
+
+    const failedAddresses = batches.flatMap((batch, index) =>
+      settled[index]?.status === 'rejected' ? batch : [],
+    );
+
+    // The schema doesn't specify the response keys, so addresses are matched
+    // via `platforms` first; `${caip2Id}-${address}` parsing is only a fallback.
+    const keyPrefix = `${caip2Id}-`;
+    for (const result of settled) {
+      if (result.status !== 'fulfilled') {
+        continue;
+      }
+
+      for (const [key, info] of Object.entries(result.value.data?.data ?? {})) {
+        const platformAddress = info.platforms?.[caip2Id];
+        const address =
+          platformAddress &&
+          requested.has(normalizeLookupAddress(caip2Id, platformAddress))
+            ? platformAddress
+            : key.startsWith(keyPrefix)
+              ? key.slice(keyPrefix.length)
+              : undefined;
+
+        if (
+          !address ||
+          !requested.has(normalizeLookupAddress(caip2Id, address))
+        ) {
+          continue;
+        }
+
+        const mapped = mapTokenInfoToContractToken(info, caip2Id, address);
+
+        if (mapped) {
+          this.#tokenDetailsCache.set(
+            `${caip2Id}:${normalizeLookupAddress(caip2Id, address)}`,
+            mapped,
+          );
+          found.push(mapped);
+        }
+      }
+    }
+
+    return { tokens: found, failedAddresses };
   }
 
   async isTokenAvailable(

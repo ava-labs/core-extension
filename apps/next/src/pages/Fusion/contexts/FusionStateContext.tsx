@@ -58,6 +58,8 @@ import {
   useSwapSourceToken,
   useBridgeableTargetTokenList,
   useSwapTargetToken,
+  useProvisionalTargetToken,
+  useEffectiveTargetToken,
   useSlippageTolerance,
   useCreateRecurringSwap,
   useRecurringEligibility,
@@ -71,6 +73,7 @@ import { useRequiredTokenAmounts } from './hooks/useRequiredTokenAmounts';
 import { useMinimalQuote } from './hooks/useMinimalQuote';
 import { useRecurringSwapState } from './RecurringSwapContext';
 import { isAvalancheCctRoute } from '../lib/isAvalancheCctRoute';
+import { TransferManagerContext } from './TransferManagerContext';
 
 const FusionStateContext = createContext<FusionState | undefined>(undefined);
 
@@ -134,8 +137,16 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     selectFeatureFlag(FeatureVars.FUSION_TRANSFER_GAS_MARGIN_BPS),
   );
 
-  const { manager, error: initializationError } = useTransferManager();
-  const supportedChainsMap = useSupportedChainsMap(manager);
+  const {
+    manager,
+    error: initializationError,
+    statusRevision,
+  } = useTransferManager();
+  const transferManagerContextValue = useMemo(
+    () => ({ manager, statusRevision }),
+    [manager, statusRevision],
+  );
+  const supportedChainsMap = useSupportedChainsMap(manager, statusRevision);
   const sourceTokenList = useSwapSourceTokenList(supportedChainsMap);
   const sourceToken = useSwapSourceToken(sourceTokenList, fromId);
   const sourceTokenId = sourceToken ? getUniqueTokenId(sourceToken) : undefined;
@@ -152,6 +163,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     sourceToken,
     toQuery,
     selectedTargetChainId,
+    statusRevision,
   );
   // Skip default selection while browsing so opening another chain never
   // auto-picks a token there.
@@ -172,6 +184,21 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const [targetTokenSourceTokenId, setTargetTokenSourceTokenId] = useState<
     string | undefined
   >(undefined);
+  const provisionalTargetToken = useProvisionalTargetToken({
+    sourceToken,
+    toId,
+    isTargetTokenListLoading,
+    committedTargetChainId,
+    targetChainOptions,
+  });
+  const effectiveTargetToken = useEffectiveTargetToken({
+    targetToken,
+    candidateTargetToken,
+    provisionalTargetToken,
+    isTargetSelectOpen,
+    isTargetTokenListFetching,
+    sourceTokenId,
+  });
   const shouldKeepExplicitTarget =
     !!toId &&
     !!targetToken &&
@@ -308,31 +335,32 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const onTokenPairFlip = useCallback(() => {
     if (
       !sourceToken ||
-      !targetToken ||
+      !effectiveTargetToken ||
       !sourceTokenList.some(
-        (token) => getUniqueTokenId(token) === getUniqueTokenId(targetToken),
+        (token) =>
+          getUniqueTokenId(token) === getUniqueTokenId(effectiveTargetToken),
       )
     ) {
       return;
     }
 
     setTargetToken(sourceToken);
-    setTargetTokenSourceTokenId(getUniqueTokenId(targetToken));
+    setTargetTokenSourceTokenId(getUniqueTokenId(effectiveTargetToken));
     setCommittedTargetChainId(sourceToken.coreChainId);
     setBrowseTargetChainId(sourceToken.coreChainId);
     updateQuery({
-      from: getUniqueTokenId(targetToken),
+      from: getUniqueTokenId(effectiveTargetToken),
       fromQuery: '',
       to: getUniqueTokenId(sourceToken),
       toQuery: '',
       userAmount: '',
     });
-  }, [sourceToken, sourceTokenList, targetToken, updateQuery]);
+  }, [sourceToken, sourceTokenList, effectiveTargetToken, updateQuery]);
 
   const { chain: sourceChain, asset: sourceAsset } =
     useAssetAndChain(sourceToken);
   const { chain: targetChain, asset: targetAsset } =
-    useAssetAndChain(targetToken);
+    useAssetAndChain(effectiveTargetToken);
 
   const { fromAddress, toAddress } = useUserAddresses(
     activeAccount,
@@ -361,9 +389,10 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     isLoading: isMinimumTransferAmountLoading,
   } = useFusionMinimumTransferAmount({
     selectedFromToken: sourceToken,
-    selectedToToken: targetToken,
+    selectedToToken: effectiveTargetToken,
     transferManager: manager,
     serviceType: isRecurring ? ServiceType.MARKR : undefined,
+    statusRevision,
   });
 
   const {
@@ -418,6 +447,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   } = useQuotes(
     {
       manager,
+      statusRevision,
       fromAddress,
       toAddress,
       sourceAsset,
@@ -436,7 +466,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       : undefined;
 
   const { priceImpact, priceImpactSeverity, priceImpactAvailability } =
-    usePriceImpact(selectedQuote, sourceToken, targetToken);
+    usePriceImpact(selectedQuote, sourceToken, effectiveTargetToken);
 
   const transfer = useCallback(
     async (specificQuote?: Quote, autoRetryAttempt = 0) => {
@@ -496,7 +526,10 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         // sides of the route (a same-chain swap naturally de-duplicates).
         const chainIds = [
           ...new Set(
-            [sourceToken?.coreChainId, targetToken?.coreChainId].filter(
+            [
+              sourceToken?.coreChainId,
+              effectiveTargetToken?.coreChainId,
+            ].filter(
               (chainId): chainId is number => typeof chainId === 'number',
             ),
           ),
@@ -565,7 +598,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       isUserSelectedQuote,
       selectedQuote,
       sourceToken?.coreChainId,
-      targetToken?.coreChainId,
+      effectiveTargetToken?.coreChainId,
       trackTransfer,
       updateBalanceOnNetworks,
       transferMarginBps,
@@ -576,15 +609,17 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
 
   const recurringEligibility = useRecurringEligibility({
     manager,
+    statusRevision,
     sourceAsset,
     targetAsset,
     sourceChainId: sourceToken?.coreChainId,
-    targetChainId: targetToken?.coreChainId,
+    targetChainId: effectiveTargetToken?.coreChainId,
     ownerAddress: fromAddress,
   });
 
   const { scheduleFee: recurringScheduleFee } = useRecurringQuote({
     manager,
+    statusRevision,
     sourceAsset,
     targetAsset,
     sourceChain,
@@ -612,6 +647,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
 
   const minimalQuote = useMinimalQuote({
     manager,
+    statusRevision,
     fromAddress,
     toAddress,
     sourceAsset,
@@ -637,7 +673,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     isTargetSearchActive,
     isTargetSelectOpen,
     isTargetTokenListFetching,
-    !!targetToken,
+    !!effectiveTargetToken,
   );
 
   const minimumRequiredTokens = useRequiredTokenAmounts(manager, minimalQuote);
@@ -707,7 +743,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         onTargetTokenChange,
         onTokenPairFlip,
         sourceToken,
-        targetToken,
+        targetToken: effectiveTargetToken,
         account: activeAccount,
         isConfirming,
         slippage,
@@ -735,7 +771,9 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         hypercoreAbstractionMode,
       }}
     >
-      {children}
+      <TransferManagerContext.Provider value={transferManagerContextValue}>
+        {children}
+      </TransferManagerContext.Provider>
     </FusionStateContext.Provider>
   );
 };

@@ -1,5 +1,8 @@
 import { NetworkContractToken } from '@avalabs/core-chains-sdk';
-import type { NetworkTokensByCaip2Response } from '~/api-clients/token-aggregator';
+import type {
+  NetworkTokensByCaip2Response,
+  TokenInfo,
+} from '~/api-clients/token-aggregator';
 
 export type NetworkContractTokenWithVerified = NetworkContractToken & {
   isVerified?: boolean | null;
@@ -28,5 +31,27 @@ export const mapApiTokenToContractToken = (
     contractType,
     logoUri: token.logoUri ?? undefined,
     isVerified: token.isVerified ?? null,
+  };
+};
+
+export const mapTokenInfoToContractToken = (
+  info: TokenInfo,
+  caip2Id: string,
+  address: string,
+): NetworkContractTokenWithVerified | undefined => {
+  const decimals = info.meta?.decimals?.[caip2Id];
+
+  if (info.isNative || decimals === null || decimals === undefined) {
+    return undefined;
+  }
+
+  return {
+    address,
+    name: info.name,
+    symbol: info.symbol,
+    decimals,
+    contractType: caip2Id.startsWith('solana:') ? 'SPL' : 'ERC-20',
+    logoUri: info.meta?.logoUri ?? undefined,
+    isVerified: null,
   };
 };

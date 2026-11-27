@@ -139,9 +139,9 @@ export enum ExtensionRequest {
 
   GET_NETWORK_TOKENS = 'get_network_tokens',
   SEARCH_NETWORK_TOKENS = 'search_network_tokens',
+  LOOKUP_NETWORK_TOKENS = 'lookup_network_tokens',
   GET_MARKR_TARGET_CHAIN_ASSETS = 'get_markr_target_chain_assets',
   HYPERCORE_GET_WITHDRAWABLE = 'hypercore_get_withdrawable',
-  LOOKUP_TOKEN = 'lookup_token',
 
   WALLET_CONNECT_ESTABLISH_REQUIRED_SESSION = 'wallet_connect_establish_required_session',
   WALLET_CONNECT_IMPORT_ACCOUNT = 'wallet_connect_import_account',

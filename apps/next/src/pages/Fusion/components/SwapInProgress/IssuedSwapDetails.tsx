@@ -1,7 +1,7 @@
 import { FC, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Box, Button, Collapse, Stack } from '@avalabs/k2-alpine';
+import { Button, Collapse, Stack } from '@avalabs/k2-alpine';
 import { FailedTransfer, Transfer } from '@avalabs/fusion-sdk';
 
 import {
@@ -11,17 +11,12 @@ import {
 } from '@core/types';
 import { useTransferTrackingContext } from '@core/ui';
 
-import { Card } from '@/components/Card';
 import { useConfettiContext } from '@/components/Confetti';
 
 import { SwapEstimatedTimeWarning } from '../SwapEstimatedTimeWarning';
 import { useSwappedTokens } from './hooks';
-import {
-  TokemAmountInfoBox,
-  TransactionFailure,
-  Styled,
-  ChainStatusInfoBox,
-} from './components';
+import { TransactionFailure, ChainStatusInfoBox } from './components';
+import { SwappedTokenRows } from './components/SwappedTokenRows';
 
 type Props = {
   transfer: Transfer;
@@ -59,7 +54,8 @@ export const IssuedSwapDetails: FC<Props> = ({ transfer, isRead }) => {
     isRead,
   ]);
 
-  const swappedTokens = useSwappedTokens(transfer);
+  const { tokens: swappedTokens, isPending: isLoadingTokens } =
+    useSwappedTokens(transfer);
 
   return (
     <Stack
@@ -70,25 +66,7 @@ export const IssuedSwapDetails: FC<Props> = ({ transfer, isRead }) => {
       data-testid="fusion-cross-chain-progress-page"
     >
       <Stack gap={1}>
-        <Card noPadding>
-          <Stack divider={<Styled.Divider />}>
-            {swappedTokens.map(({ token, amount, tokenId, type }) => (
-              <Box
-                key={tokenId}
-                data-testid={`fusion-transfer-summary-row-${type}`}
-                data-token-symbol={token?.symbol}
-                data-token-chain-id={token?.coreChainId}
-              >
-                <TokemAmountInfoBox
-                  token={token}
-                  amount={type === 'paid' ? -amount : amount}
-                  size={24}
-                  badgeSize={14}
-                />
-              </Box>
-            ))}
-          </Stack>
-        </Card>
+        <SwappedTokenRows tokens={swappedTokens} isPending={isLoadingTokens} />
 
         <SwapEstimatedTimeWarning serviceType={transfer.type} />
 

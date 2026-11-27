@@ -388,4 +388,186 @@ describe('TokenManagerService', () => {
       expect(postV1TokenLookup).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('lookupTokens', () => {
+    const caip2Id = 'eip155:43114';
+
+    const info = (overrides: Record<string, unknown> = {}) => ({
+      internalId: 'id',
+      platforms: { [caip2Id]: '0xabc' },
+      isNative: false,
+      name: 'Token',
+      symbol: 'TKN',
+      meta: { logoUri: 'https://logo', decimals: { [caip2Id]: 6 } },
+      ...overrides,
+    });
+
+    const response = (entries: Record<string, unknown>) =>
+      ({ data: { data: entries } }) as any;
+
+    it('looks up the requested pairs and maps the response', async () => {
+      jest
+        .mocked(postV1TokenLookup)
+        .mockResolvedValue(response({ 'opaque-key-1': info() }));
+
+      const { tokens } = await service.lookupTokens(caip2Id, ['0xabc']);
+
+      expect(postV1TokenLookup).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: { tokens: [{ caip2Id, address: '0xabc' }] },
+        }),
+      );
+      expect(tokens).toEqual([
+        {
+          address: '0xabc',
+          name: 'Token',
+          symbol: 'TKN',
+          decimals: 6,
+          contractType: 'ERC-20',
+          logoUri: 'https://logo',
+          isVerified: null,
+        },
+      ]);
+    });
+
+    it('skips entries without decimals, natives and unrequested keys', async () => {
+      jest.mocked(postV1TokenLookup).mockResolvedValue(
+        response({
+          one: info({ meta: null }),
+          two: info({ isNative: true, platforms: { [caip2Id]: '0xdef' } }),
+          three: info({ platforms: { [caip2Id]: '0xother' } }),
+        }),
+      );
+
+      expect(
+        (await service.lookupTokens(caip2Id, ['0xabc', '0xdef'])).tokens,
+      ).toEqual([]);
+    });
+
+    it('matches requested addresses case-insensitively via platforms', async () => {
+      jest
+        .mocked(postV1TokenLookup)
+        .mockResolvedValue(
+          response({ x: info({ platforms: { [caip2Id]: '0xABC' } }) }),
+        );
+
+      const { tokens } = await service.lookupTokens(caip2Id, ['0xabc']);
+
+      expect(tokens.map((token) => token.address)).toEqual(['0xABC']);
+    });
+
+    it('falls back to parsing the key when platforms has no address', async () => {
+      jest
+        .mocked(postV1TokenLookup)
+        .mockResolvedValue(
+          response({ [`${caip2Id}-0xabc`]: info({ platforms: null }) }),
+        );
+
+      const { tokens } = await service.lookupTokens(caip2Id, ['0xabc']);
+
+      expect(tokens.map((token) => token.address)).toEqual(['0xabc']);
+    });
+
+    it('returns tokens from successful batches when another batch fails', async () => {
+      const addresses = [
+        ...Array.from(
+          { length: 500 },
+          (_, i) => `0x${i.toString(16).padStart(40, '0')}`,
+        ),
+        '0xabc',
+      ];
+      jest
+        .mocked(postV1TokenLookup)
+        .mockRejectedValueOnce(new Error('batch down'))
+        .mockResolvedValueOnce(response({ k: info() }));
+
+      const { tokens, failedAddresses } = await service.lookupTokens(
+        caip2Id,
+        addresses,
+      );
+
+      expect(tokens.map((token) => token.address)).toEqual(['0xabc']);
+      expect(failedAddresses).toHaveLength(500);
+      expect(failedAddresses).not.toContain('0xabc');
+    });
+
+    it('treats Solana addresses as case-sensitive', async () => {
+      const solana = 'solana:mainnet';
+      const mint = 'So11111111111111111111111111111111111111112';
+      jest.mocked(postV1TokenLookup).mockResolvedValue(
+        response({
+          a: info({
+            platforms: { [solana]: mint },
+            meta: { decimals: { [solana]: 9 } },
+          }),
+          b: info({
+            platforms: { [solana]: mint.toLowerCase() },
+            meta: { decimals: { [solana]: 9 } },
+          }),
+        }),
+      );
+
+      const { tokens } = await service.lookupTokens(solana, [mint]);
+
+      expect(tokens.map((token) => token.address)).toEqual([mint]);
+
+      const { tokens: other } = await service.lookupTokens(solana, [
+        mint.toLowerCase(),
+      ]);
+      expect(postV1TokenLookup).toHaveBeenCalledTimes(2);
+      expect(other.map((token) => token.address)).toEqual([mint.toLowerCase()]);
+    });
+
+    it('returns cached tokens with failed addresses when every chunk fails', async () => {
+      jest
+        .mocked(postV1TokenLookup)
+        .mockResolvedValueOnce(response({ 'opaque-key-1': info() }));
+      await service.lookupTokens(caip2Id, ['0xabc']);
+
+      jest.mocked(postV1TokenLookup).mockRejectedValue(new Error('down'));
+
+      const { tokens, failedAddresses } = await service.lookupTokens(caip2Id, [
+        '0xabc',
+        '0xdef',
+      ]);
+
+      expect(tokens.map((token) => token.address)).toEqual(['0xabc']);
+      expect(failedAddresses).toEqual(['0xdef']);
+    });
+
+    it('chunks requests into batches of 500', async () => {
+      const addresses = Array.from(
+        { length: 1001 },
+        (_, i) => `0x${i.toString(16).padStart(40, '0')}`,
+      );
+      jest.mocked(postV1TokenLookup).mockResolvedValue(response({}));
+
+      await service.lookupTokens(caip2Id, addresses);
+
+      const sizes = jest
+        .mocked(postV1TokenLookup)
+        .mock.calls.map(([options]) => options.body.tokens.length);
+      expect(sizes).toEqual([500, 500, 1]);
+    });
+
+    it('serves cached tokens without another request', async () => {
+      jest
+        .mocked(postV1TokenLookup)
+        .mockResolvedValue(response({ 'opaque-key-1': info() }));
+
+      await service.lookupTokens(caip2Id, ['0xabc']);
+      const { tokens: again } = await service.lookupTokens(caip2Id, ['0xABC']);
+
+      expect(postV1TokenLookup).toHaveBeenCalledTimes(1);
+      expect(again).toHaveLength(1);
+    });
+
+    it('rejects when the aggregator request fails', async () => {
+      jest.mocked(postV1TokenLookup).mockRejectedValue(new Error('down'));
+
+      await expect(service.lookupTokens(caip2Id, ['0xabc'])).rejects.toThrow(
+        'down',
+      );
+    });
+  });
 });

@@ -182,6 +182,7 @@ export const useBridgeableTargetTokenList = (
   sourceToken: FungibleTokenBalance | undefined,
   search: string | undefined,
   selectedTargetChainId: number | 'avalanche' | null,
+  statusRevision = 0,
 ): BridgeableTargetTokenListResult => {
   const { getNetwork } = useNetworkContext();
   const { walletDetails } = useWalletContext();
@@ -352,6 +353,7 @@ export const useBridgeableTargetTokenList = (
       selectedTargetCaipId,
       effectiveSearch?.type,
       effectiveSearch?.value,
+      statusRevision,
     ],
     initialPageParam: 1,
     queryFn:

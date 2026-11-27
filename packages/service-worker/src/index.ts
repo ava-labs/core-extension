@@ -124,6 +124,7 @@ export type { UpdateThemeHandler } from './services/settings/handlers/updateThem
 export type { UpdateTokensVisiblityHandler } from './services/settings/handlers/updateTokensVisibility';
 export type { ResetExtensionStateHandler } from './services/storage/handlers/resetExtensionState';
 export type { GetTokensListHandler } from './services/tokens/handlers/getTokenList';
+export type { LookupNetworkTokensHandler } from './services/tokens/handlers/lookupNetworkTokens';
 export type {
   SearchedToken,
   SearchNetworkTokensHandler,
