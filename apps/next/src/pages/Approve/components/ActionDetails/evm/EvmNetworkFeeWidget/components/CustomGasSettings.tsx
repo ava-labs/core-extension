@@ -177,7 +177,7 @@ export const CustomGasSettings: FC<CustomGasSettingsProps> = ({
               <Stack direction="row" alignItems="center" gap={0.5}>
                 <Tooltip title={fees?.feeUnit.toString()}>
                   <Typography variant="body3">
-                    ~{fees?.feeUnit.toDisplay()} {nativeToken.symbol}
+                    {fees?.feeUnit.toDisplay()} {nativeToken.symbol}
                   </Typography>
                 </Tooltip>
               </Stack>
