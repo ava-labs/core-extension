@@ -12,4 +12,6 @@ export const TESTNET_MODE_BACKGROUND_COLOR = '#383840';
 export const HEADER_HEIGHT = 56; // Height of Header and PageTopBar in pixels
 
 export const DEFAULT_FEE_PRESET: TransactionPriority = 'low';
+export const DEFAULT_FEE_PRESET_NON_AVALANCHE_EVM: TransactionPriority =
+  'medium';
 export const DEFAULT_FEE_PRESET_C_CHAIN: TransactionPriority = 'high';
