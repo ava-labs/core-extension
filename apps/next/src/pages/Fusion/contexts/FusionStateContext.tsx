@@ -40,6 +40,8 @@ import {
   FUSION_HYPERCORE_CAIP_ID,
 } from '@core/common';
 
+import { getAvailableBalance } from '@/lib/getAvailableBalance';
+
 import { useSwapFormError, useSwapQuery } from '../hooks';
 import { usePriceImpact } from '../hooks/usePriceImpact';
 import { shouldRetryWithNextQuote } from '../lib/swapErrors';
@@ -378,7 +380,8 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   });
 
   const isAmountHigherThanBalance =
-    sourceAmountBigInt > (sourceToken?.balance ?? 0n);
+    sourceAmountBigInt >
+    (sourceToken ? getAvailableBalance(sourceToken, false) : 0n);
 
   const isAmountBelowMinimumTransferAmount =
     typeof minimumTransferAmount === 'bigint' &&

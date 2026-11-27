@@ -7,6 +7,8 @@ import {
   isBtcToken,
 } from '@core/types';
 
+import { getAvailableBalance } from '@/lib/getAvailableBalance';
+
 import { useFusionState } from '../contexts';
 import { RequiredTokenAmounts } from '../types';
 import { calculateMaxAmount } from '../lib/calculateMaxAmount';
@@ -46,7 +48,9 @@ export const usePinnedMaxAmount = (
   );
 
   const sourceTokenId = sourceToken ? getUniqueTokenId(sourceToken) : undefined;
-  const sourceTokenBalance = sourceToken ? sourceToken.balance : 0n;
+  const sourceTokenBalance = sourceToken
+    ? getAvailableBalance(sourceToken, false)
+    : 0n;
   const isBitcoin = sourceToken ? isBtcToken(sourceToken) : false;
   const maxAmount = useMemo(() => {
     if (

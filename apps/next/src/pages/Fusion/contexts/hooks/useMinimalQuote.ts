@@ -2,6 +2,8 @@ import { Asset, Chain, TransferManager } from '@avalabs/fusion-sdk';
 
 import { FungibleTokenBalance } from '@core/types';
 
+import { getAvailableBalance } from '@/lib/getAvailableBalance';
+
 import { useQuotes } from './useQuotes';
 
 type UseMinimalQuoteProps = {
@@ -43,7 +45,9 @@ export const useMinimalQuote = ({
   // FIXME: There seems to be a problem when we're using the actual minimum transfer amount,
   // where the SDK suggests the `minAmountOut` to be 0 (which means user may receive nothing at all).
   // This workaround won't always work, but seems enough as a temporary fix.
-  const halfOfBalance = sourceToken ? sourceToken.balance / 2n : 0n;
+  const halfOfBalance = sourceToken
+    ? getAvailableBalance(sourceToken, false) / 2n
+    : 0n;
   const simulatedTransferAmount =
     sourceToken && typeof minimumTransferAmount === 'bigint'
       ? halfOfBalance > minimumTransferAmount

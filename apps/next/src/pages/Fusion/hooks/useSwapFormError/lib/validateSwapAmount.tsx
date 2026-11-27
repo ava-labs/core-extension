@@ -3,9 +3,14 @@ import { TFunction, Trans } from 'react-i18next';
 import { bigintToBig } from '@avalabs/core-utils-sdk';
 import { TokenType } from '@avalabs/vm-module-types';
 
-import { FungibleTokenBalance } from '@core/types';
+import {
+  FungibleTokenBalance,
+  isPChainToken,
+  isXChainToken,
+} from '@core/types';
 
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
+import { getAvailableBalance } from '@/lib/getAvailableBalance';
 
 import { RequiredTokenAmounts } from '../../../types';
 
@@ -60,9 +65,10 @@ export const validateSwapAmount = (
     const totalScheduledSpend =
       sourceAmountBigInt * BigInt(recurring.numberOfOrders);
     const isNativeSource = sourceToken.type === TokenType.NATIVE;
+    const sourceBalance = getAvailableBalance(sourceToken, false);
     const budget = isNativeSource
-      ? sourceToken.balance - recurring.scheduleFeeNativeAmount
-      : sourceToken.balance;
+      ? sourceBalance - recurring.scheduleFeeNativeAmount
+      : sourceBalance;
 
     if (totalScheduledSpend > budget) {
       return t('Insufficient funds');
@@ -77,7 +83,13 @@ export const validateSwapAmount = (
     return t('Please enter an amount greater than 0.');
   }
 
-  if (sourceAmountBigInt > sourceToken.balance) {
+  if (sourceAmountBigInt > getAvailableBalance(sourceToken, false)) {
+    if (isPChainToken(sourceToken) || isXChainToken(sourceToken)) {
+      return t(
+        'Amount higher than available balance. Staked and locked funds cannot be transferred.',
+      );
+    }
+
     return t('Amount higher than balance.');
   }
 
@@ -97,7 +109,12 @@ export const validateSwapAmount = (
 
   // Check required balance for each asset taking part in the swap.
   for (const requiredToken of tokens) {
-    if (requiredToken.token.balance >= requiredToken.total) {
+    const requiredTokenBalance = getAvailableBalance(
+      requiredToken.token,
+      false,
+    );
+
+    if (requiredTokenBalance >= requiredToken.total) {
       continue;
     }
 
@@ -106,7 +123,7 @@ export const validateSwapAmount = (
       sumByPurpose(requiredToken, 'input') +
       sumByPurpose(requiredToken, 'network-fee');
     const isEnoughForInputAndNetworkFee =
-      requiredToken.token.balance >= inputPlusNetworkFeeTotal;
+      requiredTokenBalance >= inputPlusNetworkFeeTotal;
 
     // We can't validate the network fee amounts if we don't have the native fee data.
     if (!isEnoughForInputAndNetworkFee && state === 'complete') {
@@ -149,7 +166,7 @@ export const validateSwapAmount = (
 
     if (
       nativeRequired &&
-      nativeRequired.token.balance <
+      getAvailableBalance(nativeRequired.token, false) <
         nativeRequired.total + recurring.scheduleFeeNativeAmount
     ) {
       return t('Insufficient funds to cover fees');
