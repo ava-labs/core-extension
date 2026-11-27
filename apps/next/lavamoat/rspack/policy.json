@@ -323,7 +323,6 @@
         "@core/ui>i18next": true,
         "@core/service-worker>joi": true,
         "@core/ui>lodash": true,
-        "@rsbuild/plugin-node-polyfill>process": true,
         "react-i18next": true,
         "@core/ui>rxjs": true,
         "webextension-polyfill": true
@@ -1771,6 +1770,7 @@
         "clearInterval": true,
         "clearTimeout": true,
         "console.error": true,
+        "console.warn": true,
         "document.visibilityState": true,
         "process.env.NODE_ENV": true,
         "removeEventListener": true,

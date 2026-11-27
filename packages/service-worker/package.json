@@ -26,7 +26,7 @@
     "@avalabs/core-wallets-sdk": "4.0.0-alpha.2",
     "@avalabs/crypto-wasm": "0.3.0",
     "@avalabs/evm-module": "5.1.0",
-    "@avalabs/fusion-sdk": "0.28.3",
+    "@avalabs/fusion-sdk": "0.0.0-fix-CP-15193-parallel-service--20261126143623",
     "@avalabs/glacier-sdk": "4.0.0-alpha.2",
     "@avalabs/hvm-module": "5.1.0",
     "@avalabs/hw-app-avalanche": "2.1.0",

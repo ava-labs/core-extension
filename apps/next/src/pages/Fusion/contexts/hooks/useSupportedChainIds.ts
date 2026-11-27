@@ -3,7 +3,10 @@ import { GetSupportedChainsResult, TransferManager } from '@avalabs/fusion-sdk';
 
 const EMPTY_MAP = new Map();
 
-export const useSupportedChainsMap = (manager?: TransferManager) => {
+export const useSupportedChainsMap = (
+  manager?: TransferManager,
+  statusRevision = 0,
+) => {
   const [chainsMap, setChainsMap] =
     useState<GetSupportedChainsResult>(EMPTY_MAP);
 
@@ -12,14 +15,24 @@ export const useSupportedChainsMap = (manager?: TransferManager) => {
       return;
     }
 
+    let cancelled = false;
+
     manager
       .getSupportedChains()
-      .then(setChainsMap)
+      .then((result) => {
+        if (!cancelled) setChainsMap(result);
+      })
       .catch(() => {
+        if (cancelled) return;
+
         console.error('Error getting supported chains');
         setChainsMap(EMPTY_MAP);
       });
-  }, [manager]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [manager, statusRevision]);
 
   return chainsMap;
 };

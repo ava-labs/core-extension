@@ -18,6 +18,7 @@ const SCHEDULE_FEE_TYPE = 'recurring';
 
 type UseRecurringQuoteProps = {
   manager: TransferManager | undefined;
+  statusRevision?: number;
   sourceAsset: Asset | undefined;
   targetAsset: Asset | undefined;
   sourceChain: Chain | undefined;
@@ -32,6 +33,7 @@ type UseRecurringQuoteProps = {
 
 export const useRecurringQuote = ({
   manager,
+  statusRevision = 0,
   sourceAsset,
   targetAsset,
   sourceChain,
@@ -65,6 +67,7 @@ export const useRecurringQuote = ({
       frequency.unit,
       frequency.value,
       slippageBps,
+      statusRevision,
     ],
     enabled: canQuote,
     queryFn:

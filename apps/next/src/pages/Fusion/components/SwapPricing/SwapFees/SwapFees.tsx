@@ -1,5 +1,6 @@
 import {
   Box,
+  Skeleton,
   Stack,
   Tooltip,
   Typography,
@@ -28,7 +29,8 @@ type SwapFeesProps = TypographyProps & {
 };
 
 const SwapFees: FC<SwapFeesProps> = ({ quote, scheduleFee, ...props }) => {
-  const quoteTokens = useTransferTokensLookup(quote);
+  const { tokensByChainId: quoteTokens, isPending } =
+    useTransferTokensLookup(quote);
   const { currencyFormatter } = useSettingsContext();
 
   const extraFees = useMemo<AggregatableFee[]>(() => {
@@ -55,9 +57,13 @@ const SwapFees: FC<SwapFeesProps> = ({ quote, scheduleFee, ...props }) => {
 
   return (
     <Stack direction="row" alignItems="center" gap={1}>
-      <Typography variant="body3" {...props}>
-        {currencyFormatter(feesSum.amountInFiatCurrency)}
-      </Typography>
+      {isPending ? (
+        <Skeleton variant="text" width="6ch" animation="wave" />
+      ) : (
+        <Typography variant="body3" {...props}>
+          {currencyFormatter(feesSum.amountInFiatCurrency)}
+        </Typography>
+      )}
       <Tooltip
         title={<SwapFeesBreakdown tokenAmounts={feesSum.tokenAmounts} />}
       >

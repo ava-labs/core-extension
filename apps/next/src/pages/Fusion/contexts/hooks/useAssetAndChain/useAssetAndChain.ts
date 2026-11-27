@@ -6,7 +6,8 @@ import { useNetworkContext } from '@core/ui';
 
 import { buildChain } from './lib/buildChain';
 import { buildAsset } from './lib/buildAsset';
-import { FungibleTokenBalance } from '@core/types';
+import { isHypercoreUsdcIdentity } from '../../../lib/isHypercoreUsdcToken';
+import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';
 
 export const useAssetAndChain = (token?: FungibleTokenBalance) => {
   const { getNetwork } = useNetworkContext();
@@ -26,6 +27,13 @@ export const useAssetAndChain = (token?: FungibleTokenBalance) => {
     [token?.coreChainId, getNetwork],
   );
 
+  const isHypercoreUsdc =
+    !!token?.coreChainId &&
+    token.assetType === 'evm_native' &&
+    isHypercoreUsdcIdentity(token.coreChainId, token.symbol);
+
+  const uniqueTokenId = token ? getUniqueTokenId(token) : undefined;
+
   const asset = useMemo((): Asset | undefined => {
     if (!token?.coreChainId) {
       return undefined;
@@ -38,13 +46,15 @@ export const useAssetAndChain = (token?: FungibleTokenBalance) => {
       tokenAddress,
       token.coreChainId,
     );
+    // name is display-only; keying on the id keeps the quoter stable across metadata sources
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    uniqueTokenId,
     token?.assetType,
     token?.coreChainId,
-    token?.name,
-    token?.symbol,
     token?.decimals,
     tokenAddress,
+    isHypercoreUsdc,
   ]);
 
   return {

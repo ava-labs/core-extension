@@ -20,6 +20,7 @@ const NOT_ELIGIBLE: RecurringEligibility = {
 
 type UseRecurringEligibilityProps = {
   manager: TransferManager | undefined;
+  statusRevision?: number;
   sourceAsset: Asset | undefined;
   targetAsset: Asset | undefined;
   sourceChainId: number | undefined;
@@ -34,6 +35,7 @@ export const useRecurringEligibility = ({
   sourceChainId,
   targetChainId,
   ownerAddress,
+  statusRevision,
 }: UseRecurringEligibilityProps): RecurringEligibility =>
   useMemo(() => {
     if (
@@ -81,6 +83,8 @@ export const useRecurringEligibility = ({
     }
 
     return { isEligible: result.eligible, minFrequencySeconds };
+    // The manager instance is mutated in place when a late service joins, so the revision is the re-evaluation trigger.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     manager,
     sourceAsset,
@@ -88,4 +92,5 @@ export const useRecurringEligibility = ({
     sourceChainId,
     targetChainId,
     ownerAddress,
+    statusRevision,
   ]);

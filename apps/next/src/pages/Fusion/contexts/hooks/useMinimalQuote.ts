@@ -15,6 +15,7 @@ type UseMinimalQuoteProps = {
   targetChain?: Chain;
   minimumTransferAmount?: bigint;
   slippageBps?: number;
+  statusRevision?: number;
 };
 
 export const useMinimalQuote = ({
@@ -28,6 +29,7 @@ export const useMinimalQuote = ({
   targetChain,
   minimumTransferAmount,
   slippageBps,
+  statusRevision,
 }: UseMinimalQuoteProps) => {
   const skipFetching =
     !manager ||
@@ -62,6 +64,7 @@ export const useMinimalQuote = ({
       targetChain,
       amount: simulatedTransferAmount,
       slippageBps,
+      statusRevision,
     },
     skipFetching,
   );

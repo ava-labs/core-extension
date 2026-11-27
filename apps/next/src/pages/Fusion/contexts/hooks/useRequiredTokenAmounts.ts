@@ -46,7 +46,7 @@ export const useRequiredTokenAmounts = (
     isFeeLoading,
     feeError,
   } = useNativeFeeEstimate(manager, quote);
-  const tokenLookup = useTransferTokensLookup(quote);
+  const { tokensByChainId: tokenLookup } = useTransferTokensLookup(quote);
 
   return useMemo(() => {
     if (!quote) {

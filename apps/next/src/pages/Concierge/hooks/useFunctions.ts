@@ -84,8 +84,8 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
   });
   const tokensForAccount = useTokensForAccount(accounts.active);
   const { getNetworkFee } = useNetworkFeeContext();
-  const { manager } = useTransferManager();
-  const supportedChainsMap = useSupportedChainsMap(manager);
+  const { manager, statusRevision } = useTransferManager();
+  const supportedChainsMap = useSupportedChainsMap(manager, statusRevision);
   const swapTokenList = useSwapSourceTokenList(supportedChainsMap);
   const swapTargetTokenList = useSwapTargetTokenList(supportedChainsMap);
 

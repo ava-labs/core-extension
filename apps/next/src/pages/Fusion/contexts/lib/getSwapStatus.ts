@@ -36,7 +36,7 @@ export const getSwapStatus = (
   // While the target dropdown is open the user may be browsing other chains,
   // which transiently empties the list / toggles loading. Keep the form mounted
   // so the dropdown stays open and handles those states inline.
-  if (isTargetTokenListLoading && !isTargetSelectOpen) {
+  if (isTargetTokenListLoading && !isTargetSelectOpen && !hasSelectedTarget) {
     return 'loading';
   }
 

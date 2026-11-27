@@ -115,6 +115,25 @@ describe('getSwapStatus', () => {
       expect(result).toBe('loading');
     });
 
+    it('does not return loading when target list is loading but a target is already selected', () => {
+      const result = getSwapStatus(
+        mockAccount,
+        false,
+        mockManager,
+        false,
+        mockSourceTokenList,
+        [],
+        null,
+        true,
+        false,
+        false,
+        true,
+        true,
+      );
+
+      expect(result).toBe('initialized');
+    });
+
     it('does not return loading when target list is loading and selector is open', () => {
       const result = getSwapStatus(
         mockAccount,

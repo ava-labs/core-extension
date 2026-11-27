@@ -15,6 +15,7 @@ export const useQuotes = (
     targetChain,
     amount,
     slippageBps,
+    statusRevision,
   }: UseQuoterProps,
   skipFetching: boolean,
 ) => {
@@ -36,6 +37,7 @@ export const useQuotes = (
     targetChain,
     amount,
     slippageBps,
+    statusRevision,
   });
 
   useEffect(() => {

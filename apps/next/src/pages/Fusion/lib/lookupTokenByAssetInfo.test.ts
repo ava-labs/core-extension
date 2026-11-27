@@ -47,6 +47,35 @@ describe('lookupTokenByAssetInfo', () => {
     ).toBe(erc20);
   });
 
+  it('matches ERC20 addresses case-insensitively', () => {
+    expect(
+      lookupTokenByAssetInfo([erc20], {
+        type: TokenType.ERC20,
+        address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      }),
+    ).toBe(erc20);
+  });
+
+  it('matches SPL mints exactly', () => {
+    const spl = {
+      type: VmTokenType.SPL,
+      address: 'MintAbc',
+    } as FungibleTokenBalance;
+
+    expect(
+      lookupTokenByAssetInfo([spl], {
+        type: TokenType.SPL,
+        address: 'MintAbc',
+      }),
+    ).toBe(spl);
+    expect(
+      lookupTokenByAssetInfo([spl], {
+        type: TokenType.SPL,
+        address: 'mintabc',
+      }),
+    ).toBeUndefined();
+  });
+
   it('matches native assets', () => {
     expect(
       lookupTokenByAssetInfo([hypercoreUsdc], { type: TokenType.NATIVE }),

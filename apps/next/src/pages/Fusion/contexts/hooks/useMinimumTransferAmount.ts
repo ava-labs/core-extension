@@ -11,6 +11,7 @@ type UseFusionMinimumTransferAmountParams = {
   selectedToToken: FungibleTokenBalance | undefined;
   transferManager: TransferManager | undefined;
   serviceType?: ServiceType;
+  statusRevision?: number;
 };
 
 export const useFusionMinimumTransferAmount = ({
@@ -18,6 +19,7 @@ export const useFusionMinimumTransferAmount = ({
   selectedToToken,
   transferManager,
   serviceType,
+  statusRevision = 0,
 }: UseFusionMinimumTransferAmountParams) => {
   const { asset: sourceAsset, chain: sourceChain } =
     useAssetAndChain(selectedFromToken);
@@ -32,7 +34,12 @@ export const useFusionMinimumTransferAmount = ({
     : undefined;
 
   return useQuery({
-    queryKey: ['useFusionMinimumTransferAmount', fromTokenId, toTokenId],
+    queryKey: [
+      'useFusionMinimumTransferAmount',
+      fromTokenId,
+      toTokenId,
+      statusRevision,
+    ],
     queryFn:
       transferManager &&
       sourceAsset &&

@@ -19,6 +19,7 @@ type UseQuoterPropsBase = {
   targetChain: Chain;
   amount: bigint;
   slippageBps?: number;
+  statusRevision?: number;
 };
 
 type RequiredQuoterProps = Pick<
@@ -31,7 +32,10 @@ type OptionalQuoterProps = Exclude<
   RequiredKeys<UseQuoterPropsBase>
 >;
 
-const OPTIONAL_QUOTER_PROPS: OptionalQuoterProps[] = ['slippageBps'];
+const OPTIONAL_QUOTER_PROPS: OptionalQuoterProps[] = [
+  'slippageBps',
+  'statusRevision',
+];
 
 export type UseQuoterProps = Partial<UseQuoterPropsBase>;
 
@@ -45,6 +49,7 @@ export const useQuoter = ({
   targetChain,
   amount,
   slippageBps,
+  statusRevision,
 }: UseQuoterProps) => {
   const quoterProps = useMemoizedProps({
     manager,
@@ -56,6 +61,7 @@ export const useQuoter = ({
     targetChain,
     amount,
     slippageBps,
+    statusRevision,
   });
 
   return useMemo(
@@ -76,7 +82,11 @@ const hasRequiredParams = (
 const isRequiredParamPresent = (value: unknown) =>
   value !== undefined && value !== null && value !== '';
 
-const buildQuoter = ({ manager, ...props }: RequiredQuoterProps) =>
+const buildQuoter = ({
+  manager,
+  statusRevision: _statusRevision,
+  ...props
+}: RequiredQuoterProps & { statusRevision?: number }) =>
   manager.getQuoter({
     ...props,
     fromAddress: formatAvalancheCctQuoteAddress(
@@ -99,6 +109,7 @@ const useMemoizedProps = ({
   targetChain,
   amount,
   slippageBps,
+  statusRevision,
 }: UseQuoterProps) =>
   useMemo(
     () => ({
@@ -111,6 +122,7 @@ const useMemoizedProps = ({
       targetChain,
       amount,
       slippageBps,
+      statusRevision,
     }),
     [
       manager,
@@ -122,5 +134,6 @@ const useMemoizedProps = ({
       targetChain,
       amount,
       slippageBps,
+      statusRevision,
     ],
   );
