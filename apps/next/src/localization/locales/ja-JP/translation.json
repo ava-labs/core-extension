@@ -74,6 +74,7 @@
   "Alternatively, open any authenticator app and enter this code:": "または、お使いの認証アプリを開いて次のコードを入力してください：",
   "Amount": "金額",
   "Amount exceeds withdrawable HyperCore balance": "金額がHyperCoreの引き出し可能な残高を超えています",
+  "Amount higher than available balance. Staked and locked funds cannot be transferred.": "Amount higher than available balance. Staked and locked funds cannot be transferred.",
   "Amount higher than balance.": "残高を超える金額です。",
   "Amount is too low": "金額が少なすぎます",
   "An error occurred while changing the derivation path. Please try again.": "派生パスの変更中にエラーが発生しました。再度お試しください。",
