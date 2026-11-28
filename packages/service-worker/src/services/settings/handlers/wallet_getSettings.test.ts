@@ -57,6 +57,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
     privacyMode: false,
     filterSmallUtxos: false,
     isBridgeDevEnv: false,
+    autoLockTimer: 20,
   };
 
   // Maps settings to the expected handler response format
