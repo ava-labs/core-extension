@@ -1,7 +1,7 @@
 import { Card } from '@/components/Card';
 import { FakeWord } from '@/components/FakeWord';
 import { Button, Grid2, Skeleton, Stack, Typography } from '@avalabs/k2-alpine';
-import { toast } from '@core/ui';
+import { useCopySecretToClipboard } from '@/hooks/useCopySecretToClipboard';
 import { FC, memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -13,6 +13,7 @@ type Props = {
 const PhraseCard: FC<Props> = ({ phrase, hidden }) => {
   const { t } = useTranslation();
   const [isHidden, setIsHidden] = useState(hidden ?? false);
+  const copySecret = useCopySecretToClipboard();
 
   return (
     <Stack gap={2}>
@@ -75,12 +76,8 @@ const PhraseCard: FC<Props> = ({ phrase, hidden }) => {
           variant="contained"
           color="secondary"
           size="extension"
-          onClick={() => {
-            navigator.clipboard.writeText(phrase);
-            toast.success(t('Recovery phrase copied to clipboard'), {
-              id: 'recovery-phrase-copied',
-            });
-          }}
+          data-testid="copy-phrase-button"
+          onClick={() => copySecret(phrase, 'recoveryPhrase')}
         >
           {t('Copy phrase')}
         </Button>

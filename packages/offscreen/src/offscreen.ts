@@ -1,7 +1,8 @@
 import { GaslessSdk } from '@avalabs/core-gasless-sdk';
 import { OFFSCREEN_SCRIPT } from '@core/common';
-import { ExtensionRequest, GaslessEvents } from '@core/types';
+import { ClipboardEvents, ExtensionRequest, GaslessEvents } from '@core/types';
 import browser, { Runtime } from 'webextension-polyfill';
+import { clearCopiedSecret } from './clipboard';
 
 const connection: Runtime.Port = browser.runtime.connect({
   name: OFFSCREEN_SCRIPT,
@@ -19,6 +20,10 @@ connection.onMessage.addListener(async (param: string) => {
     };
   } = JSON.parse(param);
   const { value, name } = params;
+  if (name === ClipboardEvents.CLEAR_SECRET) {
+    await clearCopiedSecret(value);
+    return;
+  }
   if (
     name !== GaslessEvents.SEND_OFFSCREEN_MESSAGE ||
     value.request !== ExtensionRequest.GASLESS_FETCH_AND_SOLVE_CHALLENGE

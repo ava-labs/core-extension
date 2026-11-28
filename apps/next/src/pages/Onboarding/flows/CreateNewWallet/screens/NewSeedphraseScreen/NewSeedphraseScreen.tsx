@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { FC, useEffect, useState } from 'react';
 import { Button, Divider, Stack } from '@avalabs/k2-alpine';
-import { toast } from '@core/ui';
+import { useCopySecretToClipboard } from '@/hooks/useCopySecretToClipboard';
 
 import { createNewMnemonic } from '@core/common';
 
@@ -28,6 +28,7 @@ export const NewSeedphraseScreen: FC<NewSeedphraseScreenProps> = ({
   onNext,
 }) => {
   const { t } = useTranslation();
+  const copySecret = useCopySecretToClipboard();
   const { setCurrent, setTotal } = useModalPageControl();
   const [generatedSeedphrase] = useState<string>(createNewMnemonic());
   const [isTermsAccepted, setIsTermsAccepted] = useState<boolean>(false);
@@ -56,10 +57,8 @@ export const NewSeedphraseScreen: FC<NewSeedphraseScreenProps> = ({
             variant="contained"
             color="secondary"
             size="small"
-            onClick={() => {
-              navigator.clipboard.writeText(generatedSeedphrase);
-              toast.success(t('Phrase copied'));
-            }}
+            data-testid="copy-phrase-button"
+            onClick={() => copySecret(generatedSeedphrase, 'recoveryPhrase')}
           >
             {t('Copy phrase')}
           </Button>

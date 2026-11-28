@@ -3804,6 +3804,7 @@
         "external:../types/src/app-check.ts": true,
         "external:../types/src/approvals.ts": true,
         "external:../types/src/balance.ts": true,
+        "external:../types/src/clipboard.ts": true,
         "external:../types/src/contacts.ts": true,
         "external:../types/src/currency.ts": true,
         "external:../types/src/dapp-connection.ts": true,

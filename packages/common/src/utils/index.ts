@@ -11,6 +11,7 @@ export * from './caipConversion';
 export * from './calculateGasAndFees';
 export * from './calculateTotalBalance';
 export * from './canSkipApproval';
+export * from './clipboard';
 export * from './constants';
 export * from './coreApiKeys';
 export * from './createMnemonicPhrase';
