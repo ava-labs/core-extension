@@ -1,0 +1,20 @@
+services:
+  speculos:
+    # Digest of `latest` verified on 2026-11-24; the registry publishes no release tags.
+    image: ${SPECULOS_IMAGE:-ghcr.io/ledgerhq/speculos@sha256:56c7ec84c903147dac28e68706d3241218a3d9beb9562dd4a8c02947b2a24f47}
+    container_name: core-ext-speculos
+    ports:
+      - '127.0.0.1:${SPECULOS_PORT:-5050}:5050'
+    volumes:
+      - ${SPECULOS_APP_DIR:?run via scripts/speculos/start.sh}:/speculos/apps:ro
+    command:
+      - --model
+      - nanosp
+      - /speculos/apps/app.elf
+      - --seed
+      # BIP39 all-zero test vector; first EVM address 0x9858EfFD232B4033E47d90003D41EC34EcaEda94
+      - abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about
+      - --display
+      - headless
+      - --api-port
+      - '5050'

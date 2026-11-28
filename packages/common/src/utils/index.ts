@@ -61,6 +61,7 @@ export * from './isTokenMalicious';
 export * from './isWalletStateUpdateEvent';
 export * from './jsonRpcEngine';
 export * from './keystore';
+export * from './ledgerSpeculos';
 export * from './logging';
 export * from './lowerCaseKeys';
 export * from './makeBNLike';

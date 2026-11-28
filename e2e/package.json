@@ -9,6 +9,9 @@
     "test:debug": "playwright test --debug",
     "test:ui": "playwright test --ui",
     "report": "playwright show-report",
+    "speculos:build": "bash scripts/speculos/build-app.sh",
+    "speculos:start": "bash scripts/speculos/start.sh",
+    "speculos:stop": "bash scripts/speculos/stop.sh",
     "testrail:report": "node scripts/testrail-sync.mjs",
     "testrail:sync": "node scripts/testrail-sync.mjs --apply"
   },

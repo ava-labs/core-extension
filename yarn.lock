@@ -2993,6 +2993,7 @@ __metadata:
     "@ledgerhq/device-signer-kit-bitcoin": "npm:1.3.3"
     "@ledgerhq/device-signer-kit-ethereum": "npm:1.18.0"
     "@ledgerhq/device-signer-kit-solana": "npm:1.13.0"
+    "@ledgerhq/device-transport-kit-speculos": "npm:1.2.1"
     "@ledgerhq/device-transport-kit-web-hid": "npm:1.2.4"
     "@metamask/eth-sig-util": "npm:4.0.1"
     "@metamask/rpc-errors": "npm:6.3.0"
@@ -5613,6 +5614,19 @@ __metadata:
   peerDependencies:
     "@ledgerhq/device-management-kit": ^1.8.0
   checksum: 10c0/f357484cbc2d441b94af9efd5affcb5244850ecee795f3e57da1c19f3176201fa62ab1d9b2745e65c6f67c6c16c9e6e9d71ae66dd6162d3e29718ce0cd90c4e1
+  languageName: node
+  linkType: hard
+
+"@ledgerhq/device-transport-kit-speculos@npm:1.2.1":
+  version: 1.2.1
+  resolution: "@ledgerhq/device-transport-kit-speculos@npm:1.2.1"
+  dependencies:
+    "@sentry/minimal": "npm:6.19.7"
+    purify-ts: "npm:2.1.0"
+  peerDependencies:
+    "@ledgerhq/device-management-kit": ^1.5.1
+    rxjs: 7.8.2
+  checksum: 10c0/31e6e923a21cf5ec42674705f32051385891f2fcaf71aa120a96ba901ca227ac4c258954df9c4a52ee733727a3a95122192974b929deb2558cd340d10e444ca9
   languageName: node
   linkType: hard
 

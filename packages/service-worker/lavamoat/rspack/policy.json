@@ -873,6 +873,20 @@
         "@ledgerhq/device-management-kit>xstate": true
       }
     },
+    "@ledgerhq/device-transport-kit-speculos": {
+      "globals": {
+        "AbortController": true,
+        "TextDecoder": true,
+        "clearInterval": true,
+        "fetch": true,
+        "setInterval": true
+      },
+      "packages": {
+        "@ledgerhq/device-management-kit": true,
+        "@ledgerhq/context-module>purify-ts": true,
+        "rxjs": true
+      }
+    },
     "@ledgerhq/device-transport-kit-web-hid": {
       "globals": {
         "AbortController": true,
@@ -3572,6 +3586,15 @@
         "eth-json-rpc-middleware": true,
         "external:../common/src/utils/network/addGlacierAPIKeyIfNeeded.ts": true,
         "json-rpc-engine": true
+      }
+    },
+    "external:../common/src/utils/ledgerSpeculos.ts": {
+      "globals": {
+        "URL": true,
+        "chrome.storage.local": true
+      },
+      "packages": {
+        "external:../common/src/utils/environment.ts": true
       }
     },
     "external:../common/src/utils/logging.ts": {

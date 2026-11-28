@@ -95,6 +95,13 @@ export default ({ generateLavaMoatPolicy }: CommonConfigOptions) =>
             type: 'javascript/auto',
           });
 
+          // Lets the Speculos transport be dropped from production bundles,
+          // where LedgerDmkService never references it.
+          appendRules({
+            test: /node_modules[\\/]@ledgerhq[\\/]device-transport-kit-speculos[\\/]/,
+            sideEffects: false,
+          });
+
           appendPlugins(
             new LavaMoatRspackPlugin({
               // Driven per build target: prod regenerates so PR CI can fail

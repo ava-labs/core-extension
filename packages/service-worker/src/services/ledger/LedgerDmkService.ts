@@ -1,6 +1,7 @@
 import {
   DeviceActionStatus,
   DeviceManagementKitBuilder,
+  DeviceModelId,
   DeviceStatus,
   isSuccessCommandResult,
   OpenAppDeviceAction,
@@ -10,6 +11,7 @@ import {
   type DeviceSessionState,
   type DiscoveredDevice,
 } from '@ledgerhq/device-management-kit';
+import { speculosTransportFactory } from '@ledgerhq/device-transport-kit-speculos';
 import { webHidTransportFactory } from '@ledgerhq/device-transport-kit-web-hid';
 import {
   DefaultDescriptorTemplate,
@@ -23,7 +25,7 @@ import {
   getLedgerExtendedPublicKey,
   quitLedgerApp,
 } from '@avalabs/core-wallets-sdk';
-import { getSolanaRpcUrl } from '@core/common';
+import { getLedgerSpeculosUrl, getSolanaRpcUrl } from '@core/common';
 import {
   LEDGER_APP_NOT_INSTALLED_ERROR,
   LEDGER_APP_SWITCH_FAILED_ERROR,
@@ -57,6 +59,13 @@ const IDLE_RELEASE_MS = 5_000;
 
 /** BOLOS status word for "application not installed". */
 const APP_NOT_INSTALLED_STATUS = '5123';
+
+// The inline `process.env.RELEASE` comparison is replaced at build time so the
+// Speculos transport is stripped from production bundles.
+const getTransportFactory = (speculosUrl?: string) =>
+  process.env.RELEASE !== 'production' && speculosUrl
+    ? speculosTransportFactory(speculosUrl, true, DeviceModelId.NANO_SP)
+    : webHidTransportFactory;
 
 const REFRESHER_BLOCKER_ID = 'core-device-operation';
 
@@ -122,6 +131,7 @@ const stripRootPrefix = (path: string) => path.replace(/^m\//, '');
 @singleton()
 export class LedgerDmkService implements OnLock, OnAllExtensionClosed {
   #dmk?: DeviceManagementKit;
+  #dmkPromise?: Promise<DeviceManagementKit>;
   #sessionId?: DeviceSessionId;
   #pendingConnect?: Promise<DeviceSessionId>;
   #activeOperations = 0;
@@ -143,12 +153,31 @@ export class LedgerDmkService implements OnLock, OnAllExtensionClosed {
     });
   }
 
-  #getDmk(): DeviceManagementKit {
-    if (!this.#dmk) {
-      this.#dmk = new DeviceManagementKitBuilder()
-        .addTransport(webHidTransportFactory)
-        .build();
+  #getDmk(): Promise<DeviceManagementKit> {
+    if (!this.#dmkPromise) {
+      const pending: Promise<DeviceManagementKit> = this.#createDmk(
+        () => this.#dmkPromise === pending,
+      ).catch((error) => {
+        if (this.#dmkPromise === pending) {
+          this.#dmkPromise = undefined;
+        }
+        throw error;
+      });
+      this.#dmkPromise = pending;
     }
+    return this.#dmkPromise;
+  }
+
+  async #createDmk(isCurrent: () => boolean): Promise<DeviceManagementKit> {
+    const speculosUrl = await getLedgerSpeculosUrl();
+
+    if (!isCurrent()) {
+      throw new Error('Ledger connection was reset');
+    }
+
+    this.#dmk = new DeviceManagementKitBuilder()
+      .addTransport(getTransportFactory(speculosUrl))
+      .build();
     return this.#dmk;
   }
 
@@ -159,7 +188,7 @@ export class LedgerDmkService implements OnLock, OnAllExtensionClosed {
   }
 
   async #openSession(): Promise<DmkSession> {
-    const dmk = this.#getDmk();
+    const dmk = await this.#getDmk();
 
     if (this.#sessionId) {
       return { dmk, sessionId: this.#sessionId };
@@ -475,6 +504,7 @@ export class LedgerDmkService implements OnLock, OnAllExtensionClosed {
     const dmk = this.#dmk;
     const disconnecting = this.disconnect();
     this.#dmk = undefined;
+    this.#dmkPromise = undefined;
     void disconnecting.finally(() => dmk?.close());
   }
 }

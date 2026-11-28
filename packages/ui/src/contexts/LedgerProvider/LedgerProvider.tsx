@@ -6,6 +6,7 @@ import {
 } from '@core/types';
 import {
   getEvmExtendedKeyPath,
+  getLedgerSpeculosUrl,
   isLockStateChangedEvent,
   resolve,
 } from '@core/common';
@@ -281,6 +282,12 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
   const popDeviceSelection = useCallback(async () => {
     // A locked device still has a WebHID grant — don't re-prompt, just refresh.
     if (hasDevice || hasHidGrant) {
+      await refreshActiveApp();
+      return true;
+    }
+
+    if (await getLedgerSpeculosUrl()) {
+      setHasHidGrant(true);
       await refreshActiveApp();
       return true;
     }

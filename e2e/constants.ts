@@ -86,6 +86,11 @@ export const TEST_TAGS = {
    * `include-cross-chain-swaps: true` dropdown in the regression workflow.
    */
   SWAP_CROSS_CHAIN: '@swap-cross-chain',
+  /**
+   * Runs against a local Speculos Ledger emulator. Not part of CI; opt in with
+   * `USE_SPECULOS=true` (see README).
+   */
+  SPECULOS: '@speculos',
 };
 
 /**

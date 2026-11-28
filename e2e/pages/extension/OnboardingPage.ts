@@ -25,6 +25,11 @@ export class OnboardingPage extends BasePage {
   // Import wallet method options
   readonly ledgerOption: Locator;
   readonly recoveryPhraseOption: Locator;
+  readonly bip44Option: Locator;
+  readonly connectLedgerTitle: Locator;
+  readonly derivationPathSelect: Locator;
+  readonly derivedAccountAddresses: Locator;
+  readonly skipSolanaButton: Locator;
   // Recovery phrase form elements
   readonly clearAllButton: Locator;
   readonly nextButton: Locator;
@@ -98,6 +103,15 @@ export class OnboardingPage extends BasePage {
     this.recoveryPhraseOption = page.locator(
       '[data-testid="import-recovery-phrase-option"]',
     );
+    this.bip44Option = page.getByRole('option', { name: /bip 44/i });
+    this.connectLedgerTitle = page.locator(
+      '[data-testid="connect-ledger-title"]',
+    );
+    this.derivationPathSelect = page.getByRole('combobox');
+    this.derivedAccountAddresses = page.locator(
+      '[data-testid="derived-account-address"]',
+    );
+    this.skipSolanaButton = page.getByRole('button', { name: /no thanks/i });
     // Recovery phrase form elements
     this.clearAllButton = page.getByRole('button', { name: /clear all/i });
     this.nextButton = page.getByRole('button', { name: /next/i });
@@ -293,6 +307,40 @@ export class OnboardingPage extends BasePage {
     await this.recoveryPhraseOption.waitFor({ state: 'visible' });
     await this.recoveryPhraseOption.click();
     await this.phraseLengthSelectorButton.waitFor({ state: 'visible' });
+  }
+
+  async navigateToLedgerConnectScreen(): Promise<void> {
+    await this.importWalletButton.click();
+    await this.ledgerOption.waitFor({ state: 'visible' });
+    await this.ledgerOption.click();
+    await this.connectLedgerTitle.waitFor({ state: 'visible' });
+  }
+
+  async selectBip44DerivationPath(): Promise<void> {
+    await this.derivationPathSelect.waitFor({
+      state: 'visible',
+      timeout: 30000,
+    });
+    await this.derivationPathSelect.click();
+    await this.bip44Option.click();
+  }
+
+  async connectLedgerWithBip44(): Promise<void> {
+    await this.selectBip44DerivationPath();
+    await this.derivedAccountAddresses
+      .first()
+      .waitFor({ state: 'visible', timeout: 60000 });
+  }
+
+  async continueToWalletDetails(): Promise<void> {
+    await this.nextButton.click();
+    await this.skipSolanaButton
+      .or(this.walletNameInput)
+      .first()
+      .waitFor({ state: 'visible', timeout: 15000 });
+    if (await this.skipSolanaButton.isVisible()) {
+      await this.skipSolanaButton.click();
+    }
   }
 
   async selectWordCount(wordCount: 12 | 24): Promise<void> {

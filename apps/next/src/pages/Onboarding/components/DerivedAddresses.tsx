@@ -154,6 +154,7 @@ export const DerivedAddresses = ({
             <Stack minWidth={0}>
               <Tooltip title={account.address}>
                 <Typography
+                  data-testid="derived-account-address"
                   variant="subtitle1"
                   fontFamily="monospace"
                   color="text.primary"
