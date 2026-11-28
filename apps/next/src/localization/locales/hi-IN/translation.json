@@ -74,6 +74,7 @@
   "Alternatively, open any authenticator app and enter this code:": "वैकल्पिक रूप से, कोई भी authenticator ऐप खोलें और यह कोड दर्ज करें:",
   "Amount": "राशि",
   "Amount exceeds withdrawable HyperCore balance": "राशि निकासी योग्य हाइपरकोर बैलेंस से अधिक है",
+  "Amount higher than available balance. Staked and locked funds cannot be transferred.": "Amount higher than available balance. Staked and locked funds cannot be transferred.",
   "Amount higher than balance.": "राशि बैलेंस से अधिक है।",
   "Amount is too low": "राशि बहुत कम है",
   "An error occurred while changing the derivation path. Please try again.": "डेरिवेशन पथ बदलते समय एक त्रुटि हुई। कृपया पुनः प्रयास करें।",
