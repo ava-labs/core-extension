@@ -41,6 +41,12 @@ export const MnemonicFlow: FC = () => {
       )}
       contentProps={contentProps}
     >
+      {/* Shown before authentication so the risk is clear before the phrase renders. */}
+      <WarningMessage data-testid="recovery-phrase-share-warning">
+        {t(
+          'Do not share this phrase with anyone! These words can be used to steal all your accounts.',
+        )}
+      </WarningMessage>
       <WarningMessage>
         {t('Losing this phrase will result in lost funds')}
       </WarningMessage>
