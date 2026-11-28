@@ -74,6 +74,7 @@
   "Alternatively, open any authenticator app and enter this code:": "或者，打开任意验证器应用并输入此代码：",
   "Amount": "数量",
   "Amount exceeds withdrawable HyperCore balance": "金额超过可提取的HyperCore余额",
+  "Amount higher than available balance. Staked and locked funds cannot be transferred.": "Amount higher than available balance. Staked and locked funds cannot be transferred.",
   "Amount higher than balance.": "金额超过余额。",
   "Amount is too low": "数量过低",
   "An error occurred while changing the derivation path. Please try again.": "更改派生路径时发生错误。请重试。",
