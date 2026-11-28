@@ -74,6 +74,7 @@
   "Alternatively, open any authenticator app and enter this code:": "Öffnen Sie alternativ eine beliebige Authenticator-App und geben Sie diesen Code ein:",
   "Amount": "Betrag",
   "Amount exceeds withdrawable HyperCore balance": "Der Betrag übersteigt das auszahlbare HyperCore-Guthaben",
+  "Amount higher than available balance. Staked and locked funds cannot be transferred.": "Amount higher than available balance. Staked and locked funds cannot be transferred.",
   "Amount higher than balance.": "Betrag übersteigt das Guthaben.",
   "Amount is too low": "Betrag ist zu niedrig",
   "An error occurred while changing the derivation path. Please try again.": "Beim Ändern des Ableitungspfads ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
