@@ -1,7 +1,7 @@
 import { FC, useCallback, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { DetailItemType, RpcMethod } from '@avalabs/vm-module-types';
-import { Avatar, Stack, Typography } from '@avalabs/k2-alpine';
+import { Avatar, Box, Stack, Typography } from '@avalabs/k2-alpine';
 import { runtime } from 'webextension-polyfill';
 
 import { useAccountsContext } from '@core/ui';
@@ -31,7 +31,7 @@ import { NetworkDetail } from './components/ActionDetails/generic/DetailsItem/it
 import { AddressDetail } from './components/ActionDetails/generic/DetailsItem/items/AddressDetail';
 import { getAddressByVMType, trimEndingSlash } from '@core/common';
 import { useIsUsingHardwareWallet } from '@/hooks/useIsUsingHardwareWallet';
-import { useApprovalHelpers } from './hooks';
+import { useApprovalHelpers, useFullScrollReview } from './hooks';
 import { sanitizeDappUrl } from './ApproveDappConnection/lib';
 
 type MessageApprovalScreenProps = {
@@ -68,6 +68,10 @@ export const MessageApprovalScreen: FC<MessageApprovalScreenProps> = ({
       ),
     [updateAction, action.actionId, isUsingHardwareWallet],
   );
+
+  // WSR-VERI-007: the full message must be scrolled through before signing.
+  const { containerRef: reviewContainerRef, hasReviewedAll } =
+    useFullScrollReview();
 
   const { handleApproval, handleRejection, isApprovalOverlayVisible } =
     useApprovalHelpers({
@@ -110,81 +114,95 @@ export const MessageApprovalScreen: FC<MessageApprovalScreenProps> = ({
 
   return (
     <Styled.ApprovalScreenPage>
-      <NoScrollStack>
-        {hasDappInfo(action) ? (
-          <Stack
-            mt={5}
-            py={2}
-            px={6}
-            gap={3}
-            alignItems="center"
-            justifyContent="center"
-            textAlign="center"
-          >
-            <Avatar
-              src={action.dappInfo.icon}
-              sx={{ width: 60, height: 60, background: 'transparent' }}
-            />
-            <Typography variant="body3">
-              <Trans
-                i18nKey={`<b>{{dappUrl}}</b> is requesting to sign the following message`}
-                components={{
-                  b: <b />,
-                }}
-                values={{ dappUrl: isCoreRequest ? t('Core') : dappUrl }}
+      <Box
+        ref={reviewContainerRef}
+        data-testid="message-review-container"
+        sx={{ width: '100%', height: '100%' }}
+      >
+        <NoScrollStack>
+          {hasDappInfo(action) ? (
+            <Stack
+              mt={5}
+              py={2}
+              px={6}
+              gap={3}
+              alignItems="center"
+              justifyContent="center"
+              textAlign="center"
+            >
+              <Avatar
+                src={action.dappInfo.icon}
+                sx={{ width: 60, height: 60, background: 'transparent' }}
               />
-            </Typography>
-          </Stack>
-        ) : (
-          <ApprovalScreenTitle title={t('Do you want to sign this message?')} />
-        )}
-
-        {hasNoteWarning(action) && (
-          <NoteWarning alert={action.displayData.alert} />
-        )}
-
-        <Stack flexGrow={1} px={2} gap={1.5}>
-          {(address || action.displayData.network) && (
-            <DetailsSection>
-              {address && (
-                <AddressDetail
-                  item={{
-                    label: t('Account'),
-                    type: DetailItemType.ADDRESS,
-                    value: address,
+              <Typography variant="body3">
+                <Trans
+                  i18nKey={`<b>{{dappUrl}}</b> is requesting to sign the following message`}
+                  components={{
+                    b: <b />,
                   }}
-                  network={network}
+                  values={{ dappUrl: isCoreRequest ? t('Core') : dappUrl }}
                 />
-              )}
-              {action.displayData.network && (
-                <NetworkDetail
-                  item={{
-                    label: t('Network'),
-                    type: DetailItemType.NETWORK,
-                    value: {
-                      logoUri: action.displayData.network.logoUri,
-                      name: action.displayData.network.name,
-                    },
-                  }}
-                />
-              )}
-            </DetailsSection>
+              </Typography>
+            </Stack>
+          ) : (
+            <ApprovalScreenTitle
+              title={t('Do you want to sign this message?')}
+            />
           )}
-          <ActionDetails
-            network={network}
-            action={action}
-            updateAction={updateAction}
-            error={error}
+
+          {hasNoteWarning(action) && (
+            <NoteWarning alert={action.displayData.alert} />
+          )}
+
+          <Stack flexGrow={1} px={2} gap={1.5}>
+            {(address || action.displayData.network) && (
+              <DetailsSection>
+                {address && (
+                  <AddressDetail
+                    item={{
+                      label: t('Account'),
+                      type: DetailItemType.ADDRESS,
+                      value: address,
+                    }}
+                    network={network}
+                  />
+                )}
+                {action.displayData.network && (
+                  <NetworkDetail
+                    item={{
+                      label: t('Network'),
+                      type: DetailItemType.NETWORK,
+                      value: {
+                        logoUri: action.displayData.network.logoUri,
+                        name: action.displayData.network.name,
+                      },
+                    }}
+                  />
+                )}
+              </DetailsSection>
+            )}
+            <ActionDetails
+              network={network}
+              action={action}
+              updateAction={updateAction}
+              error={error}
+            />
+          </Stack>
+          <ActionDrawer
+            open
+            approve={handleApproval}
+            reject={handleRejection}
+            isProcessing={action.status === ActionStatus.SUBMITTING}
+            withConfirmationSwitch={hasOverlayWarning(action)}
+            isDisabled={!hasReviewedAll}
+            approveHint={
+              hasReviewedAll
+                ? undefined
+                : t('Scroll to review the full message')
+            }
           />
-        </Stack>
-        <ActionDrawer
-          open
-          approve={handleApproval}
-          reject={handleRejection}
-          isProcessing={action.status === ActionStatus.SUBMITTING}
-          withConfirmationSwitch={hasOverlayWarning(action)}
-        />
-      </NoScrollStack>
+        </NoScrollStack>
+      </Box>
       {hasOverlayWarning(action) && (
         <MaliciousTxOverlay
           open={hasOverlayWarning(action)}
