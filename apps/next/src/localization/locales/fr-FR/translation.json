@@ -74,6 +74,7 @@
   "Alternatively, open any authenticator app and enter this code:": "Sinon, ouvrez une application d’authentification et saisissez ce code :",
   "Amount": "Montant",
   "Amount exceeds withdrawable HyperCore balance": "Le montant dépasse le solde HyperCore retirable",
+  "Amount higher than available balance. Staked and locked funds cannot be transferred.": "Amount higher than available balance. Staked and locked funds cannot be transferred.",
   "Amount higher than balance.": "Montant supérieur au solde.",
   "Amount is too low": "Le montant est trop faible",
   "An error occurred while changing the derivation path. Please try again.": "Une erreur s’est produite lors du changement du chemin de dérivation. Veuillez réessayer.",
