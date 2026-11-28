@@ -74,6 +74,7 @@
   "Alternatively, open any authenticator app and enter this code:": "Или откройте любое приложение-аутентификатор и введите этот код:",
   "Amount": "Сумма",
   "Amount exceeds withdrawable HyperCore balance": "Сумма превышает подлежащий выводу баланс HyperCore",
+  "Amount higher than available balance. Staked and locked funds cannot be transferred.": "Amount higher than available balance. Staked and locked funds cannot be transferred.",
   "Amount higher than balance.": "Сумма превышает баланс.",
   "Amount is too low": "Сумма слишком мала",
   "An error occurred while changing the derivation path. Please try again.": "Произошла ошибка при изменении пути деривации. Попробуйте снова.",
