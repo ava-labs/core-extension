@@ -74,6 +74,7 @@
   "Alternatively, open any authenticator app and enter this code:": "또는 Authenticator 앱을 열고 이 코드를 입력하세요:",
   "Amount": "금액",
   "Amount exceeds withdrawable HyperCore balance": "출금 가능한 하이퍼코어 잔액을 초과한 금액",
+  "Amount higher than available balance. Staked and locked funds cannot be transferred.": "Amount higher than available balance. Staked and locked funds cannot be transferred.",
   "Amount higher than balance.": "잔액을 초과하는 금액입니다.",
   "Amount is too low": "금액이 너무 낮습니다",
   "An error occurred while changing the derivation path. Please try again.": "파생 경로를 변경하는 중 오류가 발생했습니다. 다시 시도해 주세요.",
