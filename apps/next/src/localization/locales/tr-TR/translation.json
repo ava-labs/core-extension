@@ -74,6 +74,7 @@
   "Alternatively, open any authenticator app and enter this code:": "Alternatif olarak, herhangi bir authenticator uygulamasını açın ve bu kodu girin:",
   "Amount": "Tutar",
   "Amount exceeds withdrawable HyperCore balance": "Tutar çekilebilir HyperCore bakiyesini aşıyor",
+  "Amount higher than available balance. Staked and locked funds cannot be transferred.": "Amount higher than available balance. Staked and locked funds cannot be transferred.",
   "Amount higher than balance.": "Tutar bakiyeden fazla.",
   "Amount is too low": "Miktar çok düşük",
   "An error occurred while changing the derivation path. Please try again.": "Türetme yolu değiştirilirken bir hata oluştu. Lütfen tekrar deneyin.",
