@@ -75,7 +75,7 @@
     "firebase": "11.6.0",
     "fireblocks-sdk": "5.20.0",
     "hypersdk-client": "0.4.17",
-    "i18next": "21.9.2",
+    "i18next": "26.3.4",
     "i18next-http-backend": "1.4.4",
     "joi": "17.7.0",
     "jose": "4.15.5",
